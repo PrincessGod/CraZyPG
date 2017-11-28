@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CraZyPG</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        div {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="glpaper"></canvas>
+    </div>
+    <script src="./gl.js"></script>
+    <script>
+        CZPG.getContext('glpaper').setSize('400px', '300px').clear();
+    </script>
+</body>
+</html>
