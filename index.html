@@ -32,6 +32,25 @@
         <canvas id="glpaper"></canvas>
     </div>
     <script src="./gl.js"></script>
+    <script id="v-shader" type="shader">#versition 300 es
+        in vec3 a_position;
+
+        uniform float uPointSize;
+
+        void main() {
+            gl_PointSize = uPointSize;
+            gl_Position = vec4(a_position, 1.0);
+        }
+    </script>
+    <script id="f-shader" type="shader">#versition 300 es
+        precision mediump float;
+
+        out vec4 finalColor;
+
+        void main() {
+            finalColor = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+    </script>
     <script>
         CZPG.getContext('glpaper').setSize('400px', '300px').clear();
     </script>
