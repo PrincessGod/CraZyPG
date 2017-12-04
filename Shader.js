@@ -22,10 +22,17 @@ class ShaderUtil{
         return shader;
     }
 
-    static createProgram(gl, vs, fs, doValidate) {
+    static createProgram(gl, vs, fs, doValidate = true) {
+        if(vs.length < 20) {
+            vs = this.createShader(gl, this.getDomSrc(vs), gl.VERTEX_SHADER);
+        }
+        if(fs.length < 20) {
+            fs = this.createShader(gl, this.getDomSrc(fs), gl.FRAGMENT_SHADER);
+        }
+
         let prog = gl.createProgram();
-        gl.attchShader(prog, vs);
-        gl.attchShader(prog, fs);
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
         gl.linkProgram(prog);
 
         if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
@@ -42,5 +49,12 @@ class ShaderUtil{
                 return null;
             }
         }
+
+        gl.detachShader(prog, vs);
+        gl.detachShader(prog, fs);
+        gl.deleteShader(vs);
+        gl.deleteShader(fs);
+
+        return prog;
     }
 }

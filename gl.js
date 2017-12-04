@@ -1,12 +1,11 @@
 const CZPG = {};
 function getContext(canvasId) {
     let canvas = document.getElementById(canvasId);
-    var gl = canvas.getContext('webgl2');
+    let gl = canvas.getContext('webgl2');
     if(!gl) {
         console.error("Please use a decent browser, this browser not support Webgl2Context.");
         return null;
     }
-    console.log(gl);
     CZPG.gl = gl;
     return CZPG;
 }
@@ -18,13 +17,15 @@ function clear() {
     return CZPG;
 }
 
-function setSize(width, height) {
+function setSize(width, height, mutiplier) {
     let gl = this.gl;
+    mutiplier = mutiplier || 1.0;
+    mutiplier = Math.max(0, mutiplier);
     gl.canvas.style.width = width;
     gl.canvas.style.height = height;
-    gl.canvas.width = gl.canvas.clientWidth;
-    gl.canvas.height = gl.canvas.clientHeight;
-    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.canvas.width = gl.canvas.clientWidth * mutiplier;
+    gl.canvas.height = gl.canvas.clientHeight * mutiplier;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     return CZPG;
 }
 
