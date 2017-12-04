@@ -29,4 +29,13 @@ function setSize(width, height, mutiplier) {
     return CZPG;
 }
 
-Object.assign(CZPG, {getContext, clear, setSize});
+function createArrayBuffer(array, isStatic = true) {
+    let gl = this.gl;
+    let buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, array, isStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    return buffer;
+}
+
+Object.assign(CZPG, {getContext, clear, setSize, createArrayBuffer});

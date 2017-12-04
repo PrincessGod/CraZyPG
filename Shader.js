@@ -24,10 +24,16 @@ class ShaderUtil{
 
     static createProgram(gl, vs, fs, doValidate = true) {
         if(vs.length < 20) {
-            vs = this.createShader(gl, this.getDomSrc(vs), gl.VERTEX_SHADER);
+            let src = this.getDomSrc(vs);
+            if(!src) { return null; }
+            vs = this.createShader(gl, src, gl.VERTEX_SHADER);
+            if(!vs) { return null; }
         }
         if(fs.length < 20) {
-            fs = this.createShader(gl, this.getDomSrc(fs), gl.FRAGMENT_SHADER);
+            let src = this.getDomSrc(fs);
+            if(!src) { return null; }
+            fs = this.createShader(gl, src, gl.FRAGMENT_SHADER);
+            if(!vs) { return null; }
         }
 
         let prog = gl.createProgram();
