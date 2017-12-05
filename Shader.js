@@ -23,17 +23,23 @@ class ShaderUtil{
     }
 
     static createProgram(gl, vs, fs, doValidate = true) {
-        if(vs.length < 20) {
+        if(!(vs instanceof WebGLShader) && vs.length < 20) {
             let src = this.getDomSrc(vs);
             if(!src) { return null; }
             vs = this.createShader(gl, src, gl.VERTEX_SHADER);
             if(!vs) { return null; }
+        } else if(!(vs instanceof WebGLShader)) {
+            vs = this.createShader(gl, vs, gl.VERTEX_SHADER);
+            if(!vs) { return null; }
         }
-        if(fs.length < 20) {
+        if(!(fs instanceof WebGLShader) && fs.length < 20) {
             let src = this.getDomSrc(fs);
             if(!src) { return null; }
             fs = this.createShader(gl, src, gl.FRAGMENT_SHADER);
-            if(!vs) { return null; }
+            if(!fs) { return null; }
+        } else if(!(fs instanceof WebGLShader)) {
+            fs = this.createShader(gl, fs, gl.FRAGMENT_SHADER);
+            if(!fs) { return null; }            
         }
 
         let prog = gl.createProgram();
