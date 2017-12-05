@@ -33,6 +33,7 @@
     </div>
     <script src="./gl.js"></script>
     <script src="./Shader.js"></script>
+    <script src="./Render.js"></script>
     <script id="v-shader" type="shader">#version 300 es
         in vec3 a_Position;
         in vec3 a_Color;
@@ -74,7 +75,6 @@
         let colorBuffer = CZPG.createArrayBuffer(colorArray);
 
         gl.useProgram(prog);
-        gl.uniform1f(uLocation, 30.0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.enableVertexAttribArray(aLocation);
@@ -86,7 +86,16 @@
         gl.vertexAttribPointer(cLocation, 3, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.drawArrays(gl.POINTS, 0, 2);
+        var time = 0;
+        let pointSzie = 0;
+        let loop = new Render(function(timespan) {
+            time = (time + timespan);
+            pointSzie = Math.sin(time) * 20 + 30;
+            gl.uniform1f(uLocation, pointSzie);
+            CZPG.clear();
+            gl.drawArrays(gl.POINTS, 0, 2);
+        }).start();
+
     </script>
 </body>
 </html>
