@@ -36,15 +36,17 @@
     <script src="./Shader.js"></script>
     <script src="./Modal.js"></script>
     <script src="./Render.js"></script>
+    <script src="./Primatives.js"></script>
     <script id="v-shader" type="shader">#version 300 es
         in vec3 a_Position;
-        in vec3 a_Color;
+        layout(location=4) in float a_Color;
 
-        uniform float u_PointSize;
+        uniform vec3 u_Colors[4];
+
         out vec3 v_Color;
+
         void main() {
-            v_Color = a_Color;
-            gl_PointSize = u_PointSize;
+            v_Color = u_Colors[int(a_Color)];
             gl_Position = vec4(a_Position, 1.0);
         }
     </script>
@@ -60,11 +62,12 @@
     </script>
     <script>
         class PlayShader extends Shader{
-            constructor(gl) {
+            constructor(gl, colorArray) {
                 let vs = 'v-shader';
                 let fs = 'f-shader';
                 super(gl, vs, fs);
-                this.uniformLoc.pointSzie = gl.getUniformLocation(this.program, 'u_PointSize');
+                var colorLoc = gl.getUniformLocation(this.program, 'u_Colors');
+                gl.uniform3fv(colorLoc, colorArray);
                 gl.useProgram(null);
             }
 
@@ -74,22 +77,16 @@
             }
         }
 
-        CZPG.getContext('glpaper').setSize('400px', '300px', window.devicePixelRatio).clear();
+        CZPG.getContext('glpaper').setSize('400px', '400px', window.devicePixelRatio).clear();
 
-        let shader = new PlayShader(CZPG.gl);
+        let shader = new PlayShader(CZPG.gl, [0.5,0.5,0.5, 1,0,0, 0,1,0, 0,0,1]);
 
-        let mesh = CZPG.createMeshVAO('point', null, [0, 0, 0]);
-        mesh.drawMode = CZPG.gl.POINTS;
-
+        let mesh = Primatives.GridAxis.createMesh(CZPG.gl);
         let modal = new Modal(mesh);
 
-        var time = 0;
-        let pointSzie = 0;
         let loop = new Render(function(timespan) {
             CZPG.clear();
-            time = (time + timespan);
-            pointSzie = Math.sin(time) * 20 + 30;
-            shader.activate().set(pointSzie).renderModal(modal);
+            shader.activate().renderModal(modal);
         }).start();
     </script>
 </body>
