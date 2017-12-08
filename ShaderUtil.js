@@ -82,4 +82,12 @@ class ShaderUtil{
             uv: gl.getAttribLocation(program, VTX_ATTR_UV_NAME)
         };
     }
+
+    static getDefaultUnifomLocation(gl, program) {
+        return {
+            perspective: gl.getUniformLocation(program, 'u_proj'),
+            view: gl.getUniformLocation(program, 'u_view'),
+            world: gl.getUniformLocation(program, 'u_world')
+        }
+    }
 }

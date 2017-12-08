@@ -31,9 +31,11 @@
     <div>
         <canvas id="glpaper"></canvas>
     </div>
+    <script src="./Math.js"></script>
     <script src="./gl.js"></script>
     <script src="./ShaderUtil.js"></script>
     <script src="./Shader.js"></script>
+    <script src="./Transform.js"></script>
     <script src="./Modal.js"></script>
     <script src="./Render.js"></script>
     <script src="./Primatives.js"></script>
@@ -41,13 +43,14 @@
         in vec3 a_Position;
         layout(location=4) in float a_Color;
 
+        uniform mat4 u_world;
         uniform vec3 u_Colors[4];
 
         out vec3 v_Color;
 
         void main() {
             v_Color = u_Colors[int(a_Color)];
-            gl_Position = vec4(a_Position, 1.0);
+            gl_Position = u_world * vec4(a_Position, 1.0);
         }
     </script>
     <script id="f-shader" type="shader">#version 300 es
@@ -84,9 +87,15 @@
         let mesh = Primatives.GridAxis.createMesh(CZPG.gl);
         let modal = new Modal(mesh);
 
+        let v = 0;
         let loop = new Render(function(timespan) {
             CZPG.clear();
-            shader.activate().renderModal(modal);
+            v += timespan;
+            modal.addRotation(0, 0, timespan * 30);
+            modal.setScale(1 + Math.sin(v), 1 + Math.cos(v), 0);
+            modal.setPosition(0.1 * Math.sin(v), 0.1 * Math.cos(v), 0);
+
+            shader.activate().renderModal(modal.preRender());
         }).start();
     </script>
 </body>

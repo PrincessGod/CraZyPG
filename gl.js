@@ -8,7 +8,7 @@ const VTX_ATTR_UV_LOC = 2;
 
 function getContext(canvasId) {
     let canvas = document.getElementById(canvasId);
-    let gl = canvas.getContext('webgl2');
+    let gl = canvas.getContext('webgl2', {antialias: true});
     let meshs = {};
     if(!gl) {
         console.error("Please use a decent browser, this browser not support Webgl2Context.");
