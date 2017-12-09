@@ -1,7 +1,7 @@
 class Modal{
     constructor(mesh){
         this.mesh = mesh;
-        this.transform = new Transfrom();
+        this.transform = new Transform();
     }
 
     setScale(x, y, z) {

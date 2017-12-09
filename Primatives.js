@@ -2,7 +2,7 @@ let Primatives = {};
 Primatives.GridAxis = class{
     static createMesh(gl) {
         let vertices = [];
-        let size = 1.8;
+        let size = 2;
         let div = 10.0;
         let step = size / div;
         let half = size / 2;
@@ -11,23 +11,23 @@ Primatives.GridAxis = class{
         for(let i = 0; i <= div; i++) {
             p = -half + (i * step);
             vertices.push(p);
+            vertices.push(0);
             vertices.push(half);
             vertices.push(0);
-            vertices.push(0);
 
             vertices.push(p);
-            vertices.push(-half);
             vertices.push(0);
+            vertices.push(-half);
             vertices.push(0);
 
             vertices.push(-half);
-            vertices.push(p);
             vertices.push(0);
+            vertices.push(p);
             vertices.push(0);
 
             vertices.push(half);
-            vertices.push(p);
             vertices.push(0);
+            vertices.push(p);
             vertices.push(0);
         }
 
@@ -44,11 +44,21 @@ Primatives.GridAxis = class{
         vertices.push(0);
         vertices.push(-half);
         vertices.push(0);
-        vertices.push(3);
+        vertices.push(2);
 
         vertices.push(0);
         vertices.push(half);
         vertices.push(0);
+        vertices.push(2);
+
+        vertices.push(0);
+        vertices.push(0);
+        vertices.push(-half);
+        vertices.push(3);
+
+        vertices.push(0);
+        vertices.push(0);
+        vertices.push(half);
         vertices.push(3);
 
         let attrColorLoc = 4;

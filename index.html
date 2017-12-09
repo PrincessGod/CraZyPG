@@ -39,63 +39,25 @@
     <script src="./Modal.js"></script>
     <script src="./Render.js"></script>
     <script src="./Primatives.js"></script>
-    <script id="v-shader" type="shader">#version 300 es
-        in vec3 a_Position;
-        layout(location=4) in float a_Color;
-
-        uniform mat4 u_world;
-        uniform vec3 u_Colors[4];
-
-        out vec3 v_Color;
-
-        void main() {
-            v_Color = u_Colors[int(a_Color)];
-            gl_Position = u_world * vec4(a_Position, 1.0);
-        }
-    </script>
-    <script id="f-shader" type="shader">#version 300 es
-        precision mediump float;
-
-        in vec3 v_Color;
-        out vec4 finalColor;
-
-        void main() {
-            finalColor = vec4(v_Color, 1.0);
-        }
-    </script>
+    <script src="./OrbitCamera.js"></script>
+    <script src="./ShaderLib.js"></script>
     <script>
-        class PlayShader extends Shader{
-            constructor(gl, colorArray) {
-                let vs = 'v-shader';
-                let fs = 'f-shader';
-                super(gl, vs, fs);
-                var colorLoc = gl.getUniformLocation(this.program, 'u_Colors');
-                gl.uniform3fv(colorLoc, colorArray);
-                gl.useProgram(null);
-            }
-
-            set (size) {
-                this.gl.uniform1f(this.uniformLoc.pointSzie, size);
-                return this;
-            }
-        }
-
         CZPG.getContext('glpaper').setSize('400px', '400px', window.devicePixelRatio).clear();
 
-        let shader = new PlayShader(CZPG.gl, [0.5,0.5,0.5, 1,0,0, 0,1,0, 0,0,1]);
+        let camera = new OrbitCamera(45, CZPG.gl.canvas.width / CZPG.gl.canvas.height, 0.1, 1000);
+        camera.transform.position.set(0, 1, 3);
+        let cameraControler = new CameraController(CZPG.gl, camera);
+
+        let shader = new GridAxisShader(CZPG.gl, camera.perspectionMatrix);
 
         let mesh = Primatives.GridAxis.createMesh(CZPG.gl);
         let modal = new Modal(mesh);
 
-        let v = 0;
         let loop = new Render(function(timespan) {
             CZPG.clear();
-            v += timespan;
-            modal.addRotation(0, 0, timespan * 30);
-            modal.setScale(1 + Math.sin(v), 1 + Math.cos(v), 0);
-            modal.setPosition(0.1 * Math.sin(v), 0.1 * Math.cos(v), 0);
-
-            shader.activate().renderModal(modal.preRender());
+            camera.updateViewMatrix();
+            shader.activate().setViewMatrix(camera.viewMatrix)
+                .renderModal(modal.preRender());
         }).start();
     </script>
 </body>

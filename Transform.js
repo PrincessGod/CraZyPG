@@ -1,4 +1,4 @@
-class Transfrom{
+class Transform{
     constructor() {
         this.position = new Vector3(0, 0, 0);
         this.scale = new Vector3(1, 1, 1);
@@ -14,9 +14,9 @@ class Transfrom{
     updateMatrix() {
         this.matLocal.reset()
             .vtranslate(this.position)
-            .rotateZ(this.rotation.z * Transfrom.deg2Rad)
-            .rotateX(this.rotation.x * Transfrom.deg2Rad)
-            .rotateY(this.rotation.y * Transfrom.deg2Rad)
+            .rotateZ(this.rotation.z * Transform.deg2Rad)
+            .rotateX(this.rotation.x * Transform.deg2Rad)
+            .rotateY(this.rotation.y * Transform.deg2Rad)
             .vscale(this.scale);
 
         Matrix4.normalMat3(this.matNormal, this.matLocal.raw);
@@ -50,4 +50,4 @@ class Transfrom{
     }
 }
 
-Transfrom.deg2Rad = Math.PI / 180;
+Transform.deg2Rad = Math.PI / 180;
