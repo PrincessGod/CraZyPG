@@ -6,7 +6,7 @@
   "scripts": {
     "build": "set NODE_ENV=combine&& rollup -c",
     "build-min": "rollup -c",
-    "build-module": "rollup -c rollup.module.js"
+    "build-module": "set NODE_ENV=module&&rollup -c"
   },
   "repository": {
     "type": "git",
