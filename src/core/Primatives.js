@@ -1,17 +1,17 @@
-import * as Locations from './constant.js';
-import * as properties from './properties.js';
+import * as Locations from './constant';
+import * as properties from './properties';
 
-let Primatives = {};
-Primatives.GridAxis = class{
+const Primatives = {};
+Primatives.GridAxis = class {
     static createMesh(gl) {
-        let vertices = [];
-        let size = 2;
-        let div = 10.0;
-        let step = size / div;
-        let half = size / 2;
+        const vertices = [];
+        const size = 2;
+        const div = 10.0;
+        const step = size / div;
+        const half = size / 2;
 
         let p;
-        for(let i = 0; i <= div; i++) {
+        for (let i = 0; i <= div; i++) {
             p = -half + (i * step);
             vertices.push(p);
             vertices.push(0);
@@ -64,16 +64,15 @@ Primatives.GridAxis = class{
         vertices.push(half);
         vertices.push(3);
 
-        let attrColorLoc = 4;
-        let strideLen;
-        let mesh = {
+        const attrColorLoc = 4;
+        const mesh = {
             drawMode: gl.LINES,
-            vao: gl.createVertexArray()
+            vao: gl.createVertexArray(),
         };
 
         mesh.vtxComponents = 4;
         mesh.vtxCount = vertices.length / mesh.vtxComponents;
-        strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
+        const strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
 
         mesh.vtxBuffer = gl.createBuffer();
         gl.bindVertexArray(mesh.vao);
@@ -88,7 +87,7 @@ Primatives.GridAxis = class{
             gl.FLOAT,
             false,
             strideLen,
-            0
+            0,
         );
 
         gl.vertexAttribPointer(
@@ -97,12 +96,12 @@ Primatives.GridAxis = class{
             gl.FLOAT,
             false,
             strideLen,
-            Float32Array.BYTES_PER_ELEMENT * 3
+            Float32Array.BYTES_PER_ELEMENT * 3,
         );
 
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         gl.bindVertexArray(null);
-        properties.meshs['gridAxis'] = mesh;
+        properties.meshs.gridAxis = mesh;
         return mesh;
     }
 };

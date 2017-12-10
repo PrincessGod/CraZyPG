@@ -1,6 +1,6 @@
-import { Vector3, Matrix4 } from './Math.js';
+import { Vector3, Matrix4 } from './Math';
 
-class Transform{
+class Transform {
     constructor() {
         this.position = new Vector3(0, 0, 0);
         this.scale = new Vector3(1, 1, 1);

@@ -1,7 +1,7 @@
-import { Transform } from './Transform.js';
+import { Transform } from './Transform';
 
-class Modal{
-    constructor(mesh){
+class Modal {
+    constructor(mesh) {
         this.mesh = mesh;
         this.transform = new Transform();
     }

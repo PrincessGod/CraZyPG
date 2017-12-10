@@ -1,7 +1,8 @@
-import { Transform } from './Transform.js';
-import { Matrix4 } from './Math.js';
+/* eslint no-multi-assign: 0 */
+import { Transform } from './Transform';
+import { Matrix4 } from './Math';
 
-class OrbitCamera{
+class OrbitCamera {
     constructor(fov, ratio, near, far) {
         this.perspectionMatrix = new Float32Array(16);
         Matrix4.perspective(this.perspectionMatrix, fov, ratio, near, far);
@@ -13,7 +14,7 @@ class OrbitCamera{
     }
 
     panX(v) {
-        if(this.mode === OrbitCamera.MODE_ORBIT) {
+        if (this.mode === OrbitCamera.MODE_ORBIT) {
             return;
         }
         this.updateViewMatrix();
@@ -25,7 +26,7 @@ class OrbitCamera{
     panY(v) {
         this.updateViewMatrix();
         this.transform.position.y += this.transform.up[1] * v;
-        if(this.mode === OrbitCamera.MODE_ORBIT) {
+        if (this.mode === OrbitCamera.MODE_ORBIT) {
             return;
         }
         this.transform.position.x += this.transform.up[0] * v;
@@ -34,7 +35,7 @@ class OrbitCamera{
 
     panZ(v) {
         this.updateViewMatrix();
-        if(this.mode === OrbitCamera.MODE_ORBIT) {
+        if (this.mode === OrbitCamera.MODE_ORBIT) {
             this.transform.position.z += v;
         } else {
             this.transform.position.x += this.transform.forward[0] * v;
@@ -44,7 +45,7 @@ class OrbitCamera{
     }
 
     updateViewMatrix() {
-        if(this.mode === OrbitCamera.MODE_FREE) {
+        if (this.mode === OrbitCamera.MODE_FREE) {
             this.transform.matLocal.reset()
                 .vtranslate(this.transform.position)
                 .rotateY(this.transform.rotation.y * Transform.deg2Rad)
@@ -67,10 +68,10 @@ OrbitCamera.MODE_FREE = 0;
 OrbitCamera.MODE_ORBIT = 1;
 
 
-class CameraController{
+class CameraController {
     constructor(gl, camera) {
-        let self = this;
-        let box = gl.canvas.getBoundingClientRect();
+        const self = this;
+        const box = gl.canvas.getBoundingClientRect();
         this.canvas = gl.canvas;
         this.camera = camera;
 
@@ -86,17 +87,17 @@ class CameraController{
         this.prevX = 0;
         this.prevY = 0;
 
-        this.onUpHandler = function(e) {
+        this.onUpHandler = function (e) {
             self.onMouseUp(e);
         };
-        this.onMoveHandler = function(e) {
+        this.onMoveHandler = function (e) {
             self.onMouseMove(e);
         };
 
-        this.canvas.addEventListener('mousedown', function(e) {
+        this.canvas.addEventListener('mousedown', (e) => {
             self.onMouseDown(e);
         });
-        this.canvas.addEventListener('mousewheel', function(e) {
+        this.canvas.addEventListener('mousewheel', (e) => {
             self.onMouseWheel(e);
         });
     }
@@ -104,7 +105,7 @@ class CameraController{
     getMouseVec2(e) {
         return {
             x: e.pageX - this.offsetX,
-            y: e.pageY - this.offsetY
+            y: e.pageY - this.offsetY,
         };
     }
 
@@ -122,17 +123,17 @@ class CameraController{
     }
 
     onMouseWheel(e) {
-        let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+        const delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
         this.camera.panZ(delta * (this.zoomRate / this.canvas.height));
     }
 
     onMouseMove(e) {
-        let x = e.pageX - this.offsetX;
-        let y = e.pageY - this.offsetY;
-        let dx = x - this.prevX;
-        let dy = y - this.prevY;
+        const x = e.pageX - this.offsetX;
+        const y = e.pageY - this.offsetY;
+        const dx = x - this.prevX;
+        const dy = y - this.prevY;
 
-        if(!e.shiftKey) {
+        if (!e.shiftKey) {
             this.camera.transform.rotation.y += dx * (this.rotateRate / this.canvas.width);
             this.camera.transform.rotation.x += dy * (this.rotateRate / this.canvas.height);
         } else {

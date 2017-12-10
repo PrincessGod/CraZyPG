@@ -1,38 +1,37 @@
-import * as Locations from './constant.js';
+/* eslint prefer-destructuring: 0 */
+import * as Locations from './constant';
+import { meshs } from './properties';
 
+let gl; // eslint-disable-line
 export function getContext(canvasId) {
-    let canvas = document.getElementById(canvasId);
-    let gl = canvas.getContext('webgl2', {antialias: true});
-    if(!gl) {
+    const canvas = document.getElementById(canvasId);
+    gl = canvas.getContext('webgl2', { antialias: true });
+    if (!gl) {
         console.error('Please use a decent browser, this browser not support Webgl2Context.');
         return null;
     }
-    this.gl = gl;
     return this;
 }
 
 export function clear() {
-    let gl = this.gl;
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     return this;
 }
 
 export function setSize(width, height, mutiplier) {
-    let gl = this.gl;
-    mutiplier = mutiplier || 1.0;
-    mutiplier = Math.max(0, mutiplier);
+    let muti = mutiplier || 1.0;
+    muti = Math.max(0, muti);
     gl.canvas.style.width = width;
     gl.canvas.style.height = height;
-    gl.canvas.width = gl.canvas.clientWidth * mutiplier;
-    gl.canvas.height = gl.canvas.clientHeight * mutiplier;
+    gl.canvas.width = gl.canvas.clientWidth * muti;
+    gl.canvas.height = gl.canvas.clientHeight * muti;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     return this;
 }
 
 export function createArrayBuffer(array, isStatic = true) {
-    let gl = this.gl;
-    let buffer = gl.createBuffer();
+    const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, array, isStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -40,13 +39,12 @@ export function createArrayBuffer(array, isStatic = true) {
 }
 
 export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
-    let gl = this.gl;
-    var mesh = { darwMode: gl.TRIANGLES };
+    const mesh = { darwMode: gl.TRIANGLES };
 
     mesh.vao = gl.createVertexArray();
     gl.bindVertexArray(mesh.vao);
 
-    if(indexArray !== undefined && indexArray !== null) {
+    if (indexArray !== undefined && indexArray !== null) {
         mesh.indexBuffer = gl.createBuffer();
         mesh.indexCount = indexArray.length;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
@@ -54,18 +52,18 @@ export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
-    if(vtxArray !== undefined && vtxArray !== null) {
+    if (vtxArray !== undefined && vtxArray !== null) {
         mesh.vtxBuffer = gl.createBuffer();
         mesh.vtxComponents = 3;
         mesh.vtxCount = vtxArray.length / mesh.vtxComponents;
-        
+
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vtxBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vtxArray), gl.STATIC_DRAW);
         gl.enableVertexAttribArray(Locations.VTX_ATTR_POSITION_LOC);
         gl.vertexAttribPointer(Locations.VTX_ATTR_POSITION_LOC, 3, gl.FLOAT, false, 0, 0);
     }
 
-    if(normalArray !== undefined && normalArray !== null) {
+    if (normalArray !== undefined && normalArray !== null) {
         mesh.normalBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
@@ -74,7 +72,7 @@ export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) 
         gl.vertexAttribPointer(Locations.VTX_ATTR_NORMAL_LOC, 3, gl.FLOAT, false, 0, 0);
     }
 
-    if(uvArray !== undefined && uvArray !== null) {
+    if (uvArray !== undefined && uvArray !== null) {
         mesh.uvBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvBuffer);
@@ -86,6 +84,8 @@ export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.bindVertexArray(null);
 
-    this.meshs[name] = mesh;
+    meshs[name] = mesh;
     return mesh;
 }
+
+export { gl };

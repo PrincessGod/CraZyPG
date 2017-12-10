@@ -7,32 +7,31 @@ var VTX_ATTR_NORMAL_LOC = 1;
 var VTX_ATTR_UV_NAME = 'a_uv';
 var VTX_ATTR_UV_LOC = 2;
 
+/* eslint prefer-destructuring: 0 */
+var gl = void 0; // eslint-disable-line
 function getContext(canvasId) {
     var canvas = document.getElementById(canvasId);
-    var gl = canvas.getContext('webgl2', { antialias: true });
+    gl = canvas.getContext('webgl2', { antialias: true });
     if (!gl) {
         console.error('Please use a decent browser, this browser not support Webgl2Context.');
         return null;
     }
-    this.gl = gl;
     return this;
 }
 
 function clear() {
-    var gl = this.gl;
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     return this;
 }
 
 function setSize(width, height, mutiplier) {
-    var gl = this.gl;
-    mutiplier = mutiplier || 1.0;
-    mutiplier = Math.max(0, mutiplier);
+    var muti = mutiplier || 1.0;
+    muti = Math.max(0, muti);
     gl.canvas.style.width = width;
     gl.canvas.style.height = height;
-    gl.canvas.width = gl.canvas.clientWidth * mutiplier;
-    gl.canvas.height = gl.canvas.clientHeight * mutiplier;
+    gl.canvas.width = gl.canvas.clientWidth * muti;
+    gl.canvas.height = gl.canvas.clientHeight * muti;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     return this;
 }
@@ -40,7 +39,6 @@ function setSize(width, height, mutiplier) {
 function createArrayBuffer(array) {
     var isStatic = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-    var gl = this.gl;
     var buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, array, isStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
@@ -49,7 +47,6 @@ function createArrayBuffer(array) {
 }
 
 function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
-    var gl = this.gl;
     var mesh = { darwMode: gl.TRIANGLES };
 
     mesh.vao = gl.createVertexArray();
@@ -95,7 +92,7 @@ function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.bindVertexArray(null);
 
-    this.meshs[name] = mesh;
+    meshs[name] = mesh;
     return mesh;
 }
 
@@ -165,6 +162,7 @@ var possibleConstructorReturn = function (self, call) {
   return call && (typeof call === "object" || typeof call === "function") ? call : self;
 };
 
+/* eslint-disable */
 var Vector3 = function () {
     function Vector3(x, y, z) {
         classCallCheck(this, Vector3);
@@ -983,7 +981,6 @@ Primatives.GridAxis = function () {
             vertices.push(3);
 
             var attrColorLoc = 4;
-            var strideLen = void 0;
             var mesh = {
                 drawMode: gl.LINES,
                 vao: gl.createVertexArray()
@@ -991,7 +988,7 @@ Primatives.GridAxis = function () {
 
             mesh.vtxComponents = 4;
             mesh.vtxCount = vertices.length / mesh.vtxComponents;
-            strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
+            var strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
 
             mesh.vtxBuffer = gl.createBuffer();
             gl.bindVertexArray(mesh.vao);
@@ -1006,13 +1003,14 @@ Primatives.GridAxis = function () {
 
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
             gl.bindVertexArray(null);
-            meshs['gridAxis'] = mesh;
+            meshs.gridAxis = mesh;
             return mesh;
         }
     }]);
     return _class;
 }();
 
+/* eslint no-multi-assign: 0 */
 var OrbitCamera = function () {
     function OrbitCamera(fov, ratio, near, far) {
         classCallCheck(this, OrbitCamera);
@@ -1238,8 +1236,8 @@ var ShaderUtil = function () {
         key: 'getDomSrc',
         value: function getDomSrc(id) {
             var ele = document.getElementById(id);
-            if (!ele || ele.textContent == '') {
-                console.error(id + ' shader element not have text.');
+            if (!ele || ele.textContent === '') {
+                console.error(id + ' shader element dose not have text.');
                 return null;
             }
             return ele.textContent;
@@ -1264,18 +1262,20 @@ var ShaderUtil = function () {
         value: function createProgram(gl, vs, fs) {
             var doValidate = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
+            var vShader = void 0;
+            var fShader = void 0;
             if (!(vs instanceof WebGLShader) && vs.length < 20) {
                 var src = this.getDomSrc(vs);
                 if (!src) {
                     return null;
                 }
-                vs = this.createShader(gl, src, gl.VERTEX_SHADER);
-                if (!vs) {
+                vShader = this.createShader(gl, src, gl.VERTEX_SHADER);
+                if (!vShader) {
                     return null;
                 }
             } else if (!(vs instanceof WebGLShader)) {
-                vs = this.createShader(gl, vs, gl.VERTEX_SHADER);
-                if (!vs) {
+                vShader = this.createShader(gl, vs, gl.VERTEX_SHADER);
+                if (!vShader) {
                     return null;
                 }
             }
@@ -1284,22 +1284,22 @@ var ShaderUtil = function () {
                 if (!_src) {
                     return null;
                 }
-                fs = this.createShader(gl, _src, gl.FRAGMENT_SHADER);
-                if (!fs) {
+                fShader = this.createShader(gl, _src, gl.FRAGMENT_SHADER);
+                if (!fShader) {
                     return null;
                 }
             } else if (!(fs instanceof WebGLShader)) {
-                fs = this.createShader(gl, fs, gl.FRAGMENT_SHADER);
-                if (!fs) {
+                fShader = this.createShader(gl, fs, gl.FRAGMENT_SHADER);
+                if (!fShader) {
                     return null;
                 }
             }
 
             var prog = gl.createProgram();
-            gl.attachShader(prog, vs);
-            gl.attachShader(prog, fs);
+            gl.attachShader(prog, vShader);
+            gl.attachShader(prog, fShader);
 
-            gl.bindAttribLocation(prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME);
+            gl.bindAttribLocation(prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME); // eslint-disable-line
             gl.bindAttribLocation(prog, VTX_ATTR_NORMAL_LOC, VTX_ATTR_NORMAL_NAME);
             gl.bindAttribLocation(prog, VTX_ATTR_UV_LOC, VTX_ATTR_UV_NAME);
 
@@ -1320,10 +1320,10 @@ var ShaderUtil = function () {
                 }
             }
 
-            gl.detachShader(prog, vs);
-            gl.detachShader(prog, fs);
-            gl.deleteShader(vs);
-            gl.deleteShader(fs);
+            gl.detachShader(prog, vShader);
+            gl.detachShader(prog, fShader);
+            gl.deleteShader(vShader);
+            gl.deleteShader(fShader);
 
             return prog;
         }
@@ -1403,7 +1403,8 @@ var Shader = function () {
         }
     }, {
         key: 'preRender',
-        value: function preRender() {}
+        value: function preRender() {} // eslint-disable-line
+
     }, {
         key: 'renderModal',
         value: function renderModal(modal) {
@@ -1446,5 +1447,5 @@ var GridAxisShader = function (_Shader) {
     return GridAxisShader;
 }(Shader);
 
-export { Transform, Modal, Primatives, OrbitCamera, CameraController, Render, ShaderUtil, Shader, GridAxisShader, meshs, VTX_ATTR_POSITION_NAME, VTX_ATTR_POSITION_LOC, VTX_ATTR_NORMAL_NAME, VTX_ATTR_NORMAL_LOC, VTX_ATTR_UV_NAME, VTX_ATTR_UV_LOC, getContext, clear, setSize, createArrayBuffer, createMeshVAO, Vector3, Matrix4 };
+export { Transform, Modal, Primatives, OrbitCamera, CameraController, Render, ShaderUtil, Shader, GridAxisShader, meshs, VTX_ATTR_POSITION_NAME, VTX_ATTR_POSITION_LOC, VTX_ATTR_NORMAL_NAME, VTX_ATTR_NORMAL_LOC, VTX_ATTR_UV_NAME, VTX_ATTR_UV_LOC, getContext, clear, setSize, createArrayBuffer, createMeshVAO, gl, Vector3, Matrix4 };
 //# sourceMappingURL=czpg.module.js.map

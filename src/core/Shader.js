@@ -1,10 +1,10 @@
-import { ShaderUtil } from './ShaderUtil.js';
+import { ShaderUtil } from './ShaderUtil';
 
-class Shader{
+class Shader {
     constructor(gl, vs, fs) {
         this.program = ShaderUtil.createProgram(gl, vs, fs);
 
-        if(this.program !== null) {
+        if (this.program !== null) {
             this.gl = gl;
             gl.useProgram(this.program);
             this.attribLoc = ShaderUtil.getDefaultAttribLocation(gl, this.program);
@@ -38,19 +38,22 @@ class Shader{
     }
 
     dispose() {
-        if(this.gl.getParameter(this.gl.CURRENT_PROGRAM) === this.program) {
+        if (this.gl.getParameter(this.gl.CURRENT_PROGRAM) === this.program) {
             this.gl.useProgram(null);
         }
         this.gl.deleteProgram(this.program);
     }
 
-    preRender(){}
+    preRender() {} // eslint-disable-line
 
     renderModal(modal) {
         this.setWorldMatrix(modal.transform.getMatrix());
         this.gl.bindVertexArray(modal.mesh.vao);
-        if(modal.mesh.indexCount) {
-            this.gl.drawElements(modal.mesh.drawMode, modal.mesh.indexCount, this.gl.UNSIGNED_SHORT, 0);
+        if (modal.mesh.indexCount) {
+            this.gl.drawElements(
+                modal.mesh.drawMode, modal.mesh.indexCount,
+                this.gl.UNSIGNED_SHORT, 0,
+            );
         } else {
             this.gl.drawArrays(modal.mesh.drawMode, 0, modal.mesh.vtxCount);
         }

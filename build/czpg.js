@@ -13,96 +13,93 @@ const VTX_ATTR_NORMAL_LOC = 1;
 const VTX_ATTR_UV_NAME = 'a_uv';
 const VTX_ATTR_UV_LOC = 2;
 
+/* eslint prefer-destructuring: 0 */
 function getContext(canvasId) {
-    let canvas = document.getElementById(canvasId);
-    let gl = canvas.getContext('webgl2', {antialias: true});
-    if(!gl) {
+    const canvas = document.getElementById(canvasId);
+    exports.gl = canvas.getContext('webgl2', { antialias: true });
+    if (!exports.gl) {
         console.error('Please use a decent browser, this browser not support Webgl2Context.');
         return null;
     }
-    this.gl = gl;
     return this;
 }
 
 function clear() {
-    let gl = this.gl;
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    exports.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    exports.gl.clear(exports.gl.COLOR_BUFFER_BIT | exports.gl.DEPTH_BUFFER_BIT);
     return this;
 }
 
 function setSize(width, height, mutiplier) {
-    let gl = this.gl;
-    mutiplier = mutiplier || 1.0;
-    mutiplier = Math.max(0, mutiplier);
-    gl.canvas.style.width = width;
-    gl.canvas.style.height = height;
-    gl.canvas.width = gl.canvas.clientWidth * mutiplier;
-    gl.canvas.height = gl.canvas.clientHeight * mutiplier;
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    let muti = mutiplier || 1.0;
+    muti = Math.max(0, muti);
+    exports.gl.canvas.style.width = width;
+    exports.gl.canvas.style.height = height;
+    exports.gl.canvas.width = exports.gl.canvas.clientWidth * muti;
+    exports.gl.canvas.height = exports.gl.canvas.clientHeight * muti;
+    exports.gl.viewport(0, 0, exports.gl.canvas.width, exports.gl.canvas.height);
     return this;
 }
 
 function createArrayBuffer(array, isStatic = true) {
-    let gl = this.gl;
-    let buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, array, isStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    const buffer = exports.gl.createBuffer();
+    exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, buffer);
+    exports.gl.bufferData(exports.gl.ARRAY_BUFFER, array, isStatic ? exports.gl.STATIC_DRAW : exports.gl.DYNAMIC_DRAW);
+    exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, null);
     return buffer;
 }
 
 function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
-    let gl = this.gl;
-    var mesh = { darwMode: gl.TRIANGLES };
+    const mesh = { darwMode: exports.gl.TRIANGLES };
 
-    mesh.vao = gl.createVertexArray();
-    gl.bindVertexArray(mesh.vao);
+    mesh.vao = exports.gl.createVertexArray();
+    exports.gl.bindVertexArray(mesh.vao);
 
-    if(indexArray !== undefined && indexArray !== null) {
-        mesh.indexBuffer = gl.createBuffer();
+    if (indexArray !== undefined && indexArray !== null) {
+        mesh.indexBuffer = exports.gl.createBuffer();
         mesh.indexCount = indexArray.length;
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexArray), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        exports.gl.bindBuffer(exports.gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
+        exports.gl.bufferData(exports.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexArray), exports.gl.STATIC_DRAW);
+        exports.gl.bindBuffer(exports.gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
-    if(vtxArray !== undefined && vtxArray !== null) {
-        mesh.vtxBuffer = gl.createBuffer();
+    if (vtxArray !== undefined && vtxArray !== null) {
+        mesh.vtxBuffer = exports.gl.createBuffer();
         mesh.vtxComponents = 3;
         mesh.vtxCount = vtxArray.length / mesh.vtxComponents;
-        
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vtxBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vtxArray), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
-        gl.vertexAttribPointer(VTX_ATTR_POSITION_LOC, 3, gl.FLOAT, false, 0, 0);
+
+        exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, mesh.vtxBuffer);
+        exports.gl.bufferData(exports.gl.ARRAY_BUFFER, new Float32Array(vtxArray), exports.gl.STATIC_DRAW);
+        exports.gl.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
+        exports.gl.vertexAttribPointer(VTX_ATTR_POSITION_LOC, 3, exports.gl.FLOAT, false, 0, 0);
     }
 
-    if(normalArray !== undefined && normalArray !== null) {
-        mesh.normalBuffer = gl.createBuffer();
+    if (normalArray !== undefined && normalArray !== null) {
+        mesh.normalBuffer = exports.gl.createBuffer();
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalArray), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(VTX_ATTR_NORMAL_LOC);
-        gl.vertexAttribPointer(VTX_ATTR_NORMAL_LOC, 3, gl.FLOAT, false, 0, 0);
+        exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, mesh.normalBuffer);
+        exports.gl.bufferData(exports.gl.ARRAY_BUFFER, new Float32Array(normalArray), exports.gl.STATIC_DRAW);
+        exports.gl.enableVertexAttribArray(VTX_ATTR_NORMAL_LOC);
+        exports.gl.vertexAttribPointer(VTX_ATTR_NORMAL_LOC, 3, exports.gl.FLOAT, false, 0, 0);
     }
 
-    if(uvArray !== undefined && uvArray !== null) {
-        mesh.uvBuffer = gl.createBuffer();
+    if (uvArray !== undefined && uvArray !== null) {
+        mesh.uvBuffer = exports.gl.createBuffer();
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvArray), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(VTX_ATTR_UV_LOC);
-        gl.vertexAttribPointer(VTX_ATTR_UV_LOC, 2, gl.FLOAT, false, 0, 0);
+        exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, mesh.uvBuffer);
+        exports.gl.bufferData(exports.gl.ARRAY_BUFFER, new Float32Array(uvArray), exports.gl.STATIC_DRAW);
+        exports.gl.enableVertexAttribArray(VTX_ATTR_UV_LOC);
+        exports.gl.vertexAttribPointer(VTX_ATTR_UV_LOC, 2, exports.gl.FLOAT, false, 0, 0);
     }
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    gl.bindVertexArray(null);
+    exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, null);
+    exports.gl.bindVertexArray(null);
 
-    this.meshs[name] = mesh;
+    meshs[name] = mesh;
     return mesh;
 }
 
+/* eslint-disable */
 class Vector3{
     constructor(x,y,z){	this.x = x || 0.0;	this.y = y || 0.0;	this.z = z || 0.0; }
 
@@ -557,7 +554,7 @@ class Matrix4{
     }
 }
 
-class Transform{
+class Transform {
     constructor() {
         this.position = new Vector3(0, 0, 0);
         this.scale = new Vector3(1, 1, 1);
@@ -611,8 +608,8 @@ class Transform{
 
 Transform.deg2Rad = Math.PI / 180;
 
-class Modal{
-    constructor(mesh){
+class Modal {
+    constructor(mesh) {
         this.mesh = mesh;
         this.transform = new Transform();
     }
@@ -659,17 +656,17 @@ class Modal{
     }
 }
 
-let Primatives = {};
-Primatives.GridAxis = class{
+const Primatives = {};
+Primatives.GridAxis = class {
     static createMesh(gl) {
-        let vertices = [];
-        let size = 2;
-        let div = 10.0;
-        let step = size / div;
-        let half = size / 2;
+        const vertices = [];
+        const size = 2;
+        const div = 10.0;
+        const step = size / div;
+        const half = size / 2;
 
         let p;
-        for(let i = 0; i <= div; i++) {
+        for (let i = 0; i <= div; i++) {
             p = -half + (i * step);
             vertices.push(p);
             vertices.push(0);
@@ -722,16 +719,15 @@ Primatives.GridAxis = class{
         vertices.push(half);
         vertices.push(3);
 
-        let attrColorLoc = 4;
-        let strideLen;
-        let mesh = {
+        const attrColorLoc = 4;
+        const mesh = {
             drawMode: gl.LINES,
-            vao: gl.createVertexArray()
+            vao: gl.createVertexArray(),
         };
 
         mesh.vtxComponents = 4;
         mesh.vtxCount = vertices.length / mesh.vtxComponents;
-        strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
+        const strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
 
         mesh.vtxBuffer = gl.createBuffer();
         gl.bindVertexArray(mesh.vao);
@@ -746,7 +742,7 @@ Primatives.GridAxis = class{
             gl.FLOAT,
             false,
             strideLen,
-            0
+            0,
         );
 
         gl.vertexAttribPointer(
@@ -755,17 +751,18 @@ Primatives.GridAxis = class{
             gl.FLOAT,
             false,
             strideLen,
-            Float32Array.BYTES_PER_ELEMENT * 3
+            Float32Array.BYTES_PER_ELEMENT * 3,
         );
 
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         gl.bindVertexArray(null);
-        meshs['gridAxis'] = mesh;
+        meshs.gridAxis = mesh;
         return mesh;
     }
 };
 
-class OrbitCamera{
+/* eslint no-multi-assign: 0 */
+class OrbitCamera {
     constructor(fov, ratio, near, far) {
         this.perspectionMatrix = new Float32Array(16);
         Matrix4.perspective(this.perspectionMatrix, fov, ratio, near, far);
@@ -777,7 +774,7 @@ class OrbitCamera{
     }
 
     panX(v) {
-        if(this.mode === OrbitCamera.MODE_ORBIT) {
+        if (this.mode === OrbitCamera.MODE_ORBIT) {
             return;
         }
         this.updateViewMatrix();
@@ -789,7 +786,7 @@ class OrbitCamera{
     panY(v) {
         this.updateViewMatrix();
         this.transform.position.y += this.transform.up[1] * v;
-        if(this.mode === OrbitCamera.MODE_ORBIT) {
+        if (this.mode === OrbitCamera.MODE_ORBIT) {
             return;
         }
         this.transform.position.x += this.transform.up[0] * v;
@@ -798,7 +795,7 @@ class OrbitCamera{
 
     panZ(v) {
         this.updateViewMatrix();
-        if(this.mode === OrbitCamera.MODE_ORBIT) {
+        if (this.mode === OrbitCamera.MODE_ORBIT) {
             this.transform.position.z += v;
         } else {
             this.transform.position.x += this.transform.forward[0] * v;
@@ -808,7 +805,7 @@ class OrbitCamera{
     }
 
     updateViewMatrix() {
-        if(this.mode === OrbitCamera.MODE_FREE) {
+        if (this.mode === OrbitCamera.MODE_FREE) {
             this.transform.matLocal.reset()
                 .vtranslate(this.transform.position)
                 .rotateY(this.transform.rotation.y * Transform.deg2Rad)
@@ -831,10 +828,10 @@ OrbitCamera.MODE_FREE = 0;
 OrbitCamera.MODE_ORBIT = 1;
 
 
-class CameraController{
+class CameraController {
     constructor(gl, camera) {
-        let self = this;
-        let box = gl.canvas.getBoundingClientRect();
+        const self = this;
+        const box = gl.canvas.getBoundingClientRect();
         this.canvas = gl.canvas;
         this.camera = camera;
 
@@ -850,17 +847,17 @@ class CameraController{
         this.prevX = 0;
         this.prevY = 0;
 
-        this.onUpHandler = function(e) {
+        this.onUpHandler = function (e) {
             self.onMouseUp(e);
         };
-        this.onMoveHandler = function(e) {
+        this.onMoveHandler = function (e) {
             self.onMouseMove(e);
         };
 
-        this.canvas.addEventListener('mousedown', function(e) {
+        this.canvas.addEventListener('mousedown', (e) => {
             self.onMouseDown(e);
         });
-        this.canvas.addEventListener('mousewheel', function(e) {
+        this.canvas.addEventListener('mousewheel', (e) => {
             self.onMouseWheel(e);
         });
     }
@@ -868,7 +865,7 @@ class CameraController{
     getMouseVec2(e) {
         return {
             x: e.pageX - this.offsetX,
-            y: e.pageY - this.offsetY
+            y: e.pageY - this.offsetY,
         };
     }
 
@@ -886,17 +883,17 @@ class CameraController{
     }
 
     onMouseWheel(e) {
-        let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+        const delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
         this.camera.panZ(delta * (this.zoomRate / this.canvas.height));
     }
 
     onMouseMove(e) {
-        let x = e.pageX - this.offsetX;
-        let y = e.pageY - this.offsetY;
-        let dx = x - this.prevX;
-        let dy = y - this.prevY;
+        const x = e.pageX - this.offsetX;
+        const y = e.pageY - this.offsetY;
+        const dx = x - this.prevX;
+        const dy = y - this.prevY;
 
-        if(!e.shiftKey) {
+        if (!e.shiftKey) {
             this.camera.transform.rotation.y += dx * (this.rotateRate / this.canvas.width);
             this.camera.transform.rotation.x += dy * (this.rotateRate / this.canvas.height);
         } else {
@@ -909,39 +906,39 @@ class CameraController{
     }
 }
 
-class Render{
+class Render {
     constructor(callback, fps) {
-        let self = this;
+        const self = this;
         this.lastTime = null;
         this.callback = callback;
         this.isActive = false;
         this.fps = 0;
 
-        if(typeof(fps) === 'number' && fps > 0) {
+        if (typeof (fps) === 'number' && fps > 0) {
             this.frameTimeLimit = 1 / fps;
 
-            this.run = function() {
-                let currentTime = performance.now();
-                let timespan = (currentTime - self.lastTime) / 1000;
-                
-                if(timespan >= self.frameTimeLimit){
+            this.run = function () {
+                const currentTime = performance.now();
+                const timespan = (currentTime - self.lastTime) / 1000;
+
+                if (timespan >= self.frameTimeLimit) {
                     self.fps = Math.floor(1 / timespan);
                     self.lastTime = currentTime;
                     self.callback(timespan);
                 }
 
-                if(self.isActive) { window.requestAnimationFrame(self.run); }
+                if (self.isActive) { window.requestAnimationFrame(self.run); }
             };
         } else {
-            this.run = function() {
-                let currentTime = performance.now();
-                let timespan = (currentTime - self.lastTime) / 1000;
+            this.run = function () {
+                const currentTime = performance.now();
+                const timespan = (currentTime - self.lastTime) / 1000;
 
                 self.fps = Math.floor(1 / timespan);
                 self.lastTime = currentTime;
 
                 self.callback(timespan);
-                if(self.isActive) { window.requestAnimationFrame(self.run); }
+                if (self.isActive) { window.requestAnimationFrame(self.run); }
             };
         }
     }
@@ -956,23 +953,23 @@ class Render{
     stop() { this.isActive = false; }
 }
 
-class ShaderUtil{
+class ShaderUtil {
     static getDomSrc(id) {
-        let ele = document.getElementById(id);
-        if(!ele || ele.textContent == '') {
-            console.error(id + ' shader element not have text.');
+        const ele = document.getElementById(id);
+        if (!ele || ele.textContent === '') {
+            console.error(`${id} shader element dose not have text.`);
             return null;
         }
         return ele.textContent;
     }
 
     static createShader(gl, src, type) {
-        let shader = gl.createShader(type);
+        const shader = gl.createShader(type);
         gl.shaderSource(shader, src);
         gl.compileShader(shader);
 
-        if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.error('Error compiling shader: ' + src, gl.getShaderInfoLog(shader));
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error(`Error compiling shader: ${src}`, gl.getShaderInfoLog(shader));
             gl.deleteShader(shader);
             return null;
         }
@@ -981,54 +978,56 @@ class ShaderUtil{
     }
 
     static createProgram(gl, vs, fs, doValidate = true) {
-        if(!(vs instanceof WebGLShader) && vs.length < 20) {
-            let src = this.getDomSrc(vs);
-            if(!src) { return null; }
-            vs = this.createShader(gl, src, gl.VERTEX_SHADER);
-            if(!vs) { return null; }
-        } else if(!(vs instanceof WebGLShader)) {
-            vs = this.createShader(gl, vs, gl.VERTEX_SHADER);
-            if(!vs) { return null; }
+        let vShader;
+        let fShader;
+        if (!(vs instanceof WebGLShader) && vs.length < 20) {
+            const src = this.getDomSrc(vs);
+            if (!src) { return null; }
+            vShader = this.createShader(gl, src, gl.VERTEX_SHADER);
+            if (!vShader) { return null; }
+        } else if (!(vs instanceof WebGLShader)) {
+            vShader = this.createShader(gl, vs, gl.VERTEX_SHADER);
+            if (!vShader) { return null; }
         }
-        if(!(fs instanceof WebGLShader) && fs.length < 20) {
-            let src = this.getDomSrc(fs);
-            if(!src) { return null; }
-            fs = this.createShader(gl, src, gl.FRAGMENT_SHADER);
-            if(!fs) { return null; }
-        } else if(!(fs instanceof WebGLShader)) {
-            fs = this.createShader(gl, fs, gl.FRAGMENT_SHADER);
-            if(!fs) { return null; }            
+        if (!(fs instanceof WebGLShader) && fs.length < 20) {
+            const src = this.getDomSrc(fs);
+            if (!src) { return null; }
+            fShader = this.createShader(gl, src, gl.FRAGMENT_SHADER);
+            if (!fShader) { return null; }
+        } else if (!(fs instanceof WebGLShader)) {
+            fShader = this.createShader(gl, fs, gl.FRAGMENT_SHADER);
+            if (!fShader) { return null; }
         }
 
-        let prog = gl.createProgram();
-        gl.attachShader(prog, vs);
-        gl.attachShader(prog, fs);
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vShader);
+        gl.attachShader(prog, fShader);
 
-        gl.bindAttribLocation(prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME);
+        gl.bindAttribLocation(prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME); // eslint-disable-line
         gl.bindAttribLocation(prog, VTX_ATTR_NORMAL_LOC, VTX_ATTR_NORMAL_NAME);
         gl.bindAttribLocation(prog, VTX_ATTR_UV_LOC, VTX_ATTR_UV_NAME);
-        
+
         gl.linkProgram(prog);
 
-        if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
             console.error('Error createing shader program.', gl.getProgramInfoLog(prog));
             gl.deleteProgram(prog);
             return null;
         }
 
-        if(doValidate) {
+        if (doValidate) {
             gl.validateProgram(prog);
-            if(!gl.getProgramParameter(prog, gl.VALIDATE_STATUS)) {
+            if (!gl.getProgramParameter(prog, gl.VALIDATE_STATUS)) {
                 console.error('Error validating shader program.', gl.getProgramInfoLog(prog));
                 gl.deleteProgram(prog);
                 return null;
             }
         }
 
-        gl.detachShader(prog, vs);
-        gl.detachShader(prog, fs);
-        gl.deleteShader(vs);
-        gl.deleteShader(fs);
+        gl.detachShader(prog, vShader);
+        gl.detachShader(prog, fShader);
+        gl.deleteShader(vShader);
+        gl.deleteShader(fShader);
 
         return prog;
     }
@@ -1037,7 +1036,7 @@ class ShaderUtil{
         return {
             position: gl.getAttribLocation(program, VTX_ATTR_POSITION_NAME),
             normal: gl.getAttribLocation(program, VTX_ATTR_NORMAL_NAME),
-            uv: gl.getAttribLocation(program, VTX_ATTR_UV_NAME)
+            uv: gl.getAttribLocation(program, VTX_ATTR_UV_NAME),
         };
     }
 
@@ -1045,16 +1044,16 @@ class ShaderUtil{
         return {
             perspective: gl.getUniformLocation(program, 'u_proj'),
             view: gl.getUniformLocation(program, 'u_view'),
-            world: gl.getUniformLocation(program, 'u_world')
+            world: gl.getUniformLocation(program, 'u_world'),
         };
     }
 }
 
-class Shader{
+class Shader {
     constructor(gl, vs, fs) {
         this.program = ShaderUtil.createProgram(gl, vs, fs);
 
-        if(this.program !== null) {
+        if (this.program !== null) {
             this.gl = gl;
             gl.useProgram(this.program);
             this.attribLoc = ShaderUtil.getDefaultAttribLocation(gl, this.program);
@@ -1088,19 +1087,22 @@ class Shader{
     }
 
     dispose() {
-        if(this.gl.getParameter(this.gl.CURRENT_PROGRAM) === this.program) {
+        if (this.gl.getParameter(this.gl.CURRENT_PROGRAM) === this.program) {
             this.gl.useProgram(null);
         }
         this.gl.deleteProgram(this.program);
     }
 
-    preRender(){}
+    preRender() {} // eslint-disable-line
 
     renderModal(modal) {
         this.setWorldMatrix(modal.transform.getMatrix());
         this.gl.bindVertexArray(modal.mesh.vao);
-        if(modal.mesh.indexCount) {
-            this.gl.drawElements(modal.mesh.drawMode, modal.mesh.indexCount, this.gl.UNSIGNED_SHORT, 0);
+        if (modal.mesh.indexCount) {
+            this.gl.drawElements(
+                modal.mesh.drawMode, modal.mesh.indexCount,
+                this.gl.UNSIGNED_SHORT, 0,
+            );
         } else {
             this.gl.drawArrays(modal.mesh.drawMode, 0, modal.mesh.vtxCount);
         }
@@ -1110,40 +1112,40 @@ class Shader{
     }
 }
 
-class GridAxisShader extends Shader{
-    constructor (gl, projMat) {
-        let vs = '#version 300 es\n'+
-            'in vec3 a_Position;\n'+
-            'layout(location=4) in float a_Color;\n'+
-            '\n'+
-            'uniform mat4 u_world;\n'+
-            'uniform mat4 u_view;\n'+
-            'uniform mat4 u_proj;\n'+
-            'uniform vec3 u_colors[4];\n'+
-            '\n'+
-            'out vec3 v_color;\n'+
-            '\n'+
-            'void main() {\n'+
-            '    v_color = u_colors[int(a_Color)];\n'+
-            '    gl_Position = u_proj * u_view * u_world * vec4(a_Position, 1.0);\n'+
+class GridAxisShader extends Shader {
+    constructor(gl, projMat) {
+        const vs = '#version 300 es\n' +
+            'in vec3 a_Position;\n' +
+            'layout(location=4) in float a_Color;\n' +
+            '\n' +
+            'uniform mat4 u_world;\n' +
+            'uniform mat4 u_view;\n' +
+            'uniform mat4 u_proj;\n' +
+            'uniform vec3 u_colors[4];\n' +
+            '\n' +
+            'out vec3 v_color;\n' +
+            '\n' +
+            'void main() {\n' +
+            '    v_color = u_colors[int(a_Color)];\n' +
+            '    gl_Position = u_proj * u_view * u_world * vec4(a_Position, 1.0);\n' +
             '}';
 
-        let fs = '#version 300 es\n'+
-            'precision mediump float;\n'+
-            '\n'+
-            'in vec3 v_color;\n'+
-            'out vec4 finalColor;\n'+
-            '\n'+
-            'void main() {\n'+
-            '    finalColor = vec4(v_color, 1.0);\n'+
+        const fs = '#version 300 es\n' +
+            'precision mediump float;\n' +
+            '\n' +
+            'in vec3 v_color;\n' +
+            'out vec4 finalColor;\n' +
+            '\n' +
+            'void main() {\n' +
+            '    finalColor = vec4(v_color, 1.0);\n' +
             '}';
 
         super(gl, vs, fs);
 
         this.setPerspective(projMat);
 
-        var uColor = gl.getUniformLocation(this.program, 'u_colors');
-        gl.uniform3fv(uColor, [0.5,0.5,0.5, 1,0,0, 0,1,0, 0,0,1]);
+        const uColor = gl.getUniformLocation(this.program, 'u_colors');
+        gl.uniform3fv(uColor, [0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
         gl.useProgram(null);
     }
