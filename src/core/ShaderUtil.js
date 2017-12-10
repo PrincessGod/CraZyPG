@@ -1,3 +1,5 @@
+import * as Locations from './constant.js';
+
 class ShaderUtil{
     static getDomSrc(id) {
         let ele = document.getElementById(id);
@@ -46,9 +48,9 @@ class ShaderUtil{
         gl.attachShader(prog, vs);
         gl.attachShader(prog, fs);
 
-        gl.bindAttribLocation(prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME);
-        gl.bindAttribLocation(prog, VTX_ATTR_NORMAL_LOC, VTX_ATTR_NORMAL_NAME);
-        gl.bindAttribLocation(prog, VTX_ATTR_UV_LOC, VTX_ATTR_UV_NAME);
+        gl.bindAttribLocation(prog, Locations.VTX_ATTR_POSITION_LOC, Locations.VTX_ATTR_POSITION_NAME);
+        gl.bindAttribLocation(prog, Locations.VTX_ATTR_NORMAL_LOC, Locations.VTX_ATTR_NORMAL_NAME);
+        gl.bindAttribLocation(prog, Locations.VTX_ATTR_UV_LOC, Locations.VTX_ATTR_UV_NAME);
         
         gl.linkProgram(prog);
 
@@ -77,9 +79,9 @@ class ShaderUtil{
 
     static getDefaultAttribLocation(gl, program) {
         return {
-            position: gl.getAttribLocation(program, VTX_ATTR_POSITION_NAME),
-            normal: gl.getAttribLocation(program, VTX_ATTR_NORMAL_NAME),
-            uv: gl.getAttribLocation(program, VTX_ATTR_UV_NAME)
+            position: gl.getAttribLocation(program, Locations.VTX_ATTR_POSITION_NAME),
+            normal: gl.getAttribLocation(program, Locations.VTX_ATTR_NORMAL_NAME),
+            uv: gl.getAttribLocation(program, Locations.VTX_ATTR_UV_NAME)
         };
     }
 
@@ -88,6 +90,8 @@ class ShaderUtil{
             perspective: gl.getUniformLocation(program, 'u_proj'),
             view: gl.getUniformLocation(program, 'u_view'),
             world: gl.getUniformLocation(program, 'u_world')
-        }
+        };
     }
 }
+
+export { ShaderUtil };

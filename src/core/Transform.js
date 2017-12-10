@@ -1,3 +1,5 @@
+import { Vector3, Matrix4 } from './Math.js';
+
 class Transform{
     constructor() {
         this.position = new Vector3(0, 0, 0);
@@ -51,3 +53,5 @@ class Transform{
 }
 
 Transform.deg2Rad = Math.PI / 180;
+
+export { Transform };

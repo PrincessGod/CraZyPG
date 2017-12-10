@@ -1,0 +1,35 @@
+{
+  "name": "crazypg",
+  "version": "1.0.0",
+  "description": "webgl lib for 3d",
+  "main": "no.js",
+  "scripts": {
+    "build": "set NODE_ENV=combine&& rollup -c",
+    "build-min": "rollup -c",
+    "build-module": "rollup -c rollup.module.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PrincessGod/CraZyPG.git"
+  },
+  "keywords": [
+    "webgl",
+    "3d"
+  ],
+  "author": "PrincessGod",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PrincessGod/CraZyPG/issues"
+  },
+  "homepage": "https://github.com/PrincessGod/CraZyPG#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "eslint": "^4.13.0",
+    "rollup": "^0.52.1",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-eslint": "^4.0.0",
+    "rollup-plugin-uglify": "^2.0.1"
+  },
+  "dependencies": {}
+}

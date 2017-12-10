@@ -1,3 +1,6 @@
+import { Transform } from './Transform.js';
+import { Matrix4 } from './Math.js';
+
 class OrbitCamera{
     constructor(fov, ratio, near, far) {
         this.perspectionMatrix = new Float32Array(16);
@@ -48,8 +51,8 @@ class OrbitCamera{
                 .rotateX(this.transform.rotation.x * Transform.deg2Rad);
         } else {
             this.transform.matLocal.reset()
-            .rotateY(this.transform.rotation.y * Transform.deg2Rad)
-            .rotateX(this.transform.rotation.x * Transform.deg2Rad)
+                .rotateY(this.transform.rotation.y * Transform.deg2Rad)
+                .rotateX(this.transform.rotation.x * Transform.deg2Rad)
                 .vtranslate(this.transform.position);
         }
 
@@ -113,7 +116,7 @@ class CameraController{
         this.canvas.addEventListener('mousemove', this.onMoveHandler);
     }
 
-    onMouseUp(e) {
+    onMouseUp() {
         this.canvas.removeEventListener('mouseup', this.onMouseUp);
         this.canvas.removeEventListener('mousemove', this.onMoveHandler);
     }
@@ -141,3 +144,5 @@ class CameraController{
         this.prevY = y;
     }
 }
+
+export { OrbitCamera, CameraController };

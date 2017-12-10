@@ -1,3 +1,6 @@
+import * as Locations from './constant.js';
+import * as properties from './properties.js';
+
 let Primatives = {};
 Primatives.GridAxis = class{
     static createMesh(gl) {
@@ -62,8 +65,8 @@ Primatives.GridAxis = class{
         vertices.push(3);
 
         let attrColorLoc = 4;
-        let strideLen,
-        mesh = {
+        let strideLen;
+        let mesh = {
             drawMode: gl.LINES,
             vao: gl.createVertexArray()
         };
@@ -76,11 +79,11 @@ Primatives.GridAxis = class{
         gl.bindVertexArray(mesh.vao);
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vtxBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
+        gl.enableVertexAttribArray(Locations.VTX_ATTR_POSITION_LOC);
         gl.enableVertexAttribArray(attrColorLoc);
 
         gl.vertexAttribPointer(
-            VTX_ATTR_POSITION_LOC,
+            Locations.VTX_ATTR_POSITION_LOC,
             3,
             gl.FLOAT,
             false,
@@ -99,7 +102,9 @@ Primatives.GridAxis = class{
 
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         gl.bindVertexArray(null);
-        CZPG.meshs['gridAxis'] = mesh;
+        properties.meshs['gridAxis'] = mesh;
         return mesh;
     }
-}
+};
+
+export { Primatives };

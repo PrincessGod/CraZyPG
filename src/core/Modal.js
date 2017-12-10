@@ -1,3 +1,5 @@
+import { Transform } from './Transform.js';
+
 class Modal{
     constructor(mesh){
         this.mesh = mesh;
@@ -45,3 +47,5 @@ class Modal{
         return this;
     }
 }
+
+export { Modal };

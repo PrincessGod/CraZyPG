@@ -16,11 +16,11 @@ class Render{
                 if(timespan >= self.frameTimeLimit){
                     self.fps = Math.floor(1 / timespan);
                     self.lastTime = currentTime;
-                    self.callback(timespan)
+                    self.callback(timespan);
                 }
 
                 if(self.isActive) { window.requestAnimationFrame(self.run); }
-            }
+            };
         } else {
             this.run = function() {
                 let currentTime = performance.now();
@@ -31,7 +31,7 @@ class Render{
 
                 self.callback(timespan);
                 if(self.isActive) { window.requestAnimationFrame(self.run); }
-            }
+            };
         }
     }
 
@@ -44,3 +44,5 @@ class Render{
 
     stop() { this.isActive = false; }
 }
+
+export { Render };

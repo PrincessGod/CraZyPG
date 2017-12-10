@@ -1,3 +1,5 @@
+import { ShaderUtil } from './ShaderUtil.js';
+
 class Shader{
     constructor(gl, vs, fs) {
         this.program = ShaderUtil.createProgram(gl, vs, fs);
@@ -48,7 +50,7 @@ class Shader{
         this.setWorldMatrix(modal.transform.getMatrix());
         this.gl.bindVertexArray(modal.mesh.vao);
         if(modal.mesh.indexCount) {
-            this.gl.drawElements(modal.mesh.drawMode, modal.mesh.indexCount, gl.UNSIGNED_SHORT, 0);
+            this.gl.drawElements(modal.mesh.drawMode, modal.mesh.indexCount, this.gl.UNSIGNED_SHORT, 0);
         } else {
             this.gl.drawArrays(modal.mesh.drawMode, 0, modal.mesh.vtxCount);
         }
@@ -57,3 +59,5 @@ class Shader{
         return this;
     }
 }
+
+export { Shader };

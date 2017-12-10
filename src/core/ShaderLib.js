@@ -1,3 +1,5 @@
+import { Shader } from './Shader.js';
+
 class GridAxisShader extends Shader{
     constructor (gl, projMat) {
         let vs = '#version 300 es\n'+
@@ -36,3 +38,5 @@ class GridAxisShader extends Shader{
         gl.useProgram(null);
     }
 }
+
+export { GridAxisShader };
