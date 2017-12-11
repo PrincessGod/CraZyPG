@@ -21,6 +21,14 @@ function getContext(canvasId) {
         console.error('Please use a decent browser, this browser not support Webgl2Context.');
         return null;
     }
+
+    exports.gl.cullFace(exports.gl.BACK);
+    exports.gl.frontFace(exports.gl.CCW);
+    exports.gl.enable(exports.gl.CULL_FACE);
+    exports.gl.enable(exports.gl.DEPTH_TEST);
+    exports.gl.depthFunc(exports.gl.LEQUAL);
+    exports.gl.blendFunc(exports.gl.SRC_ALPHA, exports.gl.ONE_MINUS_SRC_ALPHA);
+
     return this;
 }
 
@@ -41,6 +49,15 @@ function setSize(width, height, mutiplier) {
     return this;
 }
 
+function fitSize() {
+    if (exports.gl.canvas.width !== exports.gl.canvas.clientWidth || exports.gl.canvas.height !== exports.gl.canvas.clientHeight) {
+        exports.gl.canvas.width = exports.gl.canvas.clientWidth;
+        exports.gl.canvas.height = exports.gl.canvas.clientHeight;
+        exports.gl.viewport(0, 0, exports.gl.canvas.width, exports.gl.canvas.height);
+    }
+    return this;
+}
+
 function createArrayBuffer(array, isStatic = true) {
     const buffer = exports.gl.createBuffer();
     exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, buffer);
@@ -50,7 +67,7 @@ function createArrayBuffer(array, isStatic = true) {
 }
 
 function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
-    const mesh = { darwMode: exports.gl.TRIANGLES };
+    const mesh = { drawMode: exports.gl.TRIANGLES };
 
     mesh.vao = exports.gl.createVertexArray();
     exports.gl.bindVertexArray(mesh.vao);
@@ -60,7 +77,7 @@ function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
         mesh.indexCount = indexArray.length;
         exports.gl.bindBuffer(exports.gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
         exports.gl.bufferData(exports.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexArray), exports.gl.STATIC_DRAW);
-        exports.gl.bindBuffer(exports.gl.ELEMENT_ARRAY_BUFFER, null);
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
     if (vtxArray !== undefined && vtxArray !== null) {
@@ -658,7 +675,7 @@ class Modal {
 
 const Primatives = {};
 Primatives.GridAxis = class {
-    static createMesh(gl) {
+    static createMesh(gl$$1) {
         const vertices = [];
         const size = 2;
         const div = 10.0;
@@ -721,52 +738,79 @@ Primatives.GridAxis = class {
 
         const attrColorLoc = 4;
         const mesh = {
-            drawMode: gl.LINES,
-            vao: gl.createVertexArray(),
+            drawMode: gl$$1.LINES,
+            vao: gl$$1.createVertexArray(),
         };
 
         mesh.vtxComponents = 4;
         mesh.vtxCount = vertices.length / mesh.vtxComponents;
         const strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
 
-        mesh.vtxBuffer = gl.createBuffer();
-        gl.bindVertexArray(mesh.vao);
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vtxBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
-        gl.enableVertexAttribArray(attrColorLoc);
+        mesh.vtxBuffer = gl$$1.createBuffer();
+        gl$$1.bindVertexArray(mesh.vao);
+        gl$$1.bindBuffer(gl$$1.ARRAY_BUFFER, mesh.vtxBuffer);
+        gl$$1.bufferData(gl$$1.ARRAY_BUFFER, new Float32Array(vertices), gl$$1.STATIC_DRAW);
+        gl$$1.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
+        gl$$1.enableVertexAttribArray(attrColorLoc);
 
-        gl.vertexAttribPointer(
+        gl$$1.vertexAttribPointer(
             VTX_ATTR_POSITION_LOC,
             3,
-            gl.FLOAT,
+            gl$$1.FLOAT,
             false,
             strideLen,
             0,
         );
 
-        gl.vertexAttribPointer(
+        gl$$1.vertexAttribPointer(
             attrColorLoc,
             1,
-            gl.FLOAT,
+            gl$$1.FLOAT,
             false,
             strideLen,
             Float32Array.BYTES_PER_ELEMENT * 3,
         );
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindVertexArray(null);
+        gl$$1.bindBuffer(gl$$1.ARRAY_BUFFER, null);
+        gl$$1.bindVertexArray(null);
         meshs.gridAxis = mesh;
+        return mesh;
+    }
+};
+
+Primatives.Quad = class {
+    static createModal() {
+        return new Modal(Primatives.Quad.createMesh());
+    }
+
+    static createMesh() {
+        const vtx = [-0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0];
+        const uv = [0, 0, 0, 1, 1, 1, 1, 0];
+        const indices = [0, 1, 2, 2, 3, 0];
+
+        const mesh = createMeshVAO('Quad', indices, vtx, null, uv);
+        mesh.offCullFace = true;
+        mesh.onBlend = true;
         return mesh;
     }
 };
 
 /* eslint no-multi-assign: 0 */
 class OrbitCamera {
-    constructor(fov, ratio, near, far) {
-        this.perspectionMatrix = new Float32Array(16);
-        Matrix4.perspective(this.perspectionMatrix, fov, ratio, near, far);
+    constructor(gl, fov = 45, near = 0.1, far = 1000) {
+        this.projMatrix = new Float32Array(16);
+        Matrix4.perspective(
+            this.projMatrix,
+            fov,
+            gl.canvas.width / gl.canvas.height,
+            near,
+            far,
+        );
 
+        this.gl = gl;
+        this.fov = fov;
+        this.near = near;
+        this.far = far;
         this.transform = new Transform();
         this.viewMatrix = new Float32Array(16);
 
@@ -818,9 +862,18 @@ class OrbitCamera {
         }
 
         this.transform.updateDirection();
-
         Matrix4.invert(this.viewMatrix, this.transform.matLocal.raw);
         return this.viewMatrix;
+    }
+
+    updateProjMatrix() {
+        Matrix4.perspective(
+            this.projMatrix,
+            this.fov,
+            this.gl.canvas.width / this.gl.canvas.height,
+            this.near,
+            this.far,
+        );
     }
 }
 
@@ -1071,7 +1124,7 @@ class Shader {
         return this;
     }
 
-    setPerspective(mat4Array) {
+    setProjMatrix(mat4Array) {
         this.gl.uniformMatrix4fv(this.uniformLoc.perspective, false, mat4Array);
         return this;
     }
@@ -1096,18 +1149,27 @@ class Shader {
     preRender() {} // eslint-disable-line
 
     renderModal(modal) {
+        if (modal.mesh.offCullFace) {
+            this.gl.disable(this.gl.CULL_FACE);
+        }
+        if (modal.mesh.onBlend) {
+            this.gl.enable(this.gl.BLEND);
+        }
         this.setWorldMatrix(modal.transform.getMatrix());
         this.gl.bindVertexArray(modal.mesh.vao);
         if (modal.mesh.indexCount) {
-            this.gl.drawElements(
-                modal.mesh.drawMode, modal.mesh.indexCount,
-                this.gl.UNSIGNED_SHORT, 0,
-            );
+            this.gl.drawElements(modal.mesh.drawMode, modal.mesh.indexCount, this.gl.UNSIGNED_SHORT, 0); // eslint-disable-line
         } else {
             this.gl.drawArrays(modal.mesh.drawMode, 0, modal.mesh.vtxCount);
         }
         this.gl.bindVertexArray(null);
 
+        if (modal.mesh.offCullFace) {
+            this.gl.enable(this.gl.CULL_FACE);
+        }
+        if (modal.mesh.onBlend) {
+            this.gl.disable(this.gl.BLEND);
+        }
         return this;
     }
 }
@@ -1142,7 +1204,7 @@ class GridAxisShader extends Shader {
 
         super(gl, vs, fs);
 
-        this.setPerspective(projMat);
+        this.setProjMatrix(projMat);
 
         const uColor = gl.getUniformLocation(this.program, 'u_colors');
         gl.uniform3fv(uColor, [0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1]);
@@ -1170,6 +1232,7 @@ exports.VTX_ATTR_UV_LOC = VTX_ATTR_UV_LOC;
 exports.getContext = getContext;
 exports.clear = clear;
 exports.setSize = setSize;
+exports.fitSize = fitSize;
 exports.createArrayBuffer = createArrayBuffer;
 exports.createMeshVAO = createMeshVAO;
 exports.Vector3 = Vector3;

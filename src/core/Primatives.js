@@ -1,5 +1,7 @@
 import * as Locations from './constant';
 import * as properties from './properties';
+import { createMeshVAO } from './gl';
+import { Modal } from './Modal';
 
 const Primatives = {};
 Primatives.GridAxis = class {
@@ -102,6 +104,23 @@ Primatives.GridAxis = class {
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         gl.bindVertexArray(null);
         properties.meshs.gridAxis = mesh;
+        return mesh;
+    }
+};
+
+Primatives.Quad = class {
+    static createModal() {
+        return new Modal(Primatives.Quad.createMesh());
+    }
+
+    static createMesh() {
+        const vtx = [-0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0];
+        const uv = [0, 0, 0, 1, 1, 1, 1, 0];
+        const indices = [0, 1, 2, 2, 3, 0];
+
+        const mesh = createMeshVAO('Quad', indices, vtx, null, uv);
+        mesh.offCullFace = true;
+        mesh.onBlend = true;
         return mesh;
     }
 };

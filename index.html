@@ -32,23 +32,63 @@
         <canvas id="glpaper"></canvas>
     </div>
     <script src="./build/czpg.js"></script>
-    <script>
-        CZPG.getContext('glpaper').setSize('400px', '400px', window.devicePixelRatio).clear();
+    <script id='quad-vs' type="shader">#version 300 es
+        in vec3 a_position;
+        in vec2 a_uv;
 
-        let camera = new CZPG.OrbitCamera(45, CZPG.gl.canvas.width / CZPG.gl.canvas.height, 0.1, 1000);
+        uniform mat4 u_world;
+        uniform mat4 u_view;
+        uniform mat4 u_proj;
+
+        out vec2 v_uv;
+
+        void main() {
+            v_uv = a_uv;
+            gl_Position = u_proj * u_view * u_world * vec4(a_position, 1.0);
+        }
+    </script>
+    <script id="quad-fs" type="shader">#version 300 es
+        precision mediump float;
+
+        in vec2 v_uv;
+
+        out vec4 finalColor;
+
+        void main() {
+            float c = (v_uv.x <=0.1 || v_uv.x >= 0.9 || v_uv.y <= 0.1 || v_uv.y >= 0.9) ? 0.0 : 1.0;
+            finalColor = vec4(c, c, c, 1.0 - c);
+        }
+    </script>
+    <script>
+        class QuadShader extends CZPG.Shader{
+            constructor(gl, projMat) {
+                super(gl, 'quad-vs', 'quad-fs');
+                this.setProjMatrix(projMat);
+                gl.useProgram(null);
+            }
+        }
+
+        CZPG.getContext('glpaper').setSize('80%', '80%', window.devicePixelRatio).clear();
+
+        let camera = new CZPG.OrbitCamera(CZPG.gl);
         camera.transform.position.set(0, 1, 3);
         let cameraControler = new CZPG.CameraController(CZPG.gl, camera);
 
-        let shader = new CZPG.GridAxisShader(CZPG.gl, camera.perspectionMatrix);
+        let gridShader = new CZPG.GridAxisShader(CZPG.gl, camera.projMatrix);
+        let gridMesh = CZPG.Primatives.GridAxis.createMesh(CZPG.gl);
+        let gridModal = new CZPG.Modal(gridMesh);
 
-        let mesh = CZPG.Primatives.GridAxis.createMesh(CZPG.gl);
-        let modal = new CZPG.Modal(mesh);
+        let quadShader = new QuadShader(CZPG.gl, camera.projMatrix);
+        let quadModal = CZPG.Primatives.Quad.createModal();
 
         let loop = new CZPG.Render(function(timespan) {
-            CZPG.clear();
+            CZPG.fitSize().clear();
             camera.updateViewMatrix();
-            shader.activate().setViewMatrix(camera.viewMatrix)
-                .renderModal(modal.preRender());
+            camera.updateProjMatrix();
+            gridShader.activate().setProjMatrix(camera.projMatrix).setViewMatrix(camera.viewMatrix)
+                .renderModal(gridModal.preRender());
+            quadShader.activate().setProjMatrix(camera.projMatrix).setViewMatrix(camera.viewMatrix)
+                .renderModal(quadModal.preRender());
         }).start();
     </script>
 </body>

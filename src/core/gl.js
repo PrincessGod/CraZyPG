@@ -10,6 +10,14 @@ export function getContext(canvasId) {
         console.error('Please use a decent browser, this browser not support Webgl2Context.');
         return null;
     }
+
+    gl.cullFace(gl.BACK);
+    gl.frontFace(gl.CCW);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     return this;
 }
 
@@ -30,6 +38,15 @@ export function setSize(width, height, mutiplier) {
     return this;
 }
 
+export function fitSize() {
+    if (gl.canvas.width !== gl.canvas.clientWidth || gl.canvas.height !== gl.canvas.clientHeight) {
+        gl.canvas.width = gl.canvas.clientWidth;
+        gl.canvas.height = gl.canvas.clientHeight;
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    }
+    return this;
+}
+
 export function createArrayBuffer(array, isStatic = true) {
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -39,7 +56,7 @@ export function createArrayBuffer(array, isStatic = true) {
 }
 
 export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
-    const mesh = { darwMode: gl.TRIANGLES };
+    const mesh = { drawMode: gl.TRIANGLES };
 
     mesh.vao = gl.createVertexArray();
     gl.bindVertexArray(mesh.vao);
@@ -49,7 +66,7 @@ export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) 
         mesh.indexCount = indexArray.length;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexArray), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
     if (vtxArray !== undefined && vtxArray !== null) {

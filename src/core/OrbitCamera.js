@@ -3,10 +3,20 @@ import { Transform } from './Transform';
 import { Matrix4 } from './Math';
 
 class OrbitCamera {
-    constructor(fov, ratio, near, far) {
-        this.perspectionMatrix = new Float32Array(16);
-        Matrix4.perspective(this.perspectionMatrix, fov, ratio, near, far);
+    constructor(gl, fov = 45, near = 0.1, far = 1000) {
+        this.projMatrix = new Float32Array(16);
+        Matrix4.perspective(
+            this.projMatrix,
+            fov,
+            gl.canvas.width / gl.canvas.height,
+            near,
+            far,
+        );
 
+        this.gl = gl;
+        this.fov = fov;
+        this.near = near;
+        this.far = far;
         this.transform = new Transform();
         this.viewMatrix = new Float32Array(16);
 
@@ -58,9 +68,18 @@ class OrbitCamera {
         }
 
         this.transform.updateDirection();
-
         Matrix4.invert(this.viewMatrix, this.transform.matLocal.raw);
         return this.viewMatrix;
+    }
+
+    updateProjMatrix() {
+        Matrix4.perspective(
+            this.projMatrix,
+            this.fov,
+            this.gl.canvas.width / this.gl.canvas.height,
+            this.near,
+            this.far,
+        );
     }
 }
 
