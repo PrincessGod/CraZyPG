@@ -1,6 +1,6 @@
 /* eslint prefer-destructuring: 0 */
 import * as Locations from './constant';
-import { meshs } from './properties';
+import { meshs, textures } from './properties';
 
 let gl; // eslint-disable-line
 export function getContext(canvasId) {
@@ -103,6 +103,23 @@ export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) 
 
     meshs[name] = mesh;
     return mesh;
+}
+
+export function loadTexture(name, img, flipY = false) {
+    const tex = gl.createTexture();
+    if (flipY) gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    textures[name] = tex;
+    if (flipY) gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+
+    return tex;
 }
 
 export { gl };

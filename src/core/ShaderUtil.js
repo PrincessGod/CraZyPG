@@ -92,6 +92,7 @@ class ShaderUtil {
             perspective: gl.getUniformLocation(program, 'u_proj'),
             view: gl.getUniformLocation(program, 'u_view'),
             world: gl.getUniformLocation(program, 'u_world'),
+            texture: gl.getUniformLocation(program, 'u_texture'),
         };
     }
 }

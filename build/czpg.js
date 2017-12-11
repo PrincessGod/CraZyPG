@@ -5,6 +5,7 @@
 }(this, (function (exports) { 'use strict';
 
 const meshs = {};
+const textures = {};
 
 const VTX_ATTR_POSITION_NAME = 'a_position';
 const VTX_ATTR_POSITION_LOC = 0;
@@ -114,6 +115,23 @@ function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
 
     meshs[name] = mesh;
     return mesh;
+}
+
+function loadTexture(name, img, flipY = false) {
+    const tex = exports.gl.createTexture();
+    if (flipY) exports.gl.pixelStorei(exports.gl.UNPACK_FLIP_Y_WEBGL, true);
+
+    exports.gl.bindTexture(exports.gl.TEXTURE_2D, tex);
+    exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, img);
+    exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_MAG_FILTER, exports.gl.LINEAR);
+    exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_MIN_FILTER, exports.gl.LINEAR_MIPMAP_LINEAR);
+    exports.gl.generateMipmap(exports.gl.TEXTURE_2D);
+    exports.gl.bindTexture(exports.gl.TEXTURE_2D, null);
+
+    textures[name] = tex;
+    if (flipY) exports.gl.pixelStorei(exports.gl.UNPACK_FLIP_Y_WEBGL, false);
+
+    return tex;
 }
 
 /* eslint-disable */
@@ -1098,6 +1116,7 @@ class ShaderUtil {
             perspective: gl.getUniformLocation(program, 'u_proj'),
             view: gl.getUniformLocation(program, 'u_view'),
             world: gl.getUniformLocation(program, 'u_world'),
+            texture: gl.getUniformLocation(program, 'u_texture'),
         };
     }
 }
@@ -1223,6 +1242,7 @@ exports.ShaderUtil = ShaderUtil;
 exports.Shader = Shader;
 exports.GridAxisShader = GridAxisShader;
 exports.meshs = meshs;
+exports.textures = textures;
 exports.VTX_ATTR_POSITION_NAME = VTX_ATTR_POSITION_NAME;
 exports.VTX_ATTR_POSITION_LOC = VTX_ATTR_POSITION_LOC;
 exports.VTX_ATTR_NORMAL_NAME = VTX_ATTR_NORMAL_NAME;
@@ -1235,6 +1255,7 @@ exports.setSize = setSize;
 exports.fitSize = fitSize;
 exports.createArrayBuffer = createArrayBuffer;
 exports.createMeshVAO = createMeshVAO;
+exports.loadTexture = loadTexture;
 exports.Vector3 = Vector3;
 exports.Matrix4 = Matrix4;
 
