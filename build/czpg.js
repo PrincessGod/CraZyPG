@@ -67,7 +67,7 @@ function createArrayBuffer(array, isStatic = true) {
     return buffer;
 }
 
-function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
+function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray, vtxLength) {
     const mesh = { drawMode: exports.gl.TRIANGLES };
 
     mesh.vao = exports.gl.createVertexArray();
@@ -83,13 +83,13 @@ function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
 
     if (vtxArray !== undefined && vtxArray !== null) {
         mesh.vtxBuffer = exports.gl.createBuffer();
-        mesh.vtxComponents = 3;
+        mesh.vtxComponents = vtxLength || 3;
         mesh.vtxCount = vtxArray.length / mesh.vtxComponents;
 
         exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, mesh.vtxBuffer);
         exports.gl.bufferData(exports.gl.ARRAY_BUFFER, new Float32Array(vtxArray), exports.gl.STATIC_DRAW);
         exports.gl.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
-        exports.gl.vertexAttribPointer(VTX_ATTR_POSITION_LOC, 3, exports.gl.FLOAT, false, 0, 0);
+        exports.gl.vertexAttribPointer(VTX_ATTR_POSITION_LOC, mesh.vtxComponents, exports.gl.FLOAT, false, 0, 0); // eslint-disable-line
     }
 
     if (normalArray !== undefined && normalArray !== null) {
@@ -693,7 +693,7 @@ class Modal {
 
 const Primatives = {};
 Primatives.GridAxis = class {
-    static createMesh(gl$$1) {
+    static createMesh() {
         const vertices = [];
         const size = 2;
         const div = 10.0;
@@ -756,41 +756,41 @@ Primatives.GridAxis = class {
 
         const attrColorLoc = 4;
         const mesh = {
-            drawMode: gl$$1.LINES,
-            vao: gl$$1.createVertexArray(),
+            drawMode: exports.gl.LINES,
+            vao: exports.gl.createVertexArray(),
         };
 
         mesh.vtxComponents = 4;
         mesh.vtxCount = vertices.length / mesh.vtxComponents;
         const strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
 
-        mesh.vtxBuffer = gl$$1.createBuffer();
-        gl$$1.bindVertexArray(mesh.vao);
-        gl$$1.bindBuffer(gl$$1.ARRAY_BUFFER, mesh.vtxBuffer);
-        gl$$1.bufferData(gl$$1.ARRAY_BUFFER, new Float32Array(vertices), gl$$1.STATIC_DRAW);
-        gl$$1.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
-        gl$$1.enableVertexAttribArray(attrColorLoc);
+        mesh.vtxBuffer = exports.gl.createBuffer();
+        exports.gl.bindVertexArray(mesh.vao);
+        exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, mesh.vtxBuffer);
+        exports.gl.bufferData(exports.gl.ARRAY_BUFFER, new Float32Array(vertices), exports.gl.STATIC_DRAW);
+        exports.gl.enableVertexAttribArray(VTX_ATTR_POSITION_LOC);
+        exports.gl.enableVertexAttribArray(attrColorLoc);
 
-        gl$$1.vertexAttribPointer(
+        exports.gl.vertexAttribPointer(
             VTX_ATTR_POSITION_LOC,
             3,
-            gl$$1.FLOAT,
+            exports.gl.FLOAT,
             false,
             strideLen,
             0,
         );
 
-        gl$$1.vertexAttribPointer(
+        exports.gl.vertexAttribPointer(
             attrColorLoc,
             1,
-            gl$$1.FLOAT,
+            exports.gl.FLOAT,
             false,
             strideLen,
             Float32Array.BYTES_PER_ELEMENT * 3,
         );
 
-        gl$$1.bindBuffer(gl$$1.ARRAY_BUFFER, null);
-        gl$$1.bindVertexArray(null);
+        exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, null);
+        exports.gl.bindVertexArray(null);
         meshs.gridAxis = mesh;
         return mesh;
     }
@@ -809,6 +809,79 @@ Primatives.Quad = class {
         const mesh = createMeshVAO('Quad', indices, vtx, null, uv);
         mesh.offCullFace = true;
         mesh.onBlend = true;
+        return mesh;
+    }
+};
+
+Primatives.Cube = class {
+    static createModal() {
+        return new Modal(Primatives.Cube.createMesh(1, 1, 1, 0, 0, 0));
+    }
+
+    static createMesh(width, height, depth, x, y, z) {
+        const w = width * 0.5;
+        const h = height * 0.5;
+        const d = depth * 0.5;
+
+        const x0 = x - w;
+        const x1 = x + w;
+        const y0 = y - h;
+        const y1 = y + h;
+        const z0 = z - d;
+        const z1 = z + d;
+
+        const vtxArray = [
+            x0, y1, z1, 0, // 0 Front
+            x0, y0, z1, 0, // 1
+            x1, y0, z1, 0, // 2
+            x1, y1, z1, 0, // 3
+
+            x1, y1, z0, 1, // 4 Back
+            x1, y0, z0, 1, // 5
+            x0, y0, z0, 1, // 6
+            x0, y1, z0, 1, // 7
+
+            x0, y1, z0, 2, // 7 Left
+            x0, y0, z0, 2, // 6
+            x0, y0, z1, 2, // 1
+            x0, y1, z1, 2, // 0
+
+            x0, y0, z1, 3, // 1 Bottom
+            x0, y0, z0, 3, // 6
+            x1, y0, z0, 3, // 5
+            x1, y0, z1, 3, // 2
+
+            x1, y1, z1, 4, // 3 Right
+            x1, y0, z1, 4, // 2
+            x1, y0, z0, 4, // 5
+            x1, y1, z0, 4, // 4
+
+            x0, y1, z0, 5, // 7 Top
+            x0, y1, z1, 5, // 0
+            x1, y1, z1, 5, // 3
+            x1, y1, z0, 5, // 4
+        ];
+
+        const indexArray = [];
+        for (let i = 0; i < vtxArray.length / 4; i += 2) {
+            indexArray.push(i, i + 1, (Math.floor(i / 4) * 4) + ((i + 2) % 4));
+        }
+
+        const uvArray = [];
+        for (let i = 0; i < 6; i++) {
+            uvArray.push(0, 0, 0, 1, 1, 1, 1, 0);
+        }
+
+        const normalArray = [
+            0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, // Front
+            0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, // Back
+            -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, // Left
+            0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, // Bottom
+            1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // Right
+            0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // Top
+        ];
+
+        const mesh = createMeshVAO('Cube', indexArray, vtxArray, normalArray, uvArray, 4);
         return mesh;
     }
 };

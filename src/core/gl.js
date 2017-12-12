@@ -55,7 +55,7 @@ export function createArrayBuffer(array, isStatic = true) {
     return buffer;
 }
 
-export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) {
+export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray, vtxLength) {
     const mesh = { drawMode: gl.TRIANGLES };
 
     mesh.vao = gl.createVertexArray();
@@ -71,13 +71,13 @@ export function createMeshVAO(name, indexArray, vtxArray, normalArray, uvArray) 
 
     if (vtxArray !== undefined && vtxArray !== null) {
         mesh.vtxBuffer = gl.createBuffer();
-        mesh.vtxComponents = 3;
+        mesh.vtxComponents = vtxLength || 3;
         mesh.vtxCount = vtxArray.length / mesh.vtxComponents;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vtxBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vtxArray), gl.STATIC_DRAW);
         gl.enableVertexAttribArray(Locations.VTX_ATTR_POSITION_LOC);
-        gl.vertexAttribPointer(Locations.VTX_ATTR_POSITION_LOC, 3, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(Locations.VTX_ATTR_POSITION_LOC, mesh.vtxComponents, gl.FLOAT, false, 0, 0); // eslint-disable-line
     }
 
     if (normalArray !== undefined && normalArray !== null) {
