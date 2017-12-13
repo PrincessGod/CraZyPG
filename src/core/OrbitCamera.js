@@ -98,6 +98,14 @@ class OrbitCamera {
 
     }
 
+    getOrientMatrix() {
+
+        const mat = new Float32Array( this.viewMatrix );
+        mat[ 12 ] = mat[ 13 ] = mat[ 14 ] = 0.0;
+        return mat;
+
+    }
+
 }
 
 OrbitCamera.MODE_FREE = 0;

@@ -139,13 +139,13 @@ Primatives.Quad = class {
 
 Primatives.Cube = class {
 
-    static createModal() {
+    static createModal( name ) {
 
-        return new Modal( Primatives.Cube.createMesh( 1, 1, 1, 0, 0, 0 ) );
+        return new Modal( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
 
     }
 
-    static createMesh( width, height, depth, x, y, z ) {
+    static createMesh( name, width, height, depth, x, y, z ) {
 
         const w = width * 0.5;
         const h = height * 0.5;
@@ -207,7 +207,8 @@ Primatives.Cube = class {
             0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // Top
         ];
 
-        const mesh = createMeshVAO( 'Cube', indexArray, vtxArray, normalArray, uvArray, 4 );
+        const mesh = createMeshVAO( name || 'Cube', indexArray, vtxArray, normalArray, uvArray, 4 );
+        mesh.offCullFace = true;
         return mesh;
 
     }

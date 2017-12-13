@@ -149,4 +149,26 @@ export function loadTexture( name, img, flipY = false ) {
 
 }
 
+export function loadCubeMap( name, imgAry ) {
+
+    if ( imgAry.length !== 6 ) return null;
+
+    const tex = gl.createTexture();
+    gl.bindTexture( gl.TEXTURE_CUBE_MAP, tex );
+
+    for ( let i = 0; i < 6; i ++ )
+        gl.texImage2D( gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgAry[ i ] ); // eslint-disable-line
+
+    gl.texParameteri( gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+    gl.texParameteri( gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
+    gl.texParameteri( gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
+    gl.texParameteri( gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
+    gl.texParameteri( gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE );
+
+    gl.bindTexture( gl.TEXTURE_CUBE_MAP, null );
+    textures[ name ] = tex;
+    return tex;
+
+}
+
 export { gl };

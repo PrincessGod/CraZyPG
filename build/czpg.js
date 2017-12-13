@@ -161,6 +161,28 @@ function loadTexture( name, img, flipY = false ) {
 
 }
 
+function loadCubeMap( name, imgAry ) {
+
+    if ( imgAry.length !== 6 ) return null;
+
+    const tex = exports.gl.createTexture();
+    exports.gl.bindTexture( exports.gl.TEXTURE_CUBE_MAP, tex );
+
+    for ( let i = 0; i < 6; i ++ )
+        exports.gl.texImage2D( exports.gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, exports.gl.RGBA, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, imgAry[ i ] ); // eslint-disable-line
+
+    exports.gl.texParameteri( exports.gl.TEXTURE_CUBE_MAP, exports.gl.TEXTURE_MAG_FILTER, exports.gl.LINEAR );
+    exports.gl.texParameteri( exports.gl.TEXTURE_CUBE_MAP, exports.gl.TEXTURE_MIN_FILTER, exports.gl.LINEAR );
+    exports.gl.texParameteri( exports.gl.TEXTURE_CUBE_MAP, exports.gl.TEXTURE_WRAP_S, exports.gl.CLAMP_TO_EDGE );
+    exports.gl.texParameteri( exports.gl.TEXTURE_CUBE_MAP, exports.gl.TEXTURE_WRAP_T, exports.gl.CLAMP_TO_EDGE );
+    exports.gl.texParameteri( exports.gl.TEXTURE_CUBE_MAP, exports.gl.TEXTURE_WRAP_R, exports.gl.CLAMP_TO_EDGE );
+
+    exports.gl.bindTexture( exports.gl.TEXTURE_CUBE_MAP, null );
+    textures[ name ] = tex;
+    return tex;
+
+}
+
 /* eslint-disable */
 class Vector3{
     constructor(x,y,z){	this.x = x || 0.0;	this.y = y || 0.0;	this.z = z || 0.0; }
@@ -886,13 +908,13 @@ Primatives.Quad = class {
 
 Primatives.Cube = class {
 
-    static createModal() {
+    static createModal( name ) {
 
-        return new Modal( Primatives.Cube.createMesh( 1, 1, 1, 0, 0, 0 ) );
+        return new Modal( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
 
     }
 
-    static createMesh( width, height, depth, x, y, z ) {
+    static createMesh( name, width, height, depth, x, y, z ) {
 
         const w = width * 0.5;
         const h = height * 0.5;
@@ -954,7 +976,8 @@ Primatives.Cube = class {
             0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // Top
         ];
 
-        const mesh = createMeshVAO( 'Cube', indexArray, vtxArray, normalArray, uvArray, 4 );
+        const mesh = createMeshVAO( name || 'Cube', indexArray, vtxArray, normalArray, uvArray, 4 );
+        mesh.offCullFace = true;
         return mesh;
 
     }
@@ -1055,6 +1078,14 @@ class OrbitCamera {
             this.near,
             this.far,
         );
+
+    }
+
+    getOrientMatrix() {
+
+        const mat = new Float32Array( this.viewMatrix );
+        mat[ 12 ] = mat[ 13 ] = mat[ 14 ] = 0.0;
+        return mat;
 
     }
 
@@ -1520,6 +1551,7 @@ exports.fitSize = fitSize;
 exports.createArrayBuffer = createArrayBuffer;
 exports.createMeshVAO = createMeshVAO;
 exports.loadTexture = loadTexture;
+exports.loadCubeMap = loadCubeMap;
 exports.Vector3 = Vector3;
 exports.Matrix4 = Matrix4;
 

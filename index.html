@@ -60,7 +60,49 @@
             finalColor = texture(u_texture, vec2(v_uv.s, v_uv.t));
         }
     </script>
+    <script id="sky-vs" type="shader">#version 300 es
+        in vec4 a_position;
+
+        uniform mat4 u_world;
+        uniform mat4 u_view;
+        uniform mat4 u_proj;
+
+        out highp vec3 v_uv;
+
+        void main() {
+            v_uv = a_position.xyz;
+            gl_Position = u_proj * u_view * u_world * vec4(a_position.xyz, 1.0);
+        }
+    </script>
+    <script id="sky-fs" type="shader">#version 300 es
+        precision mediump float;
+
+        in highp vec3 v_uv;
+
+        uniform samplerCube u_dayTex;
+        uniform samplerCube u_nightTex;
+        uniform float u_time;
+
+        out vec4 finalColor;
+        void main() {
+            finalColor = mix( texture(u_dayTex, v_uv), texture(u_nightTex, v_uv), abs(sin(u_time * 0.0002)));
+        }
+    </script>
     <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
+
+    <img id="day-right" src="./resource/miramar_right.png" style="display:none;"/>
+    <img id="day-left" src="./resource/miramar_left.png" style="display:none;"/>
+    <img id="day-top" src="./resource/miramar_top.png" style="display:none;"/>
+    <img id="day-bottom" src="./resource/miramar_bottom.png" style="display:none;"/>
+    <img id="day-front" src="./resource/miramar_front.png" style="display:none;"/>
+    <img id="day-back" src="./resource/miramar_back.png" style="display:none;"/>
+
+    <img id="night-right" src="./resource/grimmnight_right.png" style="display:none;"/>
+    <img id="night-left" src="./resource/grimmnight_left.png" style="display:none;"/>
+    <img id="night-top" src="./resource/grimmnight_top.png" style="display:none;"/>
+    <img id="night-bottom" src="./resource/grimmnight_bottom.png" style="display:none;"/>
+    <img id="night-front" src="./resource/grimmnight_front.png" style="display:none;"/>
+    <img id="night-back" src="./resource/grimmnight_back.png" style="display:none;"/>
     <script>
         class QuadShader extends CZPG.Shader{
             constructor(gl, projMat) {
@@ -84,10 +126,50 @@
             }
         }
 
+        class SkymapShader extends CZPG.Shader {
+            constructor (gl, projMat, dayTex, nightTex) {
+                super(gl, 'sky-vs', 'sky-fs');
+                this.uniformLoc.time = gl.getUniformLocation(this.program, 'u_time');
+                this.uniformLoc.dayTex = gl.getUniformLocation(this.program, 'u_dayTex');
+                this.uniformLoc.nightTex = gl.getUniformLocation(this.program, 'u_nightTex');
+
+                this.setProjMatrix(projMat);
+                this.dayTex = dayTex;
+                this.nightTex = nightTex;
+                gl.useProgram(null);
+            }
+
+            setTime(t) {
+                this.gl.uniform1f(this.uniformLoc.time, t);
+                return this;
+            }
+
+            preRender() {
+                this.gl.activeTexture(this.gl.TEXTURE0);
+                this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.dayTex);
+                this.gl.uniform1i(this.uniformLoc.dayTex, 0);
+
+                this.gl.activeTexture(this.gl.TEXTURE1);
+                this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.nightTex);
+                this.gl.uniform1i(this.uniformLoc.dayTex, 1);
+                return this;
+            }
+        }
+
         window.addEventListener('load', function() {
             CZPG.getContext('glpaper').setSize('80%', '80%', window.devicePixelRatio).clear();
         
             CZPG.loadTexture('test-tex', document.getElementById('test-tex'));
+            CZPG.loadCubeMap('day', [
+                document.getElementById('day-right'), document.getElementById('day-left'),
+                document.getElementById('day-top'), document.getElementById('day-bottom'),
+                document.getElementById('day-back'), document.getElementById('day-front'),
+            ]);
+            CZPG.loadCubeMap('night', [
+                document.getElementById('night-right'), document.getElementById('night-left'),
+                document.getElementById('night-top'), document.getElementById('night-bottom'),
+                document.getElementById('night-back'), document.getElementById('night-front'),
+            ]);
 
             let camera = new CZPG.OrbitCamera(CZPG.gl);
             camera.transform.position.set(0, 1, 3);
@@ -100,11 +182,16 @@
             let quadShader = new QuadShader(CZPG.gl, camera.projMatrix).setTexture(CZPG.textures['test-tex']);
             let quadModal = CZPG.Primatives.Quad.createModal().setPosition(1, 0, -1);
             let cubeModal = CZPG.Primatives.Cube.createModal().setPosition(0, 0.5, 0);
+            
+            let skymapShader = new SkymapShader(CZPG.gl, camera.projMatrix, CZPG.textures['day'], CZPG.textures['night']);
+            let skyCubeModal = new CZPG.Modal(CZPG.Primatives.Cube.createMesh('sky', 10, 10, 10, 0, 0, 0));
 
             let loop = new CZPG.Render(function(timespan) {
                 CZPG.fitSize().clear();
                 camera.updateViewMatrix();
                 camera.updateProjMatrix();
+                skymapShader.activate().preRender().setProjMatrix(camera.projMatrix).setViewMatrix(camera.getOrientMatrix())
+                    .setTime(performance.now()).renderModal(skyCubeModal);
                 gridShader.activate().setProjMatrix(camera.projMatrix).setViewMatrix(camera.viewMatrix)
                     .renderModal(gridModal.preRender());
                 quadShader.activate().preRender().setProjMatrix(camera.projMatrix).setViewMatrix(camera.viewMatrix)
