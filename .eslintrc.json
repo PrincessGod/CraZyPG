@@ -4,7 +4,7 @@
         "es6": true,
         "node": true
     },
-    "extends": "airbnb",
+    "extends": ["airbnb", "mdcs"],
     "parserOptions": {
         "sourceType": "module"
     },
@@ -36,6 +36,7 @@
         ],
         "func-names": 0,
         "no-console": 0,
-        "import/prefer-default-export": 0
+        "import/prefer-default-export": 0,
+        "curly": ["error", "multi"]
     }
 }

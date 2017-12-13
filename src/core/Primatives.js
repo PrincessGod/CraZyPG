@@ -5,7 +5,9 @@ import { Modal } from './Modal';
 
 const Primatives = {};
 Primatives.GridAxis = class {
+
     static createMesh() {
+
         const vertices = [];
         const size = 2;
         const div = 10.0;
@@ -13,58 +15,60 @@ Primatives.GridAxis = class {
         const half = size / 2;
 
         let p;
-        for (let i = 0; i <= div; i++) {
-            p = -half + (i * step);
-            vertices.push(p);
-            vertices.push(0);
-            vertices.push(half);
-            vertices.push(0);
+        for ( let i = 0; i <= div; i ++ ) {
 
-            vertices.push(p);
-            vertices.push(0);
-            vertices.push(-half);
-            vertices.push(0);
+            p = - half + ( i * step );
+            vertices.push( p );
+            vertices.push( 0 );
+            vertices.push( half );
+            vertices.push( 0 );
 
-            vertices.push(-half);
-            vertices.push(0);
-            vertices.push(p);
-            vertices.push(0);
+            vertices.push( p );
+            vertices.push( 0 );
+            vertices.push( - half );
+            vertices.push( 0 );
 
-            vertices.push(half);
-            vertices.push(0);
-            vertices.push(p);
-            vertices.push(0);
+            vertices.push( - half );
+            vertices.push( 0 );
+            vertices.push( p );
+            vertices.push( 0 );
+
+            vertices.push( half );
+            vertices.push( 0 );
+            vertices.push( p );
+            vertices.push( 0 );
+
         }
 
-        vertices.push(-half);
-        vertices.push(0);
-        vertices.push(0);
-        vertices.push(1);
+        vertices.push( - half );
+        vertices.push( 0 );
+        vertices.push( 0 );
+        vertices.push( 1 );
 
-        vertices.push(half);
-        vertices.push(0);
-        vertices.push(0);
-        vertices.push(1);
+        vertices.push( half );
+        vertices.push( 0 );
+        vertices.push( 0 );
+        vertices.push( 1 );
 
-        vertices.push(0);
-        vertices.push(-half);
-        vertices.push(0);
-        vertices.push(2);
+        vertices.push( 0 );
+        vertices.push( - half );
+        vertices.push( 0 );
+        vertices.push( 2 );
 
-        vertices.push(0);
-        vertices.push(half);
-        vertices.push(0);
-        vertices.push(2);
+        vertices.push( 0 );
+        vertices.push( half );
+        vertices.push( 0 );
+        vertices.push( 2 );
 
-        vertices.push(0);
-        vertices.push(0);
-        vertices.push(-half);
-        vertices.push(3);
+        vertices.push( 0 );
+        vertices.push( 0 );
+        vertices.push( - half );
+        vertices.push( 3 );
 
-        vertices.push(0);
-        vertices.push(0);
-        vertices.push(half);
-        vertices.push(3);
+        vertices.push( 0 );
+        vertices.push( 0 );
+        vertices.push( half );
+        vertices.push( 3 );
 
         const attrColorLoc = 4;
         const mesh = {
@@ -77,11 +81,11 @@ Primatives.GridAxis = class {
         const strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
 
         mesh.vtxBuffer = gl.createBuffer();
-        gl.bindVertexArray(mesh.vao);
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vtxBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(Locations.VTX_ATTR_POSITION_LOC);
-        gl.enableVertexAttribArray(attrColorLoc);
+        gl.bindVertexArray( mesh.vao );
+        gl.bindBuffer( gl.ARRAY_BUFFER, mesh.vtxBuffer );
+        gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.STATIC_DRAW );
+        gl.enableVertexAttribArray( Locations.VTX_ATTR_POSITION_LOC );
+        gl.enableVertexAttribArray( attrColorLoc );
 
         gl.vertexAttribPointer(
             Locations.VTX_ATTR_POSITION_LOC,
@@ -101,36 +105,48 @@ Primatives.GridAxis = class {
             Float32Array.BYTES_PER_ELEMENT * 3,
         );
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindVertexArray(null);
+        gl.bindBuffer( gl.ARRAY_BUFFER, null );
+        gl.bindVertexArray( null );
         properties.meshs.gridAxis = mesh;
         return mesh;
+
     }
+
 };
 
 Primatives.Quad = class {
+
     static createModal() {
-        return new Modal(Primatives.Quad.createMesh());
+
+        return new Modal( Primatives.Quad.createMesh() );
+
     }
 
     static createMesh() {
-        const vtx = [-0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0];
-        const uv = [0, 0, 0, 1, 1, 1, 1, 0];
-        const indices = [0, 1, 2, 2, 3, 0];
 
-        const mesh = createMeshVAO('Quad', indices, vtx, null, uv);
+        const vtx = [ - 0.5, 0.5, 0, - 0.5, - 0.5, 0, 0.5, - 0.5, 0, 0.5, 0.5, 0 ];
+        const uv = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
+        const indices = [ 0, 1, 2, 2, 3, 0 ];
+
+        const mesh = createMeshVAO( 'Quad', indices, vtx, null, uv );
         mesh.offCullFace = true;
         mesh.onBlend = true;
         return mesh;
+
     }
+
 };
 
 Primatives.Cube = class {
+
     static createModal() {
-        return new Modal(Primatives.Cube.createMesh(1, 1, 1, 0, 0, 0));
+
+        return new Modal( Primatives.Cube.createMesh( 1, 1, 1, 0, 0, 0 ) );
+
     }
 
-    static createMesh(width, height, depth, x, y, z) {
+    static createMesh( width, height, depth, x, y, z ) {
+
         const w = width * 0.5;
         const h = height * 0.5;
         const d = depth * 0.5;
@@ -175,27 +191,27 @@ Primatives.Cube = class {
         ];
 
         const indexArray = [];
-        for (let i = 0; i < vtxArray.length / 4; i += 2) {
-            indexArray.push(i, i + 1, (Math.floor(i / 4) * 4) + ((i + 2) % 4));
-        }
+        for ( let i = 0; i < vtxArray.length / 4; i += 2 )
+            indexArray.push( i, i + 1, ( Math.floor( i / 4 ) * 4 ) + ( ( i + 2 ) % 4 ) );
 
         const uvArray = [];
-        for (let i = 0; i < 6; i++) {
-            uvArray.push(0, 0, 0, 1, 1, 1, 1, 0);
-        }
+        for ( let i = 0; i < 6; i ++ )
+            uvArray.push( 0, 0, 0, 1, 1, 1, 1, 0 );
 
         const normalArray = [
             0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, // Front
-            0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, // Back
-            -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, // Left
-            0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, // Bottom
+            0, 0, - 1, 0, 0, - 1, 0, 0, - 1, 0, 0, - 1, // Back
+            - 1, 0, 0, - 1, 0, 0, - 1, 0, 0, - 1, 0, 0, // Left
+            0, - 1, 0, 0, - 1, 0, 0, - 1, 0, 0, - 1, 0, // Bottom
             1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // Right
             0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // Top
         ];
 
-        const mesh = createMeshVAO('Cube', indexArray, vtxArray, normalArray, uvArray, 4);
+        const mesh = createMeshVAO( 'Cube', indexArray, vtxArray, normalArray, uvArray, 4 );
         return mesh;
+
     }
+
 };
 
 export { Primatives };

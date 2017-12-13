@@ -60,7 +60,7 @@
             finalColor = texture(u_texture, vec2(v_uv.s, v_uv.t));
         }
     </script>
-    <img id="test-tex" src="./resource/texture.png" style="display:none;"/>
+    <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
     <script>
         class QuadShader extends CZPG.Shader{
             constructor(gl, projMat) {
@@ -98,8 +98,8 @@
             let gridModal = new CZPG.Modal(gridMesh);
 
             let quadShader = new QuadShader(CZPG.gl, camera.projMatrix).setTexture(CZPG.textures['test-tex']);
-            let cubeModal = CZPG.Primatives.Cube.createModal();
             let quadModal = CZPG.Primatives.Quad.createModal().setPosition(1, 0, -1);
+            let cubeModal = CZPG.Primatives.Cube.createModal().setPosition(0, 0.5, 0);
 
             let loop = new CZPG.Render(function(timespan) {
                 CZPG.fitSize().clear();

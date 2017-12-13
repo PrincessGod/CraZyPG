@@ -1,7 +1,9 @@
 import { Shader } from './Shader';
 
 class GridAxisShader extends Shader {
-    constructor(gl, projMat) {
+
+    constructor( gl, projMat ) {
+
         const vs = '#version 300 es\n' +
             'in vec3 a_Position;\n' +
             'layout(location=4) in float a_Color;\n' +
@@ -28,15 +30,17 @@ class GridAxisShader extends Shader {
             '    finalColor = vec4(v_color, 1.0);\n' +
             '}';
 
-        super(gl, vs, fs);
+        super( gl, vs, fs );
 
-        this.setProjMatrix(projMat);
+        this.setProjMatrix( projMat );
 
-        const uColor = gl.getUniformLocation(this.program, 'u_colors');
-        gl.uniform3fv(uColor, [0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1]);
+        const uColor = gl.getUniformLocation( this.program, 'u_colors' );
+        gl.uniform3fv( uColor, [ 0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1 ] );
 
-        gl.useProgram(null);
+        gl.useProgram( null );
+
     }
+
 }
 
 export { GridAxisShader };
