@@ -1644,8 +1644,8 @@ function getNumElementsFromNonIndicedArrays( arrays ) {
 function createBufferFromArray( gl, array, name ) {
 
     const type = name === 'indices' ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
-    const typedArray = getTypedArray( array, name );
-    return createBufferFromTypedArray( gl, typedArray, type );
+    const typedArray = getTypedArray( getArray( array ), name );
+    return createBufferFromTypedArray( gl, typedArray, type, array.drawType );
 
 }
 
@@ -1664,6 +1664,8 @@ function createBuffersFromArrays( gl, arrays ) {
     else
         buffers.numElements = getNumElementsFromNonIndicedArrays( arrays );
 
+    return buffers;
+
 }
 
 function createAttribsFromArrays( gl, arrays ) {
@@ -1676,10 +1678,10 @@ function createAttribsFromArrays( gl, arrays ) {
 
             const array = arrays[ key ];
             const attribName = array.name || array.attrib || array.attribName || key;
-            const typedArray = getTypedArray( array, key );
+            const typedArray = getTypedArray( getArray( array ), key );
             const buffer = createBufferFromTypedArray( gl, typedArray, gl.ARRAY_BUFFER, array.drawType );
             const type = getGLTypeFromTypedArray( typedArray );
-            const normalization = array.normalize !== undefined ? array.normalize : gl.FALSE;
+            const normalization = array.normalize !== undefined ? array.normalize : false;
             const numComponents = getNumComponents( array, key );
 
             attribs[ attribName ] = {
@@ -1689,12 +1691,14 @@ function createAttribsFromArrays( gl, arrays ) {
                 normalize: normalization,
                 stride: array.stride || 0,
                 offset: array.offset || 0,
-                drawType: array.drawType,
+                drawType: array.drawType || gl.STATIC_DRAW,
             };
 
         }
 
     } );
+
+    return attribs;
 
 }
 
@@ -1707,7 +1711,7 @@ function createBufferInfoFromArrays( gl, arrays ) {
     const { indices } = arrays;
     if ( indices ) {
 
-        const newIndices = getTypedArray( indices, 'indices' );
+        const newIndices = getTypedArray( getArray( indices ), 'indices' );
         bufferInfo.indices = createBufferFromTypedArray( gl, newIndices, gl.ELEMENT_ARRAY_BUFFER );
         bufferInfo.numElements = newIndices.length;
         bufferInfo.elementType = getGLTypeFromTypedArray( newIndices );
