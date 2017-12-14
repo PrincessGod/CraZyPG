@@ -1527,6 +1527,198 @@ class GridAxisShader extends Shader {
 
 }
 
+const isArrayBuffer = window.SharedArrayBuffer
+    ? function isArrayBufferOrSharedArrayBuffer( ary ) {
+
+        return ary && ary.buffer && ( ary.buffer instanceof ArrayBuffer || ary.buffer instanceof window.SharedArrayBuffer );
+
+    } : function isArrayBuffer( ary ) {
+
+        return ary && ary.buffer && ary.buffer instanceof ArrayBuffer;
+
+    };
+
+const BYTE = 0x1400;
+const UNSIGNED_BYTE = 0x1401;
+const SHORT = 0x1402;
+const UNSIGNED_SHORT = 0x1403;
+const INT = 0x1404;
+const UNSIGNED_INT = 0x1405;
+const FLOAT = 0x1406;
+{
+
+    
+
+}
+
+function getGLTypeFromTypedArray( typedArray ) {
+
+    if ( typedArray instanceof Int8Array ) return BYTE;
+    if ( typedArray instanceof Uint8Array ) return UNSIGNED_BYTE;
+    if ( typedArray instanceof Uint8ClampedArray ) return UNSIGNED_BYTE;
+    if ( typedArray instanceof Int16Array ) return SHORT;
+    if ( typedArray instanceof Uint16Array ) return UNSIGNED_SHORT;
+    if ( typedArray instanceof Int32Array ) return INT;
+    if ( typedArray instanceof Uint32Array ) return UNSIGNED_INT;
+    if ( typedArray instanceof Float32Array ) return FLOAT;
+    throw new Error( 'unsupported typed array type' );
+
+}
+
+function isIndices( name ) {
+
+    return name === 'index' || name === 'indices';
+
+}
+
+function getArray( array ) {
+
+    return array.length ? array : array.data;
+
+}
+
+function getTypedArray( array, name ) {
+
+    if ( isArrayBuffer( array ) ) return array;
+
+    if ( isIndices( name ) ) return new Uint16Array( array );
+
+    return new Float32Array( array );
+
+}
+
+const colorRE = /color|colour/i;
+const textureRE = /uv|coord/i;
+
+function guessNumComponentsFromName( name, length ) {
+
+    let numComponents;
+    if ( colorRE.test( name ) ) numComponents = 4;
+    else if ( textureRE.test( name ) ) numComponents = 2;
+    else numComponents = 3;
+
+    if ( length % numComponents > 0 )
+        throw new Error( `Can not guess numComponents for attribute ${name}.` );
+
+}
+
+function getNumComponents( array, name ) {
+
+    return array.numComponents || array.size || guessNumComponentsFromName( name, getArray( array ).length );
+
+}
+
+function createBufferFromTypedArray( gl, typedArray, type = gl.ARRAY_BUFFER, drawType = gl.STATIC_DRAW ) {
+
+    if ( typedArray instanceof WebGLBuffer )
+        return typedArray;
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer( type, buffer );
+    gl.bufferData( type, typedArray, drawType );
+    return buffer;
+
+}
+
+const positionNames = [ 'position', 'positions', 'a_position' ];
+
+function getNumElementsFromNonIndicedArrays( arrays ) {
+
+    let key;
+    let i;
+    for ( i = 0; i < positionNames.length; i ++ )
+        if ( positionNames[ i ] in arrays ) {
+
+            key = positionNames[ i ];
+            break;
+
+        }
+
+    if ( i === positionNames.length ) [ key ] = Object.keys( arrays );
+    const array = arrays[ key ];
+    const dataArray = getArray( array );
+    return dataArray.length / getNumComponents( array, key );
+
+}
+
+function createBufferFromArray( gl, array, name ) {
+
+    const type = name === 'indices' ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
+    const typedArray = getTypedArray( array, name );
+    return createBufferFromTypedArray( gl, typedArray, type );
+
+}
+
+function createBuffersFromArrays( gl, arrays ) {
+
+    const buffers = {};
+
+    Object.keys( arrays ).forEach( ( key ) => {
+
+        buffers[ key ] = createBufferFromArray( gl, arrays[ key ], key );
+
+    } );
+
+    if ( arrays.indices )
+        buffers.numElements = arrays.indices.length;
+    else
+        buffers.numElements = getNumElementsFromNonIndicedArrays( arrays );
+
+}
+
+function createAttribsFromArrays( gl, arrays ) {
+
+    const attribs = {};
+
+    Object.keys( arrays ).forEach( ( key ) => {
+
+        if ( ! isIndices( key ) ) {
+
+            const array = arrays[ key ];
+            const attribName = array.name || array.attrib || array.attribName || key;
+            const typedArray = getTypedArray( array, key );
+            const buffer = createBufferFromTypedArray( gl, typedArray, gl.ARRAY_BUFFER, array.drawType );
+            const type = getGLTypeFromTypedArray( typedArray );
+            const normalization = array.normalize !== undefined ? array.normalize : gl.FALSE;
+            const numComponents = getNumComponents( array, key );
+
+            attribs[ attribName ] = {
+                buffer,
+                numComponents,
+                type,
+                normalize: normalization,
+                stride: array.stride || 0,
+                offset: array.offset || 0,
+                drawType: array.drawType,
+            };
+
+        }
+
+    } );
+
+}
+
+function createBufferInfoFromArrays( gl, arrays ) {
+
+    const bufferInfo = {
+        attribs: createAttribsFromArrays( gl, arrays ),
+    };
+
+    const { indices } = arrays;
+    if ( indices ) {
+
+        const newIndices = getTypedArray( indices, 'indices' );
+        bufferInfo.indices = createBufferFromTypedArray( gl, newIndices, gl.ELEMENT_ARRAY_BUFFER );
+        bufferInfo.numElements = newIndices.length;
+        bufferInfo.elementType = getGLTypeFromTypedArray( newIndices );
+
+    } else
+        bufferInfo.numElements = getNumElementsFromNonIndicedArrays( arrays );
+
+    return bufferInfo;
+
+}
+
 exports.Transform = Transform;
 exports.Modal = Modal;
 exports.Primatives = Primatives;
@@ -1536,6 +1728,8 @@ exports.Render = Render;
 exports.ShaderUtil = ShaderUtil;
 exports.Shader = Shader;
 exports.GridAxisShader = GridAxisShader;
+exports.createBuffersFromArrays = createBuffersFromArrays;
+exports.createBufferInfoFromArrays = createBufferInfoFromArrays;
 exports.meshs = meshs;
 exports.textures = textures;
 exports.VTX_ATTR_POSITION_NAME = VTX_ATTR_POSITION_NAME;

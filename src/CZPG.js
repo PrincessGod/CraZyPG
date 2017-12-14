@@ -10,3 +10,4 @@ export { Render } from './core/Render.js';
 export { ShaderUtil } from './core/ShaderUtil.js';
 export { Shader } from './core/Shader.js';
 export { GridAxisShader } from './core/ShaderLib.js';
+export { createBuffersFromArrays, createBufferInfoFromArrays } from './renderer/attributes';

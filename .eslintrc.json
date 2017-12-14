@@ -37,6 +37,7 @@
         "func-names": 0,
         "no-console": 0,
         "import/prefer-default-export": 0,
-        "curly": ["error", "multi"]
+        "curly": ["error", "multi"],
+        "max-len": 0
     }
 }
