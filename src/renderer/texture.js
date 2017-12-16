@@ -363,12 +363,138 @@ function setTextureTo1PixelColor( gl, tex, options ) {
 
 }
 
+function loadImage( url, crossOrigin, callback ) {
+
+    const cb = callback || empty;
+    let img = new Image();
+    const cors = crossOrigin !== undefined ? crossOrigin : defaults.crossOrigin;
+    if ( cors !== undefined )
+        img.crossOrigin = cors;
+
+
+    function clearEventHandlers() {
+
+        img.removeEventListener( 'error', onError );
+        img.removeEventListener( 'load', onLoad );
+        img = null;
+
+    }
+
+    function onError() {
+
+        const msg = `couldn't load image: ${url}`;
+        cb( msg, img );
+        clearEventHandlers();
+
+    }
+
+    function onLoad() {
+
+        cb( null, img );
+        clearEventHandlers();
+
+    }
+
+}
+
+const lastPackState = {};
+
+function savePatcState( gl, options ) {
+
+    if ( options.colorspaceConversion !== undefined ) {
+
+        lastPackState.colorspaceConversion = gl.getParameter( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL );
+        gl.pixelStorei( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, options.colorspaceConversion );
+
+    }
+    if ( options.premultiplyAlpha !== undefined ) {
+
+        lastPackState.premultiplyAlpha = gl.getParameter( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL );
+        gl.pixelStorei( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL, options.premultiplyAlpha );
+
+    }
+    if ( options.flipY !== undefined ) {
+
+        lastPackState.flipY = gl.getParameter( gl.UNPACK_FLIP_Y_WEBGL );
+        gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, options.flipY );
+
+    }
+
+}
+
+function restorePackState( gl, options ) {
+
+    if ( options.colorspaceConversion !== undefined )
+        gl.pixelStorei( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, options.colorspaceConversion );
+    if ( options.premultiplyAlpha !== undefined )
+        gl.pixelStorei( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL, options.premultiplyAlpha );
+    if ( options.flipY !== undefined )
+        gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, options.flipY );
+
+}
+
+function setTextureFromElement( gl, tex, element, options ) {
+
+    const opts = options || defaults.textureOptions;
+    const target = opts.target || gl.TEXTURE_2D;
+    const level = opts.level || 0;
+    const { width, height } = element;
+    const internalFormat = opts.internalFormat || opts.format || gl.RGBA;
+    const fromatType = getFormatAndTypeFromInternalFormat( internalFormat );
+    const format = opts.format || formatType.format;
+    const type = opts.type || formatType.type;
+
+    savePatcState( gl, opts );
+
+    if ( target === gl.TEXTURE_CUBE_MAP ) {
+
+        const imgWidth = element.width;
+        const imgHeight = element.height;
+        let size;
+        let slices;
+        if ( imgWidth / 6 === imgHeight ) {
+
+            size = imgHeight;
+            slices = [ 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0 ];
+
+        } else if ( imgHeight / 6 === imgWidth ) {
+
+            size = imgWidth;
+            slices = [ 0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5 ];
+
+        } else if ( imgWidth / 3 === imgHeight / 2 ) {
+
+            size = imgWidth / 3;
+            slices = [ 0, 0, 1, 0, 2, 0, 0, 1, 1, 1, 2, 1 ];
+
+        } else if ( imgWidth / 2 === imgHeight / 3 ) {
+
+            size = imgWidth / 2;
+            slices = [ 0, 0, 1, 0, 0, 1, 1, 1, 0, 2, 1, 2 ];
+
+        } else
+            throw new Error( `can't guess cube map from element: ${element.src ? element.src : element.nodeName}` );
+
+    }
+// ///////////////////////////////
+
+}
+
 function loadTextureFromUrl( gl, tex, options, callback ) {
 
     const cb = callback || empty;
     const opts = options || defaults.textureOptions;
     setTextureTo1PixelColor( gl, tex, opts );
     const asyncOpts = Object.assign( {}, opts );
+    const img = loadImage( opts.src, options.crossOrigin, ( err, img ) => {
+
+        if ( err )
+            cb( err, tex, img );
+        else {
+            // setTe
+        }
+
+    } );
 
 }
 
