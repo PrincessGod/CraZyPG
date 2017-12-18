@@ -1,8 +1,8 @@
-import { isArrayBuffer } from './typedArray';
-import { isWebgl2 } from './utils';
+import { isArrayBuffer, getGLTypeFromTypedArray, getTypedArrayTypeFromGLType } from './typedArray';
+import { isWebgl2, glEnumToString } from './utils';
 
 const defaults = {
-    textureColor: new Uint8Array( [ 255, 182, 193, 255 ] ),
+    textureColor: new Uint8Array( [ 255, 105, 180, 255 ] ),
     textureOptions: {},
     crossOrigin: undefined,
 };
@@ -15,19 +15,6 @@ const LUMINANCE = 0x1909;
 const LUMINANCE_ALPHA = 0x190A;
 const DEPTH_COMPONENT = 0x1902;
 const DEPTH_STENCIL = 0x84F9;
-
-/* TextureWrapMode */
-const REPEAT = 0x2901;
-const MIRRORED_REPEAT = 0x8370;
-
-/* TextureMagFilter */
-const NEAREST = 0x2600;
-
-/* TextureMinFilter */
-const NEAREST_MIPMAP_NEAREST = 0x2700;
-const LINEAR_MIPMAP_NEAREST = 0x2701;
-const NEAREST_MIPMAP_LINEAR = 0x2702;
-const LINEAR_MIPMAP_LINEAR = 0x2703;
 
 const R8 = 0x8229;
 const R8_SNORM = 0x8F94;
@@ -396,6 +383,11 @@ function loadImage( url, crossOrigin, callback ) {
 
     }
 
+    img.addEventListener( 'error', onError );
+    img.addEventListener( 'load', onLoad );
+    img.src = url;
+    return img;
+
 }
 
 const lastPackState = {};
@@ -588,7 +580,7 @@ function setTextureFromElement( gl, tex, element, options ) {
     const type = opts.type || formatType.type;
 
     savePatcState( gl, opts );
-
+    gl.bindTexture( target, tex );
     if ( target === gl.TEXTURE_CUBE_MAP ) {
 
         const imgWidth = element.width;
@@ -701,22 +693,329 @@ function loadTextureFromUrl( gl, tex, options, callback ) {
 
 }
 
+function getTextureTypeFromArrayType( gl, src, defaultType ) {
+
+    if ( isArrayBuffer( src ) )
+        return getGLTypeFromTypedArray( src );
+
+
+    return defaultType || gl.UNSIGNED_BYTE;
+
+}
+
+function getBytesPerElementForInternalFromat( internalFromat, type ) {
+
+    const info = textureInternalFormatInfo[ internalFromat ];
+    if ( ! info )
+        throw new Error( 'unknown internal format' );
+    const bytesPerElement = info.bytesPerElementMap[ type ];
+    if ( bytesPerElement === undefined )
+        throw new Error( 'unknown internal format' );
+    return bytesPerElement;
+
+}
+
+function guessDimensions( gl, target, width, height, numElements ) {
+
+    if ( numElements % 1 !== 0 )
+        throw new Error( 'can\'t guess dimensions' );
+
+    let cWith;
+    let cHeight;
+    if ( ! width && ! height ) {
+
+        const size = Math.sqrt( numElements / ( target === gl.TEXTURE_CUBE_MAP ? 6 : 1 ) );
+        if ( size % 1 === 0 ) {
+
+            cWith = size;
+            cHeight = size;
+
+        } else {
+
+            cWith = numElements;
+            cHeight = 1;
+
+        }
+
+    } else if ( ! height ) {
+
+        cHeight = numElements / width;
+        if ( cHeight % 1 )
+            throw new Error( 'can\'t guess dimensions' );
+
+    } else if ( ! width ) {
+
+        cWith = numElements / height;
+        if ( cWith % 1 )
+            throw new Error( 'can\'t guess dimensions' );
+
+    }
+
+    return {
+        width: cWith,
+        height: cHeight,
+    };
+
+}
+
+function setTextureFromArray( gl, tex, src, options ) {
+
+    const opts = options || defaults.textureOptions;
+    const target = opts.target || gl.TEXTURE_2D;
+    gl.bindTexture( target, tex );
+    let { width, height, depth } = opts;
+    const level = opts.level || 0;
+    const internalFromat = opts.internalFormat || opts.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
+    const format = opts.format || formatType.format;
+    const type = opts.format || getTextureTypeFromArrayType( gl, src, formatType.type );
+    let typedSrc = src;
+    if ( ! isArrayBuffer( typedSrc ) ) {
+
+        const Type = getTypedArrayTypeFromGLType( type );
+        typedSrc = new Type( src );
+
+    } else if ( typedSrc instanceof Uint8ClampedArray )
+        typedSrc = new Uint8Array( typedSrc.buffer );
+
+    const bytesPerElement = getBytesPerElementForInternalFromat( internalFromat, type );
+    const numElements = typedSrc.byteLength / bytesPerElement;
+    if ( numElements % 1 )
+        throw new Error( `length wrong for format: ${glEnumToString( gl, format )}` );
+
+    let dimensions;
+    if ( target === gl.TEXTURE_3D )
+        if ( ! width && ! height && ! depth ) {
+
+            const size = Math.cbrt( numElements );
+            if ( size % 1 !== 0 )
+                throw new Error( `can't guess size of array of numElements: ${numElements}` );
+            width = size;
+            height = size;
+            depth = size;
+
+        } else if ( width && ( ! height || ! depth ) ) {
+
+            dimensions = guessDimensions( gl, target, height, depth, numElements / width );
+            height = dimensions.width;
+            depth = dimensions.height;
+
+        } else if ( height && ( ! width || ! depth ) ) {
+
+            dimensions = guessDimensions( gl, target, width, depth, numElements / height );
+            width = dimensions.width;
+            depth = dimensions.height;
+
+        } else {
+
+            dimensions = guessDimensions( gl, target, width, height, numElements / depth );
+            width = dimensions.width;
+            height = dimensions.height;
+
+        }
+    else {
+
+        dimensions = guessDimensions( gl, target, width, height, numElements );
+        width = dimensions.width;
+        height = dimensions.height;
+
+    }
+
+
+    gl.pixelStorei( gl.UNPACK_ALIGNMENT, opts.unpackAlignment || 1 );
+    savePatcState( gl, options );
+    if ( target === gl.TEXTURE_CUBE_MAP ) {
+
+        const elementsPerElement = bytesPerElement / typedSrc.BYTES_PER_ELEMENT;
+        const faceSize = ( numElements / 6 ) * elementsPerElement;
+
+        getCubeFacesWithIdx( gl, options ).forEach( ( f ) => {
+
+            const offset = faceSize * f.idx;
+            const data = typedSrc.subarray( offset, offset + faceSize );
+            gl.texImage2D( f.face, level, internalFromat, width, height, 0, format, type, data );
+
+        } );
+
+    } else if ( target === gl.TEXTURE_3D )
+        gl.texImage3D( target, level, internalFromat, width, height, depth, 0, format, type, typedSrc );
+    else
+        gl.texImage2D( target, level, internalFromat, width, height, 0, format, type, typedSrc );
+
+
+    restorePackState( gl, options );
+    return {
+        width,
+        height,
+        depth,
+        type,
+    };
+
+}
+
+function loadCubeMapFromUrls( gl, tex, options, callback ) {
+
+    const cb = callback || empty;
+    const urls = options.src;
+    if ( urls.length !== 6 )
+        throw new Error( 'there must be 6 urls for a cubemap' );
+    const level = options.level || 0;
+    const internalFromat = options.internalFormat || options.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
+    const format = options.format || formatType.format;
+    const type = options.type || gl.UNSIGNED_BYTE;
+    const target = options.target || gl.TEXTURE_2D;
+    if ( target !== gl.TEXTURE_CUBE_MAP )
+        throw new Error( 'target must be TEXTURE_CUBE_MAP' );
+
+    setTextureTo1PixelColor( gl, tex, options );
+
+    const opts = Object.assign( {}, options );
+    let numToLoad = 6;
+    const errors = [];
+    const faces = getCubeFacesOrder( gl, opts );
+    let imgs;
+
+    function uploadImg( faceTarget ) {
+
+        return function ( err, img ) {
+
+            numToLoad -= 1;
+            if ( err )
+                errors.push( err );
+            else {
+
+                savePatcState( gl, opts );
+                gl.bindTexture( target, tex );
+                if ( numToLoad === 5 )
+                    getCubeFacesOrder( gl ).forEach( ( otherTarget ) => {
+
+                        gl.texImage2D( otherTarget, level, internalFromat, format, type, img );
+
+                    } );
+                else
+                    gl.texImage2D( faceTarget, level, internalFromat, format, type, img );
+
+                restorePackState( gl, opts );
+                if ( shouldAutoSetTextureFiltering( opts ) )
+                    gl.generateMipmap( target );
+
+            }
+
+            if ( numToLoad === 0 )
+                cb( errors.length ? errors : undefined, imgs, tex );
+
+        };
+
+    }
+
+    imgs = urls.map( ( url, idx ) => loadImage( url, opts.crossOrigin, uploadImg( faces[ idx ] ) ) );
+
+}
+
+function loadSlicesFromUrls( gl, tex, options, callback ) {
+
+    const cb = callback || empty;
+    const urls = options.src;
+    const internalFromat = options.internalFormat || options.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
+    const format = options.format || formatType.format;
+    const type = options.type || gl.UNSIGNED_BYTE;
+    const target = options.target || gl.TEXTURE_2D_ARRAY;
+    if ( target !== gl.TEXTURE_3D && target !== gl.TEXTURE_2D_ARRAY )
+        throw new Error( 'target must be TEXTURE_3D or TEXTURE_2D_ARRAY' );
+
+    setTextureTo1PixelColor( gl, tex, options );
+
+    const opts = Object.assign( {}, options );
+    let numToLoad = urls.length;
+    const errors = [];
+    let imgs;
+    const level = opts.level || 0;
+    let width = opts.width;
+    let height = opts.height;
+    const depth = urls.length;
+    let firstImage = true;
+
+    function uploadImg( slice ) {
+
+        return function ( err, img ) {
+
+            numToLoad -= 1;
+            if ( err )
+                errors.push( err );
+            else {
+
+                savePatcState( gl, opts );
+                gl.bindTexture( target, tex );
+
+                if ( firstImage ) {
+
+                    firstImage = false;
+                    width = opts.width || img.width;
+                    height = opts.width || img.width;
+                    gl.texImage3D( target, level, internalFromat, width, height, depth, 0, format, type, null );
+
+                    for ( let s = 0; s < depth; s ++ )
+                        gl.texSubImage3D( target, level, 0, 0, s, width, height, 1, format, type, img );
+
+                } else {
+
+                    let src = img;
+                    if ( img.width !== width || img.height !== height ) {
+
+                        src = ctx.canvas;
+                        ctx.canvas.width = width;
+                        ctx.canvas.height = height;
+                        ctx.drawImage( img, 0, 0, width, height );
+
+                    }
+
+                    gl.texSubImage3D( target, level, 0, 0, slice, width, height, 1, format, type, src );
+
+                    if ( src === ctx.canvas ) {
+
+                        ctx.canvas.width = 0;
+                        ctx.canvas.height = 0;
+
+                    }
+
+                }
+
+                restorePackState( gl, opts );
+                if ( shouldAutoSetTextureFiltering( opts ) )
+                    gl.generateMipmap( target );
+
+
+            }
+
+            if ( numToLoad === 0 )
+                cb( errors.length ? errors : undefined, imgs, tex );
+
+        };
+
+    }
+
+    imgs = urls.map( ( url, idx ) => loadImage( url, opts.crossOrigin, uploadImg( idx ) ) );
+
+}
+
 function createTexture( gl, options, callback ) {
 
     const cb = callback || empty;
     const opts = options || defaults.textureOptions;
     const tex = gl.createTexture();
     const target = opts.target || gl.TEXTURE_2D;
-    const width = opts.width || 1;
-    const height = opts.height || 1;
+    let width = opts.width || 1;
+    let height = opts.height || 1;
     const internalFromat = opts.internalFromat || gl.RGBA;
     const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
-    const type = opts.type || formatType.type;
+    let type = opts.type || formatType.type;
     gl.bindTexture( target, tex );
     if ( target === gl.TEXTURE_CUBE_MAP ) {
 
-        gl.textParameteri( target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
-        gl.textParameteri( target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
+        gl.texParameteri( target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
+        gl.texParameteri( target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
 
     }
 
@@ -732,25 +1031,95 @@ function createTexture( gl, options, callback ) {
                 Array.isArray( src[ 0 ] ) ||
                 isArrayBuffer( src[ 0 ] )
             ) ) ) {
-            // //////////////////////////////////
-        }
 
+            const dimensions = setTextureFromArray( gl, tex, src, opts );
+            width = dimensions.width;
+            height = dimensions.height;
+            type = dimensions.type;
+
+        } else if ( Array.isArray( src ) && typeof ( src[ 0 ] ) === 'string' ) {
+
+            if ( target === gl.TEXTURE_CUBE_MAP )
+                loadCubeMapFromUrls( gl, tex, options, cb );
+            else
+                loadSlicesFromUrls( gl, tex, opts, cb );
+
+        } else if ( src instanceof HTMLElement ) {
+
+            setTextureFromElement( gl, tex, src, opts );
+            width = src.width;
+            height = src.height;
+
+        } else {
+
+            throw new Error( 'unsupported src type' );
+
+        }
+    if ( shouldAutoSetTextureFiltering( options ) )
+        setTextureFiltering( gl, tex, opts, width, height, internalFromat, type );
+
+    setTextureParameters( gl, tex, opts );
+
+    return tex;
 
 }
 
+function isAsyncSrc( src ) {
 
-// function createTextures( gl, textureOptions, callback ) {
-//     let cb = callback || empty;
-//     let numLoading = 0;
-//     const errors = [];
-//     const textures = [];
-//     const images = {};
+    return typeof src === 'string' ||
+           ( Array.isArray( src ) && typeof src[ 0 ] === 'string' );
 
-//     Object.keys(textureOptions).forEach(name => {
-//         const options = textureOptions[name];
+}
 
-//         let onLoadFn;
-//     })
+function createTextures( gl, textureOptions, callback ) {
 
-// }
+    const cb = callback || empty;
+    let numLoading = 0;
+    const errors = [];
+    const textures = [];
+    const images = {};
 
+    function callCallbackWhenReady() {
+
+        if ( numLoading === 0 )
+            setTimeout( () => {
+
+                cb( errors.length ? errors : undefined, textures, images );
+
+            }, 0 );
+
+    }
+
+    Object.keys( textureOptions ).forEach( ( name ) => {
+
+        const options = textureOptions[ name ];
+
+        let onLoadFn;
+        if ( isAsyncSrc( options.src ) ) {
+
+            onLoadFn = function ( err, tex, img ) {
+
+                images[ name ] = img;
+                numLoading -= 1;
+                if ( err )
+                    errors.push( err );
+
+                callCallbackWhenReady();
+
+            };
+
+            numLoading += 1;
+
+        }
+
+        textures[ name ] = createTexture( gl, options, onLoadFn );
+
+    } );
+
+    callCallbackWhenReady();
+
+    return textures;
+
+}
+
+export { createTexture, createTextures };

@@ -156,6 +156,7 @@
             }
         }
 
+        var test;
         window.addEventListener('load', function() {
             CZPG.getContext('glpaper').setSize('80%', '80%', window.devicePixelRatio).clear();
         
@@ -170,6 +171,39 @@
                 document.getElementById('night-top'), document.getElementById('night-bottom'),
                 document.getElementById('night-back'), document.getElementById('night-front'),
             ]);
+            test = CZPG.createTextures(CZPG.gl, {
+                checker: {
+                    mag: CZPG.gl.NEAREST,
+                    min: CZPG.gl.LINEAR,
+                    src: [
+                        255,255,255,255,
+                        192,192,192,255,
+                        192,192,192,255,
+                        255,255,255,255,
+                    ],
+                },
+                pic: { 
+                    src : './resource/UV_Grid_Lrg.jpg',
+                    min : CZPG.gl.LINEAR_MIPMAP_LINEAR,
+                    mag : CZPG.gl.LINEAR,
+                },
+                cvs: { src : document.getElementById('test-tex')},
+                night: {
+                    target: CZPG.gl.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/grimmnight_right.png',
+                        './resource/grimmnight_left.png',
+                        './resource/grimmnight_top.png',
+                        './resource/grimmnight_bottom.png',
+                        './resource/grimmnight_back.png',
+                        './resource/grimmnight_front.png',
+                    ]
+                },
+                goldengate: {
+                    target: CZPG.gl.TEXTURE_CUBE_MAP,
+                    src: './resource/goldengate.jpg',
+                }
+            })
 
             let camera = new CZPG.OrbitCamera(CZPG.gl);
             camera.transform.position.set(0, 1, 3);
@@ -179,11 +213,11 @@
             let gridMesh = CZPG.Primatives.GridAxis.createMesh();
             let gridModal = new CZPG.Modal(gridMesh);
 
-            let quadShader = new QuadShader(CZPG.gl, camera.projMatrix).setTexture(CZPG.textures['test-tex']);
+            let quadShader = new QuadShader(CZPG.gl, camera.projMatrix).setTexture(test.pic);//CZPG.textures['test-tex']
             let quadModal = CZPG.Primatives.Quad.createModal().setPosition(1, 0, -1);
             let cubeModal = CZPG.Primatives.Cube.createModal().setPosition(0, 0.5, 0);
             
-            let skymapShader = new SkymapShader(CZPG.gl, camera.projMatrix, CZPG.textures['day'], CZPG.textures['night']);
+            let skymapShader = new SkymapShader(CZPG.gl, camera.projMatrix, CZPG.textures['day'], test.night);//CZPG.textures['night']
             let skyCubeModal = new CZPG.Modal(CZPG.Primatives.Cube.createMesh('sky', 10, 10, 10, 0, 0, 0));
 
             let loop = new CZPG.Render(function(timespan) {
