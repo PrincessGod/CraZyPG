@@ -1,4 +1,4 @@
-function isWebgl2( gl ) {
+function isWebGL2( gl ) {
 
     return !! gl.texStorage2D;
 
@@ -38,4 +38,4 @@ const glEnumToString = ( function () {
 
 }() );
 
-export { isWebgl2, glEnumToString };
+export { isWebGL2, glEnumToString };

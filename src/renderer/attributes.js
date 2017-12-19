@@ -158,4 +158,4 @@ function createBufferInfoFromArrays( gl, arrays ) {
 
 }
 
-export { createBuffersFromArrays, createBufferInfoFromArrays };
+export { createBuffersFromArrays, createBufferInfoFromArrays, isIndices };

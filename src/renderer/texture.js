@@ -1,5 +1,5 @@
 import { isArrayBuffer, getGLTypeFromTypedArray, getTypedArrayTypeFromGLType } from './typedArray';
-import { isWebgl2, glEnumToString } from './utils';
+import { isWebGL2, glEnumToString } from './utils';
 
 const defaults = {
     textureColor: new Uint8Array( [ 255, 105, 180, 255 ] ),
@@ -466,7 +466,7 @@ function isPowerOf2( value ) {
 
 function canGenerateMipmap( gl, width, height, internalFormat ) {
 
-    if ( ! isWebgl2( gl ) )
+    if ( ! isWebGL2( gl ) )
         return isPowerOf2( width ) && isPowerOf2( height );
 
     const info = textureInternalFormatInfo[ internalFormat ];
