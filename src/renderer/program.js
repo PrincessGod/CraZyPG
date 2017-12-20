@@ -662,9 +662,89 @@ function setAttributes( setters, buffers ) {
 
 }
 
+function createUniformSetters( gl, program ) {
+
+    let textureUnit = 0;
+
+    function createUnifromSetter( uniformInfo ) {
+
+        const location = gl.getUniformLocation( program, uniformInfo.name );
+        const isArray = ( uniformInfo.size > 1 && uniformInfo.name.substr( 3 ) === '[0]' );
+        const type = uniformInfo.type;
+        const typeInfo = typeMap[ type ];
+        if ( ! typeInfo )
+            throw new Error( `unknown type: 0x${type.toString( 16 )}` );
+        let setter;
+        if ( typeInfo.bindPoint ) {
+
+            const uint = textureUnit;
+            textureUnit += uniformInfo.size;
+            if ( isArray )
+                setter = typeInfo.arraySetter( gl, type, uint, location, uniformInfo.size );
+            else
+                setter = typeInfo.setter( gl, type, uint, location, uniformInfo.size );
+
+        } else if ( typeInfo.arraySetter && isArray )
+            setter = typeInfo.arraySetter( gl, location );
+        else
+            setter = typeInfo.setter( gl, location );
+
+        setter.location = location;
+        return setter;
+
+    }
+
+    const uniformSetters = {};
+    const numUnifroms = gl.getProgramParameter( program, gl.ACTIVE_UNIFORMS );
+
+    for ( let i = 0; i < numUnifroms; i ++ ) {
+
+        const uniformInfo = gl.getActiveUniform( program, i );
+        if ( isBuiltIn( uniformInfo ) )
+            continue; // eslint-disable-line
+        let name = uniformInfo.name;
+        if ( name.substr( - 3 ) === '[0]' )
+            name = name.substr( 0, name.length - 3 );
+
+        const setter = createUnifromSetter( uniformInfo );
+        uniformSetters[ name ] = setter;
+
+    }
+
+    return uniformSetters;
+
+}
+
+function setUniforms( setters, ...unifroms ) {
+
+    const numArgs = unifroms.length;
+    for ( let i = 1; i < numArgs; i ++ ) {
+
+        const vals = unifroms[ i ];
+        if ( Array.isArray( vals ) ) {
+
+            const numVals = vals.length;
+            for ( let j = 0; j < numVals; j ++ )
+                setUniforms( setters, vals[ j ] );
+
+        } else
+            Object.keys( vals ).forEach( ( name ) => {
+
+                const setter = setters[ name ];
+                if ( setter )
+                    setter( vals[ name ] );
+
+            } );
+
+    }
+
+}
+
 export {
     createProgram,
     getDefaultAttribLocation,
     createAttributesSetters,
     setAttributes,
+    createUniformSetters,
+    setUniforms,
 };
