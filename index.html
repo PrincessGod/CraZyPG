@@ -159,7 +159,7 @@
 
         var test;
         window.addEventListener('load', function() {
-            CZPG.getContext('glpaper').setSize('80%', '80%', window.devicePixelRatio).clear();
+            CZPG.getContextTemp('glpaper').setSize('80%', '80%', window.devicePixelRatio).clear();
         
             CZPG.loadTexture('test-tex', document.getElementById('test-tex'));
             CZPG.loadCubeMap('day', [

@@ -3,7 +3,7 @@ import * as Locations from './constant';
 import { meshs, textures } from './properties';
 
 let gl; // eslint-disable-line
-export function getContext( canvasId ) {
+export function getContextTemp( canvasId ) {
 
     const canvas = document.getElementById( canvasId );
     gl = canvas.getContext( 'webgl2', { antialias: true } );

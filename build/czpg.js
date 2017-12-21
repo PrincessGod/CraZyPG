@@ -15,7 +15,7 @@ const VTX_ATTR_UV_NAME = 'a_uv';
 const VTX_ATTR_UV_LOC = 2;
 
 /* eslint prefer-destructuring: 0 */
-function getContext( canvasId ) {
+function getContextTemp( canvasId ) {
 
     const canvas = document.getElementById( canvasId );
     exports.gl = canvas.getContext( 'webgl2', { antialias: true } );
@@ -3665,6 +3665,46 @@ function setUniforms( setters, ...unifroms ) {
 
 }
 
+function getContext( canvas, opts ) {
+
+    const names = [ 'webgl2', 'webgl', 'experimental-webgl' ];
+    let context = null;
+    for ( let i = 0; i < names.length; i ++ ) {
+
+        context = canvas.getContext( names[ i ], opts );
+        if ( context ) {
+
+            console.log( `renderer: ${names[ i ]}` );
+            break;
+
+        }
+
+    }
+
+    if ( ! context )
+        throw new Error( 'Please use a decent browser, this browser not support WebglContext.' );
+
+    return context;
+
+}
+
+function resizeCanvasToDisplaySize( canvas, multiplier ) {
+
+    let mult = multiplier || 1;
+    mult = Math.max( 0, mult );
+    const width = canvas.clientWidth * mult | 0;
+    const height = canvas.clientHeight * mult | 0;
+    if ( canvas.width !== width || canvas.height !== height ) {
+
+        canvas.width = width; // eslint-disable-line
+        canvas.height = height; // eslint-disable-line
+        return true;
+
+    }
+    return false;
+
+}
+
 exports.Transform = Transform;
 exports.Modal = Modal;
 exports.Primatives = Primatives;
@@ -3692,7 +3732,7 @@ exports.VTX_ATTR_NORMAL_NAME = VTX_ATTR_NORMAL_NAME;
 exports.VTX_ATTR_NORMAL_LOC = VTX_ATTR_NORMAL_LOC;
 exports.VTX_ATTR_UV_NAME = VTX_ATTR_UV_NAME;
 exports.VTX_ATTR_UV_LOC = VTX_ATTR_UV_LOC;
-exports.getContext = getContext;
+exports.getContextTemp = getContextTemp;
 exports.clear = clear;
 exports.setSize = setSize;
 exports.fitSize = fitSize;
@@ -3702,6 +3742,8 @@ exports.loadTexture = loadTexture;
 exports.loadCubeMap = loadCubeMap;
 exports.Vector3 = Vector3;
 exports.Matrix4 = Matrix4;
+exports.getContext = getContext;
+exports.resizeCanvasToDisplaySize = resizeCanvasToDisplaySize;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

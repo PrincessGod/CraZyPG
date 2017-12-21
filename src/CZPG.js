@@ -13,3 +13,4 @@ export { GridAxisShader } from './core/ShaderLib.js';
 export { createBuffersFromArrays, createBufferInfoFromArrays } from './renderer/attributes.js';
 export { createTexture, createTextures } from './renderer/texture.js';
 export { createProgram, getDefaultAttribLocation, createAttributesSetters, setAttributes, createUniformSetters, setUniforms } from './renderer/program.js';
+export * from './renderer/webgl.js';

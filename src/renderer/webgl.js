@@ -25,8 +25,8 @@ function resizeCanvasToDisplaySize( canvas, multiplier ) {
 
     let mult = multiplier || 1;
     mult = Math.max( 0, mult );
-    const width = canvas.clientWidth * multiplier | 0;
-    const height = canvas.clientHeight * multiplier | 0;
+    const width = canvas.clientWidth * mult | 0;
+    const height = canvas.clientHeight * mult | 0;
     if ( canvas.width !== width || canvas.height !== height ) {
 
         canvas.width = width; // eslint-disable-line
