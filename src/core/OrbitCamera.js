@@ -1,6 +1,7 @@
 /* eslint no-multi-assign: 0 */
 import { Transform } from './Transform';
-import { Matrix4 } from './Math';
+// import { Matrix4 } from './Math';
+import { Matrix4 } from '../math/Matrix4';
 
 class OrbitCamera {
 
@@ -70,14 +71,14 @@ class OrbitCamera {
 
         if ( this.mode === OrbitCamera.MODE_FREE )
             this.transform.matLocal.reset()
-                .vtranslate( this.transform.position )
+                .translate( this.transform.position )
                 .rotateY( this.transform.rotation.y * Transform.deg2Rad )
                 .rotateX( this.transform.rotation.x * Transform.deg2Rad );
         else
             this.transform.matLocal.reset()
                 .rotateY( this.transform.rotation.y * Transform.deg2Rad )
                 .rotateX( this.transform.rotation.x * Transform.deg2Rad )
-                .vtranslate( this.transform.position );
+                .translate( this.transform.position );
 
 
         this.transform.updateDirection();

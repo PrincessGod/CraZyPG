@@ -38,4 +38,11 @@ function resizeCanvasToDisplaySize( canvas, multiplier ) {
 
 }
 
-export { getContext, resizeCanvasToDisplaySize };
+function clear( gl, r, g, b, a ) {
+
+    gl.clearColor( r !== undefined ? r : 1.0, g !== undefined ? g : 1.0, b !== undefined ? b : 1.0, a !== undefined ? a : 1.0 );
+    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+
+}
+
+export { getContext, resizeCanvasToDisplaySize, clear };

@@ -1,4 +1,6 @@
-import { Vector3, Matrix4 } from './Math';
+// import { Vector3, Matrix4 } from './Math';
+import { Vector3 } from '../math/Vector3';
+import { Matrix4 } from '../math/Matrix4';
 
 class Transform {
 
@@ -19,17 +21,17 @@ class Transform {
     updateMatrix() {
 
         this.matLocal.reset()
-            .vtranslate( this.position )
+            .translate( this.position )
             .rotateZ( this.rotation.z * Transform.deg2Rad )
             .rotateX( this.rotation.x * Transform.deg2Rad )
             .rotateY( this.rotation.y * Transform.deg2Rad )
-            .vscale( this.scale );
+            .scale( this.scale );
 
         Matrix4.normalMat3( this.matNormal, this.matLocal.raw );
 
-        Matrix4.transformVec4( this.forward, [ 0, 0, 1, 0 ], this.matLocal.raw );
-        Matrix4.transformVec4( this.up, [ 0, 1, 0, 0 ], this.matLocal.raw );
-        Matrix4.transformVec4( this.right, [ 1, 0, 0, 0 ], this.matLocal.raw );
+        Matrix4.transformVec4( this.forward, this.matLocal.raw, [ 0, 0, 1, 0 ] );
+        Matrix4.transformVec4( this.up, this.matLocal.raw, [ 0, 1, 0, 0 ] );
+        Matrix4.transformVec4( this.right, this.matLocal.raw, [ 1, 0, 0, 0 ] );
 
         return this.matLocal.raw;
 
@@ -37,9 +39,9 @@ class Transform {
 
     updateDirection() {
 
-        Matrix4.transformVec4( this.forward, [ 0, 0, 1, 0 ], this.matLocal.raw );
-        Matrix4.transformVec4( this.up, [ 0, 1, 0, 0 ], this.matLocal.raw );
-        Matrix4.transformVec4( this.right, [ 1, 0, 0, 0 ], this.matLocal.raw );
+        Matrix4.transformVec4( this.forward, this.matLocal.raw, [ 0, 0, 1, 0 ] );
+        Matrix4.transformVec4( this.up, this.matLocal.raw, [ 0, 1, 0, 0 ] );
+        Matrix4.transformVec4( this.right, this.matLocal.raw, [ 1, 0, 0, 0 ] );
         return this;
 
     }
