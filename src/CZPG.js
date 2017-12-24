@@ -1,8 +1,8 @@
 export * from './core/properties.js';
-export * from './core/constant.js';
+export * from './renderer/constant.js';
 export * from './core/gl.js';
-export { Transform } from './core/Transform.js';
-export { Modal } from './core/Modal.js';
+export { Transform } from './model/Transform.js';
+export { Model } from './model/Model.js';
 export { Primatives } from './core/Primatives.js';
 export { OrbitCamera, CameraController } from './core/OrbitCamera.js';
 export { Render } from './core/Render.js';

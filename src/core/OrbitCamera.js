@@ -1,6 +1,5 @@
 /* eslint no-multi-assign: 0 */
-import { Transform } from './Transform';
-// import { Matrix4 } from './Math';
+import { Transform } from '../model/Transform';
 import { Matrix4 } from '../math/Matrix4';
 
 class OrbitCamera {
@@ -72,12 +71,12 @@ class OrbitCamera {
         if ( this.mode === OrbitCamera.MODE_FREE )
             this.transform.matLocal.reset()
                 .translate( this.transform.position )
-                .rotateY( this.transform.rotation.y * Transform.deg2Rad )
-                .rotateX( this.transform.rotation.x * Transform.deg2Rad );
+                .rotateY( this.transform.rotation.y )
+                .rotateX( this.transform.rotation.x );
         else
             this.transform.matLocal.reset()
-                .rotateY( this.transform.rotation.y * Transform.deg2Rad )
-                .rotateX( this.transform.rotation.x * Transform.deg2Rad )
+                .rotateY( this.transform.rotation.y )
+                .rotateX( this.transform.rotation.x )
                 .translate( this.transform.position );
 
 
@@ -122,7 +121,7 @@ class CameraController {
         this.canvas = gl.canvas;
         this.camera = camera;
 
-        this.rotateRate = - 300;
+        this.rotateRate = - 300 * ( Math.PI / 180 );
         this.panRate = 5;
         this.zoomRate = 200;
 

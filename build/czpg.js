@@ -811,7 +811,6 @@ class Matrix4 {
 
 }
 
-// import { Vector3, Matrix4 } from './Math';
 class Transform {
 
     constructor() {
@@ -832,9 +831,9 @@ class Transform {
 
         this.matLocal.reset()
             .translate( this.position )
-            .rotateZ( this.rotation.z * Transform.deg2Rad )
-            .rotateX( this.rotation.x * Transform.deg2Rad )
-            .rotateY( this.rotation.y * Transform.deg2Rad )
+            .rotateZ( this.rotation.z )
+            .rotateX( this.rotation.x )
+            .rotateY( this.rotation.y )
             .scale( this.scale );
 
         Matrix4.normalMat3( this.matNormal, this.matLocal.raw );
@@ -878,9 +877,7 @@ class Transform {
 
 }
 
-Transform.deg2Rad = Math.PI / 180;
-
-class Modal {
+class Model {
 
     constructor( mesh ) {
 
@@ -1061,7 +1058,7 @@ Primatives.Quad = class {
 
     static createModal() {
 
-        return new Modal( Primatives.Quad.createMesh() );
+        return new Model( Primatives.Quad.createMesh() );
 
     }
 
@@ -1084,7 +1081,7 @@ Primatives.Cube = class {
 
     static createModal( name ) {
 
-        return new Modal( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
+        return new Model( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
 
     }
 
@@ -1159,7 +1156,6 @@ Primatives.Cube = class {
 };
 
 /* eslint no-multi-assign: 0 */
-// import { Matrix4 } from './Math';
 class OrbitCamera {
 
     constructor( gl, fov = 45, near = 0.1, far = 1000 ) {
@@ -1229,12 +1225,12 @@ class OrbitCamera {
         if ( this.mode === OrbitCamera.MODE_FREE )
             this.transform.matLocal.reset()
                 .translate( this.transform.position )
-                .rotateY( this.transform.rotation.y * Transform.deg2Rad )
-                .rotateX( this.transform.rotation.x * Transform.deg2Rad );
+                .rotateY( this.transform.rotation.y )
+                .rotateX( this.transform.rotation.x );
         else
             this.transform.matLocal.reset()
-                .rotateY( this.transform.rotation.y * Transform.deg2Rad )
-                .rotateX( this.transform.rotation.x * Transform.deg2Rad )
+                .rotateY( this.transform.rotation.y )
+                .rotateX( this.transform.rotation.x )
                 .translate( this.transform.position );
 
 
@@ -1279,7 +1275,7 @@ class CameraController {
         this.canvas = gl.canvas;
         this.camera = camera;
 
-        this.rotateRate = - 300;
+        this.rotateRate = - 300 * ( Math.PI / 180 );
         this.panRate = 5;
         this.zoomRate = 200;
 
@@ -3094,13 +3090,6 @@ function createTextures( gl, textureOptions, callback ) {
 
 }
 
-const VTX_ATTR_POSITION_NAME$1 = 'a_position';
-const VTX_ATTR_POSITION_LOC$1 = 0;
-const VTX_ATTR_NORMAL_NAME$1 = 'a_normal';
-const VTX_ATTR_NORMAL_LOC$1 = 1;
-const VTX_ATTR_UV_NAME$1 = 'a_uv';
-const VTX_ATTR_UV_LOC$1 = 2;
-
 function getHTMLElementSrc( id ) {
 
     const ele = document.getElementById( id );
@@ -3155,9 +3144,9 @@ function createProgram( gl, vs, fs ) {
     gl.attachShader( prog, vShader );
     gl.attachShader( prog, fShader );
 
-    gl.bindAttribLocation( prog, VTX_ATTR_POSITION_LOC$1, VTX_ATTR_POSITION_NAME$1 ); // eslint-disable-line
-    gl.bindAttribLocation( prog, VTX_ATTR_NORMAL_LOC$1, VTX_ATTR_NORMAL_NAME$1 ); // eslint-disable-line
-    gl.bindAttribLocation( prog, VTX_ATTR_UV_LOC$1, VTX_ATTR_UV_NAME$1 );
+    gl.bindAttribLocation( prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME ); // eslint-disable-line
+    gl.bindAttribLocation( prog, VTX_ATTR_NORMAL_LOC, VTX_ATTR_NORMAL_NAME ); // eslint-disable-line
+    gl.bindAttribLocation( prog, VTX_ATTR_UV_LOC, VTX_ATTR_UV_NAME );
 
     gl.linkProgram( prog );
 
@@ -3188,9 +3177,9 @@ function createProgram( gl, vs, fs ) {
 function getDefaultAttribLocation( gl, program ) {
 
     return {
-        position: gl.getAttribLocation( program, VTX_ATTR_POSITION_NAME$1 ),
-        normal: gl.getAttribLocation( program, VTX_ATTR_NORMAL_NAME$1 ),
-        uv: gl.getAttribLocation( program, VTX_ATTR_UV_NAME$1 ),
+        position: gl.getAttribLocation( program, VTX_ATTR_POSITION_NAME ),
+        normal: gl.getAttribLocation( program, VTX_ATTR_NORMAL_NAME ),
+        uv: gl.getAttribLocation( program, VTX_ATTR_UV_NAME ),
     };
 
 }
@@ -3843,7 +3832,7 @@ function setUniforms( setters, ...unifroms ) {
 // export * from './renderer/webgl.js';
 
 exports.Transform = Transform;
-exports.Modal = Modal;
+exports.Model = Model;
 exports.Primatives = Primatives;
 exports.OrbitCamera = OrbitCamera;
 exports.CameraController = CameraController;

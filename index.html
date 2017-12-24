@@ -212,14 +212,14 @@
 
             let gridShader = new CZPG.GridAxisShader(CZPG.gl, camera.projMatrix);
             let gridMesh = CZPG.Primatives.GridAxis.createMesh();
-            let gridModal = new CZPG.Modal(gridMesh);
+            let gridModal = new CZPG.Model(gridMesh);
 
             let quadShader = new QuadShader(CZPG.gl, camera.projMatrix).setTexture(test.pic);//CZPG.textures['test-tex']
             let quadModal = CZPG.Primatives.Quad.createModal().setPosition(1, 0, -1);
             let cubeModal = CZPG.Primatives.Cube.createModal().setPosition(0, 0.5, 0);
             
             let skymapShader = new SkymapShader(CZPG.gl, camera.projMatrix, CZPG.textures['day'], test.night);//CZPG.textures['night']
-            let skyCubeModal = new CZPG.Modal(CZPG.Primatives.Cube.createMesh('sky', 10, 10, 10, 0, 0, 0));
+            let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 10, 10, 10, 0, 0, 0));
 
             let loop = new CZPG.Render(function(timespan) {
                 CZPG.fitSize().clear();

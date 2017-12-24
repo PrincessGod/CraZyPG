@@ -1,4 +1,4 @@
-import * as Locations from './constant';
+import * as Locations from '../renderer/constant';
 
 class ShaderUtil {
 

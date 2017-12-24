@@ -1,5 +1,5 @@
 /* eslint prefer-destructuring: 0 */
-import * as Locations from './constant';
+import * as Locations from '../renderer/constant';
 import { meshs, textures } from './properties';
 
 let gl; // eslint-disable-line

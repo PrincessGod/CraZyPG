@@ -1,4 +1,3 @@
-// import { Vector3, Matrix4 } from './Math';
 import { Vector3 } from '../math/Vector3';
 import { Matrix4 } from '../math/Matrix4';
 
@@ -22,9 +21,9 @@ class Transform {
 
         this.matLocal.reset()
             .translate( this.position )
-            .rotateZ( this.rotation.z * Transform.deg2Rad )
-            .rotateX( this.rotation.x * Transform.deg2Rad )
-            .rotateY( this.rotation.y * Transform.deg2Rad )
+            .rotateZ( this.rotation.z )
+            .rotateX( this.rotation.x )
+            .rotateY( this.rotation.y )
             .scale( this.scale );
 
         Matrix4.normalMat3( this.matNormal, this.matLocal.raw );
@@ -67,7 +66,5 @@ class Transform {
     }
 
 }
-
-Transform.deg2Rad = Math.PI / 180;
 
 export { Transform };

@@ -1,7 +1,7 @@
-import * as Locations from './constant';
+import * as Locations from '../renderer/constant';
 import * as properties from './properties';
 import { createMeshVAO, gl } from './gl';
-import { Modal } from './Modal';
+import { Model } from '../model/Model';
 
 const Primatives = {};
 Primatives.GridAxis = class {
@@ -118,7 +118,7 @@ Primatives.Quad = class {
 
     static createModal() {
 
-        return new Modal( Primatives.Quad.createMesh() );
+        return new Model( Primatives.Quad.createMesh() );
 
     }
 
@@ -141,7 +141,7 @@ Primatives.Cube = class {
 
     static createModal( name ) {
 
-        return new Modal( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
+        return new Model( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
 
     }
 
