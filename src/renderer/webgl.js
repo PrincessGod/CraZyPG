@@ -1,4 +1,10 @@
-function getContext( canvas, opts ) {
+function getContext( canvasOrId, opts ) {
+
+    let canvas;
+    if ( typeof canvasOrId === 'string' )
+        canvas = document.getElementById( canvas );
+    else
+        canvas = canvasOrId;
 
     const names = [ 'webgl2', 'webgl', 'experimental-webgl' ];
     let context = null;

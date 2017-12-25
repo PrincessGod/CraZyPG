@@ -1,6 +1,6 @@
 import * as Locations from '../renderer/constant';
-import * as properties from './properties';
-import { createMeshVAO, gl } from './gl';
+import * as properties from '../core/properties';
+import { createMeshVAO, gl } from '../core/gl';
 import { Model } from '../model/Model';
 
 const Primatives = {};
