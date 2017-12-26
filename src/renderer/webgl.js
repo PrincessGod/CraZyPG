@@ -1,3 +1,6 @@
+import { createBufferInfoFromArrays } from './attributes';
+import { createVertexArray } from './vertexArray';
+
 function getContext( canvasOrId, opts ) {
 
     let canvas;
@@ -51,4 +54,11 @@ function clear( gl, r, g, b, a ) {
 
 }
 
-export { getContext, resizeCanvasToDisplaySize, clear };
+function createVAOFromArrays( gl, arrays ) {
+
+    const bufferInfo = createBufferInfoFromArrays( gl, arrays );
+    return createVertexArray( gl, bufferInfo );
+
+}
+
+export { getContext, resizeCanvasToDisplaySize, clear, createVAOFromArrays };
