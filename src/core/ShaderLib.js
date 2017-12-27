@@ -33,9 +33,7 @@ class GridAxisShader extends Shader {
         super( gl, vs, fs );
 
         this.setProjMatrix( projMat );
-
-        const uColor = gl.getUniformLocation( this.program, 'u_colors' );
-        gl.uniform3fv( uColor, [ 0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1 ] );
+        this.setUniforms( { u_colors: [ 0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1 ] } );
 
         gl.useProgram( null );
 

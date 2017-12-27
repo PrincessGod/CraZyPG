@@ -1,17 +1,18 @@
-import { ShaderUtil } from './ShaderUtil';
+import { createProgram, createUniformSetters, setUniforms, createAttributesSetters } from '../renderer/program';
+import * as Constant from '../renderer/constant';
 
 class Shader {
 
     constructor( gl, vs, fs ) {
 
-        this.program = ShaderUtil.createProgram( gl, vs, fs );
+        this.program = createProgram( gl, vs, fs );
 
         if ( this.program !== null ) {
 
             this.gl = gl;
             gl.useProgram( this.program );
-            this.attribLoc = ShaderUtil.getDefaultAttribLocation( gl, this.program );
-            this.uniformLoc = ShaderUtil.getDefaultUnifomLocation( gl, this.program );
+            this.attribSetters = createAttributesSetters( gl, this.program );
+            this.uniformSetters = createUniformSetters( gl, this.program );
 
         }
 
@@ -31,23 +32,29 @@ class Shader {
 
     }
 
+    setUniforms( uniforms ) {
+
+        setUniforms( this.uniformSetters, uniforms );
+
+    }
+
     setProjMatrix( mat4Array ) {
 
-        this.gl.uniformMatrix4fv( this.uniformLoc.perspective, false, mat4Array );
+        this.setUniforms( Object.defineProperty( {}, Constant.UNIFORM_PROJ_MAT_NAME, { value: mat4Array, enumerable: true } ) );
         return this;
 
     }
 
     setViewMatrix( mat4Array ) {
 
-        this.gl.uniformMatrix4fv( this.uniformLoc.view, false, mat4Array );
+        this.setUniforms( Object.defineProperty( {}, Constant.UNIFORM_VIEW_MAT_NAME, { value: mat4Array, enumerable: true } ) );
         return this;
 
     }
 
     setWorldMatrix( mat4Array ) {
 
-        this.gl.uniformMatrix4fv( this.uniformLoc.world, false, mat4Array );
+        this.setUniforms( Object.defineProperty( {}, Constant.UNIFORM_WORLD_MAT_NAME, { value: mat4Array, enumerable: true } ) );
         return this;
 
     }

@@ -5,7 +5,6 @@ export * from './model/Model.js';
 export * from './model/Primatives.js';
 export * from './controllers/OrbitCamera.js';
 export * from './core/Render.js';
-export * from './core/ShaderUtil.js';
 export * from './core/Shader.js';
 export * from './core/ShaderLib.js';
 export * from './renderer/attributes.js';

@@ -105,10 +105,7 @@
             }
 
             preRender() {
-                this.gl.activeTexture(this.gl.TEXTURE0);
-                this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-                this.gl.uniform1i(this.uniformLoc.texture, 0);
-
+                this.setUniforms( { u_texture: this.texture } );
                 return this;
             }
         }
@@ -116,10 +113,6 @@
         class SkymapShader extends CZPG.Shader {
             constructor (gl, projMat, dayTex, nightTex) {
                 super(gl, 'sky-vs', 'sky-fs');
-                this.uniformLoc.time = gl.getUniformLocation(this.program, 'u_time');
-                this.uniformLoc.dayTex = gl.getUniformLocation(this.program, 'u_dayTex');
-                this.uniformLoc.nightTex = gl.getUniformLocation(this.program, 'u_nightTex');
-
                 this.setProjMatrix(projMat);
                 this.dayTex = dayTex;
                 this.nightTex = nightTex;
@@ -127,23 +120,16 @@
             }
 
             setTime(t) {
-                this.gl.uniform1f(this.uniformLoc.time, t);
+                this.setUniforms( { u_time: t } );
                 return this;
             }
 
             preRender() {
-                this.gl.activeTexture(this.gl.TEXTURE0);
-                this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.dayTex);
-                this.gl.uniform1i(this.uniformLoc.dayTex, 0);
-
-                this.gl.activeTexture(this.gl.TEXTURE1);
-                this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.nightTex);
-                this.gl.uniform1i(this.uniformLoc.dayTex, 1);
+                this.setUniforms( { u_dayTex: this.dayTex, u_nightTex: this.nightTex } );
                 return this;
             }
         }
 
-        var test;
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper').setSize('80%', '80%').clear();
             const context = renderer.context;

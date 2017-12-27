@@ -1,4 +1,3 @@
-import * as Locations from './constant';
 import { isWebGL2 } from './utils';
 
 function getHTMLElementSrc( id ) {
@@ -54,11 +53,6 @@ function createProgram( gl, vs, fs ) {
     const prog = gl.createProgram();
     gl.attachShader( prog, vShader );
     gl.attachShader( prog, fShader );
-
-    gl.bindAttribLocation( prog, Locations.VTX_ATTR_POSITION_LOC, Locations.VTX_ATTR_POSITION_NAME ); // eslint-disable-line
-    gl.bindAttribLocation( prog, Locations.VTX_ATTR_NORMAL_LOC, Locations.VTX_ATTR_NORMAL_NAME ); // eslint-disable-line
-    gl.bindAttribLocation( prog, Locations.VTX_ATTR_UV_LOC, Locations.VTX_ATTR_UV_NAME );
-
     gl.linkProgram( prog );
 
     if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) ) {
@@ -82,16 +76,6 @@ function createProgram( gl, vs, fs ) {
     gl.deleteShader( fShader );
 
     return prog;
-
-}
-
-function getDefaultAttribLocation( gl, program ) {
-
-    return {
-        position: gl.getAttribLocation( program, Locations.VTX_ATTR_POSITION_NAME ),
-        normal: gl.getAttribLocation( program, Locations.VTX_ATTR_NORMAL_NAME ),
-        uv: gl.getAttribLocation( program, Locations.VTX_ATTR_UV_NAME ),
-    };
 
 }
 
@@ -669,7 +653,7 @@ function createUniformSetters( gl, program ) {
     function createUnifromSetter( uniformInfo ) {
 
         const location = gl.getUniformLocation( program, uniformInfo.name );
-        const isArray = ( uniformInfo.size > 1 && uniformInfo.name.substr( 3 ) === '[0]' );
+        const isArray = ( uniformInfo.size > 1 && uniformInfo.name.substr( - 3 ) === '[0]' );
         const type = uniformInfo.type;
         const typeInfo = typeMap[ type ];
         if ( ! typeInfo )
@@ -718,7 +702,7 @@ function createUniformSetters( gl, program ) {
 function setUniforms( setters, ...unifroms ) {
 
     const numArgs = unifroms.length;
-    for ( let i = 1; i < numArgs; i ++ ) {
+    for ( let i = 0; i < numArgs; i ++ ) {
 
         const vals = unifroms[ i ];
         if ( Array.isArray( vals ) ) {
@@ -742,7 +726,6 @@ function setUniforms( setters, ...unifroms ) {
 
 export {
     createProgram,
-    getDefaultAttribLocation,
     createAttributesSetters,
     setAttributes,
     createUniformSetters,
