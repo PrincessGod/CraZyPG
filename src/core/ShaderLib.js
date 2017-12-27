@@ -5,8 +5,8 @@ class GridAxisShader extends Shader {
     constructor( gl, projMat ) {
 
         const vs = '#version 300 es\n' +
-            'in vec3 a_Position;\n' +
-            'layout(location=4) in float a_Color;\n' +
+            'in vec3 a_position;\n' +
+            'layout(location=4) in float a_color;\n' +
             '\n' +
             'uniform mat4 u_world;\n' +
             'uniform mat4 u_view;\n' +
@@ -16,8 +16,8 @@ class GridAxisShader extends Shader {
             'out vec3 v_color;\n' +
             '\n' +
             'void main() {\n' +
-            '    v_color = u_colors[int(a_Color)];\n' +
-            '    gl_Position = u_proj * u_view * u_world * vec4(a_Position, 1.0);\n' +
+            '    v_color = u_colors[int(a_color)];\n' +
+            '    gl_Position = u_proj * u_view * u_world * vec4(a_position, 1.0);\n' +
             '}';
 
         const fs = '#version 300 es\n' +

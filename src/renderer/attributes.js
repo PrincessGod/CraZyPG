@@ -35,6 +35,8 @@ function guessNumComponentsFromName( name, length ) {
     if ( length % numComponents > 0 )
         throw new Error( `Can not guess numComponents for attribute ${name}.` );
 
+    return numComponents;
+
 }
 
 function getNumComponents( array, name ) {

@@ -63,25 +63,29 @@ class Shader {
 
     preRender() {} // eslint-disable-line
 
-    renderModal( modal ) {
+    renderModel( model ) {
 
-        if ( modal.mesh.offCullFace ) this.gl.disable( this.gl.CULL_FACE );
+        if ( ! model.mesh.vao )
+            model.createVAO( this.gl, this.program );
 
-        if ( modal.mesh.onBlend ) this.gl.enable( this.gl.BLEND );
+        if ( model.mesh.cullFace === false ) this.gl.disable( this.gl.CULL_FACE );
 
-        this.setWorldMatrix( modal.transform.getMatrix() );
-        this.gl.bindVertexArray( modal.mesh.vao );
+        if ( model.mesh.blend ) this.gl.enable( this.gl.BLEND );
 
-        if ( modal.mesh.indexCount )
-            this.gl.drawElements( modal.mesh.drawMode, modal.mesh.indexCount, this.gl.UNSIGNED_SHORT, 0 ); // eslint-disable-line
+        this.setWorldMatrix( model.transform.getMatrix() );
+        this.gl.bindVertexArray( model.mesh.vao );
+
+        const bufferInfo = model.mesh.bufferInfo;
+        if ( bufferInfo.indices || bufferInfo.elementType )
+            this.gl.drawElements( model.mesh.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, 0 ); // eslint-disable-line
         else
-            this.gl.drawArrays( modal.mesh.drawMode, 0, modal.mesh.vtxCount );
+            this.gl.drawArrays( model.mesh.drawMode, 0, bufferInfo.numElements );
 
         this.gl.bindVertexArray( null );
 
-        if ( modal.mesh.offCullFace ) this.gl.enable( this.gl.CULL_FACE );
+        if ( model.mesh.cullFace === false ) this.gl.enable( this.gl.CULL_FACE );
 
-        if ( modal.mesh.onBlend ) this.gl.disable( this.gl.BLEND );
+        if ( model.mesh.blend ) this.gl.disable( this.gl.BLEND );
 
         return this;
 

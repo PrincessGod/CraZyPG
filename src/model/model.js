@@ -1,4 +1,5 @@
 import { Transform } from './Transform';
+import { createVertexArray } from '../renderer/vertexArray';
 
 class Model {
 
@@ -61,6 +62,12 @@ class Model {
 
         this.transform.updateMatrix();
         return this;
+
+    }
+
+    createVAO( gl, program ) {
+
+        this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, program );
 
     }
 

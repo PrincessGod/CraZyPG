@@ -215,8 +215,8 @@
             let gridModal = new CZPG.Model(gridMesh);
 
             let quadShader = new QuadShader(CZPG.gl, camera.projMatrix).setTexture(test.pic);//CZPG.textures['test-tex']
-            let quadModal = CZPG.Primatives.Quad.createModal().setPosition(1, 0, -1);
-            let cubeModal = CZPG.Primatives.Cube.createModal().setPosition(0, 0.5, 0);
+            let quadModal = CZPG.Primatives.Quad.createModel().setPosition(1, 0, -1);
+            let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(0, 0.5, 0);
             
             let skymapShader = new SkymapShader(CZPG.gl, camera.projMatrix, CZPG.textures['day'], test.night);//CZPG.textures['night']
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 10, 10, 10, 0, 0, 0));
@@ -226,11 +226,11 @@
                 camera.updateViewMatrix();
                 camera.updateProjMatrix();
                 skymapShader.activate().preRender().setProjMatrix(camera.projMatrix).setViewMatrix(camera.getOrientMatrix())
-                    .setTime(performance.now()).renderModal(skyCubeModal);
+                    .setTime(performance.now()).renderModel(skyCubeModal);
                 gridShader.activate().setProjMatrix(camera.projMatrix).setViewMatrix(camera.viewMatrix)
-                    .renderModal(gridModal.preRender());
+                    .renderModel(gridModal.preRender());
                 quadShader.activate().preRender().setProjMatrix(camera.projMatrix).setViewMatrix(camera.viewMatrix)
-                    .renderModal(cubeModal.preRender()).renderModal(quadModal.preRender());
+                    .renderModel(cubeModal.preRender()).renderModel(quadModal.preRender());
             }).start();
         });
         

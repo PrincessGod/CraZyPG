@@ -877,6 +877,799 @@ class Transform {
 
 }
 
+function isWebGL2( gl ) {
+
+    return !! gl.texStorage2D;
+
+}
+
+const glEnumToString = ( function () {
+
+    const haveEnumsForType = {};
+    const enums = {};
+
+    function addEnums( gl ) {
+
+        const type = gl.constructor.name;
+        if ( ! haveEnumsForType[ type ] ) {
+
+            /* eslint-disable */
+            for ( const key in gl )
+                if ( typeof gl[ key ] === 'number' ) { 
+
+                    const existing = enums[ gl[ key ] ];
+                    enums[ gl[ key ] ] = existing ? `${existing} | ${key}` : key;
+
+                }
+            /* eslint-enable */
+            haveEnumsForType[ type ] = true;
+
+        }
+
+    }
+
+    return function ( gl, value ) {
+
+        addEnums( gl );
+        return enums[ value ] || ( `0x${value.toString( 16 )}` );
+
+    };
+
+}() );
+
+function getHTMLElementSrc( id ) {
+
+    const ele = document.getElementById( id );
+
+    if ( ! ele || ele.textContent === '' )
+        throw new Error( `${id} shader element does not exist or have text.` );
+
+
+    return ele.textContent;
+
+}
+
+function createShader( gl, src, type ) {
+
+    const shader = gl.createShader( type );
+    gl.shaderSource( shader, src );
+    gl.compileShader( shader );
+
+    if ( ! gl.getShaderParameter( shader, gl.COMPILE_STATUS ) ) {
+
+        gl.deleteShader( shader );
+        throw new Error( `Error compiling shader: ${src}`, gl.getShaderInfoLog( shader ) );
+
+    }
+
+    return shader;
+
+}
+
+function createProgram( gl, vs, fs ) {
+
+    let vShader;
+    let fShader;
+
+    if ( typeof vs === 'string' && vs.length < 20 ) {
+
+        const src = getHTMLElementSrc( vs );
+        vShader = createShader( gl, src, gl.VERTEX_SHADER );
+
+    } else if ( typeof vs === 'string' )
+        vShader = createShader( gl, vs, gl.VERTEX_SHADER );
+
+    if ( typeof fs === 'string' && fs.length < 20 ) {
+
+        const src = getHTMLElementSrc( fs );
+        fShader = createShader( gl, src, gl.FRAGMENT_SHADER );
+
+    } else if ( typeof fs === 'string' )
+        fShader = createShader( gl, fs, gl.FRAGMENT_SHADER );
+
+    const prog = gl.createProgram();
+    gl.attachShader( prog, vShader );
+    gl.attachShader( prog, fShader );
+
+    gl.bindAttribLocation( prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME ); // eslint-disable-line
+    gl.bindAttribLocation( prog, VTX_ATTR_NORMAL_LOC, VTX_ATTR_NORMAL_NAME ); // eslint-disable-line
+    gl.bindAttribLocation( prog, VTX_ATTR_UV_LOC, VTX_ATTR_UV_NAME );
+
+    gl.linkProgram( prog );
+
+    if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) ) {
+
+        gl.deleteProgram( prog );
+        throw new Error( 'Error createing shader program.', gl.getProgramInfoLog( prog ) );
+
+    }
+
+    gl.validateProgram( prog );
+    if ( ! gl.getProgramParameter( prog, gl.VALIDATE_STATUS ) ) {
+
+        gl.deleteProgram( prog );
+        throw new Error( 'Error validating shader program.', gl.getProgramInfoLog( prog ) );
+
+    }
+
+    gl.detachShader( prog, vShader );
+    gl.detachShader( prog, fShader );
+    gl.deleteShader( vShader );
+    gl.deleteShader( fShader );
+
+    return prog;
+
+}
+
+function getDefaultAttribLocation( gl, program ) {
+
+    return {
+        position: gl.getAttribLocation( program, VTX_ATTR_POSITION_NAME ),
+        normal: gl.getAttribLocation( program, VTX_ATTR_NORMAL_NAME ),
+        uv: gl.getAttribLocation( program, VTX_ATTR_UV_NAME ),
+    };
+
+}
+
+
+const FLOAT = 0x1406;
+const FLOAT_VEC2 = 0x8B50;
+const FLOAT_VEC3 = 0x8B51;
+const FLOAT_VEC4 = 0x8B52;
+const INT = 0x1404;
+const INT_VEC2 = 0x8B53;
+const INT_VEC3 = 0x8B54;
+const INT_VEC4 = 0x8B55;
+const BOOL = 0x8B56;
+const BOOL_VEC2 = 0x8B57;
+const BOOL_VEC3 = 0x8B58;
+const BOOL_VEC4 = 0x8B59;
+const FLOAT_MAT2 = 0x8B5A;
+const FLOAT_MAT3 = 0x8B5B;
+const FLOAT_MAT4 = 0x8B5C;
+const SAMPLER_2D = 0x8B5E;
+const SAMPLER_CUBE = 0x8B60;
+const SAMPLER_3D = 0x8B5F;
+const SAMPLER_2D_SHADOW = 0x8B62;
+const FLOAT_MAT2x3 = 0x8B65; // eslint-disable-line
+const FLOAT_MAT2x4 = 0x8B66; // eslint-disable-line
+const FLOAT_MAT3x2 = 0x8B67; // eslint-disable-line
+const FLOAT_MAT3x4 = 0x8B68; // eslint-disable-line
+const FLOAT_MAT4x2 = 0x8B69; // eslint-disable-line
+const FLOAT_MAT4x3 = 0x8B6A; // eslint-disable-line
+const SAMPLER_2D_ARRAY = 0x8DC1;
+const SAMPLER_2D_ARRAY_SHADOW = 0x8DC4;
+const SAMPLER_CUBE_SHADOW = 0x8DC5;
+const UNSIGNED_INT = 0x1405;
+const UNSIGNED_INT_VEC2 = 0x8DC6;
+const UNSIGNED_INT_VEC3 = 0x8DC7;
+const UNSIGNED_INT_VEC4 = 0x8DC8;
+const INT_SAMPLER_2D = 0x8DCA;
+const INT_SAMPLER_3D = 0x8DCB;
+const INT_SAMPLER_CUBE = 0x8DCC;
+const INT_SAMPLER_2D_ARRAY = 0x8DCF;
+const UNSIGNED_INT_SAMPLER_2D = 0x8DD2;
+const UNSIGNED_INT_SAMPLER_3D = 0x8DD3;
+const UNSIGNED_INT_SAMPLER_CUBE = 0x8DD4;
+const UNSIGNED_INT_SAMPLER_2D_ARRAY = 0x8DD7;
+
+const TEXTURE_2D = 0x0DE1;
+const TEXTURE_CUBE_MAP = 0x8513;
+const TEXTURE_3D = 0x806F;
+const TEXTURE_2D_ARRAY = 0x8C1A;
+
+
+const typeMap = {};
+
+function getBindPointForSamplerType( gl, type ) {
+
+    return typeMap[ type ].bindPoint;
+
+}
+
+function floatSetter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform1f( location, v );
+
+    };
+
+}
+
+function floatArraySetter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform1fv( location, v );
+
+    };
+
+}
+
+function floatVec2Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform2fv( location, v );
+
+    };
+
+}
+
+function floatVec3Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform3fv( location, v );
+
+    };
+
+}
+
+function floatVec4Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform4fv( location, v );
+
+    };
+
+}
+
+function intSetter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform1i( location, v );
+
+    };
+
+}
+
+function intArraySetter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform1iv( location, v );
+
+    };
+
+}
+
+function intVec2Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform2iv( location, v );
+
+    };
+
+}
+
+function intVec3Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform3iv( location, v );
+
+    };
+
+}
+
+function intVec4Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform4iv( location, v );
+
+    };
+
+}
+
+function uintSetter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform1ui( location, v );
+
+    };
+
+}
+
+function uintArraySetter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform1uiv( location, v );
+
+    };
+
+}
+
+function uintVec2Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform2uiv( location, v );
+
+    };
+
+}
+
+function uintVec3Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform3uiv( location, v );
+
+    };
+
+}
+
+function uintVec4Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniform4uiv( location, v );
+
+    };
+
+}
+
+function floatMat2Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix2fv( location, false, v );
+
+    };
+
+}
+
+function floatMat3Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix3fv( location, false, v );
+
+    };
+
+}
+
+function floatMat4Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix4fv( location, false, v );
+
+    };
+
+}
+
+function floatMat23Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix2x3fv( location, false, v );
+
+    };
+
+}
+
+function floatMat32Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix3x2fv( location, false, v );
+
+    };
+
+}
+
+function floatMat24Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix2x4fv( location, false, v );
+
+    };
+
+}
+
+function floatMat42Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix4x2fv( location, false, v );
+
+    };
+
+}
+
+function floatMat34Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix3x4fv( location, false, v );
+
+    };
+
+}
+
+function floatMat43Setter( gl, location ) {
+
+    return function ( v ) {
+
+        gl.uniformMatrix4x3fv( location, false, v );
+
+    };
+
+}
+
+function samplerSetter( gl, type, unit, location ) {
+
+    const bindPoint = getBindPointForSamplerType( gl, type );
+    return isWebGL2( gl ) ? function ( textureOrPair ) {
+
+        let texture;
+        let sampler;
+        if ( textureOrPair instanceof WebGLTexture ) {
+
+            texture = textureOrPair;
+            sampler = null;
+
+        } else {
+
+            texture = textureOrPair.texture;
+            sampler = textureOrPair.sampler;
+
+        }
+        gl.uniform1i( location, unit );
+        gl.activeTexture( gl.TEXTURE0 + unit );
+        gl.bindTexture( bindPoint, texture );
+        gl.bindSampler( unit, sampler );
+
+    } : function ( texture ) {
+
+        gl.uniform1i( location, unit );
+        gl.activeTexture( gl.TEXTURE0 + unit );
+        gl.bindTexture( bindPoint, texture );
+
+    };
+
+}
+
+function samplerArraySetter( gl, type, unit, location, size ) {
+
+    const bindPoint = getBindPointForSamplerType( gl, type );
+    const units = new Int32Array( size );
+    for ( let ii = 0; ii < size; ++ ii )
+        units[ ii ] = unit + ii;
+
+
+    return isWebGL2( gl ) ? function ( textures ) {
+
+        gl.uniform1iv( location, units );
+        textures.forEach( ( textureOrPair, index ) => {
+
+            gl.activeTexture( gl.TEXTURE0 + units[ index ] );
+            let texture;
+            let sampler;
+            if ( textureOrPair instanceof WebGLTexture ) {
+
+                texture = textureOrPair;
+                sampler = null;
+
+            } else {
+
+                texture = textureOrPair.texture;
+                sampler = textureOrPair.sampler;
+
+            }
+            gl.bindSampler( unit, sampler );
+            gl.bindTexture( bindPoint, texture );
+
+        } );
+
+    } : function ( textures ) {
+
+        gl.uniform1iv( location, units );
+        textures.forEach( ( texture, index ) => {
+
+            gl.activeTexture( gl.TEXTURE0 + units[ index ] );
+            gl.bindTexture( bindPoint, texture );
+
+        } );
+
+    };
+
+}
+
+typeMap[ FLOAT ] = {
+    Type: Float32Array, size: 4, setter: floatSetter, arraySetter: floatArraySetter,
+};
+typeMap[ FLOAT_VEC2 ] = { Type: Float32Array, size: 8, setter: floatVec2Setter };
+typeMap[ FLOAT_VEC3 ] = { Type: Float32Array, size: 12, setter: floatVec3Setter };
+typeMap[ FLOAT_VEC4 ] = { Type: Float32Array, size: 16, setter: floatVec4Setter };
+typeMap[ INT ] = {
+    Type: Int32Array, size: 4, setter: intSetter, arraySetter: intArraySetter,
+};
+typeMap[ INT_VEC2 ] = { Type: Int32Array, size: 8, setter: intVec2Setter };
+typeMap[ INT_VEC3 ] = { Type: Int32Array, size: 12, setter: intVec3Setter };
+typeMap[ INT_VEC4 ] = { Type: Int32Array, size: 16, setter: intVec4Setter };
+typeMap[ UNSIGNED_INT ] = {
+    Type: Uint32Array, size: 4, setter: uintSetter, arraySetter: uintArraySetter,
+};
+typeMap[ UNSIGNED_INT_VEC2 ] = { Type: Uint32Array, size: 8, setter: uintVec2Setter };
+typeMap[ UNSIGNED_INT_VEC3 ] = { Type: Uint32Array, size: 12, setter: uintVec3Setter };
+typeMap[ UNSIGNED_INT_VEC4 ] = { Type: Uint32Array, size: 16, setter: uintVec4Setter };
+typeMap[ BOOL ] = {
+    Type: Uint32Array, size: 4, setter: intSetter, arraySetter: intArraySetter,
+};
+typeMap[ BOOL_VEC2 ] = { Type: Uint32Array, size: 8, setter: intVec2Setter };
+typeMap[ BOOL_VEC3 ] = { Type: Uint32Array, size: 12, setter: intVec3Setter };
+typeMap[ BOOL_VEC4 ] = { Type: Uint32Array, size: 16, setter: intVec4Setter };
+typeMap[ FLOAT_MAT2 ] = { Type: Float32Array, size: 16, setter: floatMat2Setter };
+typeMap[ FLOAT_MAT3 ] = { Type: Float32Array, size: 36, setter: floatMat3Setter };
+typeMap[ FLOAT_MAT4 ] = { Type: Float32Array, size: 64, setter: floatMat4Setter };
+typeMap[ FLOAT_MAT2x3 ] = { Type: Float32Array, size: 24, setter: floatMat23Setter };
+typeMap[ FLOAT_MAT2x4 ] = { Type: Float32Array, size: 32, setter: floatMat24Setter };
+typeMap[ FLOAT_MAT3x2 ] = { Type: Float32Array, size: 24, setter: floatMat32Setter };
+typeMap[ FLOAT_MAT3x4 ] = { Type: Float32Array, size: 48, setter: floatMat34Setter };
+typeMap[ FLOAT_MAT4x2 ] = { Type: Float32Array, size: 32, setter: floatMat42Setter };
+typeMap[ FLOAT_MAT4x3 ] = { Type: Float32Array, size: 48, setter: floatMat43Setter };
+typeMap[ SAMPLER_2D ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
+};
+typeMap[ SAMPLER_CUBE ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
+};
+typeMap[ SAMPLER_3D ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_3D,
+};
+typeMap[ SAMPLER_2D_SHADOW ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
+};
+typeMap[ SAMPLER_2D_ARRAY ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
+};
+typeMap[ SAMPLER_2D_ARRAY_SHADOW ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
+};
+typeMap[ SAMPLER_CUBE_SHADOW ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
+};
+typeMap[ INT_SAMPLER_2D ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
+};
+typeMap[ INT_SAMPLER_3D ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_3D,
+};
+typeMap[ INT_SAMPLER_CUBE ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
+};
+typeMap[ INT_SAMPLER_2D_ARRAY ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
+};
+typeMap[ UNSIGNED_INT_SAMPLER_2D ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
+};
+typeMap[ UNSIGNED_INT_SAMPLER_3D ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_3D,
+};
+typeMap[ UNSIGNED_INT_SAMPLER_CUBE ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
+};
+typeMap[ UNSIGNED_INT_SAMPLER_2D_ARRAY ] = {
+    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
+};
+
+function floatAttribSetter( gl, index ) {
+
+    return function ( b ) {
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
+        gl.enableVertexAttribArray( index );
+        gl.vertexAttribPointer( index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0 );
+
+    };
+
+}
+
+function intAttribSetter( gl, index ) {
+
+    return function ( b ) {
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
+        gl.enableVertexAttribArray( index );
+        gl.vertexAttribIPointer( index, b.numComponents || b.size, b.type || gl.INT, b.stride || 0, b.offset || 0 );
+
+    };
+
+}
+
+function matAttribSetter( gl, index, typeInfo ) {
+
+    const defaultSize = typeInfo.size;
+    const count = typeInfo.count;
+
+    return function ( b ) {
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
+        const numComponents = b.size || b.numComponents || defaultSize;
+        const size = numComponents / count;
+        const type = b.type || gl.FLOAT;
+        const typeInfoNew = typeMap[ type ];
+        const stride = typeInfoNew.size * numComponents;
+        const normalize = b.normalize || false;
+        const offset = b.offset || 0;
+        const rowOffset = stride / count;
+        for ( let i = 0; i < count; ++ i ) {
+
+            gl.enableVertexAttribArray( index + i );
+            gl.vertexAttribPointer( index + i, size, type, normalize, stride, offset + ( rowOffset * i ) );
+
+        }
+
+    };
+
+}
+
+const attrTypeMap = {};
+attrTypeMap[ FLOAT ] = { size: 4, setter: floatAttribSetter };
+attrTypeMap[ FLOAT_VEC2 ] = { size: 8, setter: floatAttribSetter };
+attrTypeMap[ FLOAT_VEC3 ] = { size: 12, setter: floatAttribSetter };
+attrTypeMap[ FLOAT_VEC4 ] = { size: 16, setter: floatAttribSetter };
+attrTypeMap[ INT ] = { size: 4, setter: intAttribSetter };
+attrTypeMap[ INT_VEC2 ] = { size: 8, setter: intAttribSetter };
+attrTypeMap[ INT_VEC3 ] = { size: 12, setter: intAttribSetter };
+attrTypeMap[ INT_VEC4 ] = { size: 16, setter: intAttribSetter };
+attrTypeMap[ UNSIGNED_INT ] = { size: 4, setter: intAttribSetter };
+attrTypeMap[ UNSIGNED_INT_VEC2 ] = { size: 8, setter: intAttribSetter };
+attrTypeMap[ UNSIGNED_INT_VEC3 ] = { size: 12, setter: intAttribSetter };
+attrTypeMap[ UNSIGNED_INT_VEC4 ] = { size: 16, setter: intAttribSetter };
+attrTypeMap[ BOOL ] = { size: 4, setter: intAttribSetter };
+attrTypeMap[ BOOL_VEC2 ] = { size: 8, setter: intAttribSetter };
+attrTypeMap[ BOOL_VEC3 ] = { size: 12, setter: intAttribSetter };
+attrTypeMap[ BOOL_VEC4 ] = { size: 16, setter: intAttribSetter };
+attrTypeMap[ FLOAT_MAT2 ] = { size: 4, setter: matAttribSetter, count: 2 };
+attrTypeMap[ FLOAT_MAT3 ] = { size: 9, setter: matAttribSetter, count: 3 };
+attrTypeMap[ FLOAT_MAT4 ] = { size: 16, setter: matAttribSetter, count: 4 };
+
+function isBuiltIn( info ) {
+
+    const name = info.name;
+    return name.startsWith( 'gl_' ) || name.startsWith( 'webgl_' );
+
+}
+
+function createAttributesSetters( gl, program ) {
+
+    const attribSetters = {};
+
+    const numAttribs = gl.getProgramParameter( program, gl.ACTIVE_ATTRIBUTES );
+    for ( let i = 0; i < numAttribs; i ++ ) {
+
+        const attribInfo = gl.getActiveAttrib( program, i );
+        if ( isBuiltIn( attribInfo ) )
+            continue; // eslint-disable-line
+        const index = gl.getAttribLocation( program, attribInfo.name );
+        const typeInfo = attrTypeMap[ attribInfo.type ];
+        const setter = typeInfo.setter( gl, index, typeInfo );
+        setter.location = index;
+        attribSetters[ attribInfo.name ] = setter;
+
+    }
+
+    return attribSetters;
+
+}
+
+function setAttributes( setters, buffers ) {
+
+    Object.keys( buffers ).forEach( ( attrib ) => {
+
+        const setter = setters[ attrib ];
+        if ( setter )
+            setter( buffers[ attrib ] );
+
+    } );
+
+}
+
+function createUniformSetters( gl, program ) {
+
+    let textureUnit = 0;
+
+    function createUnifromSetter( uniformInfo ) {
+
+        const location = gl.getUniformLocation( program, uniformInfo.name );
+        const isArray = ( uniformInfo.size > 1 && uniformInfo.name.substr( 3 ) === '[0]' );
+        const type = uniformInfo.type;
+        const typeInfo = typeMap[ type ];
+        if ( ! typeInfo )
+            throw new Error( `unknown type: 0x${type.toString( 16 )}` );
+        let setter;
+        if ( typeInfo.bindPoint ) {
+
+            const uint = textureUnit;
+            textureUnit += uniformInfo.size;
+            if ( isArray )
+                setter = typeInfo.arraySetter( gl, type, uint, location, uniformInfo.size );
+            else
+                setter = typeInfo.setter( gl, type, uint, location, uniformInfo.size );
+
+        } else if ( typeInfo.arraySetter && isArray )
+            setter = typeInfo.arraySetter( gl, location );
+        else
+            setter = typeInfo.setter( gl, location );
+
+        setter.location = location;
+        return setter;
+
+    }
+
+    const uniformSetters = {};
+    const numUnifroms = gl.getProgramParameter( program, gl.ACTIVE_UNIFORMS );
+
+    for ( let i = 0; i < numUnifroms; i ++ ) {
+
+        const uniformInfo = gl.getActiveUniform( program, i );
+        if ( isBuiltIn( uniformInfo ) )
+            continue; // eslint-disable-line
+        let name = uniformInfo.name;
+        if ( name.substr( - 3 ) === '[0]' )
+            name = name.substr( 0, name.length - 3 );
+
+        const setter = createUnifromSetter( uniformInfo );
+        uniformSetters[ name ] = setter;
+
+    }
+
+    return uniformSetters;
+
+}
+
+function setUniforms( setters, ...unifroms ) {
+
+    const numArgs = unifroms.length;
+    for ( let i = 1; i < numArgs; i ++ ) {
+
+        const vals = unifroms[ i ];
+        if ( Array.isArray( vals ) ) {
+
+            const numVals = vals.length;
+            for ( let j = 0; j < numVals; j ++ )
+                setUniforms( setters, vals[ j ] );
+
+        } else
+            Object.keys( vals ).forEach( ( name ) => {
+
+                const setter = setters[ name ];
+                if ( setter )
+                    setter( vals[ name ] );
+
+            } );
+
+    }
+
+}
+
+function createVertexArray( gl, bufferInfo, program ) {
+
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray( vao );
+    setAttributes( createAttributesSetters( gl, program ), bufferInfo.attribs );
+    if ( bufferInfo.indices )
+        gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indices );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, null );
+    gl.bindVertexArray( null );
+    return vao;
+
+}
+
 class Model {
 
     constructor( mesh ) {
@@ -941,6 +1734,245 @@ class Model {
 
     }
 
+    createVAO( gl, program ) {
+
+        this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, program );
+
+    }
+
+}
+
+const isArrayBuffer = window.SharedArrayBuffer
+    ? function isArrayBufferOrSharedArrayBuffer( ary ) {
+
+        return ary && ary.buffer && ( ary.buffer instanceof ArrayBuffer || ary.buffer instanceof window.SharedArrayBuffer );
+
+    } : function isArrayBuffer( ary ) {
+
+        return ary && ary.buffer && ary.buffer instanceof ArrayBuffer;
+
+    };
+
+const BYTE = 0x1400;
+const UNSIGNED_BYTE = 0x1401;
+const SHORT = 0x1402;
+const UNSIGNED_SHORT = 0x1403;
+const INT$1 = 0x1404;
+const UNSIGNED_INT$1 = 0x1405;
+const FLOAT$1 = 0x1406;
+const UNSIGNED_SHORT_4_4_4_4 = 0x8033;
+const UNSIGNED_SHORT_5_5_5_1 = 0x8034;
+const UNSIGNED_SHORT_5_6_5 = 0x8363;
+const HALF_FLOAT = 0x140B;
+const UNSIGNED_INT_2_10_10_10_REV = 0x8368;
+const UNSIGNED_INT_10F_11F_11F_REV = 0x8C3B;
+const UNSIGNED_INT_5_9_9_9_REV = 0x8C3E;
+const FLOAT_32_UNSIGNED_INT_24_8_REV = 0x8DAD;
+const UNSIGNED_INT_24_8 = 0x84FA;
+
+const glTypeToTypedArray = {};
+{
+
+    const tt = glTypeToTypedArray;
+    tt[ BYTE ] = Int8Array;
+    tt[ UNSIGNED_BYTE ] = Uint8Array;
+    tt[ SHORT ] = Int16Array;
+    tt[ UNSIGNED_SHORT ] = Uint16Array;
+    tt[ INT$1 ] = Int32Array;
+    tt[ UNSIGNED_INT$1 ] = Uint32Array;
+    tt[ FLOAT$1 ] = Float32Array;
+    tt[ UNSIGNED_SHORT_4_4_4_4 ] = Uint16Array;
+    tt[ UNSIGNED_SHORT_5_5_5_1 ] = Uint16Array;
+    tt[ UNSIGNED_SHORT_5_6_5 ] = Uint16Array;
+    tt[ HALF_FLOAT ] = Uint16Array;
+    tt[ UNSIGNED_INT_2_10_10_10_REV ] = Uint32Array;
+    tt[ UNSIGNED_INT_10F_11F_11F_REV ] = Uint32Array;
+    tt[ UNSIGNED_INT_5_9_9_9_REV ] = Uint32Array;
+    tt[ FLOAT_32_UNSIGNED_INT_24_8_REV ] = Uint32Array;
+    tt[ UNSIGNED_INT_24_8 ] = Uint32Array;
+
+}
+
+function getGLTypeFromTypedArray( typedArray ) {
+
+    if ( typedArray instanceof Int8Array ) return BYTE;
+    if ( typedArray instanceof Uint8Array ) return UNSIGNED_BYTE;
+    if ( typedArray instanceof Uint8ClampedArray ) return UNSIGNED_BYTE;
+    if ( typedArray instanceof Int16Array ) return SHORT;
+    if ( typedArray instanceof Uint16Array ) return UNSIGNED_SHORT;
+    if ( typedArray instanceof Int32Array ) return INT$1;
+    if ( typedArray instanceof Uint32Array ) return UNSIGNED_INT$1;
+    if ( typedArray instanceof Float32Array ) return FLOAT$1;
+    throw new Error( 'unsupported typed array type' );
+
+}
+
+function getTypedArrayTypeFromGLType( type ) {
+
+    const arrayType = glTypeToTypedArray[ type ];
+    if ( ! arrayType ) throw new Error( 'unkonw gl type' );
+    return arrayType;
+
+}
+
+function isIndices( name ) {
+
+    return name === 'index' || name === 'indices';
+
+}
+
+function getArray( array ) {
+
+    return array.length ? array : array.data;
+
+}
+
+function getTypedArray( array, name ) {
+
+    if ( isArrayBuffer( array ) ) return array;
+
+    if ( isIndices( name ) ) return new Uint16Array( array );
+
+    return new Float32Array( array );
+
+}
+
+const colorRE = /color|colour/i;
+const textureRE = /uv|coord/i;
+
+function guessNumComponentsFromName( name, length ) {
+
+    let numComponents;
+    if ( colorRE.test( name ) ) numComponents = 4;
+    else if ( textureRE.test( name ) ) numComponents = 2;
+    else numComponents = 3;
+
+    if ( length % numComponents > 0 )
+        throw new Error( `Can not guess numComponents for attribute ${name}.` );
+
+    return numComponents;
+
+}
+
+function getNumComponents( array, name ) {
+
+    return array.numComponents || array.size || guessNumComponentsFromName( name, getArray( array ).length );
+
+}
+
+function createBufferFromTypedArray( gl, typedArray, type = gl.ARRAY_BUFFER, drawType = gl.STATIC_DRAW ) {
+
+    if ( typedArray instanceof WebGLBuffer )
+        return typedArray;
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer( type, buffer );
+    gl.bufferData( type, typedArray, drawType );
+    return buffer;
+
+}
+
+const positionNames = [ 'position', 'positions', 'a_position' ];
+
+function getNumElementsFromNonIndicedArrays( arrays ) {
+
+    let key;
+    let i;
+    for ( i = 0; i < positionNames.length; i ++ )
+        if ( positionNames[ i ] in arrays ) {
+
+            key = positionNames[ i ];
+            break;
+
+        }
+
+    if ( i === positionNames.length ) [ key ] = Object.keys( arrays );
+    const array = arrays[ key ];
+    const dataArray = getArray( array );
+    return dataArray.length / getNumComponents( array, key );
+
+}
+
+function createBufferFromArray( gl, array, name ) {
+
+    const type = name === 'indices' ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
+    const typedArray = getTypedArray( getArray( array ), name );
+    return createBufferFromTypedArray( gl, typedArray, type, array.drawType );
+
+}
+
+function createBuffersFromArrays( gl, arrays ) {
+
+    const buffers = {};
+
+    Object.keys( arrays ).forEach( ( key ) => {
+
+        buffers[ key ] = createBufferFromArray( gl, arrays[ key ], key );
+
+    } );
+
+    if ( arrays.indices )
+        buffers.numElements = arrays.indices.length;
+    else
+        buffers.numElements = getNumElementsFromNonIndicedArrays( arrays );
+
+    return buffers;
+
+}
+
+function createAttribsFromArrays( gl, arrays ) {
+
+    const attribs = {};
+
+    Object.keys( arrays ).forEach( ( key ) => {
+
+        if ( ! isIndices( key ) ) {
+
+            const array = arrays[ key ];
+            const attribName = array.name || array.attrib || array.attribName || key;
+            const typedArray = getTypedArray( getArray( array ), key );
+            const buffer = createBufferFromTypedArray( gl, typedArray, gl.ARRAY_BUFFER, array.drawType );
+            const type = getGLTypeFromTypedArray( typedArray );
+            const normalization = array.normalize !== undefined ? array.normalize : false;
+            const numComponents = getNumComponents( array, key );
+
+            attribs[ attribName ] = {
+                buffer,
+                numComponents,
+                type,
+                normalize: normalization,
+                stride: array.stride || 0,
+                offset: array.offset || 0,
+                drawType: array.drawType || gl.STATIC_DRAW,
+            };
+
+        }
+
+    } );
+
+    return attribs;
+
+}
+
+function createBufferInfoFromArrays( gl, arrays ) {
+
+    const bufferInfo = {
+        attribs: createAttribsFromArrays( gl, arrays ),
+    };
+
+    const { indices } = arrays;
+    if ( indices ) {
+
+        const newIndices = getTypedArray( getArray( indices ), 'indices' );
+        bufferInfo.indices = createBufferFromTypedArray( gl, newIndices, gl.ELEMENT_ARRAY_BUFFER );
+        bufferInfo.numElements = newIndices.length;
+        bufferInfo.elementType = getGLTypeFromTypedArray( newIndices );
+
+    } else
+        bufferInfo.numElements = getNumElementsFromNonIndicedArrays( arrays );
+
+    return bufferInfo;
+
 }
 
 const Primatives = {};
@@ -949,6 +1981,7 @@ Primatives.GridAxis = class {
     static createMesh() {
 
         const vertices = [];
+        const color = [];
         const size = 2;
         const div = 10.0;
         const step = size / div;
@@ -961,93 +1994,66 @@ Primatives.GridAxis = class {
             vertices.push( p );
             vertices.push( 0 );
             vertices.push( half );
-            vertices.push( 0 );
+            color.push( 0 );
 
             vertices.push( p );
             vertices.push( 0 );
             vertices.push( - half );
-            vertices.push( 0 );
+            color.push( 0 );
 
             vertices.push( - half );
             vertices.push( 0 );
             vertices.push( p );
-            vertices.push( 0 );
+            color.push( 0 );
 
             vertices.push( half );
             vertices.push( 0 );
             vertices.push( p );
-            vertices.push( 0 );
+            color.push( 0 );
 
         }
 
         vertices.push( - half );
         vertices.push( 0 );
         vertices.push( 0 );
-        vertices.push( 1 );
+        color.push( 1 );
 
         vertices.push( half );
         vertices.push( 0 );
         vertices.push( 0 );
-        vertices.push( 1 );
+        color.push( 1 );
 
         vertices.push( 0 );
         vertices.push( - half );
         vertices.push( 0 );
-        vertices.push( 2 );
+        color.push( 2 );
 
         vertices.push( 0 );
         vertices.push( half );
         vertices.push( 0 );
-        vertices.push( 2 );
+        color.push( 2 );
 
         vertices.push( 0 );
         vertices.push( 0 );
         vertices.push( - half );
-        vertices.push( 3 );
+        color.push( 3 );
 
         vertices.push( 0 );
         vertices.push( 0 );
         vertices.push( half );
-        vertices.push( 3 );
+        color.push( 3 );
 
-        const attrColorLoc = 4;
+        const bufferInfo = createBufferInfoFromArrays( exports.gl, {
+            a_position: { data: vertices },
+            a_color: { data: color, numComponents: 1 },
+        } );
         const mesh = {
+            name: 'gridAxis',
             drawMode: exports.gl.LINES,
-            vao: exports.gl.createVertexArray(),
+            bufferInfo,
         };
+        meshs[ mesh.name ] = mesh;
 
-        mesh.vtxComponents = 4;
-        mesh.vtxCount = vertices.length / mesh.vtxComponents;
-        const strideLen = Float32Array.BYTES_PER_ELEMENT * mesh.vtxComponents;
-
-        mesh.vtxBuffer = exports.gl.createBuffer();
-        exports.gl.bindVertexArray( mesh.vao );
-        exports.gl.bindBuffer( exports.gl.ARRAY_BUFFER, mesh.vtxBuffer );
-        exports.gl.bufferData( exports.gl.ARRAY_BUFFER, new Float32Array( vertices ), exports.gl.STATIC_DRAW );
-        exports.gl.enableVertexAttribArray( VTX_ATTR_POSITION_LOC );
-        exports.gl.enableVertexAttribArray( attrColorLoc );
-
-        exports.gl.vertexAttribPointer(
-            VTX_ATTR_POSITION_LOC,
-            3,
-            exports.gl.FLOAT,
-            false,
-            strideLen,
-            0,
-        );
-
-        exports.gl.vertexAttribPointer(
-            attrColorLoc,
-            1,
-            exports.gl.FLOAT,
-            false,
-            strideLen,
-            Float32Array.BYTES_PER_ELEMENT * 3,
-        );
-
-        exports.gl.bindBuffer( exports.gl.ARRAY_BUFFER, null );
-        exports.gl.bindVertexArray( null );
-        meshs.gridAxis = mesh;
         return mesh;
 
     }
@@ -1056,7 +2062,7 @@ Primatives.GridAxis = class {
 
 Primatives.Quad = class {
 
-    static createModal() {
+    static createModel() {
 
         return new Model( Primatives.Quad.createMesh() );
 
@@ -1064,13 +2070,24 @@ Primatives.Quad = class {
 
     static createMesh() {
 
-        const vtx = [ - 0.5, 0.5, 0, - 0.5, - 0.5, 0, 0.5, - 0.5, 0, 0.5, 0.5, 0 ];
+        const vertices = [ - 0.5, 0.5, 0, - 0.5, - 0.5, 0, 0.5, - 0.5, 0, 0.5, 0.5, 0 ];
         const uv = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
         const indices = [ 0, 1, 2, 2, 3, 0 ];
 
-        const mesh = createMeshVAO( 'Quad', indices, vtx, null, uv );
-        mesh.offCullFace = true;
-        mesh.onBlend = true;
+        const bufferInfo = createBufferInfoFromArrays( exports.gl, {
+            a_position: { data: vertices },
+            a_uv: { data: uv },
+            indices: { numComponents: 3, data: indices },
+        } );
+        const mesh = {
+            name: 'Quad',
+            bufferInfo,
+            cullFace: false,
+            blend: true,
+            drawMode: exports.gl.TRIANGLES,
+        };
+        meshs[ mesh.name ] = mesh;
+
         return mesh;
 
     }
@@ -1079,7 +2096,7 @@ Primatives.Quad = class {
 
 Primatives.Cube = class {
 
-    static createModal( name ) {
+    static createModel( name ) {
 
         return new Model( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
 
@@ -1098,7 +2115,7 @@ Primatives.Cube = class {
         const z0 = z - d;
         const z1 = z + d;
 
-        const vtxArray = [
+        const vertices = [
             x0, y1, z1, 0, // 0 Front
             x0, y0, z1, 0, // 1
             x1, y0, z1, 0, // 2
@@ -1130,15 +2147,15 @@ Primatives.Cube = class {
             x1, y1, z0, 5, // 4
         ];
 
-        const indexArray = [];
-        for ( let i = 0; i < vtxArray.length / 4; i += 2 )
-            indexArray.push( i, i + 1, ( Math.floor( i / 4 ) * 4 ) + ( ( i + 2 ) % 4 ) );
+        const indices = [];
+        for ( let i = 0; i < vertices.length / 4; i += 2 )
+            indices.push( i, i + 1, ( Math.floor( i / 4 ) * 4 ) + ( ( i + 2 ) % 4 ) );
 
-        const uvArray = [];
+        const uv = [];
         for ( let i = 0; i < 6; i ++ )
-            uvArray.push( 0, 0, 0, 1, 1, 1, 1, 0 );
+            uv.push( 0, 0, 0, 1, 1, 1, 1, 0 );
 
-        const normalArray = [
+        const normal = [
             0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, // Front
             0, 0, - 1, 0, 0, - 1, 0, 0, - 1, 0, 0, - 1, // Back
             - 1, 0, 0, - 1, 0, 0, - 1, 0, 0, - 1, 0, 0, // Left
@@ -1147,8 +2164,19 @@ Primatives.Cube = class {
             0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // Top
         ];
 
-        const mesh = createMeshVAO( name || 'Cube', indexArray, vtxArray, normalArray, uvArray, 4 );
-        mesh.offCullFace = true;
+        const bufferInfo = createBufferInfoFromArrays( exports.gl, {
+            a_position: { data: vertices, numComponents: 4 },
+            a_uv: { data: uv },
+            a_normal: { data: normal },
+            indices: { data: indices },
+        } );
+        const mesh = {
+            name: name || 'Cube',
+            bufferInfo,
+            cullFace: false,
+            drawMode: exports.gl.TRIANGLES,
+        };
+        meshs[ mesh.name ] = mesh;
         return mesh;
 
     }
@@ -1629,25 +2657,29 @@ class Shader {
 
     preRender() {} // eslint-disable-line
 
-    renderModal( modal ) {
+    renderModel( model ) {
 
-        if ( modal.mesh.offCullFace ) this.gl.disable( this.gl.CULL_FACE );
+        if ( ! model.mesh.vao )
+            model.createVAO( this.gl, this.program );
 
-        if ( modal.mesh.onBlend ) this.gl.enable( this.gl.BLEND );
+        if ( model.mesh.cullFace === false ) this.gl.disable( this.gl.CULL_FACE );
 
-        this.setWorldMatrix( modal.transform.getMatrix() );
-        this.gl.bindVertexArray( modal.mesh.vao );
+        if ( model.mesh.blend ) this.gl.enable( this.gl.BLEND );
 
-        if ( modal.mesh.indexCount )
-            this.gl.drawElements( modal.mesh.drawMode, modal.mesh.indexCount, this.gl.UNSIGNED_SHORT, 0 ); // eslint-disable-line
+        this.setWorldMatrix( model.transform.getMatrix() );
+        this.gl.bindVertexArray( model.mesh.vao );
+
+        const bufferInfo = model.mesh.bufferInfo;
+        if ( bufferInfo.indices || bufferInfo.elementType )
+            this.gl.drawElements( model.mesh.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, 0 ); // eslint-disable-line
         else
-            this.gl.drawArrays( modal.mesh.drawMode, 0, modal.mesh.vtxCount );
+            this.gl.drawArrays( model.mesh.drawMode, 0, bufferInfo.numElements );
 
         this.gl.bindVertexArray( null );
 
-        if ( modal.mesh.offCullFace ) this.gl.enable( this.gl.CULL_FACE );
+        if ( model.mesh.cullFace === false ) this.gl.enable( this.gl.CULL_FACE );
 
-        if ( modal.mesh.onBlend ) this.gl.disable( this.gl.BLEND );
+        if ( model.mesh.blend ) this.gl.disable( this.gl.BLEND );
 
         return this;
 
@@ -1660,8 +2692,8 @@ class GridAxisShader extends Shader {
     constructor( gl, projMat ) {
 
         const vs = '#version 300 es\n' +
-            'in vec3 a_Position;\n' +
-            'layout(location=4) in float a_Color;\n' +
+            'in vec3 a_position;\n' +
+            'layout(location=4) in float a_color;\n' +
             '\n' +
             'uniform mat4 u_world;\n' +
             'uniform mat4 u_view;\n' +
@@ -1671,8 +2703,8 @@ class GridAxisShader extends Shader {
             'out vec3 v_color;\n' +
             '\n' +
             'void main() {\n' +
-            '    v_color = u_colors[int(a_Color)];\n' +
-            '    gl_Position = u_proj * u_view * u_world * vec4(a_Position, 1.0);\n' +
+            '    v_color = u_colors[int(a_color)];\n' +
+            '    gl_Position = u_proj * u_view * u_world * vec4(a_position, 1.0);\n' +
             '}';
 
         const fs = '#version 300 es\n' +
@@ -1697,277 +2729,6 @@ class GridAxisShader extends Shader {
     }
 
 }
-
-const isArrayBuffer = window.SharedArrayBuffer
-    ? function isArrayBufferOrSharedArrayBuffer( ary ) {
-
-        return ary && ary.buffer && ( ary.buffer instanceof ArrayBuffer || ary.buffer instanceof window.SharedArrayBuffer );
-
-    } : function isArrayBuffer( ary ) {
-
-        return ary && ary.buffer && ary.buffer instanceof ArrayBuffer;
-
-    };
-
-const BYTE = 0x1400;
-const UNSIGNED_BYTE = 0x1401;
-const SHORT = 0x1402;
-const UNSIGNED_SHORT = 0x1403;
-const INT = 0x1404;
-const UNSIGNED_INT = 0x1405;
-const FLOAT = 0x1406;
-const UNSIGNED_SHORT_4_4_4_4 = 0x8033;
-const UNSIGNED_SHORT_5_5_5_1 = 0x8034;
-const UNSIGNED_SHORT_5_6_5 = 0x8363;
-const HALF_FLOAT = 0x140B;
-const UNSIGNED_INT_2_10_10_10_REV = 0x8368;
-const UNSIGNED_INT_10F_11F_11F_REV = 0x8C3B;
-const UNSIGNED_INT_5_9_9_9_REV = 0x8C3E;
-const FLOAT_32_UNSIGNED_INT_24_8_REV = 0x8DAD;
-const UNSIGNED_INT_24_8 = 0x84FA;
-
-const glTypeToTypedArray = {};
-{
-
-    const tt = glTypeToTypedArray;
-    tt[ BYTE ] = Int8Array;
-    tt[ UNSIGNED_BYTE ] = Uint8Array;
-    tt[ SHORT ] = Int16Array;
-    tt[ UNSIGNED_SHORT ] = Uint16Array;
-    tt[ INT ] = Int32Array;
-    tt[ UNSIGNED_INT ] = Uint32Array;
-    tt[ FLOAT ] = Float32Array;
-    tt[ UNSIGNED_SHORT_4_4_4_4 ] = Uint16Array;
-    tt[ UNSIGNED_SHORT_5_5_5_1 ] = Uint16Array;
-    tt[ UNSIGNED_SHORT_5_6_5 ] = Uint16Array;
-    tt[ HALF_FLOAT ] = Uint16Array;
-    tt[ UNSIGNED_INT_2_10_10_10_REV ] = Uint32Array;
-    tt[ UNSIGNED_INT_10F_11F_11F_REV ] = Uint32Array;
-    tt[ UNSIGNED_INT_5_9_9_9_REV ] = Uint32Array;
-    tt[ FLOAT_32_UNSIGNED_INT_24_8_REV ] = Uint32Array;
-    tt[ UNSIGNED_INT_24_8 ] = Uint32Array;
-
-}
-
-function getGLTypeFromTypedArray( typedArray ) {
-
-    if ( typedArray instanceof Int8Array ) return BYTE;
-    if ( typedArray instanceof Uint8Array ) return UNSIGNED_BYTE;
-    if ( typedArray instanceof Uint8ClampedArray ) return UNSIGNED_BYTE;
-    if ( typedArray instanceof Int16Array ) return SHORT;
-    if ( typedArray instanceof Uint16Array ) return UNSIGNED_SHORT;
-    if ( typedArray instanceof Int32Array ) return INT;
-    if ( typedArray instanceof Uint32Array ) return UNSIGNED_INT;
-    if ( typedArray instanceof Float32Array ) return FLOAT;
-    throw new Error( 'unsupported typed array type' );
-
-}
-
-function getTypedArrayTypeFromGLType( type ) {
-
-    const arrayType = glTypeToTypedArray[ type ];
-    if ( ! arrayType ) throw new Error( 'unkonw gl type' );
-    return arrayType;
-
-}
-
-function isIndices( name ) {
-
-    return name === 'index' || name === 'indices';
-
-}
-
-function getArray( array ) {
-
-    return array.length ? array : array.data;
-
-}
-
-function getTypedArray( array, name ) {
-
-    if ( isArrayBuffer( array ) ) return array;
-
-    if ( isIndices( name ) ) return new Uint16Array( array );
-
-    return new Float32Array( array );
-
-}
-
-const colorRE = /color|colour/i;
-const textureRE = /uv|coord/i;
-
-function guessNumComponentsFromName( name, length ) {
-
-    let numComponents;
-    if ( colorRE.test( name ) ) numComponents = 4;
-    else if ( textureRE.test( name ) ) numComponents = 2;
-    else numComponents = 3;
-
-    if ( length % numComponents > 0 )
-        throw new Error( `Can not guess numComponents for attribute ${name}.` );
-
-}
-
-function getNumComponents( array, name ) {
-
-    return array.numComponents || array.size || guessNumComponentsFromName( name, getArray( array ).length );
-
-}
-
-function createBufferFromTypedArray( gl, typedArray, type = gl.ARRAY_BUFFER, drawType = gl.STATIC_DRAW ) {
-
-    if ( typedArray instanceof WebGLBuffer )
-        return typedArray;
-
-    const buffer = gl.createBuffer();
-    gl.bindBuffer( type, buffer );
-    gl.bufferData( type, typedArray, drawType );
-    return buffer;
-
-}
-
-const positionNames = [ 'position', 'positions', 'a_position' ];
-
-function getNumElementsFromNonIndicedArrays( arrays ) {
-
-    let key;
-    let i;
-    for ( i = 0; i < positionNames.length; i ++ )
-        if ( positionNames[ i ] in arrays ) {
-
-            key = positionNames[ i ];
-            break;
-
-        }
-
-    if ( i === positionNames.length ) [ key ] = Object.keys( arrays );
-    const array = arrays[ key ];
-    const dataArray = getArray( array );
-    return dataArray.length / getNumComponents( array, key );
-
-}
-
-function createBufferFromArray( gl, array, name ) {
-
-    const type = name === 'indices' ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
-    const typedArray = getTypedArray( getArray( array ), name );
-    return createBufferFromTypedArray( gl, typedArray, type, array.drawType );
-
-}
-
-function createBuffersFromArrays( gl, arrays ) {
-
-    const buffers = {};
-
-    Object.keys( arrays ).forEach( ( key ) => {
-
-        buffers[ key ] = createBufferFromArray( gl, arrays[ key ], key );
-
-    } );
-
-    if ( arrays.indices )
-        buffers.numElements = arrays.indices.length;
-    else
-        buffers.numElements = getNumElementsFromNonIndicedArrays( arrays );
-
-    return buffers;
-
-}
-
-function createAttribsFromArrays( gl, arrays ) {
-
-    const attribs = {};
-
-    Object.keys( arrays ).forEach( ( key ) => {
-
-        if ( ! isIndices( key ) ) {
-
-            const array = arrays[ key ];
-            const attribName = array.name || array.attrib || array.attribName || key;
-            const typedArray = getTypedArray( getArray( array ), key );
-            const buffer = createBufferFromTypedArray( gl, typedArray, gl.ARRAY_BUFFER, array.drawType );
-            const type = getGLTypeFromTypedArray( typedArray );
-            const normalization = array.normalize !== undefined ? array.normalize : false;
-            const numComponents = getNumComponents( array, key );
-
-            attribs[ attribName ] = {
-                buffer,
-                numComponents,
-                type,
-                normalize: normalization,
-                stride: array.stride || 0,
-                offset: array.offset || 0,
-                drawType: array.drawType || gl.STATIC_DRAW,
-            };
-
-        }
-
-    } );
-
-    return attribs;
-
-}
-
-function createBufferInfoFromArrays( gl, arrays ) {
-
-    const bufferInfo = {
-        attribs: createAttribsFromArrays( gl, arrays ),
-    };
-
-    const { indices } = arrays;
-    if ( indices ) {
-
-        const newIndices = getTypedArray( getArray( indices ), 'indices' );
-        bufferInfo.indices = createBufferFromTypedArray( gl, newIndices, gl.ELEMENT_ARRAY_BUFFER );
-        bufferInfo.numElements = newIndices.length;
-        bufferInfo.elementType = getGLTypeFromTypedArray( newIndices );
-
-    } else
-        bufferInfo.numElements = getNumElementsFromNonIndicedArrays( arrays );
-
-    return bufferInfo;
-
-}
-
-function isWebGL2( gl ) {
-
-    return !! gl.texStorage2D;
-
-}
-
-const glEnumToString = ( function () {
-
-    const haveEnumsForType = {};
-    const enums = {};
-
-    function addEnums( gl ) {
-
-        const type = gl.constructor.name;
-        if ( ! haveEnumsForType[ type ] ) {
-
-            /* eslint-disable */
-            for ( const key in gl )
-                if ( typeof gl[ key ] === 'number' ) { 
-
-                    const existing = enums[ gl[ key ] ];
-                    enums[ gl[ key ] ] = existing ? `${existing} | ${key}` : key;
-
-                }
-            /* eslint-enable */
-            haveEnumsForType[ type ] = true;
-
-        }
-
-    }
-
-    return function ( gl, value ) {
-
-        addEnums( gl );
-        return enums[ value ] || ( `0x${value.toString( 16 )}` );
-
-    };
-
-}() );
 
 const defaults = {
     textureColor: new Uint8Array( [ 255, 105, 180, 255 ] ),
@@ -2045,9 +2806,9 @@ const BYTE$1 = 0x1400;
 const UNSIGNED_BYTE$1 = 0x1401;
 const SHORT$1 = 0x1402;
 const UNSIGNED_SHORT$1 = 0x1403;
-const INT$1 = 0x1404;
-const UNSIGNED_INT$1 = 0x1405;
-const FLOAT$1 = 0x1406;
+const INT$2 = 0x1404;
+const UNSIGNED_INT$2 = 0x1405;
+const FLOAT$2 = 0x1406;
 const UNSIGNED_SHORT_4_4_4_4$1 = 0x8033;
 const UNSIGNED_SHORT_5_5_5_1$1 = 0x8034;
 const UNSIGNED_SHORT_5_6_5$1 = 0x8363;
@@ -2073,19 +2834,19 @@ const textureInternalFormatInfo = {};
     const t = textureInternalFormatInfo;
     // unsized formats
     t[ ALPHA ] = {
-        textureFormat: ALPHA, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 1, 2, 2, 4 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$1 ],
+        textureFormat: ALPHA, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 1, 2, 2, 4 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$2 ],
     };
     t[ LUMINANCE ] = {
-        textureFormat: LUMINANCE, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 1, 2, 2, 4 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$1 ],
+        textureFormat: LUMINANCE, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 1, 2, 2, 4 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$2 ],
     };
     t[ LUMINANCE_ALPHA ] = {
-        textureFormat: LUMINANCE_ALPHA, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 2, 4, 4, 8 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$1 ],
+        textureFormat: LUMINANCE_ALPHA, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 2, 4, 4, 8 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$2 ],
     };
     t[ RGB ] = {
-        textureFormat: RGB, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 3, 6, 6, 12, 2 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$1, UNSIGNED_SHORT_5_6_5$1 ],
+        textureFormat: RGB, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 3, 6, 6, 12, 2 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$2, UNSIGNED_SHORT_5_6_5$1 ],
     };
     t[ RGBA ] = {
-        textureFormat: RGBA, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 4, 8, 8, 16, 2, 2 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$1, UNSIGNED_SHORT_4_4_4_4$1, UNSIGNED_SHORT_5_5_5_1$1 ],
+        textureFormat: RGBA, colorRenderable: true, textureFilterable: true, bytesPerElement: [ 4, 8, 8, 16, 2, 2 ], type: [ UNSIGNED_BYTE$1, HALF_FLOAT$1, HALF_FLOAT_OES, FLOAT$2, UNSIGNED_SHORT_4_4_4_4$1, UNSIGNED_SHORT_5_5_5_1$1 ],
     };
 
     // sized formats
@@ -2096,10 +2857,10 @@ const textureInternalFormatInfo = {};
         textureFormat: RED, colorRenderable: false, textureFilterable: true, bytesPerElement: 1, type: BYTE$1,
     };
     t[ R16F ] = {
-        textureFormat: RED, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 4, 2 ], type: [ FLOAT$1, HALF_FLOAT$1 ],
+        textureFormat: RED, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 4, 2 ], type: [ FLOAT$2, HALF_FLOAT$1 ],
     };
     t[ R32F ] = {
-        textureFormat: RED, colorRenderable: false, textureFilterable: false, bytesPerElement: 4, type: FLOAT$1,
+        textureFormat: RED, colorRenderable: false, textureFilterable: false, bytesPerElement: 4, type: FLOAT$2,
     };
     t[ R8UI ] = {
         textureFormat: RED_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 1, type: UNSIGNED_BYTE$1,
@@ -2114,10 +2875,10 @@ const textureInternalFormatInfo = {};
         textureFormat: RED_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 2, type: SHORT$1,
     };
     t[ R32UI ] = {
-        textureFormat: RED_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: UNSIGNED_INT$1,
+        textureFormat: RED_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: UNSIGNED_INT$2,
     };
     t[ R32I ] = {
-        textureFormat: RED_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: INT$1,
+        textureFormat: RED_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: INT$2,
     };
     t[ RG8 ] = {
         textureFormat: RG, colorRenderable: true, textureFilterable: true, bytesPerElement: 2, type: UNSIGNED_BYTE$1,
@@ -2126,10 +2887,10 @@ const textureInternalFormatInfo = {};
         textureFormat: RG, colorRenderable: false, textureFilterable: true, bytesPerElement: 2, type: BYTE$1,
     };
     t[ RG16F ] = {
-        textureFormat: RG, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 8, 4 ], type: [ FLOAT$1, HALF_FLOAT$1 ],
+        textureFormat: RG, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 8, 4 ], type: [ FLOAT$2, HALF_FLOAT$1 ],
     };
     t[ RG32F ] = {
-        textureFormat: RG, colorRenderable: false, textureFilterable: false, bytesPerElement: 8, type: FLOAT$1,
+        textureFormat: RG, colorRenderable: false, textureFilterable: false, bytesPerElement: 8, type: FLOAT$2,
     };
     t[ RG8UI ] = {
         textureFormat: RG_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 2, type: UNSIGNED_BYTE$1,
@@ -2144,10 +2905,10 @@ const textureInternalFormatInfo = {};
         textureFormat: RG_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: SHORT$1,
     };
     t[ RG32UI ] = {
-        textureFormat: RG_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 8, type: UNSIGNED_INT$1,
+        textureFormat: RG_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 8, type: UNSIGNED_INT$2,
     };
     t[ RG32I ] = {
-        textureFormat: RG_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 8, type: INT$1,
+        textureFormat: RG_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 8, type: INT$2,
     };
     t[ RGB8 ] = {
         textureFormat: RGB, colorRenderable: true, textureFilterable: true, bytesPerElement: 3, type: UNSIGNED_BYTE$1,
@@ -2162,16 +2923,16 @@ const textureInternalFormatInfo = {};
         textureFormat: RGB, colorRenderable: false, textureFilterable: true, bytesPerElement: 3, type: BYTE$1,
     };
     t[ R11F_G11F_B10F ] = {
-        textureFormat: RGB, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 12, 6, 4 ], type: [ FLOAT$1, HALF_FLOAT$1, UNSIGNED_INT_10F_11F_11F_REV$1 ],
+        textureFormat: RGB, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 12, 6, 4 ], type: [ FLOAT$2, HALF_FLOAT$1, UNSIGNED_INT_10F_11F_11F_REV$1 ],
     };
     t[ RGB9_E5 ] = {
-        textureFormat: RGB, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 12, 6, 4 ], type: [ FLOAT$1, HALF_FLOAT$1, UNSIGNED_INT_5_9_9_9_REV$1 ],
+        textureFormat: RGB, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 12, 6, 4 ], type: [ FLOAT$2, HALF_FLOAT$1, UNSIGNED_INT_5_9_9_9_REV$1 ],
     };
     t[ RGB16F ] = {
-        textureFormat: RGB, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 12, 6 ], type: [ FLOAT$1, HALF_FLOAT$1 ],
+        textureFormat: RGB, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 12, 6 ], type: [ FLOAT$2, HALF_FLOAT$1 ],
     };
     t[ RGB32F ] = {
-        textureFormat: RGB, colorRenderable: false, textureFilterable: false, bytesPerElement: 12, type: FLOAT$1,
+        textureFormat: RGB, colorRenderable: false, textureFilterable: false, bytesPerElement: 12, type: FLOAT$2,
     };
     t[ RGB8UI ] = {
         textureFormat: RGB_INTEGER, colorRenderable: false, textureFilterable: false, bytesPerElement: 3, type: UNSIGNED_BYTE$1,
@@ -2186,10 +2947,10 @@ const textureInternalFormatInfo = {};
         textureFormat: RGB_INTEGER, colorRenderable: false, textureFilterable: false, bytesPerElement: 6, type: SHORT$1,
     };
     t[ RGB32UI ] = {
-        textureFormat: RGB_INTEGER, colorRenderable: false, textureFilterable: false, bytesPerElement: 12, type: UNSIGNED_INT$1,
+        textureFormat: RGB_INTEGER, colorRenderable: false, textureFilterable: false, bytesPerElement: 12, type: UNSIGNED_INT$2,
     };
     t[ RGB32I ] = {
-        textureFormat: RGB_INTEGER, colorRenderable: false, textureFilterable: false, bytesPerElement: 12, type: INT$1,
+        textureFormat: RGB_INTEGER, colorRenderable: false, textureFilterable: false, bytesPerElement: 12, type: INT$2,
     };
     t[ RGBA8 ] = {
         textureFormat: RGBA, colorRenderable: true, textureFilterable: true, bytesPerElement: 4, type: UNSIGNED_BYTE$1,
@@ -2210,10 +2971,10 @@ const textureInternalFormatInfo = {};
         textureFormat: RGBA, colorRenderable: true, textureFilterable: true, bytesPerElement: 4, type: UNSIGNED_INT_2_10_10_10_REV$1,
     };
     t[ RGBA16F ] = {
-        textureFormat: RGBA, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 16, 8 ], type: [ FLOAT$1, HALF_FLOAT$1 ],
+        textureFormat: RGBA, colorRenderable: false, textureFilterable: true, bytesPerElement: [ 16, 8 ], type: [ FLOAT$2, HALF_FLOAT$1 ],
     };
     t[ RGBA32F ] = {
-        textureFormat: RGBA, colorRenderable: false, textureFilterable: false, bytesPerElement: 16, type: FLOAT$1,
+        textureFormat: RGBA, colorRenderable: false, textureFilterable: false, bytesPerElement: 16, type: FLOAT$2,
     };
     t[ RGBA8UI ] = {
         textureFormat: RGBA_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: UNSIGNED_BYTE$1,
@@ -2231,20 +2992,20 @@ const textureInternalFormatInfo = {};
         textureFormat: RGBA_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 8, type: SHORT$1,
     };
     t[ RGBA32I ] = {
-        textureFormat: RGBA_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 16, type: INT$1,
+        textureFormat: RGBA_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 16, type: INT$2,
     };
     t[ RGBA32UI ] = {
-        textureFormat: RGBA_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 16, type: UNSIGNED_INT$1,
+        textureFormat: RGBA_INTEGER, colorRenderable: true, textureFilterable: false, bytesPerElement: 16, type: UNSIGNED_INT$2,
     };
     // Sized Internal
     t[ DEPTH_COMPONENT16 ] = {
-        textureFormat: DEPTH_COMPONENT, colorRenderable: true, textureFilterable: false, bytesPerElement: [ 2, 4 ], type: [ UNSIGNED_SHORT$1, UNSIGNED_INT$1 ],
+        textureFormat: DEPTH_COMPONENT, colorRenderable: true, textureFilterable: false, bytesPerElement: [ 2, 4 ], type: [ UNSIGNED_SHORT$1, UNSIGNED_INT$2 ],
     };
     t[ DEPTH_COMPONENT24 ] = {
-        textureFormat: DEPTH_COMPONENT, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: UNSIGNED_INT$1,
+        textureFormat: DEPTH_COMPONENT, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: UNSIGNED_INT$2,
     };
     t[ DEPTH_COMPONENT32F ] = {
-        textureFormat: DEPTH_COMPONENT, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: FLOAT$1,
+        textureFormat: DEPTH_COMPONENT, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: FLOAT$2,
     };
     t[ DEPTH24_STENCIL8 ] = {
         textureFormat: DEPTH_STENCIL, colorRenderable: true, textureFilterable: false, bytesPerElement: 4, type: UNSIGNED_INT_24_8$1,
@@ -3087,745 +3848,6 @@ function createTextures( gl, textureOptions, callback ) {
     callCallbackWhenReady();
 
     return textures;
-
-}
-
-function getHTMLElementSrc( id ) {
-
-    const ele = document.getElementById( id );
-
-    if ( ! ele || ele.textContent === '' )
-        throw new Error( `${id} shader element does not exist or have text.` );
-
-
-    return ele.textContent;
-
-}
-
-function createShader( gl, src, type ) {
-
-    const shader = gl.createShader( type );
-    gl.shaderSource( shader, src );
-    gl.compileShader( shader );
-
-    if ( ! gl.getShaderParameter( shader, gl.COMPILE_STATUS ) ) {
-
-        gl.deleteShader( shader );
-        throw new Error( `Error compiling shader: ${src}`, gl.getShaderInfoLog( shader ) );
-
-    }
-
-    return shader;
-
-}
-
-function createProgram( gl, vs, fs ) {
-
-    let vShader;
-    let fShader;
-
-    if ( typeof vs === 'string' && vs.length < 20 ) {
-
-        const src = getHTMLElementSrc( vs );
-        vShader = createShader( gl, src, gl.VERTEX_SHADER );
-
-    } else if ( typeof vs === 'string' )
-        vShader = createShader( gl, vs, gl.VERTEX_SHADER );
-
-    if ( typeof fs === 'string' && fs.length < 20 ) {
-
-        const src = getHTMLElementSrc( fs );
-        fShader = createShader( gl, src, gl.FRAGMENT_SHADER );
-
-    } else if ( typeof fs === 'string' )
-        fShader = createShader( gl, fs, gl.FRAGMENT_SHADER );
-
-    const prog = gl.createProgram();
-    gl.attachShader( prog, vShader );
-    gl.attachShader( prog, fShader );
-
-    gl.bindAttribLocation( prog, VTX_ATTR_POSITION_LOC, VTX_ATTR_POSITION_NAME ); // eslint-disable-line
-    gl.bindAttribLocation( prog, VTX_ATTR_NORMAL_LOC, VTX_ATTR_NORMAL_NAME ); // eslint-disable-line
-    gl.bindAttribLocation( prog, VTX_ATTR_UV_LOC, VTX_ATTR_UV_NAME );
-
-    gl.linkProgram( prog );
-
-    if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) ) {
-
-        gl.deleteProgram( prog );
-        throw new Error( 'Error createing shader program.', gl.getProgramInfoLog( prog ) );
-
-    }
-
-    gl.validateProgram( prog );
-    if ( ! gl.getProgramParameter( prog, gl.VALIDATE_STATUS ) ) {
-
-        gl.deleteProgram( prog );
-        throw new Error( 'Error validating shader program.', gl.getProgramInfoLog( prog ) );
-
-    }
-
-    gl.detachShader( prog, vShader );
-    gl.detachShader( prog, fShader );
-    gl.deleteShader( vShader );
-    gl.deleteShader( fShader );
-
-    return prog;
-
-}
-
-function getDefaultAttribLocation( gl, program ) {
-
-    return {
-        position: gl.getAttribLocation( program, VTX_ATTR_POSITION_NAME ),
-        normal: gl.getAttribLocation( program, VTX_ATTR_NORMAL_NAME ),
-        uv: gl.getAttribLocation( program, VTX_ATTR_UV_NAME ),
-    };
-
-}
-
-
-const FLOAT$2 = 0x1406;
-const FLOAT_VEC2 = 0x8B50;
-const FLOAT_VEC3 = 0x8B51;
-const FLOAT_VEC4 = 0x8B52;
-const INT$2 = 0x1404;
-const INT_VEC2 = 0x8B53;
-const INT_VEC3 = 0x8B54;
-const INT_VEC4 = 0x8B55;
-const BOOL = 0x8B56;
-const BOOL_VEC2 = 0x8B57;
-const BOOL_VEC3 = 0x8B58;
-const BOOL_VEC4 = 0x8B59;
-const FLOAT_MAT2 = 0x8B5A;
-const FLOAT_MAT3 = 0x8B5B;
-const FLOAT_MAT4 = 0x8B5C;
-const SAMPLER_2D = 0x8B5E;
-const SAMPLER_CUBE = 0x8B60;
-const SAMPLER_3D = 0x8B5F;
-const SAMPLER_2D_SHADOW = 0x8B62;
-const FLOAT_MAT2x3 = 0x8B65; // eslint-disable-line
-const FLOAT_MAT2x4 = 0x8B66; // eslint-disable-line
-const FLOAT_MAT3x2 = 0x8B67; // eslint-disable-line
-const FLOAT_MAT3x4 = 0x8B68; // eslint-disable-line
-const FLOAT_MAT4x2 = 0x8B69; // eslint-disable-line
-const FLOAT_MAT4x3 = 0x8B6A; // eslint-disable-line
-const SAMPLER_2D_ARRAY = 0x8DC1;
-const SAMPLER_2D_ARRAY_SHADOW = 0x8DC4;
-const SAMPLER_CUBE_SHADOW = 0x8DC5;
-const UNSIGNED_INT$2 = 0x1405;
-const UNSIGNED_INT_VEC2 = 0x8DC6;
-const UNSIGNED_INT_VEC3 = 0x8DC7;
-const UNSIGNED_INT_VEC4 = 0x8DC8;
-const INT_SAMPLER_2D = 0x8DCA;
-const INT_SAMPLER_3D = 0x8DCB;
-const INT_SAMPLER_CUBE = 0x8DCC;
-const INT_SAMPLER_2D_ARRAY = 0x8DCF;
-const UNSIGNED_INT_SAMPLER_2D = 0x8DD2;
-const UNSIGNED_INT_SAMPLER_3D = 0x8DD3;
-const UNSIGNED_INT_SAMPLER_CUBE = 0x8DD4;
-const UNSIGNED_INT_SAMPLER_2D_ARRAY = 0x8DD7;
-
-const TEXTURE_2D = 0x0DE1;
-const TEXTURE_CUBE_MAP = 0x8513;
-const TEXTURE_3D = 0x806F;
-const TEXTURE_2D_ARRAY = 0x8C1A;
-
-
-const typeMap = {};
-
-function getBindPointForSamplerType( gl, type ) {
-
-    return typeMap[ type ].bindPoint;
-
-}
-
-function floatSetter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform1f( location, v );
-
-    };
-
-}
-
-function floatArraySetter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform1fv( location, v );
-
-    };
-
-}
-
-function floatVec2Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform2fv( location, v );
-
-    };
-
-}
-
-function floatVec3Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform3fv( location, v );
-
-    };
-
-}
-
-function floatVec4Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform4fv( location, v );
-
-    };
-
-}
-
-function intSetter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform1i( location, v );
-
-    };
-
-}
-
-function intArraySetter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform1iv( location, v );
-
-    };
-
-}
-
-function intVec2Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform2iv( location, v );
-
-    };
-
-}
-
-function intVec3Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform3iv( location, v );
-
-    };
-
-}
-
-function intVec4Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform4iv( location, v );
-
-    };
-
-}
-
-function uintSetter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform1ui( location, v );
-
-    };
-
-}
-
-function uintArraySetter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform1uiv( location, v );
-
-    };
-
-}
-
-function uintVec2Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform2uiv( location, v );
-
-    };
-
-}
-
-function uintVec3Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform3uiv( location, v );
-
-    };
-
-}
-
-function uintVec4Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniform4uiv( location, v );
-
-    };
-
-}
-
-function floatMat2Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix2fv( location, false, v );
-
-    };
-
-}
-
-function floatMat3Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix3fv( location, false, v );
-
-    };
-
-}
-
-function floatMat4Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix4fv( location, false, v );
-
-    };
-
-}
-
-function floatMat23Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix2x3fv( location, false, v );
-
-    };
-
-}
-
-function floatMat32Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix3x2fv( location, false, v );
-
-    };
-
-}
-
-function floatMat24Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix2x4fv( location, false, v );
-
-    };
-
-}
-
-function floatMat42Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix4x2fv( location, false, v );
-
-    };
-
-}
-
-function floatMat34Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix3x4fv( location, false, v );
-
-    };
-
-}
-
-function floatMat43Setter( gl, location ) {
-
-    return function ( v ) {
-
-        gl.uniformMatrix4x3fv( location, false, v );
-
-    };
-
-}
-
-function samplerSetter( gl, type, unit, location ) {
-
-    const bindPoint = getBindPointForSamplerType( gl, type );
-    return isWebGL2( gl ) ? function ( textureOrPair ) {
-
-        let texture;
-        let sampler;
-        if ( textureOrPair instanceof WebGLTexture ) {
-
-            texture = textureOrPair;
-            sampler = null;
-
-        } else {
-
-            texture = textureOrPair.texture;
-            sampler = textureOrPair.sampler;
-
-        }
-        gl.uniform1i( location, unit );
-        gl.activeTexture( gl.TEXTURE0 + unit );
-        gl.bindTexture( bindPoint, texture );
-        gl.bindSampler( unit, sampler );
-
-    } : function ( texture ) {
-
-        gl.uniform1i( location, unit );
-        gl.activeTexture( gl.TEXTURE0 + unit );
-        gl.bindTexture( bindPoint, texture );
-
-    };
-
-}
-
-function samplerArraySetter( gl, type, unit, location, size ) {
-
-    const bindPoint = getBindPointForSamplerType( gl, type );
-    const units = new Int32Array( size );
-    for ( let ii = 0; ii < size; ++ ii )
-        units[ ii ] = unit + ii;
-
-
-    return isWebGL2( gl ) ? function ( textures ) {
-
-        gl.uniform1iv( location, units );
-        textures.forEach( ( textureOrPair, index ) => {
-
-            gl.activeTexture( gl.TEXTURE0 + units[ index ] );
-            let texture;
-            let sampler;
-            if ( textureOrPair instanceof WebGLTexture ) {
-
-                texture = textureOrPair;
-                sampler = null;
-
-            } else {
-
-                texture = textureOrPair.texture;
-                sampler = textureOrPair.sampler;
-
-            }
-            gl.bindSampler( unit, sampler );
-            gl.bindTexture( bindPoint, texture );
-
-        } );
-
-    } : function ( textures ) {
-
-        gl.uniform1iv( location, units );
-        textures.forEach( ( texture, index ) => {
-
-            gl.activeTexture( gl.TEXTURE0 + units[ index ] );
-            gl.bindTexture( bindPoint, texture );
-
-        } );
-
-    };
-
-}
-
-typeMap[ FLOAT$2 ] = {
-    Type: Float32Array, size: 4, setter: floatSetter, arraySetter: floatArraySetter,
-};
-typeMap[ FLOAT_VEC2 ] = { Type: Float32Array, size: 8, setter: floatVec2Setter };
-typeMap[ FLOAT_VEC3 ] = { Type: Float32Array, size: 12, setter: floatVec3Setter };
-typeMap[ FLOAT_VEC4 ] = { Type: Float32Array, size: 16, setter: floatVec4Setter };
-typeMap[ INT$2 ] = {
-    Type: Int32Array, size: 4, setter: intSetter, arraySetter: intArraySetter,
-};
-typeMap[ INT_VEC2 ] = { Type: Int32Array, size: 8, setter: intVec2Setter };
-typeMap[ INT_VEC3 ] = { Type: Int32Array, size: 12, setter: intVec3Setter };
-typeMap[ INT_VEC4 ] = { Type: Int32Array, size: 16, setter: intVec4Setter };
-typeMap[ UNSIGNED_INT$2 ] = {
-    Type: Uint32Array, size: 4, setter: uintSetter, arraySetter: uintArraySetter,
-};
-typeMap[ UNSIGNED_INT_VEC2 ] = { Type: Uint32Array, size: 8, setter: uintVec2Setter };
-typeMap[ UNSIGNED_INT_VEC3 ] = { Type: Uint32Array, size: 12, setter: uintVec3Setter };
-typeMap[ UNSIGNED_INT_VEC4 ] = { Type: Uint32Array, size: 16, setter: uintVec4Setter };
-typeMap[ BOOL ] = {
-    Type: Uint32Array, size: 4, setter: intSetter, arraySetter: intArraySetter,
-};
-typeMap[ BOOL_VEC2 ] = { Type: Uint32Array, size: 8, setter: intVec2Setter };
-typeMap[ BOOL_VEC3 ] = { Type: Uint32Array, size: 12, setter: intVec3Setter };
-typeMap[ BOOL_VEC4 ] = { Type: Uint32Array, size: 16, setter: intVec4Setter };
-typeMap[ FLOAT_MAT2 ] = { Type: Float32Array, size: 16, setter: floatMat2Setter };
-typeMap[ FLOAT_MAT3 ] = { Type: Float32Array, size: 36, setter: floatMat3Setter };
-typeMap[ FLOAT_MAT4 ] = { Type: Float32Array, size: 64, setter: floatMat4Setter };
-typeMap[ FLOAT_MAT2x3 ] = { Type: Float32Array, size: 24, setter: floatMat23Setter };
-typeMap[ FLOAT_MAT2x4 ] = { Type: Float32Array, size: 32, setter: floatMat24Setter };
-typeMap[ FLOAT_MAT3x2 ] = { Type: Float32Array, size: 24, setter: floatMat32Setter };
-typeMap[ FLOAT_MAT3x4 ] = { Type: Float32Array, size: 48, setter: floatMat34Setter };
-typeMap[ FLOAT_MAT4x2 ] = { Type: Float32Array, size: 32, setter: floatMat42Setter };
-typeMap[ FLOAT_MAT4x3 ] = { Type: Float32Array, size: 48, setter: floatMat43Setter };
-typeMap[ SAMPLER_2D ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
-};
-typeMap[ SAMPLER_CUBE ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
-};
-typeMap[ SAMPLER_3D ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_3D,
-};
-typeMap[ SAMPLER_2D_SHADOW ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
-};
-typeMap[ SAMPLER_2D_ARRAY ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
-};
-typeMap[ SAMPLER_2D_ARRAY_SHADOW ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
-};
-typeMap[ SAMPLER_CUBE_SHADOW ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
-};
-typeMap[ INT_SAMPLER_2D ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
-};
-typeMap[ INT_SAMPLER_3D ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_3D,
-};
-typeMap[ INT_SAMPLER_CUBE ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
-};
-typeMap[ INT_SAMPLER_2D_ARRAY ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
-};
-typeMap[ UNSIGNED_INT_SAMPLER_2D ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D,
-};
-typeMap[ UNSIGNED_INT_SAMPLER_3D ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_3D,
-};
-typeMap[ UNSIGNED_INT_SAMPLER_CUBE ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_CUBE_MAP,
-};
-typeMap[ UNSIGNED_INT_SAMPLER_2D_ARRAY ] = {
-    Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TEXTURE_2D_ARRAY,
-};
-
-function floatAttribSetter( gl, index ) {
-
-    return function ( b ) {
-
-        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
-        gl.enableVertexAttribArray( index );
-        gl.vertexAttribPointer( index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0 );
-
-    };
-
-}
-
-function intAttribSetter( gl, index ) {
-
-    return function ( b ) {
-
-        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
-        gl.enableVertexAttribArray( index );
-        gl.vertexAttribIPointer( index, b.numComponents || b.size, b.type || gl.INT, b.stride || 0, b.offset || 0 );
-
-    };
-
-}
-
-function matAttribSetter( gl, index, typeInfo ) {
-
-    const defaultSize = typeInfo.size;
-    const count = typeInfo.count;
-
-    return function ( b ) {
-
-        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
-        const numComponents = b.size || b.numComponents || defaultSize;
-        const size = numComponents / count;
-        const type = b.type || gl.FLOAT;
-        const typeInfoNew = typeMap[ type ];
-        const stride = typeInfoNew.size * numComponents;
-        const normalize = b.normalize || false;
-        const offset = b.offset || 0;
-        const rowOffset = stride / count;
-        for ( let i = 0; i < count; ++ i ) {
-
-            gl.enableVertexAttribArray( index + i );
-            gl.vertexAttribPointer( index + i, size, type, normalize, stride, offset + ( rowOffset * i ) );
-
-        }
-
-    };
-
-}
-
-const attrTypeMap = {};
-attrTypeMap[ FLOAT$2 ] = { size: 4, setter: floatAttribSetter };
-attrTypeMap[ FLOAT_VEC2 ] = { size: 8, setter: floatAttribSetter };
-attrTypeMap[ FLOAT_VEC3 ] = { size: 12, setter: floatAttribSetter };
-attrTypeMap[ FLOAT_VEC4 ] = { size: 16, setter: floatAttribSetter };
-attrTypeMap[ INT$2 ] = { size: 4, setter: intAttribSetter };
-attrTypeMap[ INT_VEC2 ] = { size: 8, setter: intAttribSetter };
-attrTypeMap[ INT_VEC3 ] = { size: 12, setter: intAttribSetter };
-attrTypeMap[ INT_VEC4 ] = { size: 16, setter: intAttribSetter };
-attrTypeMap[ UNSIGNED_INT$2 ] = { size: 4, setter: intAttribSetter };
-attrTypeMap[ UNSIGNED_INT_VEC2 ] = { size: 8, setter: intAttribSetter };
-attrTypeMap[ UNSIGNED_INT_VEC3 ] = { size: 12, setter: intAttribSetter };
-attrTypeMap[ UNSIGNED_INT_VEC4 ] = { size: 16, setter: intAttribSetter };
-attrTypeMap[ BOOL ] = { size: 4, setter: intAttribSetter };
-attrTypeMap[ BOOL_VEC2 ] = { size: 8, setter: intAttribSetter };
-attrTypeMap[ BOOL_VEC3 ] = { size: 12, setter: intAttribSetter };
-attrTypeMap[ BOOL_VEC4 ] = { size: 16, setter: intAttribSetter };
-attrTypeMap[ FLOAT_MAT2 ] = { size: 4, setter: matAttribSetter, count: 2 };
-attrTypeMap[ FLOAT_MAT3 ] = { size: 9, setter: matAttribSetter, count: 3 };
-attrTypeMap[ FLOAT_MAT4 ] = { size: 16, setter: matAttribSetter, count: 4 };
-
-function isBuiltIn( info ) {
-
-    const name = info.name;
-    return name.startsWith( 'gl_' ) || name.startsWith( 'webgl_' );
-
-}
-
-function createAttributesSetters( gl, program ) {
-
-    const attribSetters = {};
-
-    const numAttribs = gl.getProgramParameter( program, gl.ACTIVE_ATTRIBUTES );
-    for ( let i = 0; i < numAttribs; i ++ ) {
-
-        const attribInfo = gl.getActiveAttrib( program, i );
-        if ( isBuiltIn( attribInfo ) )
-            continue; // eslint-disable-line
-        const index = gl.getAttribLocation( program, attribInfo.name );
-        const typeInfo = attrTypeMap[ attribInfo.type ];
-        const setter = typeInfo.setter( gl, index, typeInfo );
-        setter.location = index;
-        attribSetters[ attribInfo.name ] = setter;
-
-    }
-
-    return attribSetters;
-
-}
-
-function setAttributes( setters, buffers ) {
-
-    Object.keys( buffers ).forEach( ( attrib ) => {
-
-        const setter = setters[ attrib ];
-        if ( setter )
-            setter( buffers[ attrib ] );
-
-    } );
-
-}
-
-function createUniformSetters( gl, program ) {
-
-    let textureUnit = 0;
-
-    function createUnifromSetter( uniformInfo ) {
-
-        const location = gl.getUniformLocation( program, uniformInfo.name );
-        const isArray = ( uniformInfo.size > 1 && uniformInfo.name.substr( 3 ) === '[0]' );
-        const type = uniformInfo.type;
-        const typeInfo = typeMap[ type ];
-        if ( ! typeInfo )
-            throw new Error( `unknown type: 0x${type.toString( 16 )}` );
-        let setter;
-        if ( typeInfo.bindPoint ) {
-
-            const uint = textureUnit;
-            textureUnit += uniformInfo.size;
-            if ( isArray )
-                setter = typeInfo.arraySetter( gl, type, uint, location, uniformInfo.size );
-            else
-                setter = typeInfo.setter( gl, type, uint, location, uniformInfo.size );
-
-        } else if ( typeInfo.arraySetter && isArray )
-            setter = typeInfo.arraySetter( gl, location );
-        else
-            setter = typeInfo.setter( gl, location );
-
-        setter.location = location;
-        return setter;
-
-    }
-
-    const uniformSetters = {};
-    const numUnifroms = gl.getProgramParameter( program, gl.ACTIVE_UNIFORMS );
-
-    for ( let i = 0; i < numUnifroms; i ++ ) {
-
-        const uniformInfo = gl.getActiveUniform( program, i );
-        if ( isBuiltIn( uniformInfo ) )
-            continue; // eslint-disable-line
-        let name = uniformInfo.name;
-        if ( name.substr( - 3 ) === '[0]' )
-            name = name.substr( 0, name.length - 3 );
-
-        const setter = createUnifromSetter( uniformInfo );
-        uniformSetters[ name ] = setter;
-
-    }
-
-    return uniformSetters;
-
-}
-
-function setUniforms( setters, ...unifroms ) {
-
-    const numArgs = unifroms.length;
-    for ( let i = 1; i < numArgs; i ++ ) {
-
-        const vals = unifroms[ i ];
-        if ( Array.isArray( vals ) ) {
-
-            const numVals = vals.length;
-            for ( let j = 0; j < numVals; j ++ )
-                setUniforms( setters, vals[ j ] );
-
-        } else
-            Object.keys( vals ).forEach( ( name ) => {
-
-                const setter = setters[ name ];
-                if ( setter )
-                    setter( vals[ name ] );
-
-            } );
-
-    }
 
 }
 
