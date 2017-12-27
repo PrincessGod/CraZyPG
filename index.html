@@ -90,20 +90,6 @@
         }
     </script>
     <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
-
-    <img id="day-right" src="./resource/miramar_right.png" style="display:none;"/>
-    <img id="day-left" src="./resource/miramar_left.png" style="display:none;"/>
-    <img id="day-top" src="./resource/miramar_top.png" style="display:none;"/>
-    <img id="day-bottom" src="./resource/miramar_bottom.png" style="display:none;"/>
-    <img id="day-front" src="./resource/miramar_front.png" style="display:none;"/>
-    <img id="day-back" src="./resource/miramar_back.png" style="display:none;"/>
-
-    <img id="night-right" src="./resource/grimmnight_right.png" style="display:none;"/>
-    <img id="night-left" src="./resource/grimmnight_left.png" style="display:none;"/>
-    <img id="night-top" src="./resource/grimmnight_top.png" style="display:none;"/>
-    <img id="night-bottom" src="./resource/grimmnight_bottom.png" style="display:none;"/>
-    <img id="night-front" src="./resource/grimmnight_front.png" style="display:none;"/>
-    <img id="night-back" src="./resource/grimmnight_back.png" style="display:none;"/>
     <script>
         class QuadShader extends CZPG.Shader{
             constructor(gl, projMat) {
@@ -159,23 +145,12 @@
 
         var test;
         window.addEventListener('load', function() {
-            CZPG.getContextTemp('glpaper').setSize('80%', '80%', window.devicePixelRatio).clear();
-        
-            CZPG.loadTexture('test-tex', document.getElementById('test-tex'));
-            CZPG.loadCubeMap('day', [
-                document.getElementById('day-right'), document.getElementById('day-left'),
-                document.getElementById('day-top'), document.getElementById('day-bottom'),
-                document.getElementById('day-back'), document.getElementById('day-front'),
-            ]);
-            CZPG.loadCubeMap('night', [
-                document.getElementById('night-right'), document.getElementById('night-left'),
-                document.getElementById('night-top'), document.getElementById('night-bottom'),
-                document.getElementById('night-back'), document.getElementById('night-front'),
-            ]);
-            test = CZPG.createTextures(CZPG.gl, {
+            const renderer = new CZPG.Renderer('glpaper').setSize('80%', '80%').clear();
+            const context = renderer.context;
+            textures = CZPG.createTextures(context, {
                 checker: {
-                    mag: CZPG.gl.NEAREST,
-                    min: CZPG.gl.LINEAR,
+                    mag: context.NEAREST,
+                    min: context.LINEAR,
                     src: [
                         255,255,255,255,
                         192,192,192,255,
@@ -185,12 +160,23 @@
                 },
                 pic: { 
                     src : './resource/UV_Grid_Lrg.jpg',
-                    min : CZPG.gl.LINEAR_MIPMAP_LINEAR,
-                    mag : CZPG.gl.LINEAR,
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
                 },
                 cvs: { src : document.getElementById('test-tex')},
+                day: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/miramar_right.png',
+                        './resource/miramar_left.png',
+                        './resource/miramar_top.png',
+                        './resource/miramar_bottom.png',
+                        './resource/miramar_back.png',
+                        './resource/miramar_front.png',
+                    ]
+                },
                 night: {
-                    target: CZPG.gl.TEXTURE_CUBE_MAP,
+                    target: context.TEXTURE_CUBE_MAP,
                     src: [
                         './resource/grimmnight_right.png',
                         './resource/grimmnight_left.png',
@@ -201,28 +187,28 @@
                     ]
                 },
                 goldengate: {
-                    target: CZPG.gl.TEXTURE_CUBE_MAP,
+                    target: context.TEXTURE_CUBE_MAP,
                     src: './resource/goldengate.jpg',
                 }
             })
 
-            let camera = new CZPG.OrbitCamera(CZPG.gl);
+            let camera = new CZPG.OrbitCamera(context);
             camera.transform.position.set(0, 1, 3);
-            let cameraControler = new CZPG.CameraController(CZPG.gl, camera);
+            let cameraControler = new CZPG.CameraController(context, camera);
 
-            let gridShader = new CZPG.GridAxisShader(CZPG.gl, camera.projMatrix);
+            let gridShader = new CZPG.GridAxisShader(context, camera.projMatrix);
             let gridMesh = CZPG.Primatives.GridAxis.createMesh();
             let gridModal = new CZPG.Model(gridMesh);
 
-            let quadShader = new QuadShader(CZPG.gl, camera.projMatrix).setTexture(test.pic);//CZPG.textures['test-tex']
+            let quadShader = new QuadShader(context, camera.projMatrix).setTexture(textures.pic);
             let quadModal = CZPG.Primatives.Quad.createModel().setPosition(1, 0, -1);
             let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(0, 0.5, 0);
             
-            let skymapShader = new SkymapShader(CZPG.gl, camera.projMatrix, CZPG.textures['day'], test.night);//CZPG.textures['night']
+            let skymapShader = new SkymapShader(context, camera.projMatrix, textures.day, textures.night);
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 10, 10, 10, 0, 0, 0));
 
             let loop = new CZPG.Render(function(timespan) {
-                CZPG.fitSize().clear();
+                renderer.fixCanvasToDisplay(window.devicePixelRatio).clear();
                 camera.updateViewMatrix();
                 camera.updateProjMatrix();
                 skymapShader.activate().preRender().setProjMatrix(camera.projMatrix).setViewMatrix(camera.getOrientMatrix())

@@ -1,7 +1,8 @@
 import * as properties from '../core/properties';
-import { gl } from '../core/gl';
-import { createBufferInfoFromArrays } from '../renderer/attributes';
 import { Model } from '../model/Model';
+
+const LINES = 1;
+const TRIANGLES = 4;
 
 const Primatives = {};
 Primatives.GridAxis = class {
@@ -71,14 +72,14 @@ Primatives.GridAxis = class {
         vertices.push( half );
         color.push( 3 );
 
-        const bufferInfo = createBufferInfoFromArrays( gl, {
+        const attribArrays = {
             a_position: { data: vertices },
             a_color: { data: color, numComponents: 1 },
-        } );
+        };
         const mesh = {
             name: 'gridAxis',
-            drawMode: gl.LINES,
-            bufferInfo,
+            drawMode: LINES,
+            attribArrays,
         };
         properties.meshs[ mesh.name ] = mesh;
 
@@ -102,17 +103,17 @@ Primatives.Quad = class {
         const uv = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
         const indices = [ 0, 1, 2, 2, 3, 0 ];
 
-        const bufferInfo = createBufferInfoFromArrays( gl, {
+        const attribArrays = {
             a_position: { data: vertices },
             a_uv: { data: uv },
             indices: { numComponents: 3, data: indices },
-        } );
+        };
         const mesh = {
             name: 'Quad',
-            bufferInfo,
+            attribArrays,
             cullFace: false,
             blend: true,
-            drawMode: gl.TRIANGLES,
+            drawMode: TRIANGLES,
         };
         properties.meshs[ mesh.name ] = mesh;
 
@@ -192,17 +193,17 @@ Primatives.Cube = class {
             0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // Top
         ];
 
-        const bufferInfo = createBufferInfoFromArrays( gl, {
+        const attribArrays = {
             a_position: { data: vertices, numComponents: 4 },
             a_uv: { data: uv },
             a_normal: { data: normal },
             indices: { data: indices },
-        } );
+        };
         const mesh = {
             name: name || 'Cube',
-            bufferInfo,
+            attribArrays,
             cullFace: false,
-            drawMode: gl.TRIANGLES,
+            drawMode: TRIANGLES,
         };
         properties.meshs[ mesh.name ] = mesh;
         return mesh;

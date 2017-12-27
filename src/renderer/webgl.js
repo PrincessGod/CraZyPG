@@ -2,7 +2,7 @@ function getContext( canvasOrId, opts ) {
 
     let canvas;
     if ( typeof canvasOrId === 'string' )
-        canvas = document.getElementById( canvas );
+        canvas = document.getElementById( canvasOrId );
     else
         canvas = canvasOrId;
 

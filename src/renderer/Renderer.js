@@ -2,9 +2,9 @@ import { getContext, clear, resizeCanvasToDisplaySize } from './webgl';
 
 class Renderer {
 
-    constructor( canvasId ) {
+    constructor( canvasOrId ) {
 
-        this.context = getContext( canvasId );
+        this.context = getContext( canvasOrId );
         this.canvas = this.context.canvas;
         this.multiplier = 1.0;
 
@@ -65,3 +65,5 @@ class Renderer {
     }
 
 }
+
+export { Renderer };

@@ -1,5 +1,6 @@
 import { Transform } from './Transform';
 import { createVertexArray } from '../renderer/vertexArray';
+import { createBufferInfoFromArrays } from '../renderer/attributes';
 
 class Model {
 
@@ -68,6 +69,12 @@ class Model {
     createVAO( gl, program ) {
 
         this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, program );
+
+    }
+
+    createBufferInfo( gl ) {
+
+        this.mesh.bufferInfo = createBufferInfoFromArrays( gl, this.mesh.attribArrays );
 
     }
 

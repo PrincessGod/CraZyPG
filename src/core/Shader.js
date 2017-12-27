@@ -65,6 +65,9 @@ class Shader {
 
     renderModel( model ) {
 
+        if ( ! model.mesh.bufferInfo )
+            model.createBufferInfo( this.gl );
+
         if ( ! model.mesh.vao )
             model.createVAO( this.gl, this.program );
 
