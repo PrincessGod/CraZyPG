@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: 0 no-mixed-operators:0 */
+
 class Vector3 {
 
     constructor( x, y, z ) {
@@ -8,7 +10,7 @@ class Vector3 {
 
     }
 
-    magnitude( v ) {
+    length( v ) {
 
         // Only get the magnitude of this vector
         if ( v === undefined )
@@ -25,7 +27,7 @@ class Vector3 {
 
     normalize() {
 
-        const mag = this.magnitude();
+        const mag = this.length();
         this.x /= mag;
         this.y /= mag;
         this.z /= mag;
@@ -39,6 +41,12 @@ class Vector3 {
         this.y = y;
         this.z = z;
         return this;
+
+    }
+
+    setFromSpherical( s ) {
+
+        return Vector3.fromSpherical( this, s );
 
     }
 
@@ -66,6 +74,88 @@ class Vector3 {
     clone() {
 
         return new Vector3( this.x, this.y, this.z );
+
+    }
+
+    sub( v ) {
+
+        this.x -= v.x;
+        this.y -= v.y;
+        this.z -= v.z;
+
+        return this;
+
+    }
+
+    dot( v ) {
+
+        return Vector3.dot( this, v );
+
+    }
+
+    applyQuaternion( q ) {
+
+        Vector3.transformQuat( this, this, q );
+        return this;
+
+    }
+
+    static fromSpherical( out, s ) {
+
+        const sinPhiRadius = Math.sign( s.phi ) * s.radius;
+
+        out.x = sinPhiRadius * Math.sin( s.theta );
+        out.y = Math.cos( s.phi ) * s.radius;
+        out.z = sinPhiRadius * Math.cos( s.theta );
+
+        return out;
+
+    }
+
+    static dot( v1, v2 ) {
+
+        return ( v1.x * v2.z ) + ( v1.y * v2.y ) + ( v1.z * v2.z );
+
+    }
+
+    static cross( out, v1, v2 ) {
+
+        const ax = v1.x;
+        const ay = v1.y;
+        const az = v1.z;
+        const bx = v2.x;
+        const by = v2.y;
+        const bz = v2.z;
+        out.x = ay * bz - az * by;
+        out.y = az * bx - ax * bz;
+        out.z = ax * by - ay * bx;
+
+        return out;
+
+    }
+
+    static transformQuat( out, a, q ) {
+
+        const x = a.x;
+        const y = a.y;
+        const z = a.z;
+        const qx = q.x;
+        const qy = q.y;
+        const qz = q.z;
+        const qw = q.w;
+
+        // calculate quat * vector
+        const ix = qw * x + qy * z - qz * y;
+        const iy = qw * y + qz * x - qx * z;
+        const iz = qw * z + qx * y - qy * x;
+        const iw = - qx * x - qy * y - qz * z;
+
+        // calculate result * inverse quat
+        out[ 0 ] = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+        out[ 1 ] = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+        out[ 2 ] = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+
+        return out;
 
     }
 
