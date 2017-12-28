@@ -42,9 +42,7 @@ class OrbitCamera {
         this.updateViewMatrix();
         this.transform.position.y += this.transform.up[ 1 ] * v;
         if ( this.mode === OrbitCamera.MODE_ORBIT )
-
             return;
-
 
         this.transform.position.x += this.transform.up[ 0 ] * v;
         this.transform.position.z += this.transform.up[ 2 ] * v;
