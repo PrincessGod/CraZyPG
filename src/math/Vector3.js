@@ -50,6 +50,17 @@ class Vector3 {
 
     }
 
+    setFromArray( array, offset ) {
+
+        if ( offset === undefined ) offset = 0;
+        this.x = array[ offset ];
+        this.y = array[ offset + 1 ];
+        this.z = array[ offset + 2 ];
+
+        return this;
+
+    }
+
     multiScalar( v ) {
 
         this.x *= v;
@@ -77,11 +88,41 @@ class Vector3 {
 
     }
 
+    copy( v ) {
+
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
+
+        return this;
+
+    }
+
     sub( v ) {
 
         this.x -= v.x;
         this.y -= v.y;
         this.z -= v.z;
+
+        return this;
+
+    }
+
+    add( v ) {
+
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+
+        return this;
+
+    }
+
+    subVectors( a, b ) {
+
+        this.x = a.x - b.x;
+        this.y = a.y - a.y;
+        this.z = a.z - a.y;
 
         return this;
 
@@ -102,7 +143,7 @@ class Vector3 {
 
     static fromSpherical( out, s ) {
 
-        const sinPhiRadius = Math.sign( s.phi ) * s.radius;
+        const sinPhiRadius = Math.sin( s.phi ) * s.radius;
 
         out.x = sinPhiRadius * Math.sin( s.theta );
         out.y = Math.cos( s.phi ) * s.radius;

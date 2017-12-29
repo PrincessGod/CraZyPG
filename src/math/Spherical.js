@@ -1,3 +1,5 @@
+import { PMath } from './Math';
+
 const ESP = 0.000001;
 
 class Spherical {
@@ -54,7 +56,7 @@ class Spherical {
         } else {
 
             this.theta = Math.atan2( vec3.x, vec3.z );
-            this.phi = Math.acos( Math.clamp( vec3.y / this.radius, - 1, 1 ) );
+            this.phi = Math.acos( PMath.clamp( vec3.y / this.radius, - 1, 1 ) );
 
         }
 

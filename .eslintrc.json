@@ -39,6 +39,8 @@
         "import/prefer-default-export": 0,
         "curly": ["error", "multi"],
         "max-len": 0,
-        "prefer-destructuring": 0
+        "prefer-destructuring": 0,
+        "no-underscore-dangle": 0,
+        "no-mixed-operators": 0
     }
 }

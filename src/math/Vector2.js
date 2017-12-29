@@ -31,15 +31,25 @@ class Vector2 {
 
     }
 
+    set( x, y ) {
+
+        this.x = x;
+        this.y = y;
+        return this;
+
+    }
+
     setX( x ) {
 
         this.x = x;
+        return this;
 
     }
 
     setY( y ) {
 
         this.y = y;
+        return this;
 
     }
 
@@ -76,6 +86,14 @@ class Vector2 {
 
     }
 
+    subVectors( a, b ) {
+
+        this.x = a.x - b.x;
+        this.y = a.y - b.y;
+        return this;
+
+    }
+
     clamp( min, max ) {
 
         this.x = Math.max( min.x, Math.min( max.x, this.x ) );
@@ -86,3 +104,5 @@ class Vector2 {
     }
 
 }
+
+export { Vector2 };

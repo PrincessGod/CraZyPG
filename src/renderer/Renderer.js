@@ -52,15 +52,20 @@ class Renderer {
 
     }
 
-    fixCanvasToDisplay( multiplier ) {
+    fixCanvasToDisplay( multiplier, updateViewport = true ) {
 
         if ( typeof multiplier === 'number' && multiplier > 0 && this.multiplier !== multiplier )
             this.multiplier = multiplier;
 
-        if ( resizeCanvasToDisplaySize( this.canvas, this.multiplier ) )
-            this.context.viewport( 0, 0, this.canvas.width, this.canvas.height );
+        if ( resizeCanvasToDisplaySize( this.canvas, this.multiplier ) ) {
 
-        return this;
+            if ( updateViewport )
+                this.context.viewport( 0, 0, this.canvas.width, this.canvas.height );
+            return true;
+
+        }
+
+        return false;
 
     }
 
