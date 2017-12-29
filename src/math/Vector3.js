@@ -1,14 +1,14 @@
-/* eslint no-param-reassign: 0 no-mixed-operators:0 */
+/* eslint no-param-reassign: 0 */
 
-class Vector3 {
+function Vector3( x, y, z ) {
 
-    constructor( x, y, z ) {
+    this.x = x || 0.0;
+    this.y = y || 0.0;
+    this.z = z || 0.0;
 
-        this.x = x || 0.0;
-        this.y = y || 0.0;
-        this.z = z || 0.0;
+}
 
-    }
+Object.assign( Vector3.prototype, {
 
     length( v ) {
 
@@ -23,7 +23,7 @@ class Vector3 {
 
         return Math.sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
 
-    }
+    },
 
     normalize() {
 
@@ -33,7 +33,7 @@ class Vector3 {
         this.z /= mag;
         return this;
 
-    }
+    },
 
     set( x, y, z ) {
 
@@ -42,13 +42,13 @@ class Vector3 {
         this.z = z;
         return this;
 
-    }
+    },
 
     setFromSpherical( s ) {
 
-        return Vector3.fromSpherical( this, s );
+        return this.fromSpherical( this, s );
 
-    }
+    },
 
     setFromArray( array, offset ) {
 
@@ -59,7 +59,7 @@ class Vector3 {
 
         return this;
 
-    }
+    },
 
     multiScalar( v ) {
 
@@ -68,25 +68,25 @@ class Vector3 {
         this.z *= v;
         return this;
 
-    }
+    },
 
     getArray() {
 
         return [ this.x, this.y, this.z ];
 
-    }
+    },
 
     getFloatArray() {
 
         return new Float32Array( [ this.x, this.y, this.z ] );
 
-    }
+    },
 
     clone() {
 
         return new Vector3( this.x, this.y, this.z );
 
-    }
+    },
 
     copy( v ) {
 
@@ -96,7 +96,7 @@ class Vector3 {
 
         return this;
 
-    }
+    },
 
     sub( v ) {
 
@@ -106,7 +106,7 @@ class Vector3 {
 
         return this;
 
-    }
+    },
 
     add( v ) {
 
@@ -116,7 +116,7 @@ class Vector3 {
 
         return this;
 
-    }
+    },
 
     subVectors( a, b ) {
 
@@ -126,22 +126,28 @@ class Vector3 {
 
         return this;
 
-    }
+    },
 
     dot( v ) {
 
-        return Vector3.dot( this, v );
+        return this.dotVectors( this, v );
 
-    }
+    },
 
     applyQuaternion( q ) {
 
-        Vector3.transformQuat( this, this, q );
+        this.transformQuat( this, this, q );
         return this;
 
-    }
+    },
 
-    static fromSpherical( out, s ) {
+    dotVectors( v1, v2 ) {
+
+        return ( v1.x * v2.z ) + ( v1.y * v2.y ) + ( v1.z * v2.z );
+
+    },
+
+    fromSpherical( out, s ) {
 
         const sinPhiRadius = Math.sin( s.phi ) * s.radius;
 
@@ -151,31 +157,9 @@ class Vector3 {
 
         return out;
 
-    }
+    },
 
-    static dot( v1, v2 ) {
-
-        return ( v1.x * v2.z ) + ( v1.y * v2.y ) + ( v1.z * v2.z );
-
-    }
-
-    static cross( out, v1, v2 ) {
-
-        const ax = v1.x;
-        const ay = v1.y;
-        const az = v1.z;
-        const bx = v2.x;
-        const by = v2.y;
-        const bz = v2.z;
-        out.x = ay * bz - az * by;
-        out.y = az * bx - ax * bz;
-        out.z = ax * by - ay * bx;
-
-        return out;
-
-    }
-
-    static transformQuat( out, a, q ) {
+    transformQuat( out, a, q ) {
 
         const x = a.x;
         const y = a.y;
@@ -198,8 +182,8 @@ class Vector3 {
 
         return out;
 
-    }
+    },
 
-}
+} );
 
 export { Vector3 };
