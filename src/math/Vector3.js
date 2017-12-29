@@ -134,6 +134,12 @@ Object.assign( Vector3.prototype, {
 
     },
 
+    cross( v ) {
+
+        return this.crossVectors( new Vector3(), this, v );
+
+    },
+
     applyQuaternion( q ) {
 
         this.transformQuat( this, this, q );
@@ -144,6 +150,22 @@ Object.assign( Vector3.prototype, {
     dotVectors( v1, v2 ) {
 
         return ( v1.x * v2.z ) + ( v1.y * v2.y ) + ( v1.z * v2.z );
+
+    },
+
+    crossVectors( out, v1, v2 ) {
+
+        const ax = v1.x;
+        const ay = v1.y;
+        const az = v1.z;
+        const bx = v2.x;
+        const by = v2.y;
+        const bz = v2.z;
+        out.x = ay * bz - az * by;
+        out.y = az * bx - ax * bz;
+        out.z = ax * by - ay * bx;
+
+        return out;
 
     },
 
