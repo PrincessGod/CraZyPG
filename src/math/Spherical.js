@@ -2,15 +2,15 @@ import { PMath } from './Math';
 
 const ESP = 0.000001;
 
-class Spherical {
+function Spherical( radius, phi, theta ) {
 
-    constructor( radius, phi, theta ) {
+    this.radius = ( radius !== undefined ) ? radius : 1.0;
+    this.phi = ( phi !== undefined ) ? phi : 0;
+    this.theta = ( theta !== undefined ) ? theta : 0;
 
-        this.radius = ( radius !== undefined ) ? radius : 1.0;
-        this.phi = ( phi !== undefined ) ? phi : 0;
-        this.theta = ( theta !== undefined ) ? theta : 0;
+}
 
-    }
+Object.assign( Spherical.prototype, {
 
     set( radius, phi, theta ) {
 
@@ -20,13 +20,13 @@ class Spherical {
 
         return this;
 
-    }
+    },
 
     clone() {
 
         return new Spherical().copy( this );
 
-    }
+    },
 
     copy( other ) {
 
@@ -36,14 +36,14 @@ class Spherical {
 
         return this;
 
-    }
+    },
 
     makeSafe() {
 
         this.phi = Math.max( ESP, Math.min( Math.PI - ESP, this.phi ) );
         return this;
 
-    }
+    },
 
     setFromVecor3( vec3 ) {
 
@@ -62,8 +62,8 @@ class Spherical {
 
         return this;
 
-    }
+    },
 
-}
+} );
 
 export { Spherical };

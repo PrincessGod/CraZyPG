@@ -12,5 +12,6 @@ export * from './renderer/program.js';
 export * from './renderer/Renderer.js';
 export * from './camera/Camera.js';
 export * from './controls/OrbitControls.js';
-export * from './math/Vector3.js';
+export * from './math/Vector2.js';
 export * from './math/Spherical.js';
+export * from './math/Matrix4.js';

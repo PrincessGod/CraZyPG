@@ -1,35 +1,47 @@
-class Vector2 {
+function Vector2( x, y ) {
 
-    constructor( x, y ) {
+    this.x = x || 0;
+    this.y = y || 0;
 
-        this.x = x || 0;
-        this.y = y || 0;
+}
 
-    }
+Object.defineProperties( Vector2.prototype, {
 
-    get width() {
+    width: {
 
-        return this.x;
+        get: function width() {
 
-    }
+            return this.x;
 
-    set width( value ) {
+        },
 
-        this.x = value;
+        set: function width( value ) {
 
-    }
+            this.x = value;
 
-    get height() {
+        },
 
-        return this.y;
+    },
 
-    }
+    height: {
 
-    set height( value ) {
+        get: function height() {
 
-        this.y = value;
+            return this.y;
 
-    }
+        },
+
+        set: function height( value ) {
+
+            this.y = value;
+
+        },
+
+    },
+
+} );
+
+Object.assign( Vector2.prototype, {
 
     set( x, y ) {
 
@@ -37,27 +49,27 @@ class Vector2 {
         this.y = y;
         return this;
 
-    }
+    },
 
     setX( x ) {
 
         this.x = x;
         return this;
 
-    }
+    },
 
     setY( y ) {
 
         this.y = y;
         return this;
 
-    }
+    },
 
     clone() {
 
         return new Vector2( this.x, this.y );
 
-    }
+    },
 
     copy( v ) {
 
@@ -66,7 +78,7 @@ class Vector2 {
 
         return this;
 
-    }
+    },
 
     add( v ) {
 
@@ -75,7 +87,7 @@ class Vector2 {
 
         return this;
 
-    }
+    },
 
     sub( v ) {
 
@@ -84,7 +96,7 @@ class Vector2 {
 
         return this;
 
-    }
+    },
 
     subVectors( a, b ) {
 
@@ -92,7 +104,7 @@ class Vector2 {
         this.y = a.y - b.y;
         return this;
 
-    }
+    },
 
     clamp( min, max ) {
 
@@ -101,8 +113,8 @@ class Vector2 {
 
         return this;
 
-    }
+    },
 
-}
+} );
 
 export { Vector2 };

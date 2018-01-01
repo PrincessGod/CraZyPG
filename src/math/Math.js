@@ -1,25 +1,21 @@
 const RADIAN_PER_DEGREE = Math.PI / 180;
 
-class PMath {
+const PMath = {
 
-    static get radianPerDegree() {
+    RADIAN_PER_DEGREE,
 
-        return RADIAN_PER_DEGREE;
-
-    }
-
-    static degree2Radian( degree ) {
+    degree2Radian( degree ) {
 
         return degree * RADIAN_PER_DEGREE;
 
-    }
+    },
 
-    static clamp( value, min, max ) {
+    clamp( value, min, max ) {
 
         return Math.max( min, Math.min( max, value ) );
 
-    }
+    },
 
-}
+};
 
 export { PMath };

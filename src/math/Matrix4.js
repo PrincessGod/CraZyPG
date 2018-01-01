@@ -1,11 +1,12 @@
 /* eslint no-param-reassign: 0 no-mixed-operators:0 */
-class Matrix4 {
 
-    constructor() {
+function Matrix4() {
 
-        this.raw = Matrix4.identity();
+    this.raw = Matrix4.identity();
 
-    }
+}
+
+Object.assign( Matrix4.prototype, {
 
     translate( x, y, z ) {
 
@@ -18,28 +19,28 @@ class Matrix4 {
         Matrix4.translate( this.raw, x, y, z );
         return this;
 
-    }
+    },
 
     rotateX( rad ) {
 
         Matrix4.rotateX( this.raw, rad );
         return this;
 
-    }
+    },
 
     rotateY( rad ) {
 
         Matrix4.rotateY( this.raw, rad );
         return this;
 
-    }
+    },
 
     rotateZ( rad ) {
 
         Matrix4.rotateZ( this.raw, rad );
         return this;
 
-    }
+    },
 
     scale( x, y, z ) {
 
@@ -53,14 +54,14 @@ class Matrix4 {
         Matrix4.scale( this.raw, x, y, z );
         return this;
 
-    }
+    },
 
     invert() {
 
         Matrix4.invert( this.raw );
         return this;
 
-    }
+    },
 
     resetRotation() {
 
@@ -73,7 +74,7 @@ class Matrix4 {
 
         return this;
 
-    }
+    },
 
     reset() {
 
@@ -81,9 +82,13 @@ class Matrix4 {
             this.raw[ i ] = ( i % 5 === 0 ) ? 1 : 0;
         return this;
 
-    }
+    },
 
-    static identity() {
+} );
+
+Object.assign( Matrix4, {
+
+    identity() {
 
         const a = new Float32Array( 16 );
         a[ 0 ] = 1;
@@ -92,9 +97,9 @@ class Matrix4 {
         a[ 15 ] = 1;
         return a;
 
-    }
+    },
 
-    static perspective( out, fov, aspect, near, far ) {
+    perspective( out, fov, aspect, near, far ) {
 
         const f = 1.0 / Math.tan( fov / 2 );
         const nf = 1 / ( near - far );
@@ -117,9 +122,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static ortho( out, left, right, bottom, top, near, far ) {
+    ortho( out, left, right, bottom, top, near, far ) {
 
         const lr = 1 / ( left - right );
         const bt = 1 / ( bottom - top );
@@ -142,9 +147,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static transpose( out, a ) {
+    transpose( out, a ) {
 
         if ( out === a ) {
 
@@ -190,9 +195,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static normalMat3( out, a ) {
+    normalMat3( out, a ) {
 
         const a00 = a[ 0 ];
         const a01 = a[ 1 ];
@@ -243,9 +248,9 @@ class Matrix4 {
         out[ 8 ] = ( a30 * b04 - a31 * b02 + a33 * b00 ) * det;
         return out;
 
-    }
+    },
 
-    static multiplyVector( mat4, v ) {
+    multiplyVector( mat4, v ) {
 
         const x = v[ 0 ];
         const y = v[ 1 ];
@@ -276,9 +281,9 @@ class Matrix4 {
             x * c4r1 + y * c4r2 + z * c4r3 + w * c4r4,
         ];
 
-    }
+    },
 
-    static transformVec4( out, m, v ) {
+    transformVec4( out, m, v ) {
 
         out[ 0 ] = m[ 0 ] * v[ 0 ] + m[ 4 ] * v[ 1 ] + m[ 8 ] * v[ 2 ] + m[ 12 ] * v[ 3 ];
         out[ 1 ] = m[ 1 ] * v[ 0 ] + m[ 5 ] * v[ 1 ] + m[ 9 ] * v[ 2 ] + m[ 13 ] * v[ 3 ];
@@ -286,9 +291,9 @@ class Matrix4 {
         out[ 3 ] = m[ 3 ] * v[ 0 ] + m[ 7 ] * v[ 1 ] + m[ 11 ] * v[ 2 ] + m[ 15 ] * v[ 3 ];
         return out;
 
-    }
+    },
 
-    static mult( out, a, b ) {
+    mult( out, a, b ) {
 
         const a00 = a[ 0 ];
         const a01 = a[ 1 ];
@@ -337,9 +342,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static scale( out, x, y, z ) {
+    scale( out, x, y, z ) {
 
         out[ 0 ] *= x;
         out[ 1 ] *= x;
@@ -356,9 +361,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static rotateY( out, rad ) {
+    rotateY( out, rad ) {
 
         const s = Math.sin( rad );
         const c = Math.cos( rad );
@@ -382,9 +387,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static rotateX( out, rad ) {
+    rotateX( out, rad ) {
 
         const s = Math.sin( rad );
         const c = Math.cos( rad );
@@ -408,9 +413,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static rotateZ( out, rad ) {
+    rotateZ( out, rad ) {
 
         const s = Math.sin( rad );
         const c = Math.cos( rad );
@@ -434,9 +439,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static rotate( out, rad, axis ) {
+    rotate( out, rad, axis ) {
 
         let x = axis[ 0 ];
         let y = axis[ 1 ];
@@ -477,9 +482,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static invert( out, mat ) {
+    invert( out, mat ) {
 
         if ( mat === undefined ) mat = out; // If input isn't sent, then output is also input
 
@@ -538,9 +543,9 @@ class Matrix4 {
 
         return true;
 
-    }
+    },
 
-    static translate( out, x, y, z ) {
+    translate( out, x, y, z ) {
 
         out[ 12 ] = out[ 0 ] * x + out[ 4 ] * y + out[ 8 ] * z + out[ 12 ];
         out[ 13 ] = out[ 1 ] * x + out[ 5 ] * y + out[ 9 ] * z + out[ 13 ];
@@ -549,9 +554,9 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-    static lookAt( out, eye, target, up ) {
+    lookAt( out, eye, target, up ) {
 
         let x0;
         let x1;
@@ -639,8 +644,8 @@ class Matrix4 {
 
         return out;
 
-    }
+    },
 
-}
+} );
 
 export { Matrix4 };

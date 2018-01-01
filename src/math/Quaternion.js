@@ -5,16 +5,16 @@ let v1 = new Vector3();
 let r;
 const ESP = 0.000001;
 
-class Quaternion {
+function Quaternion( x, y, z, w ) {
 
-    constructor( x, y, z, w ) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.w = w || 0;
 
-        this.x = x || 0;
-        this.y = y || 0;
-        this.z = z || 0;
-        this.w = w || 0;
+}
 
-    }
+Object.assign( Quaternion.prototype, {
 
     set( x, y, z, w ) {
 
@@ -25,64 +25,39 @@ class Quaternion {
 
         return this;
 
-    }
+    },
 
     clone() {
 
         return new Quaternion( this.x, this.y, this.z, this.w );
 
-    }
+    },
 
     getArray() {
 
         return [ this.x, this.y, this.z, this.w ];
 
-    }
+    },
 
     setFromEuler( x, y, z ) {
 
         Quaternion.fromEuler( this.raw, x, y, z );
         return this;
 
-    }
+    },
 
     length() {
 
         return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
 
-    }
+    },
 
     normalize() {
 
         Quaternion.normalize( this, this );
         return this;
 
-    }
-
-    static normalize( out, a ) {
-
-        let l = a.length();
-
-        if ( l === 0 ) {
-
-            out.x = 0;
-            out.y = 0;
-            out.z = 0;
-            out.w = 1;
-
-        } else {
-
-            l = 1 / l;
-            out.x = a.x * l;
-            out.y = a.y * l;
-            out.z = a.z * l;
-            out.w = a.w * l;
-
-        }
-
-        return out;
-
-    }
+    },
 
     setFromUnitVectors( vFrom, vTo ) {
 
@@ -107,9 +82,45 @@ class Quaternion {
 
         return this.normalize();
 
-    }
+    },
 
-    static fromEuler( out, x, y, z ) {
+    invert() {
+
+        Quaternion.invert( this, this );
+        return this;
+
+    },
+
+} );
+
+Object.assign( Quaternion, {
+
+    normalize( out, a ) {
+
+        let l = a.length();
+
+        if ( l === 0 ) {
+
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
+            out.w = 1;
+
+        } else {
+
+            l = 1 / l;
+            out.x = a.x * l;
+            out.y = a.y * l;
+            out.z = a.z * l;
+            out.w = a.w * l;
+
+        }
+
+        return out;
+
+    },
+
+    fromEuler( out, x, y, z ) {
 
         const halfToRad = 0.5 * Math.PI / 180.0;
         x *= halfToRad;
@@ -127,16 +138,9 @@ class Quaternion {
         out.w = cx * cy * cz + sx * sy * sz;
         return out;
 
-    }
+    },
 
-    invert() {
-
-        Quaternion.invert( this, this );
-        return this;
-
-    }
-
-    static invert( out, a ) {
+    invert( out, a ) {
 
         const a0 = a.x;
         const a1 = a.y;
@@ -152,8 +156,8 @@ class Quaternion {
 
         return out;
 
-    }
+    },
 
-}
+} );
 
 export { Quaternion };
