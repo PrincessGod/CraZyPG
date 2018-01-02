@@ -15,3 +15,5 @@ export * from './controls/OrbitControls.js';
 export * from './math/Vector2.js';
 export * from './math/Spherical.js';
 export * from './math/Matrix4.js';
+export * from './loaders/Fileloader.js';
+export * from './loaders/ObjLoader.js';

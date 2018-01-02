@@ -13,10 +13,7 @@
             "error",
             4
         ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
+        "linebreak-style": 0,
         "quotes": [
             "error",
             "single"
@@ -30,10 +27,6 @@
             "always"
         ],
         "no-bitwise": 0,
-        "no-plusplus": [
-            "error", 
-            { "allowForLoopAfterthoughts": true }
-        ],
         "func-names": 0,
         "no-console": 0,
         "import/prefer-default-export": 0,
@@ -41,6 +34,8 @@
         "max-len": 0,
         "prefer-destructuring": 0,
         "no-underscore-dangle": 0,
-        "no-mixed-operators": 0
+        "no-mixed-operators": 0,
+        "no-plusplus": 0,
+        "no-continue": 0
     }
 }
