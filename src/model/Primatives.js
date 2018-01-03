@@ -7,12 +7,10 @@ const TRIANGLES = 4;
 const Primatives = {};
 Primatives.GridAxis = class {
 
-    static createMesh() {
+    static createMesh( size = 10, div = 20 ) {
 
         const vertices = [];
         const color = [];
-        const size = 2;
-        const div = 10.0;
         const step = size / div;
         const half = size / 2;
 
@@ -76,14 +74,8 @@ Primatives.GridAxis = class {
             a_position: { data: vertices },
             a_color: { data: color, numComponents: 1 },
         };
-        const mesh = {
-            name: 'gridAxis',
-            drawMode: LINES,
-            attribArrays,
-        };
-        properties.meshs[ mesh.name ] = mesh;
 
-        return mesh;
+        return Primatives.createMesh( 'gridAxis', attribArrays, { drawMode: LINES } );
 
     }
 
@@ -108,16 +100,11 @@ Primatives.Quad = class {
             a_uv: { data: uv },
             indices: { numComponents: 3, data: indices },
         };
-        const mesh = {
-            name: 'Quad',
-            attribArrays,
+
+        return Primatives.createMesh( 'Quad', attribArrays, {
             cullFace: false,
             blend: true,
-            drawMode: TRIANGLES,
-        };
-        properties.meshs[ mesh.name ] = mesh;
-
-        return mesh;
+        } );
 
     }
 
@@ -199,16 +186,23 @@ Primatives.Cube = class {
             a_normal: { data: normal },
             indices: { data: indices },
         };
-        const mesh = {
-            name: name || 'Cube',
-            attribArrays,
-            cullFace: false,
-            drawMode: TRIANGLES,
-        };
-        properties.meshs[ mesh.name ] = mesh;
-        return mesh;
+
+        return Primatives.createMesh( name || 'Cube', attribArrays, { cullFace: false } );
 
     }
+
+};
+
+Primatives.createMesh = function createMesh( name, attribArrays, options ) {
+
+    const mesh = Object.assign( {
+        name,
+        attribArrays,
+        drawMode: TRIANGLES,
+    }, options );
+
+    properties.meshs[ mesh.name ] = mesh;
+    return mesh;
 
 };
 

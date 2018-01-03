@@ -175,6 +175,11 @@
                 goldengate: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: './resource/goldengate.jpg',
+                },
+                barrel: {
+                    src : './resource/barrel.png',
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
                 }
             })
 
@@ -188,9 +193,20 @@
             let gridModal = new CZPG.Model(gridMesh);
 
             let quadShader = new QuadShader(context, camera.projMat).setTexture(textures.pic);
-            let quadModal = CZPG.Primatives.Quad.createModel().setPosition(1, 0, -1);
-            let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(0, 0.5, 0);
+            let quadModal = CZPG.Primatives.Quad.createModel().setPosition(2.5, 0.5, 0);
+            let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(-2.5, 0.5, 0);
             
+            let objShader = new QuadShader(context, camera.projMat).setTexture(textures.barrel);
+            let objModels = [];
+            let objModelCount = 0;
+            CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
+                objModelCount = meshs.length;
+                for (let i = 0; i < objModelCount; i++) {
+                    objModels.push((new CZPG.Model(meshs[i])).setScale(0.1, 0.1, 0.1));
+                }
+                console.log(meshs);
+            });
+
             let skymapShader = new SkymapShader(context, camera.projMat, textures.day, textures.night);
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 500, 500, 500, 0, 0, 0));
 
@@ -204,6 +220,13 @@
                     .renderModel(gridModal.preRender());
                 quadShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat)
                     .renderModel(cubeModal.preRender()).renderModel(quadModal.preRender());
+                if (objModels){
+                    objShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat);
+                    for (let i = 0; i < objModelCount; i ++) {
+                        objShader.renderModel(objModels[i].preRender());
+                    }
+                }
+                        
             }).start();
         });
         

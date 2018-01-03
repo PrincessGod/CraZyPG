@@ -1,4 +1,5 @@
 import { FileLoader } from './Fileloader';
+import { Primatives } from '../model/Primatives';
 
 function LinePaser( ) {
 
@@ -34,38 +35,30 @@ Object.assign( LinePaser.prototype, {
 
 } );
 
-function ObjLoader( filePath ) {
+const ObjLoader = {
+    flipYUV: true,
+};
 
-    this.filePath = filePath;
-    this.objText = '';
+Object.assign( ObjLoader, {
 
-}
+    load( filePath ) {
 
-Object.assign( ObjLoader.prototype, {
-
-    load() {
-
-        return FileLoader.load( this.filePath )
-            .then( ( planText ) => {
-
-                this.objText = planText;
-                return planText;
-
-            } )
-            .then( this.parse )
+        return FileLoader.load( filePath )
+            .then( ObjLoader.parse )
             .catch( err => console.error( 'Load obj error: ', err ) );
 
     },
 
-    parse( objText ) {
+    parse( objText, flipYUV ) {
 
+        const flip = flipYUV === undefined ? ObjLoader.flipYUV : flipYUV;
         const lines = objText.split( '\n' );
         lines.push( null );
         let line;
         let index = 0;
 
-        // const currentObject = null;
-        // const objects = {};
+        let currentObject = null;
+        const objects = [];
 
         let v = [];
         let vt = [];
@@ -105,6 +98,10 @@ Object.assign( ObjLoader.prototype, {
                 continue;
             case 'f':
                 linePaser.line.shift();
+
+                if ( linePaser.line.length < 3 ) // less than 3 vertex
+                    continue;
+
                 isQuad = false;
 
                 for ( i = 0; i < linePaser.line.length; i ++ ) {
@@ -113,6 +110,13 @@ Object.assign( ObjLoader.prototype, {
 
                         console.error( 'OBJ Loader not support multiple vertices face!' );
                         break;
+
+                    }
+
+                    if ( i === 3 && ! isQuad ) {
+
+                        i = 2;
+                        isQuad = true;
 
                     }
 
@@ -131,7 +135,7 @@ Object.assign( ObjLoader.prototype, {
                         if ( ary[ 1 ] !== '' ) {
 
                             ind = ( parseInt( ary[ 1 ], 10 ) - 1 ) * 2;
-                            oUV.push( vt[ ind ], vt[ ind + 1 ] );
+                            oUV.push( vt[ ind ], flip ? ( 1 - vt[ ind + 1 ] ) : vt[ ind + 1 ] );
 
                         }
 
@@ -146,6 +150,32 @@ Object.assign( ObjLoader.prototype, {
 
                 }
                 continue;
+            case 'o':
+            case 'g':
+                if ( currentObject !== null ) {
+
+                    const attribArrays = {
+                        a_position: { data: oVert.slice() },
+                        indices: { data: oIndex.slice() },
+                    };
+
+                    if ( oUV.length > 0 )
+                        attribArrays.a_uv = { data: oUV.slice() };
+
+                    if ( oNorm.length > 0 )
+                        attribArrays.a_normal = { data: oNorm.slice() };
+
+                    objects.push( Primatives.createMesh( currentObject, attribArrays ) );
+
+                }
+
+                currentObject = linePaser.line[ 1 ];
+                oVert.length = 0;
+                oIndex.length = 0;
+                oUV.length = 0;
+                oNorm.length = 0;
+                vertCount = 0;
+                continue;
             default:
                 continue;
 
@@ -153,17 +183,24 @@ Object.assign( ObjLoader.prototype, {
 
         }
 
+        if ( currentObject !== null ) {
 
-        return new Promise( ( resolve ) => {
+            const attribArrays = {
+                a_position: { data: oVert },
+                indices: { data: oIndex },
+            };
 
-            resolve( {
-                vert: oVert,
-                uv: oUV,
-                norm: oNorm,
-                indice: oIndex,
-            } );
+            if ( oUV.length > 0 )
+                attribArrays.a_uv = { data: oUV };
 
-        } );
+            if ( oNorm.length > 0 )
+                attribArrays.a_normal = { data: oNorm };
+
+            objects.push( Primatives.createMesh( currentObject, attribArrays ) );
+
+        }
+
+        return objects;
 
     },
 
