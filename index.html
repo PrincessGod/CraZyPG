@@ -33,103 +33,8 @@
         <canvas id="glpaper"></canvas>
     </div>
     <script src="./build/czpg.js"></script>
-    <script id='quad-vs' type="shader">#version 300 es
-        in vec3 a_position;
-        in vec2 a_uv;
-
-        uniform mat4 u_world;
-        uniform mat4 u_view;
-        uniform mat4 u_proj;
-
-        out highp vec2 v_uv;
-
-        void main() {
-            v_uv = a_uv;
-            gl_Position = u_proj * u_view * u_world * vec4(a_position, 1.0);
-        }
-    </script>
-    <script id="quad-fs" type="shader">#version 300 es
-        precision mediump float;
-
-        in highp vec2 v_uv;
-
-        uniform sampler2D u_texture;
-
-        out vec4 finalColor;
-
-        void main() {
-            finalColor = texture(u_texture, vec2(v_uv.s, v_uv.t));
-        }
-    </script>
-    <script id="sky-vs" type="shader">#version 300 es
-        in vec4 a_position;
-
-        uniform mat4 u_world;
-        uniform mat4 u_view;
-        uniform mat4 u_proj;
-
-        out highp vec3 v_uv;
-
-        void main() {
-            v_uv = a_position.xyz;
-            gl_Position = u_proj * u_view * u_world * vec4(a_position.xyz, 1.0);
-        }
-    </script>
-    <script id="sky-fs" type="shader">#version 300 es
-        precision mediump float;
-
-        in highp vec3 v_uv;
-
-        uniform samplerCube u_dayTex;
-        uniform samplerCube u_nightTex;
-        uniform float u_time;
-
-        out vec4 finalColor;
-        void main() {
-            finalColor = mix( texture(u_dayTex, v_uv), texture(u_nightTex, v_uv), abs(sin(u_time * 0.0002)));
-        }
-    </script>
     <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
     <script>
-        class QuadShader extends CZPG.Shader{
-            constructor(gl, projMat) {
-                super(gl, 'quad-vs', 'quad-fs');
-                this.setProjMatrix(projMat);
-                this.texture = null;
-                gl.useProgram(null);
-            }
-
-            setTexture(tex) {
-                this.texture = tex;
-                return this;
-            }
-
-            preRender() {
-                this.setUniforms( { u_texture: this.texture } );
-                return this;
-            }
-        }
-
-        class SkymapShader extends CZPG.Shader {
-            constructor (gl, projMat, dayTex, nightTex) {
-                super(gl, 'sky-vs', 'sky-fs');
-                this.setProjMatrix(projMat);
-                this.dayTex = dayTex;
-                this.nightTex = nightTex;
-                gl.useProgram(null);
-            }
-
-            setTime(t) {
-                this.setUniforms( { u_time: t } );
-                return this;
-            }
-
-            preRender() {
-                this.setUniforms( { u_dayTex: this.dayTex, u_nightTex: this.nightTex } );
-                return this;
-            }
-        }
-        var cp, orib;
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
@@ -192,11 +97,11 @@
             let gridMesh = CZPG.Primatives.GridAxis.createMesh();
             let gridModal = new CZPG.Model(gridMesh);
 
-            let quadShader = new QuadShader(context, camera.projMat).setTexture(textures.pic);
+            let quadShader = new CZPG.FlatTextureShader(context, camera.projMat, textures.pic);
             let quadModal = CZPG.Primatives.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(-2.5, 0.5, 0);
             
-            let objShader = new QuadShader(context, camera.projMat).setTexture(textures.barrel);
+            let objShader = new CZPG.FlatTextureShader(context, camera.projMat, textures.barrel);
             let objModels = [];
             let objModelCount = 0;
             CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
@@ -207,7 +112,7 @@
                 console.log(meshs);
             });
 
-            let skymapShader = new SkymapShader(context, camera.projMat, textures.day, textures.night);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera.projMat, textures.day, textures.night);
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 500, 500, 500, 0, 0, 0));
 
             let loop = new CZPG.Render(function(timespan) {
@@ -215,7 +120,7 @@
                     camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
                 skymapShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.getOrientMatrix())
-                    .setTime(performance.now()).renderModel(skyCubeModal);
+                    .setRate( Math.abs( Math.sin( performance.now() * 0.0002) ) ).renderModel(skyCubeModal);
                 gridShader.activate().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat)
                     .renderModel(gridModal.preRender());
                 quadShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat)
@@ -226,7 +131,6 @@
                         objShader.renderModel(objModels[i].preRender());
                     }
                 }
-                        
             }).start();
         });
         
