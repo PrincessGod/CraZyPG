@@ -36,7 +36,7 @@ Object.assign( FlatTextureShader, {
     vs: '#version 300 es\n' +
         'in vec3 a_position;\n' +
         'in vec2 a_uv;\n' +
-
+        '\n' +
         'uniform mat4 u_world;\n' +
         'uniform mat4 u_view;\n' +
         'uniform mat4 u_proj;\n' +
