@@ -1,4 +1,5 @@
 const RADIAN_PER_DEGREE = Math.PI / 180;
+const EPS = 0.000001;
 
 const PMath = {
 
@@ -13,6 +14,31 @@ const PMath = {
     clamp( value, min, max ) {
 
         return Math.max( min, Math.min( max, value ) );
+
+    },
+
+    arrayEquals( a, b ) {
+
+        if ( a.length !== b.length ) return false;
+
+        const length = a.length;
+        for ( let i = 0; i < length; i ++ )
+            if ( Math.abs( a[ i ] - b[ i ] ) > EPS * Math.max( 1.0, Math.abs( a[ i ] ), Math.abs( b[ i ] ) ) )
+                return false;
+
+        return true;
+
+    },
+
+    arrayClone( a ) {
+
+        const Type = a.constructor;
+        const length = a.length;
+        const out = new Type( length );
+        for ( let i = 0; i < length; i ++ )
+            out[ i ] = a[ i ];
+
+        return out;
 
     },
 

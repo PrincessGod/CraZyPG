@@ -1,4 +1,4 @@
-/* eslint no-param-reassign: 0 no-mixed-operators:0 */
+/* eslint no-param-reassign: 0 */
 
 const EPS = 0.000001;
 
@@ -248,6 +248,7 @@ Object.assign( Matrix4, {
         out[ 6 ] = ( a31 * b05 - a32 * b04 + a33 * b03 ) * det;
         out[ 7 ] = ( a32 * b02 - a30 * b05 - a33 * b01 ) * det;
         out[ 8 ] = ( a30 * b04 - a31 * b02 + a33 * b00 ) * det;
+
         return out;
 
     },
@@ -291,6 +292,7 @@ Object.assign( Matrix4, {
         out[ 1 ] = m[ 1 ] * v[ 0 ] + m[ 5 ] * v[ 1 ] + m[ 9 ] * v[ 2 ] + m[ 13 ] * v[ 3 ];
         out[ 2 ] = m[ 2 ] * v[ 0 ] + m[ 6 ] * v[ 1 ] + m[ 10 ] * v[ 2 ] + m[ 14 ] * v[ 3 ];
         out[ 3 ] = m[ 3 ] * v[ 0 ] + m[ 7 ] * v[ 1 ] + m[ 11 ] * v[ 2 ] + m[ 15 ] * v[ 3 ];
+
         return out;
 
     },
@@ -721,6 +723,7 @@ Object.assign( Matrix4, {
         out[ 13 ] = a[ 13 ];
         out[ 14 ] = a[ 14 ];
         out[ 15 ] = a[ 15 ];
+
         return out;
 
     },

@@ -1,7 +1,9 @@
 import { createProgram, createUniformSetters, setUniforms, createAttributesSetters } from '../renderer/program';
 import * as Constant from '../renderer/constant';
 import { _privates } from '../core/properties';
-import { Matrix4 } from '../CZPG';
+import { PMath } from '../math/Math';
+import { Matrix3 } from '../math/Matrix3';
+import { Matrix4 } from '../math/Matrix4';
 
 function Shader( gl, vs, fs ) {
 
@@ -55,9 +57,12 @@ Object.assign( Shader.prototype, {
 
             if ( equalsFun === Matrix4.equals )
                 this.currentUniformObj[ prop ] = Matrix4.clone( value );
-
-            if ( Array.isArray( value ) )
+            else if ( equalsFun === Matrix3.equals )
+                this.currentUniformObj[ prop ] = Matrix3.clone( value );
+            else if ( Array.isArray( value ) )
                 this.currentUniformObj[ prop ] = value.slice();
+            else if ( equalsFun === PMath.arrayEquals )
+                this.currentUniformObj[ prop ] = PMath.arrayClone( value );
 
         }
 
@@ -69,6 +74,10 @@ Object.assign( Shader.prototype, {
 
             if ( obj[ prop ].length === 16 && typeof obj[ prop ][ 0 ] === 'number' )
                 this.setUniformObjProp( prop, obj[ prop ], Matrix4.equals );
+            else if ( obj[ prop ].length === 9 && typeof obj[ prop ][ 0 ] === 'number' )
+                this.setUniformObjProp( prop, obj[ prop ], Matrix3.equals );
+            else if ( obj[ prop ].length && typeof obj[ prop ][ 0 ] === 'number' )
+                this.setUniformObjProp( prop, obj[ prop ], PMath.arrayEquals );
             else
                 this.setUniformObjProp( prop, obj[ prop ] );
 
