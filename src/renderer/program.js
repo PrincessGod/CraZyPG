@@ -18,12 +18,8 @@ function createShader( gl, src, type ) {
     gl.shaderSource( shader, src );
     gl.compileShader( shader );
 
-    if ( ! gl.getShaderParameter( shader, gl.COMPILE_STATUS ) ) {
-
-        gl.deleteShader( shader );
-        throw new Error( `Error compiling shader: ${src}`, gl.getShaderInfoLog( shader ) );
-
-    }
+    if ( ! gl.getShaderParameter( shader, gl.COMPILE_STATUS ) )
+        throw new Error( `Error compiling shader: \n${src} \n\n${gl.getShaderInfoLog( shader )}` );
 
     return shader;
 
@@ -58,7 +54,7 @@ function createProgram( gl, vs, fs ) {
     if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) ) {
 
         gl.deleteProgram( prog );
-        throw new Error( 'Error createing shader program.', gl.getProgramInfoLog( prog ) );
+        throw new Error( `Error createing shader program.\n\n${gl.getProgramInfoLog( prog )}` );
 
     }
 
@@ -66,7 +62,7 @@ function createProgram( gl, vs, fs ) {
     if ( ! gl.getProgramParameter( prog, gl.VALIDATE_STATUS ) ) {
 
         gl.deleteProgram( prog );
-        throw new Error( 'Error validating shader program.', gl.getProgramInfoLog( prog ) );
+        throw new Error( `Error validating shader program.\n\n${gl.getProgramInfoLog( prog )}` );
 
     }
 

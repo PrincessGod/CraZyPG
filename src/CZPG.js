@@ -8,6 +8,7 @@ export * from './shader/Shader.js';
 export * from './shader/GridAxisShader.js';
 export * from './shader/FlatTextureShader.js';
 export * from './shader/DynamicSkyboxShader.js';
+export * from './shader/PointlightShader.js';
 export * from './renderer/attributes.js';
 export * from './renderer/texture.js';
 export * from './renderer/program.js';

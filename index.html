@@ -93,6 +93,8 @@
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas);
             cameraControler.autoRotate = true;
 
+            var s = new CZPG.PointlightShader(context, camera.projMat, textures.barrel);
+            
             let gridShader = new CZPG.GridAxisShader(context, camera.projMat);
             let gridMesh = CZPG.Primatives.GridAxis.createMesh();
             let gridModal = new CZPG.Model(gridMesh);
@@ -124,11 +126,18 @@
                 gridShader.activate().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat)
                     .renderModel(gridModal.preRender());
                 quadShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat)
-                    .renderModel(cubeModal.preRender()).renderModel(quadModal.preRender());
+                    .renderModel(quadModal.preRender()).renderModel(cubeModal.preRender());
                 if (objModels){
-                    objShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat);
+                    s.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat);
                     for (let i = 0; i < objModelCount; i ++) {
-                        objShader.renderModel(objModels[i].preRender());
+                        s.setUniforms({
+                            u_normal: objModels[i].normMatrix,
+                            u_viewInvert: camera.matrix,
+                            u_lightPos: [10 * Math.cos(performance.now() * 0.001), 10, 10 * Math.sin(performance.now() * 0.001)],
+                            u_shiness: Math.pow(2, i),
+                            // u_specularStrength: 0.4 * i / 20,
+                            u_diffuseStrength: 0.3,
+                        }).renderModel(objModels[i].preRender());
                     }
                 }
             }).start();

@@ -44,8 +44,8 @@ Object.assign( FlatTextureShader, {
         'out highp vec2 v_uv;\n' +
         '\n' +
         'void main() {\n' +
-            'v_uv = a_uv;\n' +
-            'gl_Position = u_proj * u_view * u_world * vec4(a_position, 1.0);\n' +
+        '   v_uv = a_uv;\n' +
+        '   gl_Position = u_proj * u_view * u_world * vec4(a_position, 1.0);\n' +
         '}',
 
     fs: '#version 300 es\n' +
@@ -58,7 +58,7 @@ Object.assign( FlatTextureShader, {
         'out vec4 finalColor;\n' +
         '\n' +
         'void main() {\n' +
-            'finalColor = texture(u_texture, vec2(v_uv.s, v_uv.t));\n' +
+        '   finalColor = texture(u_texture, vec2(v_uv.s, v_uv.t));\n' +
         '}',
 
 } );

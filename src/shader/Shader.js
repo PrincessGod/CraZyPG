@@ -35,6 +35,7 @@ Object.assign( Shader.prototype, {
     setUniforms( uniforms ) {
 
         setUniforms( this.uniformSetters, uniforms );
+        return this;
 
     },
 

@@ -7,10 +7,10 @@ class Camera {
 
     constructor() {
 
-        this.projMat = new Float32Array( 16 );
-        this.viewMat = Matrix4.identity();
-        this.matrix = Matrix4.identity();
         this.transform = new Transform();
+        this.projMat = Matrix4.identity();
+        this.viewMat = Matrix4.identity();
+        this.matrix = this.transform.matrix.raw;
 
     }
 

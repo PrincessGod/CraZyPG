@@ -8,6 +8,8 @@ class Model {
 
         this.mesh = mesh;
         this.transform = new Transform();
+        this.normMatrix = this.transform.normMatrix;
+        this.matrix = this.transform.matrix.raw;
 
     }
 
