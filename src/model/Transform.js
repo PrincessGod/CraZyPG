@@ -9,7 +9,7 @@ class Transform {
         this.scale = new Vector3( 1, 1, 1 );
         this.rotation = new Vector3( 0, 0, 0 );
         this.matrix = new Matrix4();
-        this.normMatrix = new Float32Array( 9 );
+        this.normMat = new Float32Array( 9 );
 
         this.forward = new Float32Array( 4 );
         this.up = new Float32Array( 4 );
@@ -26,7 +26,7 @@ class Transform {
             .rotateY( this.rotation.y )
             .scale( this.scale );
 
-        Matrix4.normalMat3( this.normMatrix, this.matrix.raw );
+        Matrix4.normalMat3( this.normMat, this.matrix.raw );
 
         Matrix4.transformVec4( this.forward, this.matrix.raw, [ 0, 0, 1, 0 ] );
         Matrix4.transformVec4( this.up, this.matrix.raw, [ 0, 1, 0, 0 ] );
@@ -53,7 +53,7 @@ class Transform {
 
     getNormalMatrix() {
 
-        return this.normMatrix;
+        return this.normMat;
 
     }
 

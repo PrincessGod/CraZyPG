@@ -85,6 +85,11 @@
                     src : './resource/barrel.png',
                     min : context.LINEAR_MIPMAP_LINEAR,
                     mag : context.LINEAR,
+                },
+                point: {
+                    mag: context.NEAREST,
+                    min: context.LINEAR,
+                    src: [ 255,105,180,255 ],
                 }
             })
 
@@ -93,8 +98,6 @@
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas);
             cameraControler.autoRotate = true;
 
-            var s = new CZPG.PointlightShader(context, camera.projMat, textures.barrel);
-            
             let gridShader = new CZPG.GridAxisShader(context, camera.projMat);
             let gridMesh = CZPG.Primatives.GridAxis.createMesh();
             let gridModal = new CZPG.Model(gridMesh);
@@ -102,8 +105,9 @@
             let quadShader = new CZPG.FlatTextureShader(context, camera.projMat, textures.pic);
             let quadModal = CZPG.Primatives.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(-2.5, 0.5, 0);
+            let point = CZPG.Primatives.Cube.createModel().setScale(0.05, 0.05, 0.05);
             
-            let objShader = new CZPG.FlatTextureShader(context, camera.projMat, textures.barrel);
+            let lightShader = new CZPG.PointlightShader(context, camera.projMat, textures.barrel);
             let objModels = [];
             let objModelCount = 0;
             CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
@@ -116,26 +120,31 @@
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera.projMat, textures.day, textures.night);
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 500, 500, 500, 0, 0, 0));
-
+            let lightPos;
             let loop = new CZPG.Render(function(timespan) {
+                lightPos = [2 * Math.cos(performance.now() * 0.001), 2 * Math.abs(Math.cos(performance.now() * 0.001)), 2 * Math.sin(performance.now() * 0.001)];
+
                 if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
                     camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
-                skymapShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.getOrientMatrix())
-                    .setRate( Math.abs( Math.sin( performance.now() * 0.0002) ) ).renderModel(skyCubeModal);
-                gridShader.activate().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat)
-                    .renderModel(gridModal.preRender());
-                quadShader.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat)
-                    .renderModel(quadModal.preRender()).renderModel(cubeModal.preRender());
+
+                skymapShader.setCamera(camera).setRate( Math.abs( Math.sin( performance.now() * 0.0002) ) ).renderModel(skyCubeModal);
+
+                gridShader.setCamera(camera).renderModel(gridModal.preRender());
+
+                quadShader.setTexture(textures.pic).setCamera(camera)
+                    .renderModel(quadModal.preRender())
+                    .renderModel(cubeModal.preRender())
+                    .setTexture(textures.point).renderModel(point.setPosition(...lightPos).preRender());
+
                 if (objModels){
-                    s.activate().preRender().setProjMatrix(camera.projMat).setViewMatrix(camera.viewMat);
+                    lightShader.setCamera(camera);
                     for (let i = 0; i < objModelCount; i ++) {
-                        s.setUniforms({
-                            u_normal: objModels[i].normMatrix,
+                        lightShader.setUniformObj({
+                            u_normMat: objModels[i].normMat,
                             u_viewInvert: camera.matrix,
-                            u_lightPos: [10 * Math.cos(performance.now() * 0.001), 10, 10 * Math.sin(performance.now() * 0.001)],
+                            u_lightPos: lightPos,
                             u_shiness: Math.pow(2, i),
-                            // u_specularStrength: 0.4 * i / 20,
                             u_diffuseStrength: 0.3,
                         }).renderModel(objModels[i].preRender());
                     }

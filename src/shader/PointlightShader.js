@@ -5,16 +5,17 @@ function PointlightShader( gl, projMat, texture ) {
     Shader.call( this, gl, PointlightShader.vs, PointlightShader.fs );
 
     this.setProjMatrix( projMat );
-    this.texture = texture;
-
-    this.setUniforms( {
+    this.setUniformObj( {
+        u_texture: texture,
         u_ambientStrength: 0.15,
         u_diffuseStrength: 0.3,
         u_specularStrength: 0.2,
-        u_shiness: 200,
+        u_shiness: 100,
+        u_normMat: new Float32Array( [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ] ),
+        u_lightPos: [ 10, 10, 10 ],
     } );
 
-    gl.useProgram( null );
+    this.deactivate();
 
 }
 
@@ -24,14 +25,7 @@ PointlightShader.prototype = Object.assign( Object.create( Shader.prototype ), {
 
     setTexture( tex ) {
 
-        this.texture = tex;
-        return this;
-
-    },
-
-    preRender() {
-
-        this.setUniforms( { u_texture: this.texture } );
+        this.setUniformObj( { u_texture: tex } );
         return this;
 
     },
@@ -45,10 +39,10 @@ Object.assign( PointlightShader, {
         'in vec2 a_uv;\n' +
         'in vec3 a_normal;\n' +
         '\n' +
-        'uniform mat4 u_world;\n' +
-        'uniform mat4 u_view;\n' +
-        'uniform mat4 u_proj;\n' +
-        'uniform mat3 u_normal;\n' +
+        'uniform mat4 u_worldMat;\n' +
+        'uniform mat4 u_viewMat;\n' +
+        'uniform mat4 u_projMat;\n' +
+        'uniform mat3 u_normMat;\n' +
         'uniform mat4 u_viewInvert;\n' +
         '\n' +
         'out highp vec2 v_uv;\n' +
@@ -58,10 +52,10 @@ Object.assign( PointlightShader, {
         '\n' +
         'void main() {\n' +
         '   v_uv = a_uv;\n' +
-        '   v_pos = (u_world * vec4(a_position, 1.0)).xyz;\n' +
-        '   v_norm = u_normal * a_normal;\n' +
+        '   v_pos = (u_worldMat * vec4(a_position, 1.0)).xyz;\n' +
+        '   v_norm = u_normMat * a_normal;\n' +
         '   v_camPos = u_viewInvert[3].xyz;\n' +
-        '   gl_Position = u_proj * u_view * vec4(v_pos.xyz, 1.0);\n' +
+        '   gl_Position = u_projMat * u_viewMat * vec4(v_pos.xyz, 1.0);\n' +
         '}',
 
     fs: '#version 300 es\n' +

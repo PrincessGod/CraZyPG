@@ -5,9 +5,9 @@ function FlatTextureShader( gl, projMat, texture ) {
     Shader.call( this, gl, FlatTextureShader.vs, FlatTextureShader.fs );
 
     this.setProjMatrix( projMat );
-    this.texture = texture;
+    this.setUniformObj( { u_texture: texture } );
 
-    gl.useProgram( null );
+    this.deactivate();
 
 }
 
@@ -17,14 +17,7 @@ FlatTextureShader.prototype = Object.assign( Object.create( Shader.prototype ), 
 
     setTexture( tex ) {
 
-        this.texture = tex;
-        return this;
-
-    },
-
-    preRender() {
-
-        this.setUniforms( { u_texture: this.texture } );
+        this.setUniformObj( { u_texture: tex } );
         return this;
 
     },
@@ -37,15 +30,15 @@ Object.assign( FlatTextureShader, {
         'in vec3 a_position;\n' +
         'in vec2 a_uv;\n' +
         '\n' +
-        'uniform mat4 u_world;\n' +
-        'uniform mat4 u_view;\n' +
-        'uniform mat4 u_proj;\n' +
+        'uniform mat4 u_worldMat;\n' +
+        'uniform mat4 u_viewMat;\n' +
+        'uniform mat4 u_projMat;\n' +
         '\n' +
         'out highp vec2 v_uv;\n' +
         '\n' +
         'void main() {\n' +
         '   v_uv = a_uv;\n' +
-        '   gl_Position = u_proj * u_view * u_world * vec4(a_position, 1.0);\n' +
+        '   gl_Position = u_projMat * u_viewMat * u_worldMat * vec4(a_position, 1.0);\n' +
         '}',
 
     fs: '#version 300 es\n' +

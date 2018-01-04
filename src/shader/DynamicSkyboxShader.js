@@ -5,11 +5,9 @@ function DynamicSkyboxShader( gl, projMat, dayTex, nightTex ) {
     Shader.call( this, gl, DynamicSkyboxShader.vs, DynamicSkyboxShader.fs );
 
     this.setProjMatrix( projMat );
+    this.setUniformObj( { u_dayTex: dayTex, u_nightTex: nightTex, u_rate: 0.5 } );
 
-    this.dayTex = dayTex;
-    this.nightTex = nightTex || dayTex;
-
-    gl.useProgram( null );
+    this.deactivate();
 
 }
 
@@ -19,14 +17,15 @@ DynamicSkyboxShader.prototype = Object.assign( Object.create( Shader.prototype )
 
     setRate( r ) {
 
-        this.setUniforms( { u_rate: r } );
+        this.setUniformObj( { u_rate: r } );
         return this;
 
     },
 
-    preRender() {
+    setCamera( camera ) {
 
-        this.setUniforms( { u_dayTex: this.dayTex, u_nightTex: this.nightTex } );
+        this.setProjMatrix( camera.projMat );
+        this.setViewMatrix( camera.getOrientMatrix() );
         return this;
 
     },
@@ -38,15 +37,15 @@ Object.assign( DynamicSkyboxShader, {
     vs: '#version 300 es\n' +
         'in vec4 a_position;\n' +
         '\n' +
-        'uniform mat4 u_world;\n' +
-        'uniform mat4 u_view;\n' +
-        'uniform mat4 u_proj;\n' +
+        'uniform mat4 u_worldMat;\n' +
+        'uniform mat4 u_viewMat;\n' +
+        'uniform mat4 u_projMat;\n' +
         '\n' +
         'out highp vec3 v_uv;\n' +
         '\n' +
         'void main() {\n' +
-            'v_uv = a_position.xyz;\n' +
-            'gl_Position = u_proj * u_view * u_world * vec4(a_position.xyz, 1.0);\n' +
+        '   v_uv = a_position.xyz;\n' +
+        '   gl_Position = u_projMat * u_viewMat * u_worldMat * vec4(a_position.xyz, 1.0);\n' +
         '}',
 
     fs: '#version 300 es\n' +
@@ -60,7 +59,7 @@ Object.assign( DynamicSkyboxShader, {
         '\n' +
         'out vec4 finalColor;\n' +
         'void main() {\n' +
-            'finalColor = mix( texture(u_dayTex, v_uv), texture(u_nightTex, v_uv), u_rate);\n' +
+        '   finalColor = mix( texture(u_dayTex, v_uv), texture(u_nightTex, v_uv), u_rate);\n' +
         '}',
 
 } );
