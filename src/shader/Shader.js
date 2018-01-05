@@ -12,6 +12,8 @@ function Shader( gl, vs, fs ) {
     if ( this.program !== null ) {
 
         this.gl = gl;
+        this.camera = null;
+
         gl.useProgram( this.program );
 
         this.attribSetters = createAttributesSetters( gl, this.program );
@@ -50,7 +52,7 @@ Object.assign( Shader.prototype, {
 
     setUniformObjProp( prop, value, equalsFun = equalSign ) {
 
-        if ( this.currentUniformObj[ prop ] === undefined || ! equalsFun( this.currentUniformObj[ prop ], value ) || value instanceof WebGLTexture ) {
+        if ( this.currentUniformObj[ prop ] === undefined || ! equalsFun( this.currentUniformObj[ prop ], value ) ) {
 
             this.uniformObj[ prop ] = value;
             this.currentUniformObj[ prop ] = value;
@@ -116,8 +118,14 @@ Object.assign( Shader.prototype, {
 
     setCamera( camera ) {
 
-        this.setProjMatrix( camera.projMat );
-        this.setViewMatrix( camera.viewMat );
+        this.camera = camera;
+
+    },
+
+    updateCamera() {
+
+        this.setProjMatrix( this.camera.projMat );
+        this.setViewMatrix( this.camera.viewMat );
         return this;
 
     },
@@ -136,6 +144,7 @@ Object.assign( Shader.prototype, {
         if ( _privates.currentShader !== this ) {
 
             this.activate();
+            this.updateCamera();
             Object.keys( this.currentUniformObj ).forEach( ( prop ) => {
 
                 if ( this.currentUniformObj[ prop ] instanceof WebGLTexture )

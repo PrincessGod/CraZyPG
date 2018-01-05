@@ -98,16 +98,16 @@
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas);
             cameraControler.autoRotate = true;
 
-            let gridShader = new CZPG.GridAxisShader(context, camera.projMat);
+            let gridShader = new CZPG.GridAxisShader(context, camera);
             let gridMesh = CZPG.Primatives.GridAxis.createMesh();
             let gridModal = new CZPG.Model(gridMesh);
 
-            let quadShader = new CZPG.FlatTextureShader(context, camera.projMat, textures.pic);
+            let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
             let quadModal = CZPG.Primatives.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(-2.5, 0.5, 0);
             let point = CZPG.Primatives.Cube.createModel().setScale(0.05, 0.05, 0.05);
             
-            let lightShader = new CZPG.PointlightShader(context, camera.projMat, textures.barrel);
+            let lightShader = new CZPG.PointlightShader(context, camera, textures.barrel);
             let objModels = [];
             let objModelCount = 0;
             CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
@@ -118,7 +118,7 @@
                 console.log(meshs);
             });
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera.projMat, textures.day, textures.night);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 500, 500, 500, 0, 0, 0));
             let lightPos;
             let loop = new CZPG.Render(function(timespan) {
@@ -129,7 +129,6 @@
                 cameraControler.update();
                 
                 if (objModels){
-                    lightShader.setCamera(camera);
                     for (let i = 0; i < objModelCount; i ++) {
                         lightShader.setUniformObj({
                             u_normMat: objModels[i].normMat,
@@ -141,14 +140,15 @@
                     }
                 }
                 
-                skymapShader.setCamera(camera).setRate( Math.abs( Math.sin( performance.now() * 0.0002) ) ).renderModel(skyCubeModal);
+                skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0002) ) ).renderModel(skyCubeModal);
 
-                gridShader.setCamera(camera).renderModel(gridModal.preRender());
+                gridShader.renderModel(gridModal.preRender());
 
-                quadShader.setTexture(textures.pic).setCamera(camera)
+                quadShader.setTexture(textures.pic)
                     .renderModel(quadModal.preRender())
                     .renderModel(cubeModal.preRender())
-                    .setTexture(textures.point).renderModel(point.setPosition(...lightPos).preRender());
+                    .setTexture(textures.point).renderModel(point.setPosition(...lightPos).preRender())
+                    .deactivate();
 
             }).start();
         });

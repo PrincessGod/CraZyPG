@@ -1,10 +1,10 @@
 import { Shader } from './Shader';
 
-function PointlightShader( gl, projMat, texture ) {
+function PointlightShader( gl, camera, texture ) {
 
     Shader.call( this, gl, PointlightShader.vs, PointlightShader.fs );
 
-    this.setProjMatrix( projMat );
+    this.camera = camera;
     this.setUniformObj( {
         u_texture: texture,
         u_ambientStrength: 0.15,

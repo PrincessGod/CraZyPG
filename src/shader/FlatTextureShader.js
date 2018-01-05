@@ -1,10 +1,11 @@
 import { Shader } from './Shader';
 
-function FlatTextureShader( gl, projMat, texture ) {
+function FlatTextureShader( gl, camera, texture ) {
 
     Shader.call( this, gl, FlatTextureShader.vs, FlatTextureShader.fs );
 
-    this.setProjMatrix( projMat );
+    this.camera = camera;
+
     this.setUniformObj( { u_texture: texture } );
 
     this.deactivate();

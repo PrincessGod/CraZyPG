@@ -1,10 +1,11 @@
 import { Shader } from './Shader';
 
-function DynamicSkyboxShader( gl, projMat, dayTex, nightTex ) {
+function DynamicSkyboxShader( gl, camera, dayTex, nightTex ) {
 
     Shader.call( this, gl, DynamicSkyboxShader.vs, DynamicSkyboxShader.fs );
 
-    this.setProjMatrix( projMat );
+    this.camera = camera;
+
     this.setUniformObj( { u_dayTex: dayTex, u_nightTex: nightTex, u_rate: 0.5 } );
 
     this.deactivate();
@@ -22,10 +23,10 @@ DynamicSkyboxShader.prototype = Object.assign( Object.create( Shader.prototype )
 
     },
 
-    setCamera( camera ) {
+    updateCamera() {
 
-        this.setProjMatrix( camera.projMat );
-        this.setViewMatrix( camera.getOrientMatrix() );
+        this.setProjMatrix( this.camera.projMat );
+        this.setViewMatrix( this.camera.getOrientMatrix() );
         return this;
 
     },

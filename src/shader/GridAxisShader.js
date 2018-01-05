@@ -1,10 +1,11 @@
 import { Shader } from './Shader';
 
-function GridAxisShader( gl, projMat ) {
+function GridAxisShader( gl, camera ) {
 
     Shader.call( this, gl, GridAxisShader.vs, GridAxisShader.fs );
 
-    this.setProjMatrix( projMat );
+    this.camera = camera;
+
     this.setUniformObj( { u_colors: [ 0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1 ] } );
 
     this.deactivate();
