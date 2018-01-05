@@ -1,4 +1,5 @@
 import * as properties from '../core/properties';
+import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
 
 const LINES = 1;
@@ -71,9 +72,9 @@ Primatives.GridAxis = class {
         color.push( 3 );
 
         const attribArrays = {
-            a_position: { data: vertices },
             a_color: { data: color, numComponents: 1 },
         };
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
 
         return Primatives.createMesh( 'gridAxis', attribArrays, { drawMode: LINES } );
 
@@ -96,10 +97,10 @@ Primatives.Quad = class {
         const indices = [ 0, 1, 2, 2, 3, 0 ];
 
         const attribArrays = {
-            a_position: { data: vertices },
-            a_uv: { data: uv },
             indices: { numComponents: 3, data: indices },
         };
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
+        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
 
         return Primatives.createMesh( 'Quad', attribArrays, {
             cullFace: false,
@@ -181,11 +182,11 @@ Primatives.Cube = class {
         ];
 
         const attribArrays = {
-            a_position: { data: vertices, numComponents: 4 },
-            a_uv: { data: uv },
-            a_normal: { data: normal },
             indices: { data: indices },
         };
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, numComponents: 4 };
+        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
+        attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
         return Primatives.createMesh( name || 'Cube', attribArrays, { cullFace: false } );
 
