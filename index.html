@@ -85,11 +85,6 @@
                     src : './resource/barrel.png',
                     min : context.LINEAR_MIPMAP_LINEAR,
                     mag : context.LINEAR,
-                },
-                point: {
-                    mag: context.NEAREST,
-                    min: context.LINEAR,
-                    src: [ 255,105,180,255 ],
                 }
             })
 
@@ -105,7 +100,6 @@
             let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
             let quadModal = CZPG.Primatives.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Primatives.Cube.createModel().setPosition(-2.5, 0.5, 0);
-            let point = CZPG.Primatives.Cube.createModel().setScale(0.05, 0.05, 0.05);
             
             let lightShader = new CZPG.PointlightShader(context, camera, textures.barrel);
             let objModels = [];
@@ -120,14 +114,19 @@
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 500, 500, 500, 0, 0, 0));
+
+            let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
+
             let lightPos;
             let loop = new CZPG.Render(function(timespan) {
-                lightPos = [2 * Math.cos(performance.now() * 0.001), 2 * Math.abs(Math.cos(performance.now() * 0.001)), 2 * Math.sin(performance.now() * 0.001)];
-
                 if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
-                    camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
                 
+                lightPos = [2 * Math.cos(performance.now() * 0.001), 2 * Math.abs(Math.cos(performance.now() * 0.001)), 2 * Math.sin(performance.now() * 0.001)] ;
+                pointHelper.model.setPosition(...lightPos);
+                pointHelper.render();
+
                 if (objModels){
                     for (let i = 0; i < objModelCount; i ++) {
                         lightShader.setUniformObj({
@@ -147,8 +146,6 @@
                 quadShader.setTexture(textures.pic)
                     .renderModel(quadModal.preRender())
                     .renderModel(cubeModal.preRender())
-                    .setTexture(textures.point).renderModel(point.setPosition(...lightPos).preRender())
-                    .deactivate();
 
             }).start();
         });
