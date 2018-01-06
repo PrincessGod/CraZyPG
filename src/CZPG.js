@@ -22,3 +22,4 @@ export * from './math/Matrix4.js';
 export * from './loaders/Fileloader.js';
 export * from './loaders/ObjLoader.js';
 export * from './helper/PointHelper.js';
+export * from './helper/LineHelper.js';

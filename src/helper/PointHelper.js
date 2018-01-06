@@ -24,7 +24,18 @@ Object.assign( PointHelper.prototype, {
 
     },
 
-    setData( typedArray ) {
+    setTransform( transform ) {
+
+        if ( this.model )
+            this.model.transform = transform;
+
+    },
+
+    setData( array ) {
+
+        let typedArray = array;
+        if ( ! ( array && array.buffer && array.buffer instanceof ArrayBuffer ) )
+            typedArray = new Float32Array( array );
 
         const bufferInfo = this.mesh.bufferInfo;
         if ( bufferInfo ) {
@@ -32,6 +43,9 @@ Object.assign( PointHelper.prototype, {
             const buffer = bufferInfo.attribs[ Constant.ATTRIB_POSITION_NAME ].buffer;
             this.gl.bindBuffer( this.gl.ARRAY_BUFFER, buffer );
             this.gl.bufferData( this.gl.ARRAY_BUFFER, typedArray, this.gl.DYNAMIC_DRAW );
+
+            bufferInfo.numElements = typedArray.length / 3;
+
             return this;
 
         }

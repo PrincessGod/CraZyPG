@@ -197,6 +197,7 @@ Primatives.Cube = class {
 Primatives.createMesh = function createMesh( name, attribArrays, options ) {
 
     const mesh = Object.assign( {
+        isMesh: true,
         name,
         attribArrays,
         drawMode: TRIANGLES,

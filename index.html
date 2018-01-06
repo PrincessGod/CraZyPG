@@ -116,6 +116,7 @@
             let skyCubeModal = new CZPG.Model(CZPG.Primatives.Cube.createMesh('sky', 500, 500, 500, 0, 0, 0));
 
             let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
+            let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
 
             let lightPos;
             let loop = new CZPG.Render(function(timespan) {
@@ -124,8 +125,6 @@
                 cameraControler.update();
                 
                 lightPos = [2 * Math.cos(performance.now() * 0.001), 2 * Math.abs(Math.cos(performance.now() * 0.001)), 2 * Math.sin(performance.now() * 0.001)] ;
-                pointHelper.model.setPosition(...lightPos);
-                pointHelper.render();
 
                 if (objModels){
                     for (let i = 0; i < objModelCount; i ++) {
@@ -136,6 +135,8 @@
                             u_shiness: Math.pow(2, i),
                             u_diffuseStrength: 0.3,
                         }).renderModel(objModels[i].preRender());
+                        // lineHelper.setData(objModels[i]).render();
+                        // pointHelper.setData(objModels[i].mesh.attribArrays.a_position.data).render();
                     }
                 }
                 
@@ -146,6 +147,11 @@
                 quadShader.setTexture(textures.pic)
                     .renderModel(quadModal.preRender())
                     .renderModel(cubeModal.preRender())
+
+                pointHelper.model.setPosition(...lightPos);
+                pointHelper.setData([0,0,0]).render();
+
+                lineHelper.setData(cubeModal).render();
 
             }).start();
         });

@@ -1,12 +1,13 @@
 import { Shader } from './Shader';
 
-function ColorPointShader( gl, camera, pointSize, color ) {
+function ColorPointShader( gl, camera, pointSize = 5.0, color = [ 255 / 255, 105 / 255, 180 / 255, 125 / 255 ] ) {
 
     Shader.call( this, gl, ColorPointShader.vs, ColorPointShader.fs );
 
     this.camera = camera;
 
-    this.setUniformObj( { u_color: color || [ 255 / 255, 105 / 255, 180 / 255, 125 / 255 ], u_pSize: pointSize || 5.0 } );
+    this.setPointSize( pointSize );
+    this.setColor( color );
 
     this.deactivate();
 
@@ -19,6 +20,12 @@ ColorPointShader.prototype = Object.assign( Object.create( Shader.prototype ), {
     setColor( color ) {
 
         this.setUniformObj( { u_color: color } );
+
+        if ( color[ 3 ] !== 1 )
+            this.blend = true;
+        else
+            this.blend = false;
+
         return this;
 
     },

@@ -7,6 +7,9 @@ import { Matrix4 } from '../math/Matrix4';
 
 function Shader( gl, vs, fs ) {
 
+    this.cullFace = true;
+    this.blend = false;
+
     this.program = createProgram( gl, vs, fs );
 
     if ( this.program !== null ) {
@@ -167,11 +170,11 @@ Object.assign( Shader.prototype, {
             model.createBufferInfo( this.gl );
 
         if ( ! model.mesh.vao )
-            model.createVAO( this.gl, this.program );
+            model.createVAO( this.gl, this.program, this.attribSetters );
 
-        if ( model.mesh.cullFace === false ) this.gl.disable( this.gl.CULL_FACE );
+        if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.disable( this.gl.CULL_FACE );
 
-        if ( model.mesh.blend ) this.gl.enable( this.gl.BLEND );
+        if ( this.blend || model.mesh.blend ) this.gl.enable( this.gl.BLEND );
 
         this.setWorldMatrix( model.transform.getMatrix() );
         this.preRender(); // set uniforms
@@ -186,9 +189,9 @@ Object.assign( Shader.prototype, {
 
         this.gl.bindVertexArray( null );
 
-        if ( model.mesh.cullFace === false ) this.gl.enable( this.gl.CULL_FACE );
+        if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.enable( this.gl.CULL_FACE );
 
-        if ( model.mesh.blend ) this.gl.disable( this.gl.BLEND );
+        if ( this.blend || model.mesh.blend ) this.gl.disable( this.gl.BLEND );
 
         return this;
 
