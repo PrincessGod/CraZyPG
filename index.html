@@ -135,8 +135,8 @@
                             u_shiness: Math.pow(2, i),
                             u_diffuseStrength: 0.3,
                         }).renderModel(objModels[i].preRender());
-                        // lineHelper.setData(objModels[i]).render();
-                        // pointHelper.setData(objModels[i].mesh.attribArrays.a_position.data).render();
+                        lineHelper.setData(objModels[i]).render();
+                        pointHelper.setData(objModels[i].positionInfo).render();
                     }
                 }
                 
@@ -148,7 +148,7 @@
                     .renderModel(quadModal.preRender())
                     .renderModel(cubeModal.preRender())
 
-                pointHelper.model.setPosition(...lightPos);
+                pointHelper.model.setPosition(...lightPos).setScale(0.1, 0.1, 0.1);
                 pointHelper.setData([0,0,0]).render();
 
                 lineHelper.setData(cubeModal).render();

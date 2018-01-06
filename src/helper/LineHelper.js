@@ -8,7 +8,7 @@ function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
     this.shader = new ColorLineShader( gl, camera, colors );
     this.normalLength = normalLength;
 
-    const vertices = this.getdata( points );
+    const vertices = this._getdata( points );
     const attribArrays = {};
     attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: gl.DYNAMIC_DRAW };
     this.mesh = Primatives.createMesh( 'LineHelper', attribArrays, { drawMode: gl.LINES } );
@@ -21,12 +21,12 @@ function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
 
 Object.assign( LineHelper.prototype, {
 
-    getdata( points ) {
+    _getdata( points ) {
 
         let normalPos = points;
         if ( points.isModel ) {
 
-            normalPos = [ points.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data, points.mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ].data ];
+            normalPos = [ points.positionInfo.data, points.normalInfo.data ];
             this.setTransform( points.transform );
 
         }
@@ -97,12 +97,13 @@ Object.assign( LineHelper.prototype, {
         if ( this.model )
             this.model.transform = transform;
 
+        return this;
 
     },
 
     setData( points ) {
 
-        const array = this.getdata( points );
+        const array = this._getdata( points );
         const typedArray = new Float32Array( array );
 
         const bufferInfo = this.mesh.bufferInfo;

@@ -29,13 +29,35 @@ Object.assign( PointHelper.prototype, {
         if ( this.model )
             this.model.transform = transform;
 
+        return this;
+
     },
 
     setData( array ) {
 
         let typedArray = array;
-        if ( ! ( array && array.buffer && array.buffer instanceof ArrayBuffer ) )
-            typedArray = new Float32Array( array );
+
+        if ( array.data ) {
+
+            typedArray = array.data;
+            if ( array.numComponents && array.numComponents !== 3 )
+                if ( array.numComponents === 4 ) {
+
+                    typedArray = [];
+                    for ( let i = 0; i < array.data.length / 4; i ++ )
+                        typedArray.push( array.data[ i * 4 ], array.data[ i * 4 + 1 ], array.data[ i * 4 + 2 ] );
+
+                } else {
+
+                    console.error( 'array data numElement nor 3 or 4 for PointHelper.' );
+                    return null;
+
+                }
+
+        }
+
+        if ( ! ( typedArray && typedArray.buffer && typedArray.buffer instanceof ArrayBuffer ) )
+            typedArray = new Float32Array( typedArray );
 
         const bufferInfo = this.mesh.bufferInfo;
         if ( bufferInfo ) {

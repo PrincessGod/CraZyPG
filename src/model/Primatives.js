@@ -1,6 +1,7 @@
 import * as properties from '../core/properties';
 import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
+import { isArrayBuffer } from '../renderer/typedArray';
 
 const LINES = 1;
 const TRIANGLES = 4;
@@ -195,6 +196,13 @@ Primatives.Cube = class {
 };
 
 Primatives.createMesh = function createMesh( name, attribArrays, options ) {
+
+    Object.keys( attribArrays ).forEach( ( prop ) => {
+
+        if ( ! isArrayBuffer( attribArrays[ prop ].data ) && prop !== 'indices' )
+            attribArrays[ prop ].data = new Float32Array( attribArrays[ prop ].data ); //eslint-disable-line
+
+    } );
 
     const mesh = Object.assign( {
         isMesh: true,
