@@ -118,15 +118,21 @@
             let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
             let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
 
+            let terrain = CZPG.Terrain.createMesh(2, 2, 9, 9);
+            terrain.drawMode = context.TRIANGLE_STRIP;
+            console.log(terrain);
+            let terrainModel = new CZPG.Model(terrain);
+
             let lightPos;
             let loop = new CZPG.Render(function(timespan) {
                 if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
                 camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
                 
-                lightPos = [2 * Math.cos(performance.now() * 0.001), 2 * Math.abs(Math.cos(performance.now() * 0.001)), 2 * Math.sin(performance.now() * 0.001)] ;
+                lightPos = [2 * Math.cos(performance.now() * 0.0003), 2 * Math.abs(Math.cos(performance.now() * 0.0003)), 2 * Math.sin(performance.now() * 0.0003)] ;
 
                 if (objModels){
+                    lightShader.setTexture(textures.barrel);
                     for (let i = 0; i < objModelCount; i ++) {
                         lightShader.setUniformObj({
                             u_normMat: objModels[i].normMat,
@@ -136,17 +142,19 @@
                             u_diffuseStrength: 0.3,
                         }).renderModel(objModels[i].preRender());
                         lineHelper.setData(objModels[i]).render();
-                        pointHelper.setData(objModels[i].positionInfo).render();
+                        // pointHelper.setData(objModels[i].positionInfo).render();
                     }
+                    lightShader.setTexture(textures.pic).renderModel(cubeModal.preRender());
                 }
                 
-                skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0002) ) ).renderModel(skyCubeModal);
+                skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);
 
                 gridShader.renderModel(gridModal.preRender());
 
                 quadShader.setTexture(textures.pic)
                     .renderModel(quadModal.preRender())
-                    .renderModel(cubeModal.preRender())
+                    // .renderModel(cubeModal.preRender())
+                    // .renderModel(terrainModel.preRender())
 
                 pointHelper.model.setPosition(...lightPos).setScale(0.1, 0.1, 0.1);
                 pointHelper.setData([0,0,0]).render();

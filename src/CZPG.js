@@ -23,3 +23,4 @@ export * from './loaders/Fileloader.js';
 export * from './loaders/ObjLoader.js';
 export * from './helper/PointHelper.js';
 export * from './helper/LineHelper.js';
+export * from './model/Terrain.js';
