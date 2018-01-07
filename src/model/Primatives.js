@@ -6,10 +6,32 @@ import { isArrayBuffer } from '../renderer/typedArray';
 const LINES = 1;
 const TRIANGLES = 4;
 
-const Primatives = {};
-Primatives.GridAxis = class {
+function createMesh( name, attribArrays, options ) {
 
-    static createMesh( size = 10, div = 20 ) {
+    Object.keys( attribArrays ).forEach( ( prop ) => {
+
+        if ( ! isArrayBuffer( attribArrays[ prop ].data ) && prop !== 'indices' )
+            attribArrays[ prop ].data = new Float32Array( attribArrays[ prop ].data ); //eslint-disable-line
+
+    } );
+
+    const mesh = Object.assign( {
+        isMesh: true,
+        name,
+        attribArrays,
+        drawMode: TRIANGLES,
+    }, options );
+
+    properties.meshs[ mesh.name ] = mesh;
+    return mesh;
+
+}
+
+const GridAxis = {};
+
+Object.assign( GridAxis, {
+
+    createMesh( size = 10, div = 20 ) {
 
         const vertices = [];
         const color = [];
@@ -77,21 +99,23 @@ Primatives.GridAxis = class {
         };
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
 
-        return Primatives.createMesh( 'gridAxis', attribArrays, { drawMode: LINES } );
+        return createMesh( 'gridAxis', attribArrays, { drawMode: LINES } );
 
-    }
+    },
 
-};
+} );
 
-Primatives.Quad = class {
+const Quad = {};
 
-    static createModel() {
+Object.assign( Quad, {
 
-        return new Model( Primatives.Quad.createMesh() );
+    createModel() {
 
-    }
+        return new Model( Quad.createMesh() );
 
-    static createMesh() {
+    },
+
+    createMesh( name ) {
 
         const vertices = [ - 0.5, 0.5, 0, - 0.5, - 0.5, 0, 0.5, - 0.5, 0, 0.5, 0.5, 0 ];
         const uv = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
@@ -103,24 +127,26 @@ Primatives.Quad = class {
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
 
-        return Primatives.createMesh( 'Quad', attribArrays, {
+        return createMesh( name || 'Quad', attribArrays, {
             cullFace: false,
             blend: true,
         } );
 
-    }
+    },
+} );
 
-};
 
-Primatives.Cube = class {
+const Cube = {};
 
-    static createModel( name ) {
+Object.assign( Cube, {
 
-        return new Model( Primatives.Cube.createMesh( name, 1, 1, 1, 0, 0, 0 ) );
+    createModel( name ) {
 
-    }
+        return new Model( Cube.createMesh( name ) );
 
-    static createMesh( name, width, height, depth, x, y, z ) {
+    },
+
+    createMesh( name, width = 1, height = 1, depth = 1, x = 0, y = 0, z = 0 ) {
 
         const w = width * 0.5;
         const h = height * 0.5;
@@ -189,31 +215,10 @@ Primatives.Cube = class {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
-        return Primatives.createMesh( name || 'Cube', attribArrays, { cullFace: false } );
+        return createMesh( name || 'Cube', attribArrays, { cullFace: false } );
 
-    }
+    },
 
-};
+} );
 
-Primatives.createMesh = function createMesh( name, attribArrays, options ) {
-
-    Object.keys( attribArrays ).forEach( ( prop ) => {
-
-        if ( ! isArrayBuffer( attribArrays[ prop ].data ) && prop !== 'indices' )
-            attribArrays[ prop ].data = new Float32Array( attribArrays[ prop ].data ); //eslint-disable-line
-
-    } );
-
-    const mesh = Object.assign( {
-        isMesh: true,
-        name,
-        attribArrays,
-        drawMode: TRIANGLES,
-    }, options );
-
-    properties.meshs[ mesh.name ] = mesh;
-    return mesh;
-
-};
-
-export { Primatives };
+export { GridAxis, Quad, Cube, createMesh };

@@ -1,5 +1,5 @@
 import { ColorPointShader } from '../shader/ColorPointShader';
-import { Primatives } from '../model/Primatives';
+import { createMesh } from '../model/Primatives';
 import { Model } from '../model/Model';
 import * as Constant from '../renderer/constant';
 
@@ -9,7 +9,7 @@ function PointHelper( gl, camera, data, pointSize, pointColor ) {
 
     const attribArrays = {};
     attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data, drawType: gl.DYNAMIC_DRAW };
-    this.mesh = Primatives.createMesh( 'PointHelper', attribArrays, { drawMode: gl.POINTS } );
+    this.mesh = createMesh( 'PointHelper', attribArrays, { drawMode: gl.POINTS } );
     this.model = new Model( this.mesh );
     this.gl = gl;
 

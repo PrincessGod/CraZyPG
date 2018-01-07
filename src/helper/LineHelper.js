@@ -1,5 +1,5 @@
 import { ColorLineShader } from '../shader/ColorLineShader';
-import { Primatives } from '../model/Primatives';
+import { createMesh } from '../model/Primatives';
 import { Model } from '../model/Model';
 import * as Constant from '../renderer/constant';
 
@@ -11,7 +11,7 @@ function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
     const vertices = this._getdata( points );
     const attribArrays = {};
     attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: gl.DYNAMIC_DRAW };
-    this.mesh = Primatives.createMesh( 'LineHelper', attribArrays, { drawMode: gl.LINES } );
+    this.mesh = createMesh( 'LineHelper', attribArrays, { drawMode: gl.LINES } );
     this.model = new Model( this.mesh );
     if ( points.isModel )
         this.setTransform( points.transform );
