@@ -17,6 +17,12 @@ const PMath = {
 
     },
 
+    map( value, min, max, tarMin, tarMax ) {
+
+        return tarMin + ( tarMax - tarMin ) * ( value - min ) / ( max - min );
+
+    },
+
     arrayEquals( a, b ) {
 
         if ( a.length !== b.length ) return false;

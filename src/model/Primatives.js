@@ -3,9 +3,6 @@ import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
 import { isArrayBuffer } from '../renderer/typedArray';
 
-const LINES = 1;
-const TRIANGLES = 4;
-
 function createMesh( name, attribArrays, options ) {
 
     Object.keys( attribArrays ).forEach( ( prop ) => {
@@ -19,7 +16,7 @@ function createMesh( name, attribArrays, options ) {
         isMesh: true,
         name,
         attribArrays,
-        drawMode: TRIANGLES,
+        drawMode: Constant.TRIANGLES,
     }, options );
 
     properties.meshs[ mesh.name ] = mesh;
@@ -99,7 +96,7 @@ Object.assign( GridAxis, {
         };
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
 
-        return createMesh( 'gridAxis', attribArrays, { drawMode: LINES } );
+        return createMesh( 'gridAxis', attribArrays, { drawMode: Constant.LINES } );
 
     },
 

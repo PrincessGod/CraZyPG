@@ -160,4 +160,11 @@ function createBufferInfoFromArrays( gl, arrays ) {
 
 }
 
-export { createBuffersFromArrays, createBufferInfoFromArrays, isIndices };
+function setTypedArrayToBuffer( gl, buffer, typedArray, drawType = gl.DYNAMIC_DRAW ) {
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, buffer );
+    gl.bufferData( gl.ARRAY_BUFFER, typedArray, drawType );
+
+}
+
+export { createBuffersFromArrays, createBufferInfoFromArrays, isIndices, setTypedArrayToBuffer };

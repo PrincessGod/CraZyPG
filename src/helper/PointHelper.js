@@ -2,6 +2,7 @@ import { ColorPointShader } from '../shader/ColorPointShader';
 import { createMesh } from '../model/Primatives';
 import { Model } from '../model/Model';
 import * as Constant from '../renderer/constant';
+import { setTypedArrayToBuffer } from '../renderer/attributes';
 
 function PointHelper( gl, camera, data, pointSize, pointColor ) {
 
@@ -63,8 +64,7 @@ Object.assign( PointHelper.prototype, {
         if ( bufferInfo ) {
 
             const buffer = bufferInfo.attribs[ Constant.ATTRIB_POSITION_NAME ].buffer;
-            this.gl.bindBuffer( this.gl.ARRAY_BUFFER, buffer );
-            this.gl.bufferData( this.gl.ARRAY_BUFFER, typedArray, this.gl.DYNAMIC_DRAW );
+            setTypedArrayToBuffer( this.gl, buffer, typedArray );
 
             bufferInfo.numElements = typedArray.length / 3;
 
