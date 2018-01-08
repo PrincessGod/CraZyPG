@@ -1,14 +1,14 @@
 import * as properties from '../core/properties';
 import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
-import { isArrayBuffer } from '../renderer/typedArray';
+import { getTypedArray } from '../renderer/typedArray';
 
 function createMesh( name, attribArrays, options ) {
 
     Object.keys( attribArrays ).forEach( ( prop ) => {
 
-        if ( ! isArrayBuffer( attribArrays[ prop ].data ) && prop !== 'indices' )
-            attribArrays[ prop ].data = new Float32Array( attribArrays[ prop ].data ); //eslint-disable-line
+        if ( prop !== 'indices' )
+            attribArrays[ prop ].data = getTypedArray( attribArrays[ prop ].data ); //eslint-disable-line
 
     } );
 

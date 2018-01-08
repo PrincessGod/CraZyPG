@@ -3,6 +3,7 @@ import { createMesh } from '../model/Primatives';
 import { Model } from '../model/Model';
 import * as Constant from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
+import { getTypedArray } from '../renderer/typedArray';
 
 function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
 
@@ -105,9 +106,12 @@ Object.assign( LineHelper.prototype, {
     setData( points ) {
 
         const array = this._getdata( points );
-        const typedArray = new Float32Array( array );
+        const typedArray = getTypedArray( array );
 
         const bufferInfo = this.mesh.bufferInfo;
+
+        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = typedArray;
+
         if ( bufferInfo ) {
 
             const buffer = bufferInfo.attribs[ Constant.ATTRIB_POSITION_NAME ].buffer;
@@ -115,11 +119,8 @@ Object.assign( LineHelper.prototype, {
 
             bufferInfo.numElements = array.length / 3;
 
-            return this;
-
         }
 
-        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = typedArray;
         return this;
 
     },

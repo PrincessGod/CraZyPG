@@ -98,8 +98,17 @@ function getTypedArrayTypeFromGLType( type ) {
 
 }
 
+function getTypedArray( array, Type = Float32Array ) {
+
+    if ( isArrayBuffer( array ) )
+        return array;
+    return new Type( array );
+
+}
+
 export {
     isArrayBuffer,
+    getTypedArray,
     getGLTypeFromTypedArray,
     getGLTypeFromTypedArrayType,
     getTypedArrayTypeFromGLType,

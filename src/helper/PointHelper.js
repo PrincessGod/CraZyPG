@@ -3,6 +3,7 @@ import { createMesh } from '../model/Primatives';
 import { Model } from '../model/Model';
 import * as Constant from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
+import { getTypedArray } from '../renderer/typedArray';
 
 function PointHelper( gl, camera, data, pointSize, pointColor ) {
 
@@ -57,8 +58,9 @@ Object.assign( PointHelper.prototype, {
 
         }
 
-        if ( ! ( typedArray && typedArray.buffer && typedArray.buffer instanceof ArrayBuffer ) )
-            typedArray = new Float32Array( typedArray );
+        typedArray = getTypedArray( typedArray );
+
+        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = typedArray;
 
         const bufferInfo = this.mesh.bufferInfo;
         if ( bufferInfo ) {
@@ -68,11 +70,8 @@ Object.assign( PointHelper.prototype, {
 
             bufferInfo.numElements = typedArray.length / 3;
 
-            return this;
-
         }
 
-        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = typedArray;
         return this;
 
     },
