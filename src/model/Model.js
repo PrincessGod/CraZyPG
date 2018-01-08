@@ -12,6 +12,7 @@ function Model( mesh ) {
     this.positionInfo = this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ];
     this.uvInfo = this.mesh.attribArrays[ Constant.ATTRIB_UV_NAME ];
     this.normalInfo = this.mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ];
+    this._needUpdateMatrix = false;
 
 }
 
@@ -22,6 +23,7 @@ Object.assign( Model.prototype, {
     setScale( x, y, z ) {
 
         this.transform.scale.set( x, y, z );
+        this._needUpdateMatrix = true;
         return this;
 
     },
@@ -29,6 +31,7 @@ Object.assign( Model.prototype, {
     setPosition( x, y, z ) {
 
         this.transform.position.set( x, y, z );
+        this._needUpdateMatrix = true;
         return this;
 
     },
@@ -36,6 +39,7 @@ Object.assign( Model.prototype, {
     setRotation( x, y, z ) {
 
         this.transform.rotation.set( x, y, z );
+        this._needUpdateMatrix = true;
         return this;
 
     },
@@ -45,6 +49,7 @@ Object.assign( Model.prototype, {
         this.transform.scale.x += x;
         this.transform.scale.y += y;
         this.transform.scale.z += z;
+        this._needUpdateMatrix = true;
         return this;
 
     },
@@ -54,6 +59,7 @@ Object.assign( Model.prototype, {
         this.transform.position.x += x;
         this.transform.position.y += y;
         this.transform.position.z += z;
+        this._needUpdateMatrix = true;
         return this;
 
     },
@@ -63,13 +69,20 @@ Object.assign( Model.prototype, {
         this.transform.rotation.x += x;
         this.transform.rotation.y += y;
         this.transform.rotation.z += z;
+        this._needUpdateMatrix = true;
         return this;
 
     },
 
     preRender() {
 
-        this.transform.updateMatrix();
+        if ( this._needUpdateMatrix ) {
+
+            this.transform.updateMatrix();
+            this._needUpdateMatrix = false;
+
+        }
+
         return this;
 
     },

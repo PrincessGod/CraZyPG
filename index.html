@@ -120,13 +120,13 @@
             });
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
-            let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 500, 500, 500, 0, 0, 0));
+            let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 200, 200, 200, 0, 0, 0));
 
             let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
             let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
 
             let terrainModel = CZPG.Terrain.createModel('terrain', 4, 4, 12, 12).setPosition(0, -1, 0);
-
+            console.log(lightShader);
             let lightPos;
             let loop = new CZPG.Render(function(timespan) {
                 if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
@@ -143,27 +143,27 @@
                             u_viewInvert: camera.matrix,
                             u_lightPos: lightPos,
                             u_diffuseStrength: 0.2,
-                        }).renderModel(objModels[i].preRender());
+                        }).renderModel(objModels[i]);
                         lineHelper.setData(objModels[i]).render();
                         // pointHelper.setData(objModels[i].positionInfo).render();
                     }
-                    lightShader.setTexture(textures.pic).renderModel(cubeModal.preRender())
-                        .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2).preRender());
+                    lightShader.setTexture(textures.pic).renderModel(cubeModal)
+                        .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
                 }
                 
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);
 
-                gridShader.renderModel(gridModal.preRender());
+                gridShader.renderModel(gridModal);
 
                 quadShader.setTexture(textures.pic)
-                    .renderModel(quadModal.preRender())
-                    // .renderModel(cubeModal.preRender())
-                    // .renderModel(terrainModel.addTime(context, timespan * 5).preRender())
+                    .renderModel(quadModal)
+                    // .renderModel(cubeModal)
+                    // .renderModel(terrainModel.addTime(context, timespan * 5))
 
                 pointHelper.model.setPosition(...lightPos).setScale(0.1, 0.1, 0.1);
                 pointHelper.setData([0,0,0]).render();
 
-                // lineHelper.setData(cubeModal).render().setData(terrainModel).render();
+                lineHelper.setData(cubeModal).render().setData(terrainModel).render();
 
             }).start();
         });

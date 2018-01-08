@@ -25,6 +25,8 @@ function Shader( gl, vs, fs ) {
         this.currentUniformObj = {};
         this.uniformObj = {};
 
+        this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_MVP_MAT_NAME );
+
     }
 
 }
@@ -157,6 +159,17 @@ Object.assign( Shader.prototype, {
 
         }
 
+        if ( this._needMVPMat && ( Object.hasOwnProperty.call( this.uniformObj, Constant.UNIFORM_WORLD_MAT_NAME )
+            || Object.hasOwnProperty.call( this.uniformObj, Constant.UNIFORM_VIEW_MAT_NAME )
+            || Object.hasOwnProperty.call( this.uniformObj, Constant.UNIFORM_PROJ_MAT_NAME ) ) ) {
+
+            this.currentUniformObj.temp = Matrix4.mult( Matrix4.identity(), this.currentUniformObj[ Constant.UNIFORM_PROJ_MAT_NAME ], this.currentUniformObj[ Constant.UNIFORM_VIEW_MAT_NAME ] );
+            this.currentUniformObj.temp = Matrix4.mult( this.currentUniformObj.temp, this.currentUniformObj.temp, this.currentUniformObj[ Constant.UNIFORM_WORLD_MAT_NAME ] );
+            this.setUniformObjProp( Constant.UNIFORM_MVP_MAT_NAME, this.currentUniformObj.temp, Matrix4.equals );
+
+        }
+
+
         this.setUniforms( this.uniformObj );
         this.uniformObj = {};
 
@@ -176,6 +189,7 @@ Object.assign( Shader.prototype, {
 
         if ( this.blend || model.mesh.blend ) this.gl.enable( this.gl.BLEND );
 
+        model.preRender();
         this.setWorldMatrix( model.transform.getMatrix() );
         this.preRender(); // set uniforms
 
