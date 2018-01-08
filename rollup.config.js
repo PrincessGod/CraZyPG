@@ -1,6 +1,7 @@
 import babel from 'rollup-plugin-babel';
 import eslint from 'rollup-plugin-eslint';
 import uglify from 'rollup-plugin-uglify';
+import glslify from 'rollup-plugin-glslify';
 
 const output = [];
 console.log( process.env.NODE_ENV );
@@ -19,7 +20,7 @@ else
     } );
 
 
-const plugins = [ eslint() ];
+const plugins = [ glslify( { basedir: 'src/shader/shadersrc/' } ), eslint() ];
 
 if ( process.env.NODE_ENV !== 'combine' ) {
 

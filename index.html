@@ -85,6 +85,13 @@
                     src : './resource/barrel.png',
                     min : context.LINEAR_MIPMAP_LINEAR,
                     mag : context.LINEAR,
+                },
+                scalar: {
+                    mag: context.NEAREST,
+                    min: context.NEAREST,
+                    src: [
+                        80, 80, 80, 255,
+                    ],
                 }
             })
 
@@ -135,14 +142,13 @@
                             u_normMat: objModels[i].normMat,
                             u_viewInvert: camera.matrix,
                             u_lightPos: lightPos,
-                            u_shiness: Math.pow(2, i),
-                            u_diffuseStrength: 0.3,
+                            u_diffuseStrength: 0.2,
                         }).renderModel(objModels[i].preRender());
-                        // lineHelper.setData(objModels[i]).render();
+                        lineHelper.setData(objModels[i]).render();
                         // pointHelper.setData(objModels[i].positionInfo).render();
                     }
                     lightShader.setTexture(textures.pic).renderModel(cubeModal.preRender())
-                        .renderModel(terrainModel.addTime(context, timespan * 5).preRender());
+                        .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2).preRender());
                 }
                 
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);
