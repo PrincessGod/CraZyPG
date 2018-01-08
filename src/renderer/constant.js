@@ -13,3 +13,6 @@ export const TRIANGLES = 4;
 export const TRIANGLE_STRIP = 5;
 
 export const DYNAMIC_DRAW = 35048;
+
+// Shader Defines
+export const DEFINE_FLAT = 'FLAT';

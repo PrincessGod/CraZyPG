@@ -126,7 +126,7 @@
             let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
 
             let terrainModel = CZPG.Terrain.createModel('terrain', 4, 4, 12, 12).setPosition(0, -1, 0);
-            console.log(lightShader);
+            console.log(CZPG.PointlightShader.fs);
             let lightPos;
             let loop = new CZPG.Render(function(timespan) {
                 if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
@@ -142,9 +142,9 @@
                             u_normMat: objModels[i].normMat,
                             u_viewInvert: camera.matrix,
                             u_lightPos: lightPos,
-                            u_diffuseStrength: 0.2,
+                            // u_diffuseStrength: 0.2,
                         }).renderModel(objModels[i]);
-                        lineHelper.setData(objModels[i]).render();
+                        // lineHelper.setData(objModels[i]).render();
                         // pointHelper.setData(objModels[i].positionInfo).render();
                     }
                     lightShader.setTexture(textures.pic).renderModel(cubeModal)
@@ -163,7 +163,7 @@
                 pointHelper.model.setPosition(...lightPos).setScale(0.1, 0.1, 0.1);
                 pointHelper.setData([0,0,0]).render();
 
-                lineHelper.setData(cubeModal).render().setData(terrainModel).render();
+                // lineHelper.setData(cubeModal).render().setData(terrainModel).render();
 
             }).start();
         });

@@ -213,4 +213,49 @@ Object.assign( Shader.prototype, {
 
 } );
 
+function insertToString( string, position, value ) {
+
+    return [ string.slice( 0, position ), value, string.slice( position ) ].join( '' );
+
+}
+
+Object.assign( Shader, {
+
+    injectDefines( shader, ...defines ) {
+
+        const index = shader.indexOf( '\n' ) + 2;
+        let newShader = shader;
+
+        let define;
+        for ( let i = 0; i < defines.length; i ++ ) {
+
+            define = `#define ${defines[ i ]}\n`;
+            if ( shader.indexOf( define ) < 0 )
+                newShader = insertToString( shader, index, define );
+
+        }
+
+        return newShader;
+
+    },
+
+    removeDefines( shader, ...defines ) {
+
+        let newShader = shader;
+
+        let define;
+        for ( let i = 0; i < defines.length; i ++ ) {
+
+            define = `#define ${defines[ i ]}\n`;
+            if ( shader.indexOf( define ) > 0 )
+                newShader = newShader.replace( define, '' );
+
+        }
+
+        return newShader;
+
+    },
+
+} );
+
 export { Shader };
