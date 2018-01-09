@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/PrincessGod/CraZyPG/issues"
   },
-  "homepage": "https://github.com/PrincessGod/CraZyPG#readme",
+  "homepage": "https://github.com/PrincessGod/CraZyPG",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-es2015-rollup": "^3.0.0",
