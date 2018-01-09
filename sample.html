@@ -145,9 +145,10 @@
                         // lineHelper.setData(objModels[i]).render();
                         // pointHelper.setData(objModels[i].positionInfo).render();
                     }
-                    lightShader.setDefines('FLAT').setTexture(textures.pic).renderModel(cubeModal)
-                        .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
                 }
+
+                lightShader.setDefines('FLAT').setTexture(textures.pic).renderModel(cubeModal)
+                    .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
                 
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);
 
