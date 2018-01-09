@@ -5,22 +5,35 @@ import * as Constant from '../renderer/constant';
 
 function PointlightShader( gl, camera, texture, flat = true ) {
 
-    let frag = PointlightShader.fs;
-    if ( flat )
-        frag = Shader.injectDefines( PointlightShader.fs, Constant.DEFINE_FLAT );
+    Shader.call( this, gl, PointlightShader.vs, PointlightShader.fs );
 
-    Shader.call( this, gl, PointlightShader.vs, frag );
+    this.setCamera( camera );
 
-    this.camera = camera;
     this.setUniformObj( {
         u_texture: texture,
         u_ambientStrength: 0.15,
-        u_diffuseStrength: flat ? 1.0 : 0.3,
-        u_specularStrength: 0.2,
-        u_shiness: 100,
+        u_diffuseStrength: 0.15,
+        u_specularStrength: 0.1,
+        u_shiness: 1.0,
         u_normMat: new Float32Array( [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ] ),
         u_lightPos: [ 10, 10, 10 ],
     } );
+
+    if ( flat ) {
+
+        this.setDefines( Constant.DEFINE_FLAT );
+
+        this.setUniformObj( {
+            u_texture: texture,
+            u_ambientStrength: 0.15,
+            u_diffuseStrength: 1.8,
+            u_specularStrength: 0.4,
+            u_shiness: 100,
+            u_normMat: new Float32Array( [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ] ),
+            u_lightPos: [ 10, 10, 10 ],
+        } );
+
+    }
 
     this.deactivate();
 

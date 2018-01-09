@@ -125,7 +125,7 @@
             let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
             let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
 
-            let terrainModel = CZPG.Terrain.createModel('terrain', 4, 4, 12, 12).setPosition(0, -1, 0);
+            let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
             console.log(CZPG.PointlightShader.fs);
             let lightPos;
             let loop = new CZPG.Render(function(timespan) {
@@ -135,19 +135,18 @@
                 
                 lightPos = [2 * Math.cos(performance.now() * 0.0003), 2 * Math.abs(Math.cos(performance.now() * 0.0003)), 2 * Math.sin(performance.now() * 0.0003)] ;
 
-                if (objModels){
+                if (objModels.length > 0){
                     lightShader.setTexture(textures.barrel);
                     for (let i = 0; i < objModelCount; i ++) {
-                        lightShader.setUniformObj({
+                        lightShader.setDefines( ((i % 2 === 1)? 'FLAT' : undefined)).setUniformObj({
                             u_normMat: objModels[i].normMat,
                             u_viewInvert: camera.matrix,
                             u_lightPos: lightPos,
-                            // u_diffuseStrength: 0.2,
                         }).renderModel(objModels[i]);
                         // lineHelper.setData(objModels[i]).render();
                         // pointHelper.setData(objModels[i].positionInfo).render();
                     }
-                    lightShader.setTexture(textures.pic).renderModel(cubeModal)
+                    lightShader.setDefines('FLAT').setTexture(textures.pic).renderModel(cubeModal)
                         .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
                 }
                 

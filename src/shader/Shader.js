@@ -9,25 +9,19 @@ function Shader( gl, vs, fs ) {
 
     this.cullFace = true;
     this.blend = false;
+    this.shaders = [ vs, fs ];
+    this.program = null;
+    this.programs = [];
+    this.programMap = [];
+    this.gl = gl;
+    this.camera = null;
+    this.currentUniformObj = {};
+    this.uniformObj = {};
+    this.programInfos = [];
+    this.uniformObjs = [];
+    this._programUpdated = false;
 
-    this.program = createProgram( gl, vs, fs );
-
-    if ( this.program !== null ) {
-
-        this.gl = gl;
-        this.camera = null;
-
-        gl.useProgram( this.program );
-
-        this.attribSetters = createAttributesSetters( gl, this.program );
-        this.uniformSetters = createUniformSetters( gl, this.program );
-
-        this.currentUniformObj = {};
-        this.uniformObj = {};
-
-        this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_MVP_MAT_NAME );
-
-    }
+    this.setDefines();
 
 }
 
@@ -146,7 +140,14 @@ Object.assign( Shader.prototype, {
 
     preRender() {
 
-        if ( _privates.currentShader !== this ) {
+        if ( this._programUpdated ) {
+
+            this.activate();
+            this.updateCamera();
+            this.uniformObj = this.currentUniformObj;
+            this._programUpdated = false;
+
+        } else if ( _privates.currentShader !== this ) {
 
             this.activate();
             this.updateCamera();
@@ -211,6 +212,110 @@ Object.assign( Shader.prototype, {
 
     },
 
+    setDefines( ...defines ) {
+
+        if ( defines && defines.length === 1 && ( defines[ 0 ] === undefined || defines[ 0 ] === null ) )
+            defines = []; // eslint-disable-line
+
+        if ( defines.length > 0 ) {
+
+            let index = - 1;
+            const currentProgNum = this.programMap.length;
+            for ( let i = 0; i < currentProgNum; i ++ ) {
+
+                const defs = this.programMap[ i ];
+                let equals = false;
+
+                if ( defs.length === defines.length ) {
+
+                    equals = true;
+                    for ( let j = 0; j < defines.length; j ++ )
+                        if ( defs.indexOf( defines[ j ] ) < 0 ) {
+
+                            equals = false;
+                            break;
+
+                        }
+
+                }
+
+                if ( equals ) {
+
+                    index = i;
+                    break;
+
+                }
+
+            }
+
+            if ( index < 0 ) {
+
+                this.programs[ currentProgNum ] = createProgram( this.gl, ...Shader.injectDefines( this.shaders, ...defines ) );
+                this.program = this.programs[ currentProgNum ];
+                this.programMap[ currentProgNum ] = defines;
+                this.updateProgram( currentProgNum );
+                return this;
+
+            }
+
+            if ( this.program === this.programs[ index ] )
+                return this;
+
+            this.program = this.programs[ index ];
+            this.updateProgram( index );
+            return this;
+
+        }
+
+
+        if ( this.programMap.length > 0 ) {
+
+            if ( this.program === this.programs[ 0 ] )
+                return this;
+
+            this.program = this.programs[ 0 ];
+            this.updateProgram( 0 );
+            return this;
+
+        }
+
+        this.programs[ 0 ] = createProgram( this.gl, ...this.shaders );
+        this.program = this.programs[ 0 ];
+        this.programMap[ 0 ] = [];
+        this.updateProgram( 0 );
+        return this;
+
+    },
+
+    updateProgram( index = - 1 ) {
+
+        if ( index > - 1 && index < this.programInfos.length ) {
+
+            this.attribSetters = this.programInfos[ index ].attribSetters;
+            this.uniformSetters = this.programInfos[ index ].uniformSetters;
+            this._needMVPMat = this.programInfos[ index ]._needMVPMat;
+
+        } else {
+
+            this.gl.useProgram( this.program );
+            this.attribSetters = createAttributesSetters( this.gl, this.program );
+            this.uniformSetters = createUniformSetters( this.gl, this.program );
+            this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_MVP_MAT_NAME );
+            this.programInfos[ index ] = {
+                attribSetters: this.attribSetters,
+                uniformSetters: this.uniformSetters,
+                _needMVPMat: this._needMVPMat,
+            };
+            this.uniformObjs[ index ] = {};
+
+        }
+
+        _privates.currentShader = null;
+        this._programUpdated = true;
+        this.currentUniformObj = this.uniformObjs[ index ];
+
+    },
+
 } );
 
 function insertToString( string, position, value ) {
@@ -223,7 +328,10 @@ Object.assign( Shader, {
 
     injectDefines( shader, ...defines ) {
 
-        const index = shader.indexOf( '\n' ) + 2;
+        if ( Array.isArray( shader ) )
+            return shader.map( shadersrc => Shader.injectDefines( shadersrc, ...defines ) );
+
+        const index = shader.indexOf( '\n' ) + 1;
         let newShader = shader;
 
         let define;
