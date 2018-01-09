@@ -11,8 +11,8 @@ function PointlightShader( gl, camera, texture, flat = true ) {
 
     this.setUniformObj( {
         u_texture: texture,
-        u_ambientStrength: 0.15,
-        u_diffuseStrength: 0.15,
+        u_ambientStrength: 0.3,
+        u_diffuseStrength: 0.7,
         u_specularStrength: 0.1,
         u_shiness: 1.0,
         u_normMat: new Float32Array( [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ] ),
@@ -25,9 +25,9 @@ function PointlightShader( gl, camera, texture, flat = true ) {
 
         this.setUniformObj( {
             u_texture: texture,
-            u_ambientStrength: 0.15,
-            u_diffuseStrength: 1.8,
-            u_specularStrength: 0.4,
+            u_ambientStrength: 0.3,
+            u_diffuseStrength: 0.9,
+            u_specularStrength: 0.2,
             u_shiness: 100,
             u_normMat: new Float32Array( [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ] ),
             u_lightPos: [ 10, 10, 10 ],
@@ -46,6 +46,14 @@ PointlightShader.prototype = Object.assign( Object.create( Shader.prototype ), {
     setTexture( tex ) {
 
         this.setUniformObj( { u_texture: tex } );
+        return this;
+
+    },
+
+    updateCamera() {
+
+        Shader.prototype.updateCamera.call( this );
+        this.setUniformObj( { u_camPos: [ this.camera.matrix[ 12 ], this.camera.matrix[ 13 ], this.camera.matrix[ 14 ] ] } );
         return this;
 
     },

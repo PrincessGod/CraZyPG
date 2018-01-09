@@ -51,20 +51,14 @@ function createProgram( gl, vs, fs ) {
     gl.attachShader( prog, fShader );
     gl.linkProgram( prog );
 
-    if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) ) {
-
-        gl.deleteProgram( prog );
+    if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) )
         throw new Error( `Error createing shader program.\n\n${gl.getProgramInfoLog( prog )}` );
 
-    }
 
     gl.validateProgram( prog );
-    if ( ! gl.getProgramParameter( prog, gl.VALIDATE_STATUS ) ) {
-
-        gl.deleteProgram( prog );
+    if ( ! gl.getProgramParameter( prog, gl.VALIDATE_STATUS ) )
         throw new Error( `Error validating shader program.\n\n${gl.getProgramInfoLog( prog )}` );
 
-    }
 
     gl.detachShader( prog, vShader );
     gl.detachShader( prog, fShader );
