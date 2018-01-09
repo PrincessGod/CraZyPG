@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CraZyPG</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        div {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="glpaper"></canvas>
+    </div>
+    <script src="./czpg.js"></script>
+    <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
+    <script>
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
+            const context = renderer.context;
+            textures = CZPG.createTextures(context, {
+                checker: {
+                    mag: context.NEAREST,
+                    min: context.LINEAR,
+                    src: [
+                        255,255,255,255,
+                        192,192,192,255,
+                        192,192,192,255,
+                        255,255,255,255,
+                    ],
+                },
+                pic: { 
+                    src : './resource/UV_Grid_Lrg.jpg',
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
+                },
+                cvs: { src : document.getElementById('test-tex')},
+                day: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/miramar_right.png',
+                        './resource/miramar_left.png',
+                        './resource/miramar_top.png',
+                        './resource/miramar_bottom.png',
+                        './resource/miramar_back.png',
+                        './resource/miramar_front.png',
+                    ]
+                },
+                night: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/grimmnight_right.png',
+                        './resource/grimmnight_left.png',
+                        './resource/grimmnight_top.png',
+                        './resource/grimmnight_bottom.png',
+                        './resource/grimmnight_back.png',
+                        './resource/grimmnight_front.png',
+                    ]
+                },
+                goldengate: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: './resource/goldengate.jpg',
+                },
+                barrel: {
+                    src : './resource/barrel.png',
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
+                },
+                scalar: {
+                    mag: context.NEAREST,
+                    min: context.NEAREST,
+                    src: [
+                        80, 80, 80, 255,
+                    ],
+                }
+            })
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.transform.position.set(0, 1, 3);
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas);
+            cameraControler.autoRotate = true;
+
+            let gridShader = new CZPG.GridAxisShader(context, camera);
+            let gridMesh = CZPG.GridAxis.createMesh();
+            let gridModal = new CZPG.Model(gridMesh);
+
+            let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
+            let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
+            let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
+            
+            let lightShader = new CZPG.PointlightShader(context, camera, textures.barrel);
+            let objModels = [];
+            let objModelCount = 0;
+            CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
+                objModelCount = meshs.length;
+                for (let i = 0; i < objModelCount; i++) {
+                    objModels.push((new CZPG.Model(meshs[i])).setScale(0.1, 0.1, 0.1));
+                }
+            });
+
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
+            let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 200, 200, 200, 0, 0, 0));
+
+            let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
+            let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
+
+            let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
+
+            let lightPos;
+            let loop = new CZPG.Render(function(timespan) {
+                if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
+                camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+                
+                lightPos = [2 * Math.cos(performance.now() * 0.0003), 2 * Math.abs(Math.cos(performance.now() * 0.0003)), 2 * Math.sin(performance.now() * 0.0003)] ;
+
+                if (objModels.length > 0){
+                    lightShader.setTexture(textures.barrel);
+                    for (let i = 0; i < objModelCount; i ++) {
+                        lightShader.setDefines( ((i % 2 === 1)? 'FLAT' : undefined)).setUniformObj({
+                            u_normMat: objModels[i].normMat,
+                            u_viewInvert: camera.matrix,
+                            u_lightPos: lightPos,
+                        }).renderModel(objModels[i]);
+                        // lineHelper.setData(objModels[i]).render();
+                        // pointHelper.setData(objModels[i].positionInfo).render();
+                    }
+                    lightShader.setDefines('FLAT').setTexture(textures.pic).renderModel(cubeModal)
+                        .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
+                }
+                
+                skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);
+
+                gridShader.renderModel(gridModal);
+
+                quadShader.setTexture(textures.pic)
+                    .renderModel(quadModal)
+                    // .renderModel(cubeModal)
+                    // .renderModel(terrainModel.addTime(context, timespan * 5))
+
+                pointHelper.model.setPosition(...lightPos).setScale(0.1, 0.1, 0.1);
+                pointHelper.setData([0,0,0]).render();
+
+                // lineHelper.setData(cubeModal).render().setData(terrainModel).render();
+
+            }).start();
+        });
+        
+    </script>
+</body>
+</html>

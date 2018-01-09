@@ -2,6 +2,11 @@ import babel from 'rollup-plugin-babel';
 import eslint from 'rollup-plugin-eslint';
 import uglify from 'rollup-plugin-uglify';
 import glslify from 'rollup-plugin-glslify';
+import fs from 'fs-extra';
+
+fs.ensureDirSync( './build' );
+fs.copySync( './resource', './build/resource' );
+fs.copySync( './sample.html', './build/index.html' );
 
 const output = [];
 console.log( process.env.NODE_ENV );
