@@ -13,6 +13,7 @@ struct Material {
     float shiness;
     bool isFlat;
     bool isBlinn;
+    bool isGamma;
 };
 
 struct Light {
@@ -29,9 +30,11 @@ uniform Light u_light;
 out vec4 finalColor;
 
 const float kPi = 3.14159265;
+const vec3 gamma = vec3(1.0/2.2);
 
 void main() {
-    vec3 baseColor = texture(u_texture, v_uv).rgb;
+    vec4 baseColor4 = texture(u_texture, v_uv);
+    vec3 baseColor = baseColor4.rgb;
 
     vec3 ambient = u_light.ambientColor;
 
@@ -60,5 +63,11 @@ void main() {
     }
     vec3 specular = u_light.color * spec * u_material.specularFactor;
 
-    finalColor = vec4((ambient + diffuse) * baseColor.rgb + specular.rgb, 1.0);
+    vec3 linearColor = (ambient + diffuse) * baseColor.rgb + specular.rgb;
+
+    if (u_material.isGamma) {
+        finalColor = vec4(pow(linearColor, gamma), baseColor4.a);
+    } else {
+        finalColor = vec4(linearColor, baseColor4.a);
+    }
 }

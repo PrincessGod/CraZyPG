@@ -12,12 +12,13 @@ function PointlightShader( gl, camera, texture, flat = true ) {
         u_texture: texture,
         position: [ 10, 10, 10 ],
         color: [ 1.0, 1.0, 1.0 ],
-        ambientColor: [ 0.2, 0.2, 0.2 ],
+        ambientColor: [ 0.07, 0.07, 0.07 ],
         shiness: 20.0,
-        diffuseFactor: 0.4,
-        specularFactor: 0.2,
-        isBlinn: true,
+        diffuseFactor: 0.3,
+        specularFactor: 0.1,
         isFlat: !! flat,
+        isBlinn: true,
+        isGamma: true,
     } );
 
     this.deactivate();
