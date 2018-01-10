@@ -18,13 +18,6 @@ FlatTextureShader.prototype = Object.assign( Object.create( Shader.prototype ), 
 
     constructor: FlatTextureShader,
 
-    setTexture( tex ) {
-
-        this.setUniformObj( { u_texture: tex } );
-        return this;
-
-    },
-
 } );
 
 Object.assign( FlatTextureShader, {

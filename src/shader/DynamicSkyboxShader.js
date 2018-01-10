@@ -25,6 +25,13 @@ DynamicSkyboxShader.prototype = Object.assign( Object.create( Shader.prototype )
 
     },
 
+    setTexture( dayTex, nightTex ) {
+
+        this.setUniformObj( { u_dayTex: dayTex, u_nightTex: nightTex } );
+        return this;
+
+    },
+
     updateCamera() {
 
         this.setProjMatrix( this.camera.projMat );

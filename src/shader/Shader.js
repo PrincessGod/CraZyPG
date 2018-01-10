@@ -115,6 +115,13 @@ Object.assign( Shader.prototype, {
 
     },
 
+    setTexture( tex ) {
+
+        this.setUniformObj( { u_texture: tex } );
+        return this;
+
+    },
+
     setCamera( camera ) {
 
         this.camera = camera;
@@ -122,6 +129,9 @@ Object.assign( Shader.prototype, {
     },
 
     updateCamera() {
+
+        if ( this._needCamPos )
+            this.setUniformObjProp( Constant.UNIFORM_CAMPOS, [ this.camera.matrix[ 12 ], this.camera.matrix[ 13 ], this.camera.matrix[ 14 ] ], PMath.arrayEquals );
 
         this.setProjMatrix( this.camera.projMat );
         this.setViewMatrix( this.camera.viewMat );
@@ -192,6 +202,9 @@ Object.assign( Shader.prototype, {
 
         model.preRender();
         this.setWorldMatrix( model.transform.getMatrix() );
+        if ( this._needNormMat )
+            this.setUniformObjProp( Constant.UNIFORM_NORMAL_MAT_NAME, model.normMat, Matrix3.equals );
+
         this.preRender(); // set uniforms
 
         this.gl.bindVertexArray( model.mesh.vao );
@@ -294,6 +307,8 @@ Object.assign( Shader.prototype, {
             this.attribSetters = this.programInfos[ index ].attribSetters;
             this.uniformSetters = this.programInfos[ index ].uniformSetters;
             this._needMVPMat = this.programInfos[ index ]._needMVPMat;
+            this._needCamPos = this.programInfos[ index ]._needCamPos;
+            this._needNormMat = this.programInfos[ index ]._needNormMat;
 
         } else {
 
@@ -301,10 +316,14 @@ Object.assign( Shader.prototype, {
             this.attribSetters = createAttributesSetters( this.gl, this.program );
             this.uniformSetters = createUniformSetters( this.gl, this.program );
             this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_MVP_MAT_NAME );
+            this._needCamPos = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_CAMPOS );
+            this._needNormMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_NORMAL_MAT_NAME );
             this.programInfos[ index ] = {
                 attribSetters: this.attribSetters,
                 uniformSetters: this.uniformSetters,
                 _needMVPMat: this._needMVPMat,
+                _needCamPos: this._needCamPos,
+                _needNormMat: this._needNormMat,
             };
             this.uniformObjs[ index ] = {};
 

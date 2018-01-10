@@ -139,11 +139,11 @@
                     phongShader.setTexture(textures.barrel);
                     for (let i = 0; i < objModelCount; i ++) {
                         phongShader.setUniformObj({
-                            normMat: objModels[i].normMat,
                             position: lightPos,
                             ambientColor: [ 0.05, 0.05, 0.05 ],
                             falloff: 0.15,
                             radius: 8.0,
+                            // materials
                             shiness: 10.0,
                             specularFactor: 0.1,
                             roughness: 0.6,

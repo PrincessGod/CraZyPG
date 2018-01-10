@@ -31,21 +31,6 @@ PhongLightShader.prototype = Object.assign( Object.create( Shader.prototype ), {
 
     constructor: PhongLightShader,
 
-    setTexture( tex ) {
-
-        this.setUniformObj( { u_texture: tex } );
-        return this;
-
-    },
-
-    updateCamera() {
-
-        Shader.prototype.updateCamera.call( this );
-        this.setUniformObj( { u_camPos: [ this.camera.matrix[ 12 ], this.camera.matrix[ 13 ], this.camera.matrix[ 14 ] ] } );
-        return this;
-
-    },
-
 } );
 
 Object.assign( PhongLightShader, {
