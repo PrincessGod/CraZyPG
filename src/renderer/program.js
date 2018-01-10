@@ -1,4 +1,5 @@
 import { isWebGL2 } from './utils';
+import * as Constant from './constant';
 
 function getHTMLElementSrc( id ) {
 
@@ -12,6 +13,26 @@ function getHTMLElementSrc( id ) {
 
 }
 
+function addLineNum( str ) {
+
+    const lines = str.split( '\n' );
+    const limitLength = ( lines.length + 1 ).toString().length + 6;
+    let prefix;
+    return lines.map( ( line, index ) => {
+
+        prefix = `0:${index + 1}`;
+        if ( prefix.length >= limitLength )
+            return prefix.substring( 0, limitLength ) + line;
+
+        for ( let i = 0; i < limitLength - prefix.length; i ++ )
+            prefix += ' ';
+
+        return prefix + line;
+
+    } ).join( '\n' );
+
+}
+
 function createShader( gl, src, type ) {
 
     const shader = gl.createShader( type );
@@ -19,7 +40,7 @@ function createShader( gl, src, type ) {
     gl.compileShader( shader );
 
     if ( ! gl.getShaderParameter( shader, gl.COMPILE_STATUS ) )
-        throw new Error( `Error compiling shader: \n${src} \n\n${gl.getShaderInfoLog( shader )}` );
+        throw new Error( `Error compiling shader: \n${addLineNum( src )} \n\n${gl.getShaderInfoLog( shader )}` );
 
     return shader;
 
@@ -685,6 +706,24 @@ function createUniformSetters( gl, program ) {
 
     }
 
+    const keyMap = {};
+    uniformSetters.keyMap = keyMap;
+    let indexDot;
+    Object.keys( uniformSetters ).forEach( ( key ) => {
+
+        if ( key.indexOf( Constant.UNIFORM_PREFIX ) === 0 )
+            keyMap[ key.replace( Constant.UNIFORM_PREFIX, '' ) ] = key;
+
+
+        if ( key.indexOf( '.' ) > 0 ) {
+
+            indexDot = key.indexOf( '.' );
+            keyMap[ key.substring( indexDot + 1 ) ] = key;
+
+        }
+
+    } );
+
     return uniformSetters;
 
 }
@@ -704,7 +743,10 @@ function setUniforms( setters, ...unifroms ) {
         } else
             Object.keys( vals ).forEach( ( name ) => {
 
-                const setter = setters[ name ];
+                let setter = setters[ name ];
+                if ( setter === undefined && Object.prototype.hasOwnProperty.call( setters.keyMap, name ) )
+                    setter = setters[ setters.keyMap[ name ] ];
+
                 if ( setter )
                     setter( vals[ name ] );
 

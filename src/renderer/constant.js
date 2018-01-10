@@ -6,6 +6,7 @@ export const UNIFORM_VIEW_MAT_NAME = 'u_viewMat';
 export const UNIFORM_PROJ_MAT_NAME = 'u_projMat';
 export const UNIFORM_MVP_MAT_NAME = 'u_mvpMat';
 export const UNIFORM_MAIN_TEXTURE_NAME = 'u_texture';
+export const UNIFORM_PREFIX = 'u_';
 
 // WebGLContext
 export const LINES = 1;

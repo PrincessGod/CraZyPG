@@ -1,7 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/pointlight.vs';
-import fs from './shadersrc/pointlight.fs';
-import * as Constant from '../renderer/constant';
+import vs from './shadersrc/phongLightSimple.vs';
+import fs from './shadersrc/phongLightSimple.fs';
 
 function PointlightShader( gl, camera, texture, flat = true ) {
 
@@ -11,29 +10,15 @@ function PointlightShader( gl, camera, texture, flat = true ) {
 
     this.setUniformObj( {
         u_texture: texture,
-        u_ambientStrength: 0.3,
-        u_diffuseStrength: 0.7,
-        u_specularStrength: 0.1,
-        u_shiness: 1.0,
-        u_normMat: new Float32Array( [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ] ),
-        u_lightPos: [ 10, 10, 10 ],
+        position: [ 10, 10, 10 ],
+        color: [ 1.0, 1.0, 1.0 ],
+        ambientColor: [ 0.2, 0.2, 0.2 ],
+        shiness: 20.0,
+        diffuseFactor: 0.4,
+        specularFactor: 0.2,
+        isBlinn: true,
+        isFlat: !! flat,
     } );
-
-    if ( flat ) {
-
-        this.setDefines( Constant.DEFINE_FLAT );
-
-        this.setUniformObj( {
-            u_texture: texture,
-            u_ambientStrength: 0.3,
-            u_diffuseStrength: 0.9,
-            u_specularStrength: 0.2,
-            u_shiness: 100,
-            u_normMat: new Float32Array( [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ] ),
-            u_lightPos: [ 10, 10, 10 ],
-        } );
-
-    }
 
     this.deactivate();
 

@@ -7,7 +7,7 @@ uniform mat4 u_mvpMat;
 uniform mat4 u_worldMat;
 uniform mat3 u_normMat;
 
-out highp vec2 v_uv;
+out vec2 v_uv;
 out vec3 v_pos;
 out vec3 v_norm;
 
@@ -15,5 +15,6 @@ void main() {
     v_uv = a_uv;
     v_pos = (u_worldMat * vec4(a_position, 1.0)).xyz;
     v_norm = u_normMat * a_normal;
+
     gl_Position = u_mvpMat * vec4(a_position, 1.0);
 }

@@ -137,17 +137,17 @@
                 if (objModels.length > 0){
                     lightShader.setTexture(textures.barrel);
                     for (let i = 0; i < objModelCount; i ++) {
-                        lightShader.setDefines( ((i % 2 === 1)? 'FLAT' : undefined)).setUniformObj({
-                            u_normMat: objModels[i].normMat,
-                            u_viewInvert: camera.matrix,
-                            u_lightPos: lightPos,
+                        lightShader.setUniformObj({
+                            normMat: objModels[i].normMat,
+                            position: lightPos,
+                            isFlat: i % 2 === 1,
                         }).renderModel(objModels[i]);
                         // lineHelper.setData(objModels[i]).render();
                         // pointHelper.setData(objModels[i].positionInfo).render();
                     }
                 }
 
-                lightShader.setDefines('FLAT').setTexture(textures.pic).renderModel(cubeModal)
+                lightShader.setUniformObj({ isFlat: true }).setTexture(textures.pic).renderModel(cubeModal)
                     .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
                 
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);
