@@ -1,10 +1,10 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/phongLightSimple.vs';
-import fs from './shadersrc/phongLightSimple.fs';
+import vs from './shadersrc/phongLight.vs';
+import fs from './shadersrc/phongLight.fs';
 
-function PointlightShader( gl, camera, texture, flat = false ) {
+function PhongLightShader( gl, camera, texture, flat = false ) {
 
-    Shader.call( this, gl, PointlightShader.vs, PointlightShader.fs );
+    Shader.call( this, gl, PhongLightShader.vs, PhongLightShader.fs );
 
     this.setCamera( camera );
 
@@ -12,12 +12,14 @@ function PointlightShader( gl, camera, texture, flat = false ) {
         u_texture: texture,
         position: [ 10, 10, 10 ],
         color: [ 1.0, 1.0, 1.0 ],
-        ambientColor: [ 0.07, 0.07, 0.07 ],
+        ambientColor: [ 0.15, 0.15, 0.15 ],
+        falloff: 0.15,
+        radius: 5.0,
         shiness: 20.0,
-        diffuseFactor: 0.3,
         specularFactor: 0.1,
+        roughness: 0.5,
+        albedo: 0.85,
         isFlat: !! flat,
-        isBlinn: true,
         isGamma: true,
     } );
 
@@ -25,9 +27,9 @@ function PointlightShader( gl, camera, texture, flat = false ) {
 
 }
 
-PointlightShader.prototype = Object.assign( Object.create( Shader.prototype ), {
+PhongLightShader.prototype = Object.assign( Object.create( Shader.prototype ), {
 
-    constructor: PointlightShader,
+    constructor: PhongLightShader,
 
     setTexture( tex ) {
 
@@ -46,11 +48,11 @@ PointlightShader.prototype = Object.assign( Object.create( Shader.prototype ), {
 
 } );
 
-Object.assign( PointlightShader, {
+Object.assign( PhongLightShader, {
 
     vs,
     fs,
 
 } );
 
-export { PointlightShader };
+export { PhongLightShader };

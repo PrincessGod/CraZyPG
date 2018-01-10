@@ -109,6 +109,7 @@
             let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
             
             let lightShader = new CZPG.PointlightShader(context, camera, textures.barrel);
+            let phongShader = new CZPG.PhongLightShader(context, camera, textures.barrel);
             let objModels = [];
             let objModelCount = 0;
             CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
@@ -135,13 +136,19 @@
                 lightPos = [2 * Math.cos(performance.now() * 0.0003), 2 * Math.abs(Math.cos(performance.now() * 0.0003)), 2 * Math.sin(performance.now() * 0.0003)] ;
 
                 if (objModels.length > 0){
-                    lightShader.setTexture(textures.barrel);
+                    phongShader.setTexture(textures.barrel);
                     for (let i = 0; i < objModelCount; i ++) {
-                        lightShader.setUniformObj({
+                        phongShader.setUniformObj({
                             normMat: objModels[i].normMat,
                             position: lightPos,
+                            ambientColor: [ 0.05, 0.05, 0.05 ],
+                            falloff: 0.15,
+                            radius: 8.0,
+                            shiness: 10.0,
+                            specularFactor: 0.1,
+                            roughness: 0.6,
+                            albedo: 0.9,
                             isFlat: i % 2 === 1,
-                            diffuseFactor: 0.2,
                             isGamma: true,
                         }).renderModel(objModels[i]);
                         // lineHelper.setData(objModels[i]).render();
@@ -149,7 +156,8 @@
                     }
                 }
 
-                lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.1, diffuseFactor: 0.3 }).setTexture(textures.pic).renderModel(cubeModal)
+                lightShader.setTexture(textures.pic).renderModel(cubeModal)
+                    .setUniformObj({ position: lightPos, isFlat: true, isGamma: false, specularFactor: 0.1, diffuseFactor: 0.3}) //
                     .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
                 
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);
