@@ -127,13 +127,14 @@
 
             let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
 
-            let lightPos;
+            let lightPos; 
+
             let loop = new CZPG.Render(function(timespan) {
                 if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
                 camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
                 
-                lightPos = [2 * Math.cos(performance.now() * 0.0003), 2 * Math.abs(Math.cos(performance.now() * 0.0003)), 2 * Math.sin(performance.now() * 0.0003)] ;
+                lightPos = [2 * Math.cos(performance.now() * 0.0003), 2 * Math.abs(Math.cos(performance.now() * 0.0003)), 2 * Math.sin(performance.now() * 0.0003)];
 
                 if (objModels.length > 0){
                     phongShader.setTexture(textures.barrel);
@@ -157,7 +158,7 @@
                 }
 
                 lightShader.setTexture(textures.pic).renderModel(cubeModal)
-                    .setUniformObj({ position: lightPos, isFlat: true, isGamma: false, specularFactor: 0.1, diffuseFactor: 0.3}) //
+                    .setUniformObj({ position: lightPos, isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40})
                     .setTexture(textures.scalar).renderModel(terrainModel.addTime(context, timespan * 2));
                 
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) ).renderModel(skyCubeModal);

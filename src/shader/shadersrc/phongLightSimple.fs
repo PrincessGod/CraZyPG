@@ -7,25 +7,25 @@ in vec2 v_uv;
 in vec3 v_pos;
 in vec3 v_norm;
 
-struct Material {
+uniform Material {
     float diffuseFactor;
     float specularFactor;
     float shiness;
     bool isFlat;
     bool isBlinn;
     bool isGamma;
-};
+} u_material;
 
-struct Light {
+uniform Light {
     vec3 position;
     vec3 color;
     vec3 ambientColor;
-};
+} u_light;
 
 uniform sampler2D u_texture;
 uniform vec3 u_camPos;
-uniform Material u_material;
-uniform Light u_light;
+// uniform Material u_material;
+// uniform Light u_light;
 
 out vec4 finalColor;
 

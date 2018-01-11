@@ -1,4 +1,4 @@
-import { createProgram, createUniformSetters, setUniforms, createAttributesSetters } from '../renderer/program';
+import { createProgram, createUniformSetters, setUniforms, createAttributesSetters, createUniformBlockSpec, createUniformBlockInfos, setBlockUniformsForProgram } from '../renderer/program';
 import * as Constant from '../renderer/constant';
 import { _privates } from '../core/properties';
 import { PMath } from '../math/Math';
@@ -94,6 +94,13 @@ Object.assign( Shader.prototype, {
 
     },
 
+    setBlockUniforms( uniforms ) {
+
+        setBlockUniformsForProgram( this.gl, this.uniformBlockSpec, this.uniformBlockInfos, uniforms );
+        return this;
+
+    },
+
     setProjMatrix( mat4Array ) {
 
         this.setUniformObjProp( Constant.UNIFORM_PROJ_MAT_NAME, mat4Array, Matrix4.equals );
@@ -182,6 +189,7 @@ Object.assign( Shader.prototype, {
 
 
         this.setUniforms( this.uniformObj );
+        this.setBlockUniforms( this.uniformObj );
         this.uniformObj = {};
 
         return this;
@@ -306,6 +314,8 @@ Object.assign( Shader.prototype, {
 
             this.attribSetters = this.programInfos[ index ].attribSetters;
             this.uniformSetters = this.programInfos[ index ].uniformSetters;
+            this.uniformBlockSpec = this.programInfos[ index ].uniformBlockSpec;
+            this.uniformBlockInfos = this.programInfos[ index ].uniformBlockInfos;
             this._needMVPMat = this.programInfos[ index ]._needMVPMat;
             this._needCamPos = this.programInfos[ index ]._needCamPos;
             this._needNormMat = this.programInfos[ index ]._needNormMat;
@@ -315,12 +325,16 @@ Object.assign( Shader.prototype, {
             this.gl.useProgram( this.program );
             this.attribSetters = createAttributesSetters( this.gl, this.program );
             this.uniformSetters = createUniformSetters( this.gl, this.program );
+            this.uniformBlockSpec = createUniformBlockSpec( this.gl, this.program );
+            this.uniformBlockInfos = createUniformBlockInfos( this.gl, this.program, this.uniformBlockSpec );
             this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_MVP_MAT_NAME );
             this._needCamPos = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_CAMPOS );
             this._needNormMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_NORMAL_MAT_NAME );
             this.programInfos[ index ] = {
                 attribSetters: this.attribSetters,
                 uniformSetters: this.uniformSetters,
+                uniformBlockSpec: this.uniformBlockSpec,
+                uniformBlockInfos: this.uniformBlockInfos,
                 _needMVPMat: this._needMVPMat,
                 _needCamPos: this._needCamPos,
                 _needNormMat: this._needNormMat,

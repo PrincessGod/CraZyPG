@@ -708,19 +708,10 @@ function createUniformSetters( gl, program ) {
 
     const keyMap = {};
     uniformSetters.keyMap = keyMap;
-    let indexDot;
     Object.keys( uniformSetters ).forEach( ( key ) => {
 
         if ( key.indexOf( Constant.UNIFORM_PREFIX ) === 0 )
             keyMap[ key.replace( Constant.UNIFORM_PREFIX, '' ) ] = key;
-
-
-        if ( key.indexOf( '.' ) > 0 ) {
-
-            indexDot = key.indexOf( '.' );
-            keyMap[ key.substring( indexDot + 1 ) ] = key;
-
-        }
 
     } );
 
@@ -756,10 +747,202 @@ function setUniforms( setters, ...unifroms ) {
 
 }
 
+function createUniformBlockSpec( gl, program ) {
+
+    const numUnifroms = gl.getProgramParameter( program, gl.ACTIVE_UNIFORMS );
+    const uniformData = [];
+    const uniformIndices = [];
+
+    for ( let i = 0; i < numUnifroms; i ++ ) {
+
+        uniformIndices.push( i );
+        uniformData.push( {} );
+        const uniformInfo = gl.getActiveUniform( program, i );
+        if ( isBuiltIn( uniformInfo ) )
+            break;
+        uniformData[ i ].name = uniformInfo.name;
+
+    }
+
+    [
+        [ 'UNIFORM_TYPE', 'type' ],
+        [ 'UNIFORM_SIZE', 'size' ],
+        [ 'UNIFORM_BLOCK_INDEX', 'blockIndex' ],
+        [ 'UNIFORM_OFFSET', 'offset' ],
+    ].forEach( ( pair ) => {
+
+        const gname = pair[ 0 ];
+        const key = pair[ 1 ];
+        gl.getActiveUniforms( program, uniformIndices, gl[ gname ] ).forEach( ( value, idx ) => {
+
+            uniformData[ idx ][ key ] = value;
+
+        } );
+
+    } );
+
+    const blockSpecs = {};
+
+    const numUniformBlock = gl.getProgramParameter( program, gl.ACTIVE_UNIFORM_BLOCKS );
+    for ( let i = 0; i < numUniformBlock; i ++ ) {
+
+        const name = gl.getActiveUniformBlockName( program, i );
+        const blockSpec = {
+            index: i,
+            usedByVertexShader: gl.getActiveUniformBlockParameter( program, i, gl.UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER ),
+            usedByFragmentShader: gl.getActiveUniformBlockParameter( program, i, gl.UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER ),
+            size: gl.getActiveUniformBlockParameter( program, i, gl.UNIFORM_BLOCK_DATA_SIZE ),
+            uniformIndices: gl.getActiveUniformBlockParameter( program, i, gl.UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES ),
+        };
+
+        blockSpec.used = blockSpec.usedByVertexShader || blockSpec.usedByFragmentShader;
+        blockSpecs[ name ] = blockSpec;
+
+    }
+
+    return {
+        blockSpecs,
+        uniformData,
+    };
+
+}
+
+const arraySuffixRE = /\[\d+\]\.$/;
+
+function createUniformBlockInfo( gl, program, uniformBlockSpec, blockName ) {
+
+    const blockSpecs = uniformBlockSpec.blockSpecs;
+    const uniformData = uniformBlockSpec.uniformData;
+    const blockSpec = blockSpecs[ blockName ];
+    if ( ! blockSpec ) {
+
+        console.warn( `no uniform block object named: ${blockName}` );
+        return {
+            name: blockName,
+            uniforms: {},
+        };
+
+    }
+
+    const array = new ArrayBuffer( blockSpec.size );
+    const buffer = gl.createBuffer();
+    const uniformBufferIndex = blockSpec.index;
+    gl.bindBuffer( gl.UNIFORM_BUFFER, buffer );
+    gl.uniformBlockBinding( program, blockSpec.index, uniformBufferIndex );
+
+    let prefix = `${blockName}.`;
+    if ( arraySuffixRE.test( prefix ) )
+        prefix = prefix.replace( arraySuffixRE, '.' );
+
+    const uniforms = {};
+    blockSpec.uniformIndices.forEach( ( uniformidx ) => {
+
+        const data = uniformData[ uniformidx ];
+        const typeInfo = typeMap[ data.type ];
+        const Type = typeInfo.Type;
+        const length = data.size * typeInfo.size;
+        let name = data.name;
+        if ( name.substr( 0, prefix.length ) === prefix )
+            name = name.substr( prefix.length );
+        uniforms[ name ] = new Type( array, data.offset, length / Type.BYTES_PER_ELEMENT );
+
+    } );
+
+    return {
+        name: blockName,
+        array,
+        typedArray: new Float32Array( array ),
+        buffer,
+        uniforms,
+    };
+
+}
+
+function createUniformBlockInfos( gl, program, uniformBlockSpec ) {
+
+    const uboInfos = {};
+    Object.keys( uniformBlockSpec.blockSpecs ).forEach( ( blockName ) => {
+
+        uboInfos[ blockName ] = createUniformBlockInfo( gl, program, uniformBlockSpec, blockName );
+
+    } );
+
+    return uboInfos;
+
+}
+
+function bindUniformBlock( gl, uniformBlockSpec, uniformBlcokInfo ) {
+
+    const blockSpec = uniformBlockSpec.blockSpecs[ uniformBlcokInfo.name ];
+    if ( blockSpec ) {
+
+        const bufferBindIndex = blockSpec.index;
+        gl.bindBufferRange( gl.UNIFORM_BUFFER, bufferBindIndex, uniformBlcokInfo.buffer, uniformBlcokInfo.offset || 0, uniformBlcokInfo.array.byteLength );
+
+        return true;
+
+    }
+    return false;
+
+}
+
+function setUniformBlock( gl, uniformBlockSpec, uniformBlockInfo ) {
+
+    if ( bindUniformBlock( gl, uniformBlockSpec, uniformBlockInfo ) )
+        gl.bufferData( gl.UNIFORM_BUFFER, uniformBlockInfo.array, gl.DYNAMIC_DRAW );
+
+}
+
+function setBlockUniforms( uniformBlockInfo, values ) {
+
+    const uniforms = uniformBlockInfo.uniforms;
+    let changed = false;
+    Object.keys( values ).forEach( ( name ) => {
+
+        const array = uniforms[ name ];
+
+        if ( array ) {
+
+            const value = values[ name ];
+            if ( value.length )
+                array.set( value );
+            else
+                array[ 0 ] = value;
+
+            changed = true;
+
+        }
+
+    } );
+
+    return changed;
+
+}
+
+function setBlockUniformsForProgram( gl, uniformBlockSpec, uniformBlockInfos, values ) {
+
+    Object.keys( uniformBlockInfos ).forEach( ( blockName ) => {
+
+        if ( setBlockUniforms( uniformBlockInfos[ blockName ], values ) )
+            setUniformBlock( gl, uniformBlockSpec, uniformBlockInfos[ blockName ] );
+        else
+            bindUniformBlock( gl, uniformBlockSpec, uniformBlockInfos[ blockName ] );
+
+    } );
+
+}
+
 export {
     createProgram,
     createAttributesSetters,
     setAttributes,
     createUniformSetters,
     setUniforms,
+
+    createUniformBlockSpec,
+    createUniformBlockInfo,
+    createUniformBlockInfos,
+    setUniformBlock,
+    setBlockUniforms,
+    setBlockUniformsForProgram,
 };

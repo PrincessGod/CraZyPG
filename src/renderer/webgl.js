@@ -13,7 +13,7 @@ function getContext( canvasOrId, opts ) {
         context = canvas.getContext( names[ i ], opts );
         if ( context ) {
 
-            console.log( `renderer: ${names[ i ]}` );
+            console.log( `renderer: ${context.getParameter( context.VERSION ) || names[ i ]}` );
             break;
 
         }

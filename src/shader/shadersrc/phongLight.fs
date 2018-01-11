@@ -2,22 +2,22 @@
 
 precision mediump float;
 
-struct Light {
+uniform Light {
     vec3 position;
     vec3 color;
     vec3 ambientColor;
     float falloff;
     float radius;
-};
+} u_light;
 
-struct Material {
+uniform Material {
     float specularFactor;
     float shiness;
     float roughness;
     float albedo;
     bool isFlat;
     bool isGamma;
-};
+} u_material;
 
 in vec2 v_uv;
 in vec3 v_pos;
@@ -33,8 +33,8 @@ in vec3 v_norm;
 uniform sampler2D u_texture;
 uniform vec3 u_camPos;
 
-uniform Light u_light;
-uniform Material u_material;
+// uniform Light u_light;
+// uniform Material u_material;
 
 vec4 textureLinear(sampler2D uTex, vec2 uv) {
     return toLinear(texture(uTex, uv));
