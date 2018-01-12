@@ -1,6 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/colorLine.vs';
-import fs from './shadersrc/colorLine.fs';
+import vs from './shadersrc/colorLine.vs.glsl';
+import fs from './shadersrc/colorLine.fs.glsl';
 
 function ColorLineShader( gl, camera, colors = [ 255 / 255, 105 / 255, 180 / 255, 255 / 255, 255 / 255, 182 / 255, 193 / 255, 80 / 255 ] ) {
 

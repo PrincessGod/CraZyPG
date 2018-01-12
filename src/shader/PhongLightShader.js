@@ -1,6 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/phongLight.vs';
-import fs from './shadersrc/phongLight.fs';
+import vs from './shadersrc/phongLight.vs.glsl';
+import fs from './shadersrc/phongLight.fs.glsl';
 
 function PhongLightShader( gl, camera, texture, flat = false ) {
 

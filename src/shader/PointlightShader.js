@@ -1,6 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/phongLightSimple.vs';
-import fs from './shadersrc/phongLightSimple.fs';
+import vs from './shadersrc/phongLightSimple.vs.glsl';
+import fs from './shadersrc/phongLightSimple.fs.glsl';
 
 function PointlightShader( gl, camera, texture, flat = false ) {
 

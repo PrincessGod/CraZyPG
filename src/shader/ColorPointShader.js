@@ -1,6 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/colorPoint.vs';
-import fs from './shadersrc/colorPoint.fs';
+import vs from './shadersrc/colorPoint.vs.glsl';
+import fs from './shadersrc/colorPoint.fs.glsl';
 
 function ColorPointShader( gl, camera, pointSize = 5.0, color = [ 255 / 255, 105 / 255, 180 / 255, 125 / 255 ] ) {
 

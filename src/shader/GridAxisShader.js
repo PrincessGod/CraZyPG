@@ -1,6 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/gridaxis.vs';
-import fs from './shadersrc/gridaxis.fs';
+import vs from './shadersrc/gridaxis.vs.glsl';
+import fs from './shadersrc/gridaxis.fs.glsl';
 
 function GridAxisShader( gl, camera ) {
 

@@ -1,6 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/singleTexture.vs';
-import fs from './shadersrc/singleTexture.fs';
+import vs from './shadersrc/singleTexture.vs.glsl';
+import fs from './shadersrc/singleTexture.fs.glsl';
 
 function FlatTextureShader( gl, camera, texture ) {
 

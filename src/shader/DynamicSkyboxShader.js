@@ -1,6 +1,6 @@
 import { Shader } from './Shader';
-import vs from './shadersrc/skybox.vs';
-import fs from './shadersrc/skybox.fs';
+import vs from './shadersrc/skybox.vs.glsl';
+import fs from './shadersrc/skybox.fs.glsl';
 
 function DynamicSkyboxShader( gl, camera, dayTex, nightTex ) {
 
