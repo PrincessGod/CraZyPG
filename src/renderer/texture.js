@@ -1000,6 +1000,30 @@ function loadSlicesFromUrls( gl, tex, options, callback ) {
 
 }
 
+function setEmptyTexture( gl, tex, options ) {
+
+    const target = options.target || gl.TEXTURE_2D;
+    gl.bindTexture( target, tex );
+    const level = options.level || 0;
+    const internalFormat = options.internalFormat || options.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFormat );
+    const format = options.format || formatType.format;
+    const type = options.type || formatType.type;
+
+    savePatcState( gl, options );
+
+    if ( target === gl.TEXTURE_CUBE_MAP )
+        for ( let ii = 0; ii < 6; ++ ii )
+            gl.texImage2D( gl.TEXTURE_CUBE_MAP_POSITIVE_X + ii, level, internalFormat, options.width, options.height, 0, format, type, null );
+    else if ( target === gl.TEXTURE_3D )
+        gl.texImage3D( target, level, internalFormat, options.width, options.height, options.depth, 0, format, type, null );
+    else
+        gl.texImage2D( target, level, internalFormat, options.width, options.height, 0, format, type, null );
+
+    restorePackState( gl, options );
+
+}
+
 function createTexture( gl, options, callback ) {
 
     const cb = callback || empty;
@@ -1019,7 +1043,7 @@ function createTexture( gl, options, callback ) {
 
     }
 
-    const { src } = opts;
+    const src = opts.src;
     if ( src )
         if ( typeof ( src ) === 'string' ) {
 
@@ -1055,6 +1079,9 @@ function createTexture( gl, options, callback ) {
             throw new Error( 'unsupported src type' );
 
         }
+    else
+        setEmptyTexture( gl, tex, opts );
+
     if ( shouldAutoSetTextureFiltering( options ) )
         setTextureFiltering( gl, tex, opts, width, height, internalFromat, type );
 
