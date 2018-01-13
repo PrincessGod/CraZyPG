@@ -70,6 +70,11 @@ function createProgram( gl, vs, fs ) {
     const prog = gl.createProgram();
     gl.attachShader( prog, vShader );
     gl.attachShader( prog, fShader );
+
+    gl.bindAttribLocation( prog, Constant.ATTRIB_POSITION_LOC, Constant.ATTRIB_POSITION_NAME );
+    gl.bindAttribLocation( prog, Constant.ATTRIB_NORMAL_LOC, Constant.ATTRIB_NORMAL_NAME );
+    gl.bindAttribLocation( prog, Constant.ATTRIB_UV_LOC, Constant.ATTRIB_UV_NAME );
+
     gl.linkProgram( prog );
 
     if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) )

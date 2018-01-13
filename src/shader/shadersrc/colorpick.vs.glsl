@@ -2,6 +2,8 @@
 
 in vec3 a_position;
 
-main() {
+uniform mat4 u_mvpMat;
+
+void main() {
     gl_Position = u_mvpMat * vec4(a_position, 1.0);
 }

@@ -8,5 +8,5 @@ out vec4 v_color;
 
 void main() {
     v_color = u_colors[gl_VertexID % 2];
-    gl_Position = u_mvpMat * vec4(a_position.xyz, 1.0);
+    gl_Position = u_mvpMat * vec4(a_position, 1.0);
 }

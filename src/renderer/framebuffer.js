@@ -179,4 +179,15 @@ function bindFramebufferInfo( gl, framebufferInfo ) {
 
 }
 
-export { createFramebufferInfo, bindFramebufferInfo };
+function readPixcelFromFrameBufferInfo( gl, framebufferInfo, x, y ) {
+
+    const pix = new Uint8Array( 4 );
+    gl.bindFramebuffer( gl.FRAMEBUFFER, framebufferInfo.framebuffer || framebufferInfo );
+    gl.readPixels( x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pix );
+    gl.bindFramebuffer( gl.FRAMEBUFFER, null );
+
+    return pix;
+
+}
+
+export { createFramebufferInfo, bindFramebufferInfo, readPixcelFromFrameBufferInfo };

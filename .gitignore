@@ -59,6 +59,3 @@ typings/
 
 # Build file
 build/
-
-# Temporary file
-index.html

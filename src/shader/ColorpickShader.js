@@ -8,7 +8,7 @@ function ColorpickShader( gl, camera ) {
 
     this.camera = camera;
 
-    this.setColors( { u_color: [ 0.0, 0.0, 0.0 ] } );
+    this.setColor( [ 0.0, 0.0, 0.0 ] );
 
     this.deactivate();
 
@@ -18,15 +18,9 @@ ColorpickShader.prototype = Object.assign( Object.create( Shader.prototype ), {
 
     constructor: ColorpickShader,
 
-    setColors( colors ) {
+    setColor( color ) {
 
-        this.setUniformObj( { u_colors: colors } );
-
-        if ( colors[ 3 ] !== 1 || colors[ 7 ] !== 1 )
-            this.blend = true;
-        else
-            this.blend = false;
-
+        this.setUniformObj( { u_color: color } );
         return this;
 
     },

@@ -1,6 +1,9 @@
 export const ATTRIB_POSITION_NAME = 'a_position';
-export const ATTRIB_NORMAL_NAME = 'a_normal';
+export const ATTRIB_POSITION_LOC = 0;
 export const ATTRIB_UV_NAME = 'a_uv';
+export const ATTRIB_UV_LOC = 1;
+export const ATTRIB_NORMAL_NAME = 'a_normal';
+export const ATTRIB_NORMAL_LOC = 2;
 export const UNIFORM_WORLD_MAT_NAME = 'u_worldMat';
 export const UNIFORM_VIEW_MAT_NAME = 'u_viewMat';
 export const UNIFORM_PROJ_MAT_NAME = 'u_projMat';
