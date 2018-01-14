@@ -92,7 +92,7 @@ class OrbitControls {
 
     }
 
-    dispose() {
+    dispose() { // bind this need to fix
 
         this.domElement.removeEventListener( 'contextmenu', this.onContextMenu.bind( this ), false );
         this.domElement.removeEventListener( 'mousedown', this.onMouseDown.bind( this ), false );

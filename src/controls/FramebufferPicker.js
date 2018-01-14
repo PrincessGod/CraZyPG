@@ -5,10 +5,43 @@ import { clear } from '../renderer/webgl';
 function FramebufferPicker( gl, camera ) {
 
     this.gl = gl;
+    this.canvas = gl.canvas;
     this.shader = new ColorpickShader( gl, camera );
     this.models = [];
     this.blankColor = this.id2Color( this.blankId );
     this.framebufferInfo = createFramebufferInfo( gl );
+    this.flag = 0;
+
+    const self = this;
+    this.updateCanvasParam();
+    this.isActive = false;
+    this.mousedown = function () {
+
+        self.flag = 0;
+
+    };
+    this.mousemove = function () {
+
+        self.flag = 1;
+
+    };
+    this.mouseup = function ( e ) {
+
+        if ( self.flag === 0 && self.isActive ) {
+
+            const x = e.pageX - self.offsetX;
+            const y = e.pageY - self.offsetY;
+            self.needPick = true;
+            self.pickx = x;
+            self.picky = y;
+
+        }
+
+    };
+
+    this.canvas.addEventListener( 'mousedown', this.mousedown, false );
+    this.canvas.addEventListener( 'mousemove', this.mousemove, false );
+    this.canvas.addEventListener( 'mouseup', this.mouseup, false );
 
 }
 
@@ -84,10 +117,57 @@ Object.assign( FramebufferPicker.prototype, {
 
     },
 
-    click( x, y ) {
+    pick( x, y ) {
 
         const p = readPixcelFromFrameBufferInfo( this.gl, this.framebufferInfo, x, this.gl.canvas.height - y );
         console.log( x, y, p, this.color2Id( p ), this.models[ this.color2Id( p ) - 1 ] );
+
+    },
+
+    updateCanvasParam() {
+
+        const box = this.canvas.getBoundingClientRect();
+        this.offsetX = box.left;
+        this.offsetY = box.top;
+        return this;
+
+    },
+
+    dispose() {
+
+        this.canvas.removeEventListener( 'mousedown', this.mousedown, false );
+        this.canvas.removeEventListener( 'mousemove', this.mousemove, false );
+        this.canvas.removeEventListener( 'mouseup', this.mouseup, false );
+        return this;
+
+    },
+
+    update() {
+
+        if ( this.needPick ) {
+
+            this.clear().render();
+            this.pick( this.pickx, this.picky );
+            this.needPick = false;
+
+        }
+
+        return this;
+
+    },
+
+    activate() {
+
+        this.isActive = true;
+        this.updateCanvasParam();
+        return this;
+
+    },
+
+    deactivate() {
+
+        this.isActive = false;
+        return this;
 
     },
 
