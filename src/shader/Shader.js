@@ -124,7 +124,7 @@ Object.assign( Shader.prototype, {
 
     setTexture( tex ) {
 
-        this.setUniformObj( { u_texture: tex } );
+        this.setUniformObj( { texture: tex } );
         return this;
 
     },

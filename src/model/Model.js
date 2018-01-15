@@ -24,6 +24,7 @@ function Model( mesh ) {
     this.uvInfo = this.mesh.attribArrays[ Constant.ATTRIB_UV_NAME ];
     this.normalInfo = this.mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ];
     this._needUpdateMatrix = false;
+    this.uniformObj = {};
 
 }
 
@@ -101,6 +102,7 @@ Object.assign( Model.prototype, {
     createVAO( gl ) {
 
         this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, getDefaultShader( gl ).program, getDefaultShader( gl ).attribSetters );
+        return this;
 
     },
 
@@ -108,6 +110,14 @@ Object.assign( Model.prototype, {
 
         this.mesh.bufferInfo = createBufferInfoFromArrays( gl, this.mesh.attribArrays );
         this.bufferInfo = this.mesh.bufferInfo;
+        return this;
+
+    },
+
+    setUniformObj( obj ) {
+
+        Object.assign( this.uniformObj, obj );
+        return this;
 
     },
 

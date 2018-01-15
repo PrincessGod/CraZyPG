@@ -132,6 +132,29 @@ Object.assign( Quad, {
     },
 } );
 
+const Quad2Unit = {};
+
+Object.assign( Quad2Unit, {
+
+    createModel() {
+
+        return new Model( Quad2Unit.createMesh() );
+
+    },
+
+    createMesh( name ) {
+
+        const vertices = [ - 1, 1, 0, - 1, - 1, 0, 1, - 1, 0, 1, - 1, 0, 1, 1, 0, - 1, 1, 0 ];
+        const uv = [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0 ];
+
+        const attribArrays = {};
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
+        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
+
+        return createMesh( name || 'Quad2Unit', attribArrays );
+
+    },
+} );
 
 const Cube = {};
 

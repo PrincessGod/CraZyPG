@@ -49,6 +49,8 @@ Object.assign( FramebufferPicker.prototype, {
 
     blankId: 0,
 
+    maxId: 0xffffff,
+
     id2Color( id ) {
 
         const a = new Float32Array( 3 );
@@ -66,6 +68,9 @@ Object.assign( FramebufferPicker.prototype, {
     },
 
     addModels( ...models ) {
+
+        if ( this.models.length >= this.maxId - 1 )
+            throw new Error( `Color picker models length bigger than max length ${this.maxId - 1}` );
 
         for ( let i = 0; i < models.length; i ++ )
             if ( Array.isArray( models[ i ] ) )
@@ -124,7 +129,8 @@ Object.assign( FramebufferPicker.prototype, {
     pick( x, y ) {
 
         const p = readPixcelFromFrameBufferInfo( this.gl, this.framebufferInfo, x, this.gl.canvas.height - y );
-        console.log( x, y, p, this.color2Id( p ), this.models[ this.color2Id( p ) - 1 ] );
+        const id = this.color2Id( p );
+        console.log( x, y, p, id, this.models[ id - 1 ] );
 
     },
 
