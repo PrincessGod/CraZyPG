@@ -23,13 +23,14 @@ class OrbitControls {
         this.maxAzimuthAngle = Infinity;
 
         this.enableDamping = false;
-        this.dampingFactor = 0.25;
+        this.dampingFactor = 0.08;
+        this.zoomFactor = 0.2;
 
         this.enableZoom = true;
         this.zoomSpeed = 1.0;
 
         this.enableRotate = true;
-        this.rotateSpeed = 1.0;
+        this.rotateSpeed = 0.8;
 
         this.enablePan = true;
         this.keyPanSpeed = 7.0;
@@ -54,8 +55,11 @@ class OrbitControls {
         this._lastQuaternion = new Quaternion();
         this._spherical = new Spherical();
         this._sphericalDelta = new Spherical();
+        this._sphericalDump = new Spherical();
+        this._zoomFrag = 0;
         this._scale = 1;
         this._panOffset = new Vector3();
+        this._isMouseUp = true;
 
         // pan
         this._vPan = new Vector3();
@@ -72,6 +76,10 @@ class OrbitControls {
         this._zoomStart = new Vector2();
         this._zoomEnd = new Vector2();
         this._zoomDelta = new Vector2();
+
+        this.onMouseDownBindself = this.onMouseDown.bind( this );
+        this.onMouseMoveBindself = this.onMouseMove.bind( this );
+        this.onMouseUpBindself = this.onMouseUp.bind( this );
 
         this.STATE = {
             NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5,
@@ -127,7 +135,10 @@ class OrbitControls {
         this._spherical.phi = Math.max( this.minPolarAngle, Math.max( this.minPolarAngle, this._spherical.phi ) );
         this._spherical.makeSafe();
 
-        this._spherical.radius *= this._scale;
+        if ( this._scale !== 1 )
+            this._zoomFrag = this._spherical.radius * ( this._scale - 1 );
+
+        this._spherical.radius += this._zoomFrag;
 
         this._spherical.radius = Math.max( this.minDistance, Math.min( this.maxDistance, this._spherical.radius ) );
 
@@ -139,11 +150,24 @@ class OrbitControls {
 
         if ( this.enableDamping === true ) {
 
-            this._sphericalDelta.theta *= ( 1 - this.dampingFactor );
-            this._sphericalDelta.phi *= ( 1 - this.dampingFactor );
+            this._sphericalDump.theta *= ( 1 - this.dampingFactor );
+            this._sphericalDump.phi *= ( 1 - this.dampingFactor );
+            this._zoomFrag *= ( 1 - this.zoomFactor );
 
-        } else
+            if ( this._isMouseUp ) {
+
+                this._sphericalDelta.theta = this._sphericalDump.theta;
+                this._sphericalDelta.phi = this._sphericalDump.phi;
+
+            } else
+                this._sphericalDelta.set( 0, 0, 0 );
+
+        } else {
+
             this._sphericalDelta.set( 0, 0, 0 );
+            this._zoomFrag = 0;
+
+        }
 
         this._scale = 1;
         this._panOffset.set( 0, 0, 0 );
@@ -165,12 +189,16 @@ class OrbitControls {
     rotateLeft( angle ) {
 
         this._sphericalDelta.theta -= angle;
+        if ( this.enableDamping )
+            this._sphericalDump.theta = - angle;
 
     }
 
     rotateUp( angle ) {
 
         this._sphericalDelta.phi -= angle;
+        if ( this.enableDamping )
+            this._sphericalDump.phi = - angle;
 
     }
 
@@ -399,6 +427,8 @@ class OrbitControls {
 
         event.preventDefault();
 
+        this._isMouseUp = false;
+
         switch ( event.button ) {
 
         case this.mouseButtons.ORBIT:
@@ -426,8 +456,8 @@ class OrbitControls {
 
         if ( this._state !== this._state.NONE ) {
 
-            document.addEventListener( 'mousemove', this.onMouseMove.bind( this ), false );
-            document.addEventListener( 'mouseup', this.onMouseUp.bind( this ), false );
+            document.addEventListener( 'mousemove', this.onMouseMoveBindself, false );
+            document.addEventListener( 'mouseup', this.onMouseUpBindself, false );
 
         }
 
@@ -467,8 +497,10 @@ class OrbitControls {
 
         if ( this.enable === false ) return;
 
-        document.removeEventListener( 'mousemove', this.onMouseMove.bind( this ), false );
-        document.removeEventListener( 'mouseup', this.onMouseUp.bind( this ), false );
+        this._isMouseUp = true;
+
+        document.removeEventListener( 'mousemove', this.onMouseMoveBindself, false );
+        document.removeEventListener( 'mouseup', this.onMouseUpBindself, false );
 
         this._state = this.STATE.NONE;
 
@@ -496,6 +528,8 @@ class OrbitControls {
     onTouchStart( event ) {
 
         if ( this.enabled === false ) return;
+
+        this._isMouseUp = false;
 
         switch ( event.touches.length ) {
 
@@ -583,6 +617,8 @@ class OrbitControls {
     onTouchEnd() {
 
         if ( this.enabled === false ) return;
+
+        this._isMouseUp = true;
 
         this._state = this.STATE.NONE;
 
