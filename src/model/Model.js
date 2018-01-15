@@ -1,7 +1,18 @@
 import { Transform } from './Transform';
 import { createVertexArray } from '../renderer/vertexArray';
 import { createBufferInfoFromArrays } from '../renderer/attributes';
+import { CommonVAOShader } from '../shader/CommonVAOShader';
 import * as Constant from '../renderer/constant';
+
+let commonVAOShader;
+function getDefaultShader( gl ) {
+
+    if ( ! commonVAOShader )
+        commonVAOShader = new CommonVAOShader( gl );
+
+    return commonVAOShader;
+
+}
 
 function Model( mesh ) {
 
@@ -87,9 +98,9 @@ Object.assign( Model.prototype, {
 
     },
 
-    createVAO( gl, program, attribSetters ) {
+    createVAO( gl ) {
 
-        this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, program, attribSetters );
+        this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, getDefaultShader( gl ).program, getDefaultShader( gl ).attribSetters );
 
     },
 

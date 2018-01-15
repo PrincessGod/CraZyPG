@@ -202,7 +202,7 @@ Object.assign( Shader.prototype, {
             model.createBufferInfo( this.gl );
 
         if ( ! model.mesh.vao )
-            model.createVAO( this.gl, this.program, this.attribSetters );
+            model.createVAO( this.gl );
 
         if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.disable( this.gl.CULL_FACE );
 

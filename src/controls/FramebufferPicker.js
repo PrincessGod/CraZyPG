@@ -69,7 +69,7 @@ Object.assign( FramebufferPicker.prototype, {
 
         for ( let i = 0; i < models.length; i ++ )
             if ( Array.isArray( models[ i ] ) )
-                models[ i ].forEach( ele => this.addModels( ele ) );
+                this.addModels( ...models[ i ] );
             else
                 this.models.push( models[ i ] );
 
@@ -80,13 +80,17 @@ Object.assign( FramebufferPicker.prototype, {
     removeModels( ...models ) {
 
         let index = - 1;
-        models.forEach( ( model ) => {
 
-            index = this.models.indexOf( model );
-            if ( index > - 1 )
-                this.models.splice( index, 1 );
+        for ( let i = 0; i < models.length; i ++ )
+            if ( Array.isArray( models[ i ] ) )
+                this.removeModels( ...models[ i ] );
+            else {
 
-        } );
+                index = this.models.indexOf( models[ i ] );
+                if ( index > - 1 )
+                    this.models.splice( index, 1 );
+
+            }
 
         return this;
 
