@@ -1,4 +1,4 @@
-import { createTexture } from './texture';
+import { createTexture, resizeTexture } from './texture';
 
 const UNSIGNED_BYTE = 0x1401;
 
@@ -190,4 +190,27 @@ function readPixcelFromFrameBufferInfo( gl, framebufferInfo, x, y ) {
 
 }
 
-export { createFramebufferInfo, bindFramebufferInfo, readPixcelFromFrameBufferInfo };
+function resizeFramebufferInfo( gl, framebufferInfo, attachments = defaultAttachment, width = gl.drawingBufferWidth, height = gl.drawingBufferHeight ) {
+
+    framebufferInfo.width = width; // eslint-disable-line
+    framebufferInfo.height = height; // eslint-disable-line
+
+    attachments.forEach( ( attachmentOpts, idx ) => {
+
+        const attachment = framebufferInfo.attachments[ idx ];
+        const format = attachmentOpts.format;
+        if ( isRenderbuffer( gl, attachment ) ) {
+
+            gl.bindRenderbuffer( gl.RENDERBUFFER, attachment );
+            gl.renderbufferStorage( gl.RENDERBUFFER, format, width, height );
+
+        } else if ( isTexture( gl, attachment ) )
+            resizeTexture( gl, attachment, attachmentOpts, width, height );
+        else
+            throw new Error( 'unknown attachment type -- fun resizeFramebufferInfo()' );
+
+    } );
+
+}
+
+export { createFramebufferInfo, bindFramebufferInfo, readPixcelFromFrameBufferInfo, resizeFramebufferInfo };

@@ -35,7 +35,6 @@
     <script src="./build/czpg.js"></script>
     <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
     <script>
-        var v;
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
@@ -132,13 +131,12 @@
 
             let colorShader = new CZPG.ColorpickShader(context, camera);
             let colorPicker = new CZPG.FramebufferPicker(context, camera);
-            colorPicker.activate().addModels(terrainModel, cubeModal, [quadModal, gridModal]); v = cameraControler;
-
+            colorPicker.activate().addModels(terrainModel, cubeModal, [quadModal, gridModal]);
             let lightPos;
-
+            let resized = false;
             let loop = new CZPG.Render(function(timespan) {
-                if (renderer.clear().fixCanvasToDisplay(window.devicePixelRatio))
-                camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                resized = renderer.clear().fixCanvasToDisplay(window.devicePixelRatio)
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
                 lightPos = [2 * Math.cos(performance.now() * 0.0003), 2 * Math.abs(Math.cos(performance.now() * 0.0003)), 2 * Math.sin(performance.now() * 0.0003)];
 
@@ -181,7 +179,6 @@
 
                 // lineHelper.setData(cubeModal).render().setData(terrainModel).render();
                 colorPicker.update();
-
 
             }).start();
         });

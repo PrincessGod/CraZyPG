@@ -1149,4 +1149,28 @@ function createTextures( gl, textureOptions, callback ) {
 
 }
 
-export { createTexture, createTextures };
+function resizeTexture( gl, tex, options, width = options.width, height = options.height ) {
+
+    const target = options.target || gl.TEXTURE_2D;
+    gl.bindTexture( target, tex );
+    const level = options.level || 0;
+    const internalFormat = options.internalFormat || options.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFormat );
+    const format = options.format || formatType.format;
+    let type;
+    const src = options.src;
+
+    if ( src && ( isArrayBuffer( src ) || ( Array.isArray( src ) && typeof ( src[ 0 ] ) === 'number' ) ) )
+        type = options.type || getTextureTypeFromArrayType( gl, src, formatType.type );
+    else
+        type = options.type || formatType.type;
+
+    if ( target === gl.TEXTURE_CUBE_MAP )
+        for ( let i = 0; i < 6; i ++ )
+            gl.texImage2D( gl.TEXTURE_CUBE_MAP_NEGATIVE_X + i, level, internalFormat, width, height, 0, format, type, null );
+    else
+        gl.texImage2D( target, level, internalFormat, width, height, 0, format, type, null );
+
+}
+
+export { createTexture, createTextures, resizeTexture };

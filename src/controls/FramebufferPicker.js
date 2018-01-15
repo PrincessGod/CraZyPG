@@ -1,5 +1,5 @@
 import { ColorpickShader } from '../shader/ColorpickShader';
-import { createFramebufferInfo, bindFramebufferInfo, readPixcelFromFrameBufferInfo } from '../renderer/framebuffer';
+import { createFramebufferInfo, bindFramebufferInfo, readPixcelFromFrameBufferInfo, resizeFramebufferInfo } from '../renderer/framebuffer';
 import { clear } from '../renderer/webgl';
 
 function FramebufferPicker( gl, camera ) {
@@ -13,8 +13,8 @@ function FramebufferPicker( gl, camera ) {
     this.flag = 0;
 
     const self = this;
-    this.updateCanvasParam();
     this.isActive = false;
+    this.updateCanvasParam();
     this.mousedown = function () {
 
         self.flag = 0;
@@ -129,6 +129,8 @@ Object.assign( FramebufferPicker.prototype, {
         const box = this.canvas.getBoundingClientRect();
         this.offsetX = box.left;
         this.offsetY = box.top;
+        this.lastCanvasWidth = this.canvas.width;
+        this.lastCanvasHeight = this.canvas.height;
         return this;
 
     },
@@ -146,6 +148,12 @@ Object.assign( FramebufferPicker.prototype, {
 
         if ( this.needPick ) {
 
+            if ( this.canvas.width !== this.lastCanvasWidth || this.canvas.height !== this.lastCanvasHeight ) {
+
+                this.resizeFramebufferInfo();
+                this.updateCanvasParam();
+
+            }
             this.clear().render();
             this.pick( this.pickx, this.picky );
             this.needPick = false;
@@ -167,6 +175,13 @@ Object.assign( FramebufferPicker.prototype, {
     deactivate() {
 
         this.isActive = false;
+        return this;
+
+    },
+
+    resizeFramebufferInfo( width, height ) {
+
+        resizeFramebufferInfo( this.gl, this.framebufferInfo, undefined, width, height );
         return this;
 
     },
