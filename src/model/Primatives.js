@@ -241,4 +241,4 @@ Object.assign( Cube, {
 
 } );
 
-export { GridAxis, Quad, Cube, createMesh };
+export { GridAxis, Quad, Quad2Unit, Cube, createMesh };

@@ -18,6 +18,7 @@ function Model( mesh ) {
 
     this.mesh = mesh;
     this.name = this.mesh.name;
+    this.enablePick = true;
     this.transform = new Transform();
     this.normMat = this.transform.normMat;
     this.matrix = this.transform.matrix.raw;

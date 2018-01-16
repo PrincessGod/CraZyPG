@@ -2,6 +2,29 @@ import { ColorpickShader } from '../shader/ColorpickShader';
 import { createFramebufferInfo, bindFramebufferInfo, readPixcelFromFrameBufferInfo, resizeFramebufferInfo } from '../renderer/framebuffer';
 import { clear } from '../renderer/webgl';
 
+function id2Color( id ) {
+
+    if ( id >= 0xffffff ) {
+
+        id = 0; // eslint-disable-line
+        console.warn( `Color picker models length bigger than max length ${0xffffff - 1}` );
+
+    }
+
+    const a = new Float32Array( 3 );
+    a[ 0 ] = ( id & 0xff ) / 255.0;
+    a[ 1 ] = ( ( id & 0xff00 ) >> 8 ) / 255.0;
+    a[ 2 ] = ( ( id & 0xff0000 ) >> 16 ) / 255.0;
+    return a;
+
+}
+
+function color2Id( colorArray ) {
+
+    return colorArray[ 0 ] | ( colorArray[ 1 ] << 8 ) | ( colorArray[ 2 ] << 16 );
+
+}
+
 function FramebufferPicker( gl, camera ) {
 
     this.gl = gl;
@@ -51,21 +74,9 @@ Object.assign( FramebufferPicker.prototype, {
 
     maxId: 0xffffff,
 
-    id2Color( id ) {
+    id2Color,
 
-        const a = new Float32Array( 3 );
-        a[ 0 ] = ( id & 0xff ) / 255.0;
-        a[ 1 ] = ( ( id & 0xff00 ) >> 8 ) / 255.0;
-        a[ 2 ] = ( ( id & 0xff0000 ) >> 16 ) / 255.0;
-        return a;
-
-    },
-
-    color2Id( colorArray ) {
-
-        return colorArray[ 0 ] | ( colorArray[ 1 ] << 8 ) | ( colorArray[ 2 ] << 16 );
-
-    },
+    color2Id,
 
     addModels( ...models ) {
 
@@ -198,4 +209,4 @@ Object.assign( FramebufferPicker.prototype, {
 
 } );
 
-export { FramebufferPicker };
+export { FramebufferPicker, id2Color, color2Id };

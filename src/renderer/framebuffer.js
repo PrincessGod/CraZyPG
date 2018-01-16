@@ -143,6 +143,16 @@ function createFramebufferInfo( gl, attachments = defaultAttachment, width = gl.
 
     } );
 
+    if ( colorAttachmentCount > 1 ) {
+
+        const colorBuffers = [];
+        for ( let i = 0; i < colorAttachmentCount; i ++ )
+            colorBuffers.push( gl.COLOR_ATTACHMENT0 + i );
+        gl.drawBuffers( colorBuffers );
+
+    }
+
+
     switch ( gl.checkFramebufferStatus( gl.FRAMEBUFFER ) ) {
 
     case gl.FRAMEBUFFER_COMPLETE: break;
@@ -179,10 +189,11 @@ function bindFramebufferInfo( gl, framebufferInfo ) {
 
 }
 
-function readPixcelFromFrameBufferInfo( gl, framebufferInfo, x, y ) {
+function readPixcelFromFrameBufferInfo( gl, framebufferInfo, x, y, index = 0 ) {
 
     const pix = new Uint8Array( 4 );
     gl.bindFramebuffer( gl.FRAMEBUFFER, framebufferInfo.framebuffer || framebufferInfo );
+    gl.readBuffer( gl.COLOR_ATTACHMENT0 + index );
     gl.readPixels( x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pix );
     gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 

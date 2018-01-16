@@ -137,6 +137,8 @@ Object.assign( Shader.prototype, {
 
     updateCamera() {
 
+        if ( ! this.camera ) return this;
+
         if ( this._needCamPos )
             this.setUniformObjProp( Constant.UNIFORM_CAMPOS, [ this.camera.matrix[ 12 ], this.camera.matrix[ 13 ], this.camera.matrix[ 14 ] ], PMath.arrayEquals );
 
@@ -339,7 +341,7 @@ Object.assign( Shader.prototype, {
                 _needCamPos: this._needCamPos,
                 _needNormMat: this._needNormMat,
             };
-            this.uniformObjs[ index ] = {};
+            this.uniformObjs[ index ] = Object.assign( {}, this.currentUniformObj );
 
         }
 

@@ -38,7 +38,7 @@
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
-            const scene = new CZPG.Scene();
+            const scene = new CZPG.Scene(renderer);
             
             textures = CZPG.createTextures(context, {
                 checker: {
@@ -129,7 +129,7 @@
                             isGamma: true,
                         }));
                 }
-                colorPicker.addModels(objModels);
+                // colorPicker.addModels(objModels);
                 scene.add([
                     { shader: phongShader.setTexture(textures.barrel), model: objModels },
                     // { helper: pointHelper, data: objModels.map(m => { return { data: m.positionInfo, transform: m.transform }; } ) },
@@ -145,9 +145,6 @@
 
             let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
 
-            let colorPicker = new CZPG.FramebufferPicker(context, camera);
-            colorPicker.activate().addModels(terrainModel, cubeModal, [quadModal, gridModal]);
-
             let lightPos = [0, 0, 0];
 
             scene.add([
@@ -158,13 +155,13 @@
                     shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
                     model: [cubeModal.setUniformObj({texture: textures.pic}), terrainModel.setUniformObj({texture: textures.scalar})],
                 },
-                // {
-                //     helper: lineHelper, 
-                //     data:[
-                //         {data: cubeModal},
-                //         {data: terrainModel},
-                //     ]
-                // },
+                {
+                    helper: lineHelper, 
+                    data:[
+                        {data: cubeModal},
+                        {data: terrainModel},
+                    ]
+                },
                 {
                     helper: pointHelper,
                     data: [
@@ -182,15 +179,14 @@
                 lightPos[0] = 2 * Math.cos(performance.now() * 0.0003);
                 lightPos[1] = 2 * Math.abs(Math.cos(performance.now() * 0.0003));
                 lightPos[2] = 2 * Math.sin(performance.now() * 0.0003);
-                
+
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) );
                 terrainModel.addTime(context, timespan * 2);
                 lightShader.setUniformObj({ position: lightPos });
                 phongShader.setUniformObj({ position: lightPos });
 
-                scene.render();
-
-                colorPicker.update();
+                scene.render2Buffer(resized).render2Screen(0);
+                // scene.render();
 
             }).start();
         });

@@ -1,10 +1,36 @@
-function Scene() {
+import { createFramebufferInfo, bindFramebufferInfo, resizeFramebufferInfo } from '../renderer/framebuffer';
+import { Quad2Unit } from '../model/Primatives';
+import { ScreenQuadShader } from '../shader/ScreenQuadShader';
+import { BufferPicker } from '../controls/BufferPicker';
+
+function Scene( renderer ) {
 
     this.models = [];
     this.shaders = [];
     this.shadersMap = [];
     this.helpers = [];
     this.helpersMap = [];
+
+    this.renderer = renderer;
+    this.gl = this.renderer.context;
+    this.quad2UnitModel = Quad2Unit.createModel();
+    this.ScreenQuadShader = new ScreenQuadShader( this.gl );
+
+    const defaultAttachment = [
+        {
+            format: this.gl.RGBA, type: this.gl.UNSIGNED_BYTE, minMag: this.gl.LINEAR, wrap: this.gl.CLAMP_TO_EDGE,
+        },
+        {
+            format: this.gl.RGBA, type: this.gl.UNSIGNED_BYTE, minMag: this.gl.LINEAR, wrap: this.gl.CLAMP_TO_EDGE,
+        },
+        { format: this.gl.DEPTH_STENCIL },
+    ];
+
+    this.attachments = defaultAttachment;
+    this.framebufferInfo = createFramebufferInfo( this.gl, this.attachments );
+    this.bufferPicker = new BufferPicker( this.gl, this.models, this.framebufferInfo, 1 );
+
+    this.setPick( true );
 
 }
 
@@ -42,15 +68,20 @@ Object.assign( Scene.prototype, {
 
             } else {
 
-                const shaderObj = { shader, models: [ model ] };
+                const shaderObj = { shader: this.enablePick ? shader.setDefines( 'ColorPick' ) : shader, models: [ model ] };
                 this.shaders.push( shaderObj );
                 this.shadersMap.push( shader );
 
             }
 
             modelIdx = this.models.indexOf( model );
-            if ( modelIdx < 0 )
+            if ( modelIdx < 0 ) {
+
                 this.models.push( model );
+                if ( this.enablePick )
+                    model.setUniformObj( { u_colorId: this.bufferPicker.id2Color( this.models.length ) } );
+
+            }
 
         }
 
@@ -74,6 +105,24 @@ Object.assign( Scene.prototype, {
             }
 
         }
+
+    },
+
+    render2Buffer( resize ) {
+
+        if ( resize ) resizeFramebufferInfo( this.gl, this.framebufferInfo, this.attachments );
+        bindFramebufferInfo( this.gl, this.framebufferInfo );
+        this.renderer.clear();
+        this.render();
+        bindFramebufferInfo( this.gl, null );
+        return this;
+
+    },
+
+    render2Screen( attachment = 0 ) {
+
+        this.ScreenQuadShader.setTexture( this.framebufferInfo.attachments[ attachment ] ).renderModel( this.quad2UnitModel );
+        return this;
 
     },
 
@@ -129,6 +178,26 @@ Object.assign( Scene.prototype, {
 
 
         }
+
+    },
+
+    setPick( enable ) {
+
+        if ( !! enable === this.enablePick ) return this;
+
+        if ( enable ) {
+
+            this.shadersMap.forEach( shader => shader.setDefines( 'ColorPick' ) );
+            this.models.forEach( ( m, idx ) => m.setUniformObj( { u_colorId: this.bufferPicker.id2Color( idx + 1 ) } ) );
+
+        }
+
+        if ( ! enable )
+            this.shadersMap.forEach( shader => shader.setDefines() );
+
+        this.enablePick = !! enable;
+        this.bufferPicker.setActivate( this.enablePick );
+        return this;
 
     },
 

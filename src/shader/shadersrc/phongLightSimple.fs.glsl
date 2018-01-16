@@ -24,10 +24,13 @@ uniform Light {
 
 uniform sampler2D u_texture;
 uniform vec3 u_camPos;
-// uniform Material u_material;
-// uniform Light u_light;
 
-out vec4 finalColor;
+layout(location = 0) out vec4 finalColor;
+
+#ifdef ColorPick
+uniform vec3 u_colorId;
+layout(location = 1) out vec4 pickColor;
+#endif
 
 const float kPi = 3.14159265;
 const vec3 gamma = vec3(1.0/2.2);
@@ -70,4 +73,8 @@ void main() {
     } else {
         finalColor = vec4(linearColor, baseColor4.a);
     }
+
+    #ifdef ColorPick
+    pickColor = vec4(u_colorId, 1.0);
+    #endif
 }

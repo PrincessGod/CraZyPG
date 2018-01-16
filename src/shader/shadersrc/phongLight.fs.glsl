@@ -33,14 +33,16 @@ in vec3 v_norm;
 uniform sampler2D u_texture;
 uniform vec3 u_camPos;
 
-// uniform Light u_light;
-// uniform Material u_material;
-
 vec4 textureLinear(sampler2D uTex, vec2 uv) {
     return toLinear(texture(uTex, uv));
 }
 
-out vec4 finalColor;
+layout(location = 0) out vec4 finalColor;
+
+#ifdef ColorPick
+uniform vec3 u_colorId;
+layout(location = 1) out vec4 pickColor;
+#endif
 
 void main() {
     vec3 normal = vec3(0.0);
@@ -78,4 +80,9 @@ void main() {
     }
     
     finalColor = vec4(color, baseColor.a);
+
+    #ifdef ColorPick
+    pickColor = vec4(u_colorId, 1.0);
+    #endif
+
 }
