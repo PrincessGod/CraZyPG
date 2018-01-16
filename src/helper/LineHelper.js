@@ -97,7 +97,7 @@ Object.assign( LineHelper.prototype, {
     setTransform( transform ) {
 
         if ( this.model )
-            this.model.transform = transform;
+            this.model.setTransform( transform );
 
         return this;
 

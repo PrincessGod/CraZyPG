@@ -17,6 +17,7 @@ function getDefaultShader( gl ) {
 function Model( mesh ) {
 
     this.mesh = mesh;
+    this.name = this.mesh.name;
     this.transform = new Transform();
     this.normMat = this.transform.normMat;
     this.matrix = this.transform.matrix.raw;
@@ -34,6 +35,12 @@ Object.assign( Model.prototype, {
 
     setScale( x, y, z ) {
 
+        if ( x instanceof Transform )
+            return this.setScale( ...( x.scale.getArray() ) );
+
+        if ( Array.isArray( x ) && x.length === 3 )
+            return this.setScale( ...x );
+
         this.transform.scale.set( x, y, z );
         this._needUpdateMatrix = true;
         return this;
@@ -41,6 +48,12 @@ Object.assign( Model.prototype, {
     },
 
     setPosition( x, y, z ) {
+
+        if ( x instanceof Transform )
+            return this.setPosition( ...( x.position.getArray() ) );
+
+        if ( Array.isArray( x ) && x.length === 3 )
+            return this.setPosition( ...x );
 
         this.transform.position.set( x, y, z );
         this._needUpdateMatrix = true;
@@ -50,8 +63,21 @@ Object.assign( Model.prototype, {
 
     setRotation( x, y, z ) {
 
+        if ( x instanceof Transform )
+            return this.setRotation( ...( x.rotation.getArray() ) );
+
+        if ( Array.isArray( x ) && x.length === 3 )
+            return this.setRotation( ...x );
+
         this.transform.rotation.set( x, y, z );
         this._needUpdateMatrix = true;
+        return this;
+
+    },
+
+    setTransform( transform ) {
+
+        this.transform = transform;
         return this;
 
     },

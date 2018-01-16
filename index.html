@@ -130,7 +130,11 @@
                         }));
                 }
                 colorPicker.addModels(objModels);
-                scene.add({ shader: phongShader.setTexture(textures.barrel), model: objModels });
+                scene.add([
+                    { shader: phongShader.setTexture(textures.barrel), model: objModels },
+                    // { helper: pointHelper, data: objModels.map(m => { return { data: m.positionInfo, transform: m.transform }; } ) },
+                ]);
+            
             });
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
@@ -154,6 +158,19 @@
                     shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
                     model: [cubeModal.setUniformObj({texture: textures.pic}), terrainModel.setUniformObj({texture: textures.scalar})],
                 },
+                // {
+                //     helper: lineHelper, 
+                //     data:[
+                //         {data: cubeModal},
+                //         {data: terrainModel},
+                //     ]
+                // },
+                {
+                    helper: pointHelper,
+                    data: [
+                        {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
+                    ]
+                }
             ]);
 
             let resized = false;
@@ -165,21 +182,14 @@
                 lightPos[0] = 2 * Math.cos(performance.now() * 0.0003);
                 lightPos[1] = 2 * Math.abs(Math.cos(performance.now() * 0.0003));
                 lightPos[2] = 2 * Math.sin(performance.now() * 0.0003);
-
-                // lineHelper.setData(objModels[i]).render();
-                // pointHelper.setData(objModels[i].positionInfo).render();
                 
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) );
                 terrainModel.addTime(context, timespan * 2);
                 lightShader.setUniformObj({ position: lightPos });
                 phongShader.setUniformObj({ position: lightPos });
+
                 scene.render();
 
-
-                pointHelper.model.setPosition(...lightPos).setScale(0.1, 0.1, 0.1);
-                pointHelper.setData([0,0,0]).render();
-
-                // lineHelper.setData(cubeModal).render().setData(terrainModel).render();
                 colorPicker.update();
 
             }).start();
