@@ -1,5 +1,5 @@
 import { createFramebufferInfo, bindFramebufferInfo, resizeFramebufferInfo } from '../renderer/framebuffer';
-import { Quad2Unit } from '../model/Primatives';
+import { Quad } from '../model/Primatives';
 import { ScreenQuadShader } from '../shader/ScreenQuadShader';
 import { BufferPicker } from '../controls/BufferPicker';
 
@@ -13,7 +13,7 @@ function Scene( renderer ) {
 
     this.renderer = renderer;
     this.gl = this.renderer.context;
-    this.quad2UnitModel = Quad2Unit.createModel();
+    this.quad2UnitModel = Quad.createModel( 'screenQuad', 2 );
     this.ScreenQuadShader = new ScreenQuadShader( this.gl ).setDefines( 'FXAA' ).setUniformObj( { u_resolution: [ this.gl.canvas.width, this.gl.canvas.height ] } );
 
     const defaultAttachment = [

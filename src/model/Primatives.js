@@ -106,52 +106,40 @@ const Quad = {};
 
 Object.assign( Quad, {
 
-    createModel() {
+    createModel( name, size, xOffset, yOffset ) {
 
-        return new Model( Quad.createMesh() );
+        return new Model( Quad.createMesh( name, size, xOffset, yOffset ) );
 
     },
 
-    createMesh( name ) {
+    createMesh( name = 'Quad', size = 1, xOffset = 0, yOffset = 0 ) {
 
-        const vertices = [ - 0.5, 0.5, 0, - 0.5, - 0.5, 0, 0.5, - 0.5, 0, 0.5, 0.5, 0 ];
+        const helfSize = size / 2;
+        const vertices = [
+            xOffset + - 1 * helfSize, yOffset + 1 * helfSize,
+            xOffset + - 1 * helfSize, yOffset + - 1 * helfSize,
+            xOffset + 1 * helfSize, yOffset + - 1 * helfSize,
+            xOffset + 1 * helfSize, yOffset + 1 * helfSize,
+        ];
         const uv = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
+        const normal = [
+            0, 0, 1,
+            0, 0, 1,
+            0, 0, 1,
+            0, 0, 1,
+        ];
         const indices = [ 0, 1, 2, 2, 3, 0 ];
 
         const attribArrays = {
-            indices: { numComponents: 3, data: indices },
+            indices: { data: indices },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, numComponents: 2 };
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
+        attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
-        return createMesh( name || 'Quad', attribArrays, {
+        return createMesh( name, attribArrays, {
             cullFace: false,
-            blend: true,
         } );
-
-    },
-} );
-
-const Quad2Unit = {};
-
-Object.assign( Quad2Unit, {
-
-    createModel() {
-
-        return new Model( Quad2Unit.createMesh() );
-
-    },
-
-    createMesh( name ) {
-
-        const vertices = [ - 1, 1, 0, - 1, - 1, 0, 1, - 1, 0, 1, - 1, 0, 1, 1, 0, - 1, 1, 0 ];
-        const uv = [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0 ];
-
-        const attribArrays = {};
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
-        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
-
-        return createMesh( name || 'Quad2Unit', attribArrays );
 
     },
 } );
@@ -160,13 +148,13 @@ const Cube = {};
 
 Object.assign( Cube, {
 
-    createModel( name ) {
+    createModel( name, width, height, depth, x, y, z ) {
 
-        return new Model( Cube.createMesh( name ) );
+        return new Model( Cube.createMesh( name, width, height, depth, x, y, z ) );
 
     },
 
-    createMesh( name, width = 1, height = 1, depth = 1, x = 0, y = 0, z = 0 ) {
+    createMesh( name = 'Cube', width = 1, height = 1, depth = 1, x = 0, y = 0, z = 0 ) {
 
         const w = width * 0.5;
         const h = height * 0.5;
@@ -235,10 +223,80 @@ Object.assign( Cube, {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
-        return createMesh( name || 'Cube', attribArrays, { cullFace: false } );
+        return createMesh( name, attribArrays, { cullFace: false } );
 
     },
 
 } );
 
-export { GridAxis, Quad, Quad2Unit, Cube, createMesh };
+const Sphere = {};
+
+Object.assign( Sphere, {
+
+    createModel( name, radius, subdivAixs, subdivHeight, startLon, endLon, startLat, endLat ) {
+
+        return new Model( Sphere.createMesh( name, radius, subdivAixs, subdivHeight, startLon, endLon, startLat, endLat ) );
+
+    },
+
+    createMesh( name = 'sphere', radius = 0.5, subdivAixs = 16, subdivHeight = 8, startLon = 0, endLon = Math.PI * 2, startLat = 0, endLat = Math.PI ) {
+
+        const latRange = endLat - startLat;
+        const lonRange = endLon - startLon;
+
+        const positions = [];
+        const normals = [];
+        const uvs = [];
+
+        for ( let y = 0; y <= subdivHeight; y ++ )
+            for ( let x = 0; x <= subdivAixs; x ++ ) {
+
+                const u = x / subdivAixs;
+                const v = y / subdivHeight;
+                const theta = lonRange * u + startLon;
+                const phi = latRange * v + startLat;
+                const sinTheta = Math.sin( theta );
+                const cosTheta = Math.cos( theta );
+                const sinPhi = Math.sin( phi );
+                const cosPhi = Math.cos( phi );
+                const ux = cosTheta * sinPhi;
+                const uy = cosPhi;
+                const uz = sinTheta * sinPhi;
+                positions.push( radius * ux, radius * uy, radius * uz );
+                normals.push( ux, uy, uz );
+                uvs.push( 1 - u, v );
+
+            }
+
+        const numVertAround = subdivAixs + 1;
+        const indices = [];
+        for ( let x = 0; x < subdivAixs; x ++ )
+            for ( let y = 0; y < subdivHeight; y ++ ) {
+
+                indices.push(
+                    ( y + 0 ) * numVertAround + x,
+                    ( y + 0 ) * numVertAround + x + 1,
+                    ( y + 1 ) * numVertAround + x,
+                );
+
+                indices.push(
+                    ( y + 1 ) * numVertAround + x,
+                    ( y + 0 ) * numVertAround + x + 1,
+                    ( y + 1 ) * numVertAround + x + 1,
+                );
+
+            }
+
+        const attribArrays = {
+            indices: { data: indices },
+        };
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: positions };
+        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uvs };
+        attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normals };
+
+        return createMesh( name, attribArrays );
+
+    },
+} );
+
+export { GridAxis, Quad, Cube, Sphere, createMesh };

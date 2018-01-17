@@ -110,7 +110,10 @@
             let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
             let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
-            
+            let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
+            let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0.5, Math.PI * 1, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
+            sphereOctModel.mesh.cullFace = false;
+
             let lightShader = new CZPG.PointlightShader(context, camera);
             let phongShader = new CZPG.PhongLightShader(context, camera);
             let objModels = [];
@@ -153,10 +156,10 @@
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
                 {shader: gridShader, model: gridModal},
-                {shader: quadShader.setTexture(textures.pic), model: quadModal},
+                // {shader: quadShader.setTexture(textures.pic), model: [quadModal, sphereModel, sphereOctModel]},
                 {
                     shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
-                    model: [cubeModal.setUniformObj({texture: textures.pic}), terrainModel.setUniformObj({texture: textures.scalar})],
+                    model: [cubeModal.setUniformObj({texture: textures.pic}), quadModal, sphereModel, sphereOctModel, terrainModel.setUniformObj({texture: textures.scalar})],
                 },
                 {
                     helper: lineHelper, 
