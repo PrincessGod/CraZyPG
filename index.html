@@ -145,6 +145,9 @@
 
             let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
 
+            let colorPicker = new CZPG.FramebufferPicker(context, camera).activate();
+            colorPicker.models = scene.models;
+
             let lightPos = [0, 0, 0];
 
             scene.add([
@@ -185,8 +188,10 @@
                 lightShader.setUniformObj({ position: lightPos });
                 phongShader.setUniformObj({ position: lightPos });
 
-                scene.render2Buffer(resized).render2Screen(0);
-                // scene.render();
+                // scene.render2Buffer(resized).render2Screen(0);
+                scene.render();
+
+                colorPicker.update();
 
             }).start();
         });

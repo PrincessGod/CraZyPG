@@ -14,7 +14,7 @@ function Scene( renderer ) {
     this.renderer = renderer;
     this.gl = this.renderer.context;
     this.quad2UnitModel = Quad2Unit.createModel();
-    this.ScreenQuadShader = new ScreenQuadShader( this.gl );
+    this.ScreenQuadShader = new ScreenQuadShader( this.gl ).setDefines( 'FXAA' ).setUniformObj( { u_resolution: [ this.gl.canvas.width, this.gl.canvas.height ] } );
 
     const defaultAttachment = [
         {
@@ -30,7 +30,7 @@ function Scene( renderer ) {
     this.framebufferInfo = createFramebufferInfo( this.gl, this.attachments );
     this.bufferPicker = new BufferPicker( this.gl, this.models, this.framebufferInfo, 1 );
 
-    this.setPick( true );
+    this.setPick( false );
 
 }
 
@@ -110,7 +110,12 @@ Object.assign( Scene.prototype, {
 
     render2Buffer( resize ) {
 
-        if ( resize ) resizeFramebufferInfo( this.gl, this.framebufferInfo, this.attachments );
+        if ( resize ) {
+
+            resizeFramebufferInfo( this.gl, this.framebufferInfo, this.attachments );
+            this.ScreenQuadShader.setUniformObj( { u_resolution: [ this.gl.canvas.width, this.gl.canvas.height ] } );
+
+        }
         bindFramebufferInfo( this.gl, this.framebufferInfo );
         this.renderer.clear();
         this.render();
