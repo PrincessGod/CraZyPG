@@ -6,8 +6,7 @@ function ColorLineShader( gl, camera, colors = [ 255 / 255, 105 / 255, 180 / 255
 
     Shader.call( this, gl, ColorLineShader.vs, ColorLineShader.fs );
 
-    this.camera = camera;
-
+    this.setCamera( camera );
     this.setColors( colors );
 
     this.deactivate();

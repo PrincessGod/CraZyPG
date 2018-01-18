@@ -6,9 +6,9 @@ function ColorPointShader( gl, camera, pointSize = 5.0, color = [ 255 / 255, 105
 
     Shader.call( this, gl, ColorPointShader.vs, ColorPointShader.fs );
 
-    this.camera = camera;
-
+    this.setCamera( camera );
     this.setPointSize( pointSize );
+
     this.setColor( color );
 
     this.deactivate();

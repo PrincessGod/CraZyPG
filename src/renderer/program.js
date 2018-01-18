@@ -74,6 +74,7 @@ function createProgram( gl, vs, fs ) {
     gl.bindAttribLocation( prog, Constant.ATTRIB_POSITION_LOC, Constant.ATTRIB_POSITION_NAME );
     gl.bindAttribLocation( prog, Constant.ATTRIB_NORMAL_LOC, Constant.ATTRIB_NORMAL_NAME );
     gl.bindAttribLocation( prog, Constant.ATTRIB_UV_LOC, Constant.ATTRIB_UV_NAME );
+    gl.bindAttribLocation( prog, Constant.ATTRIB_BARYCENTRIC_LOC, Constant.ATTRIB_BARYCENTRIC_NAME );
 
     gl.linkProgram( prog );
 

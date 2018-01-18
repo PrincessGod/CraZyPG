@@ -6,8 +6,7 @@ function GridAxisShader( gl, camera ) {
 
     Shader.call( this, gl, GridAxisShader.vs, GridAxisShader.fs );
 
-    this.camera = camera;
-
+    this.setCamera( camera );
     this.setUniformObj( { u_colors: [ 0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1 ] } );
 
     this.deactivate();

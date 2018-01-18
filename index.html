@@ -110,10 +110,29 @@
             let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
             let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
-            let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
+            let sphereModel = CZPG.Sphere.createModel();//.setPosition(2.5, 0.5, -2.5);
             let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0.5, Math.PI * 1, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
             sphereOctModel.mesh.cullFace = false;
-
+            // sphereOctModel.setUniformObj({isFlat: false});
+            CZPG.addBarycentricAttrib(sphereModel);
+            let wireframeShader = new CZPG.WireframeShader(context, camera).setUniformObj( {
+                thickness: 0.4,
+                screenWidth: false,
+                stroke: [ 0 / 255, 157 / 255, 118 / 255, 1.0 ],
+                fill: [ 255 / 255, 147 / 255, 172 / 255, 0.0 ],
+                backStroke: [ 0 / 255, 88 / 255, 83 / 255, 1.0 ],
+                colorBack: true,
+                noiseSmall: true,
+                noiseBig: true,
+                squeeze: true,
+                squeezeMin: 0.5,
+                suqeezeMax: 1.0,
+                dash: false,
+                dashRepeats: 6,
+                dashLength: 0.5,
+                dashOverlap: false,
+                dashAnimate: true,
+            } );
             let lightShader = new CZPG.PointlightShader(context, camera);
             let phongShader = new CZPG.PhongLightShader(context, camera);
             let objModels = [];
@@ -134,7 +153,7 @@
                 }
                 // colorPicker.addModels(objModels);
                 scene.add([
-                    { shader: phongShader.setTexture(textures.barrel), model: objModels },
+                    // { shader: phongShader.setTexture(textures.barrel), model: objModels },
                     // { helper: pointHelper, data: objModels.map(m => { return { data: m.positionInfo, transform: m.transform }; } ) },
                 ]);
             
@@ -155,25 +174,26 @@
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
-                {shader: gridShader, model: gridModal},
+                // {shader: gridShader, model: gridModal},
                 // {shader: quadShader.setTexture(textures.pic), model: [quadModal, sphereModel, sphereOctModel]},
+                {shader: wireframeShader, model: [sphereModel]},
                 {
                     shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
-                    model: [cubeModal.setUniformObj({texture: textures.pic}), quadModal, sphereModel, sphereOctModel, terrainModel.setUniformObj({texture: textures.scalar})],
+                    model: [quadModal.setUniformObj({texture: textures.pic}), sphereOctModel, terrainModel.setUniformObj({texture: textures.scalar})],
                 },
-                {
-                    helper: lineHelper, 
-                    data:[
-                        {data: cubeModal},
-                        {data: terrainModel},
-                    ]
-                },
-                {
-                    helper: pointHelper,
-                    data: [
-                        {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
-                    ]
-                }
+                // {
+                //     helper: lineHelper, 
+                //     data:[
+                //         {data: cubeModal},
+                //         {data: terrainModel},
+                //     ]
+                // },
+                // {
+                //     helper: pointHelper,
+                //     data: [
+                //         {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
+                //     ]
+                // }
             ]);
 
             let resized = false;
@@ -190,7 +210,7 @@
                 terrainModel.addTime(context, timespan * 2);
                 lightShader.setUniformObj({ position: lightPos });
                 phongShader.setUniformObj({ position: lightPos });
-
+                wireframeShader.setUniformObj({time: performance.now() * 0.005});
                 // scene.render2Buffer(resized).render2Screen(0);
                 scene.render();
 

@@ -6,8 +6,7 @@ function ColorpickShader( gl, camera ) {
 
     Shader.call( this, gl, ColorpickShader.vs, ColorpickShader.fs );
 
-    this.camera = camera;
-
+    this.setCamera( camera );
     this.setColor( [ 0.0, 0.0, 0.0 ] );
 
     this.deactivate();

@@ -9,6 +9,7 @@ function Shader( gl, vs, fs ) {
 
     this.cullFace = true;
     this.blend = false;
+    this.sampleBlend = false;
     this.shaders = [ vs, fs ];
     this.program = null;
     this.programs = [];
@@ -210,6 +211,8 @@ Object.assign( Shader.prototype, {
 
         if ( this.blend || model.mesh.blend ) this.gl.enable( this.gl.BLEND );
 
+        if ( this.sampleBlend || model.mesh.sampleBlend ) this.gl.enable( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
+
         model.preRender();
         this.setWorldMatrix( model.transform.getMatrix() );
         if ( this._needNormMat )
@@ -230,6 +233,8 @@ Object.assign( Shader.prototype, {
         if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.enable( this.gl.CULL_FACE );
 
         if ( this.blend || model.mesh.blend ) this.gl.disable( this.gl.BLEND );
+
+        if ( this.sampleBlend || model.mesh.sampleBlend ) this.gl.disable( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
 
         return this;
 

@@ -6,8 +6,7 @@ function FlatTextureShader( gl, camera, texture ) {
 
     Shader.call( this, gl, FlatTextureShader.vs, FlatTextureShader.fs );
 
-    this.camera = camera;
-
+    this.setCamera( camera );
     this.setUniformObj( { u_texture: texture } );
 
     this.deactivate();

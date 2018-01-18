@@ -12,6 +12,7 @@ export * from './shader/PointlightShader.js';
 export * from './shader/ColorPointShader.js';
 export * from './shader/PhongLightShader.js';
 export * from './shader/ColorpickShader.js';
+export * from './shader/WireframeShader.js';
 export * from './renderer/attributes.js';
 export * from './renderer/texture.js';
 export * from './renderer/program.js';

@@ -2,13 +2,19 @@ import * as properties from '../core/properties';
 import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
 import { getTypedArray } from '../renderer/typedArray';
+import { getNumComponents } from '../renderer/attributes';
 
 function createMesh( name, attribArrays, options ) {
 
     Object.keys( attribArrays ).forEach( ( prop ) => {
 
-        if ( prop !== 'indices' )
+        if ( prop !== 'indices' ) {
+
             attribArrays[ prop ].data = getTypedArray( attribArrays[ prop ].data ); //eslint-disable-line
+            attribArrays[ prop ].numComponents = getNumComponents( attribArrays[ prop ], prop );//eslint-disable-line
+
+        }
+
 
     } );
 
@@ -299,4 +305,95 @@ Object.assign( Sphere, {
     },
 } );
 
-export { GridAxis, Quad, Cube, Sphere, createMesh };
+function deIndexAttribs( modelMesh ) {
+
+    const mesh = modelMesh.mesh || modelMesh;
+    const attribArrays = mesh.attribArrays;
+    const indices = attribArrays.indices.data;
+    const drawMode = mesh.drawMode;
+    if ( ! indices ) return;
+
+    if ( drawMode === Constant.TRIANGLES ) {
+
+        Object.keys( attribArrays ).forEach( ( name ) => {
+
+            if ( name === 'indices' ) return;
+
+            const data = attribArrays[ name ].data;
+            const numComponents = attribArrays[ name ].numComponents;
+            const tempAry = [];
+            for ( let i = 0; i < indices.length; i ++ )
+                for ( let j = 0; j < numComponents; j ++ )
+                    tempAry.push( data[ indices[ i ] * numComponents + j ] );
+
+            attribArrays[ name ].data = tempAry;
+
+        } );
+
+        delete attribArrays.indices;
+        delete mesh.bufferInfo;
+        delete mesh.vao;
+
+    }
+
+}
+
+function addBarycentricAttrib( modelMesh ) {
+
+    const mesh = modelMesh.mesh || modelMesh;
+    const indices = mesh.attribArrays.indices.data;
+
+    if ( mesh.drawMode === Constant.TRIANGLES ) {
+
+        if ( mesh.attribArrays.indices )
+            deIndexAttribs( modelMesh );
+
+        const numVert = mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data.length / mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].numComponents;
+        const barycentrics = [];
+        let lastVerts = [];
+        let curVerts = [];
+        let map = [];
+        for ( let i = 0; i < numVert / 3; i ++ ) {
+
+            curVerts = [ indices[ i * 3 + 0 ], indices[ i * 3 + 1 ], indices[ i * 3 + 2 ] ];
+            map = curVerts.map( vert => lastVerts.indexOf( vert ) ); // eslint-disable-line
+            if ( map.filter( idx => idx > - 1 ).length === 2 ) {
+
+                if ( map.indexOf( 0 ) > - 1 && map.indexOf( 1 ) > - 1 )
+                    map[ map.indexOf( - 1 ) ] = 2;
+                else if ( map.indexOf( 1 ) > - 1 && map.indexOf( 2 ) > - 1 )
+                    map[ map.indexOf( - 1 ) ] = 0;
+                else if ( map.indexOf( 0 ) > - 1 && map.indexOf( 2 ) > - 1 )
+                    map[ map.indexOf( - 1 ) ] = 1;
+
+                let barycs = map.map( ( idx ) => {
+
+                    const b = [ 0, 0, 0 ];
+                    b[ idx ] = 1;
+                    return b;
+
+                } );
+
+                barycs = barycs.reduce( ( a, b ) => a.concat( b ) );
+                barycentrics.push( ...barycs );
+                lastVerts = [];
+
+            } else {
+
+                barycentrics.push( 1, 0, 0, 0, 1, 0, 0, 0, 1 );
+                lastVerts = curVerts;
+
+            }
+
+        }
+
+        mesh.attribArrays[ Constant.ATTRIB_BARYCENTRIC_NAME ] = { data: barycentrics, numComponents: 3 };
+
+        delete mesh.bufferInfo;
+        delete mesh.vao;
+
+    }
+
+}
+
+export { GridAxis, Quad, Cube, Sphere, createMesh, deIndexAttribs, addBarycentricAttrib };

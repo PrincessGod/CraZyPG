@@ -6,8 +6,7 @@ function DynamicSkyboxShader( gl, camera, dayTex, nightTex ) {
 
     Shader.call( this, gl, DynamicSkyboxShader.vs, DynamicSkyboxShader.fs );
 
-    this.camera = camera;
-
+    this.setCamera( camera );
     this.setUniformObj( { u_dayTex: dayTex, u_nightTex: nightTex, u_rate: 0.5 } );
 
     this.deactivate();

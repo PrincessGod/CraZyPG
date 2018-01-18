@@ -120,6 +120,7 @@ function createAttribsFromArrays( gl, arrays ) {
             const type = getGLTypeFromTypedArray( typedArray );
             const normalization = array.normalize !== undefined ? array.normalize : false;
             const numComponents = getNumComponents( array, key );
+            array.numComponents = numComponents;
 
             attribs[ attribName ] = {
                 buffer,
@@ -167,4 +168,4 @@ function setTypedArrayToBuffer( gl, buffer, typedArray, drawType = gl.DYNAMIC_DR
 
 }
 
-export { createBuffersFromArrays, createBufferInfoFromArrays, isIndices, setTypedArrayToBuffer };
+export { createBuffersFromArrays, createBufferInfoFromArrays, isIndices, setTypedArrayToBuffer, getNumComponents };
