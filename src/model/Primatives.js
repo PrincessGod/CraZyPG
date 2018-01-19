@@ -134,7 +134,7 @@ Object.assign( Quad, {
             0, 0, 1,
             0, 0, 1,
         ];
-        const indices = [ 0, 1, 2, 2, 3, 0 ];
+        const indices = [ 0, 1, 3, 1, 2, 3 ];
 
         const attribArrays = {
             indices: { data: indices },
@@ -206,8 +206,8 @@ Object.assign( Cube, {
         ];
 
         const indices = [];
-        for ( let i = 0; i < vertices.length / 4; i += 2 )
-            indices.push( i, i + 1, ( Math.floor( i / 4 ) * 4 ) + ( ( i + 2 ) % 4 ) );
+        for ( let i = 0; i < vertices.length / 4; i += 4 )
+            indices.push( i, i + 1, i + 3, i + 1, i + 2, i + 3 );
 
         const uv = [];
         for ( let i = 0; i < 6; i ++ )
@@ -259,18 +259,18 @@ Object.assign( Sphere, {
 
                 const u = x / subdivAixs;
                 const v = y / subdivHeight;
-                const theta = lonRange * u + startLon;
-                const phi = latRange * v + startLat;
+                const phi = lonRange * u + startLon;
+                const theta = latRange * v + startLat;
                 const sinTheta = Math.sin( theta );
                 const cosTheta = Math.cos( theta );
                 const sinPhi = Math.sin( phi );
                 const cosPhi = Math.cos( phi );
-                const ux = cosTheta * sinPhi;
-                const uy = cosPhi;
-                const uz = sinTheta * sinPhi;
+                const ux = - cosPhi * sinTheta;
+                const uy = cosTheta;
+                const uz = sinPhi * sinTheta;
                 positions.push( radius * ux, radius * uy, radius * uz );
                 normals.push( ux, uy, uz );
-                uvs.push( 1 - u, v );
+                uvs.push( u, 1 - v );
 
             }
 
@@ -279,17 +279,13 @@ Object.assign( Sphere, {
         for ( let x = 0; x < subdivAixs; x ++ )
             for ( let y = 0; y < subdivHeight; y ++ ) {
 
-                indices.push(
-                    ( y + 0 ) * numVertAround + x,
-                    ( y + 0 ) * numVertAround + x + 1,
-                    ( y + 1 ) * numVertAround + x,
-                );
+                const a = ( y + 0 ) * numVertAround + x + 1;
+                const b = ( y + 0 ) * numVertAround + x;
+                const c = ( y + 1 ) * numVertAround + x;
+                const d = ( y + 1 ) * numVertAround + x + 1;
 
-                indices.push(
-                    ( y + 1 ) * numVertAround + x,
-                    ( y + 0 ) * numVertAround + x + 1,
-                    ( y + 1 ) * numVertAround + x + 1,
-                );
+                if ( y !== 0 || startLat > 0 ) indices.push( a, b, d );
+                if ( y !== subdivHeight - 1 || endLat < Math.PI ) indices.push( b, c, d );
 
             }
 
@@ -338,10 +334,11 @@ function deIndexAttribs( modelMesh ) {
 
 }
 
-function addBarycentricAttrib( modelMesh ) {
+function addBarycentricAttrib( modelMesh, removeEdge = false ) {
 
     const mesh = modelMesh.mesh || modelMesh;
     const indices = mesh.attribArrays.indices.data;
+    const Q = removeEdge ? 1 : 0;
 
     if ( mesh.drawMode === Constant.TRIANGLES ) {
 
@@ -357,33 +354,26 @@ function addBarycentricAttrib( modelMesh ) {
 
             curVerts = [ indices[ i * 3 + 0 ], indices[ i * 3 + 1 ], indices[ i * 3 + 2 ] ];
             map = curVerts.map( vert => lastVerts.indexOf( vert ) ); // eslint-disable-line
-            if ( map.filter( idx => idx > - 1 ).length === 2 ) {
+            if ( map[ 0 ] === 1 && map[ 2 ] === 2 ) { // abd bcd
 
-                if ( map.indexOf( 0 ) > - 1 && map.indexOf( 1 ) > - 1 )
-                    map[ map.indexOf( - 1 ) ] = 2;
-                else if ( map.indexOf( 1 ) > - 1 && map.indexOf( 2 ) > - 1 )
-                    map[ map.indexOf( - 1 ) ] = 0;
-                else if ( map.indexOf( 0 ) > - 1 && map.indexOf( 2 ) > - 1 )
-                    map[ map.indexOf( - 1 ) ] = 1;
-
-                let barycs = map.map( ( idx ) => {
-
-                    const b = [ 0, 0, 0 ];
-                    b[ idx ] = 1;
-                    return b;
-
-                } );
-
-                barycs = barycs.reduce( ( a, b ) => a.concat( b ) );
-                barycentrics.push( ...barycs );
+                barycentrics.push(
+                    0, 1, 0,
+                    0, 0, 1,
+                    1, 0, Q,
+                );
                 lastVerts = [];
 
             } else {
 
-                barycentrics.push( 1, 0, 0, 0, 1, 0, 0, 0, 1 );
+                barycentrics.push(
+                    0, 0, 1,
+                    0, 1, 0,
+                    1, 0, Q,
+                );
                 lastVerts = curVerts;
 
             }
+
 
         }
 

@@ -111,7 +111,7 @@
             let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
             let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
-            let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0.5, Math.PI * 1, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
+            let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0, Math.PI * 0.5, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
             sphereOctModel.mesh.cullFace = false;
 
             let lightShader = new CZPG.PointlightShader(context, camera);

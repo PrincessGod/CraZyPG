@@ -24,6 +24,8 @@ function WireframeShader( gl, camera ) {
         dashLength: 0.5,
         dashOverlap: true,
         dashAnimate: false,
+        dualStroke: false,
+        secondThickness: 0.2,
     } );
     this.deactivate();
 

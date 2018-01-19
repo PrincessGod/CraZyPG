@@ -12,6 +12,8 @@ in vec3 v_pos;
 uniform float u_thickness;
 uniform vec4 u_stroke;
 uniform vec4 u_fill;
+uniform float u_secondThickness;
+uniform bool u_dualStroke;
 
 uniform bool u_screenWidth;
 
@@ -38,15 +40,9 @@ float edgeFactor(float offset, float thickness){
     return min(min(a3.x, a3.y), a3.z);
 }
 
-float aastep(float offset, float thickness) {
-    float d = min(min(v_barycentric.x, v_barycentric.y), v_barycentric.z) + offset;
+float aastep(float d, float thickness) {
     float afwidth = fwidth(d) * 0.5;
     return smoothstep(thickness - afwidth, thickness + afwidth, d);
-}
-
-float astep (float threshold, float dist) {
-  float afwidth = fwidth(dist) * 0.5;
-  return smoothstep(threshold - afwidth, threshold + afwidth, dist);
 }
 
 layout(location = 0) out vec4 finalColor;
@@ -57,9 +53,11 @@ layout(location = 1) out vec4 pickColor;
 #endif
 
 void main() {
+    float d = min(min(v_barycentric.x, v_barycentric.y), v_barycentric.z);
     float noiseOff = 0.0;
     if (u_noiseBig) noiseOff += noise(vec4(v_pos.xyz * 1.0, u_time * 0.05)) * 0.15;
     if (u_noiseSmall) noiseOff += noise(vec4(v_pos.xyz * 80.0, u_time * 0.1)) * 0.12;
+    d += noiseOff;
 
     float positionAlong = max(v_barycentric.x, v_barycentric.y);
     if (v_barycentric.y < v_barycentric.x && v_barycentric.y < v_barycentric.z) {
@@ -84,20 +82,25 @@ void main() {
         }
 
         float pattern = fract((positionAlong + offset) * u_dashRepeats);
-        computedThickness *= 1.0 - astep(u_dashLength, pattern);
+        computedThickness *= 1.0 - aastep(u_dashLength, pattern);
     }
 
     float frag = 0.0;
     if (u_screenWidth) {
         frag = edgeFactor(noiseOff, computedThickness * 10.0);
     } else {
-        frag = aastep(noiseOff, computedThickness / 10.0);
+        frag = aastep(d, computedThickness / 10.0);
+    }
+
+    float inner = 0.0;
+    if(u_dualStroke) {
+        inner = aastep(u_secondThickness, d);       
     }
 
     if(u_colorBack && !gl_FrontFacing) {
-        finalColor = mix(u_backStroke, u_fill, frag);
+        finalColor = mix(u_backStroke, u_fill, abs(inner - frag));
     } else {
-        finalColor = mix(u_stroke, u_fill, frag);
+        finalColor = mix(u_stroke, u_fill, abs(inner - frag));
     }
 
     #ifdef ColorPick
