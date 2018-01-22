@@ -71,26 +71,31 @@
             const scene = new CZPG.Scene(renderer);
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            camera.transform.position.set(0, 1, 3);
+            camera.transform.position.set(0, 0, 2);
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas);
             cameraControler.enableDamping = true;
             cameraControler.autoRotate = true;
             cameraControler.autoRotateSpeed = 4.0;
 
-            let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0, 0);
-            let quadModalNormal = CZPG.Quad.createModel().setPosition(2.5, 1.5, 0);
-            let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0, 0);
-            let cubeModalNormal = CZPG.Cube.createModel().setPosition(-2.5, 1.5, 0);
+            let quadModal = CZPG.Quad.createModel();
+            let quadModalNormal = CZPG.Quad.createModel();
+            let cubeModal = CZPG.Cube.createModel();
+            let cubeModalNormal = CZPG.Cube.createModel();
             let sphereModel = CZPG.Sphere.createModel();
-            let sphereModelNormal = CZPG.Sphere.createModel().setPosition(0, 1.5, 0);;
+            let sphereModelNormal = CZPG.Sphere.createModel();
 
             CZPG.addBarycentricAttrib(sphereModel, true);
             CZPG.addBarycentricAttrib(cubeModal, true);
             CZPG.addBarycentricAttrib(cubeModalNormal, false);
             CZPG.addBarycentricAttrib(quadModal, true);
-            CZPG.addBarycentricAttrib(quadModalNormal, true);
+            CZPG.addBarycentricAttrib(quadModalNormal, false);
             CZPG.addBarycentricAttrib(sphereModelNormal, false);
             
+            let models = {
+                sphere: [sphereModelNormal, sphereModel],
+                cube: [cubeModalNormal, cubeModal],
+                quad: [quadModalNormal, quadModal],
+            }
 
             let background = [255, 0, 0];
 
@@ -135,7 +140,7 @@
             
             let wireframeShader = new CZPG.WireframeShader(context, camera);
             scene.add([
-                {shader: wireframeShader, model: [sphereModel, cubeModal, quadModal, sphereModelNormal, cubeModalNormal, quadModalNormal]},
+                {shader: wireframeShader, model: [sphereModelNormal]},
             ]);
 
             let resized = false;
@@ -200,6 +205,23 @@
             basic.add(colors, 'randomColors');
 
             colors.randomColors();
+
+            let currentModel = {
+                model: 'sphere',
+                removeEdge: false,
+            }
+            let modelSelect = datgui.add(currentModel, 'model', ['sphere', 'cube', 'quad']);
+            modelSelect.onFinishChange(value => {
+                scene.removeAll().add([
+                    {shader: wireframeShader, model: models[currentModel.model][currentModel.removeEdge === true ? 1 : 0]},
+                ]);
+            });
+            let removeEdge = datgui.add(currentModel, 'removeEdge');
+            removeEdge.onFinishChange(value => {
+                scene.removeAll().add([
+                    {shader: wireframeShader, model: models[currentModel.model][currentModel.removeEdge === true ? 1 : 0]},
+                ]);
+            });
 
         });
         

@@ -206,6 +206,17 @@ Object.assign( Scene.prototype, {
 
     },
 
+    removeAll() {
+
+        this.models = [];
+        this.shaders = [];
+        this.shadersMap = [];
+        this.helpers = [];
+        this.helpersMap = [];
+        return this;
+
+    },
+
 } );
 
 export { Scene };
