@@ -6,7 +6,7 @@ import fs from 'fs-extra';
 
 fs.ensureDirSync( './build' );
 fs.copySync( './resource', './build/resource' );
-fs.copySync( './sample.html', './build/index.html' );
+fs.copySync( './sample', './build' );
 
 const output = [];
 console.log( process.env.NODE_ENV );

@@ -25,8 +25,8 @@ uniform bool u_noiseSmall;
 uniform bool u_noiseBig;
 
 uniform bool u_squeeze;
-uniform float u_squeezeMin;
-uniform float u_squeezeMax;
+uniform float u_squeezeEndpoint;
+uniform float u_squeezeMiddle;
 
 uniform bool u_dash;
 uniform float u_dashRepeats;
@@ -67,7 +67,7 @@ void main() {
     float computedThickness = u_thickness;
 
     if (u_squeeze) {
-        computedThickness *= mix(u_squeezeMin, u_squeezeMax, sin(positionAlong * PI));
+        computedThickness *= mix(u_squeezeEndpoint, u_squeezeMiddle, sin(positionAlong * PI));
     }
 
     if (u_dash) {

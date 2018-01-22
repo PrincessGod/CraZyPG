@@ -120,24 +120,24 @@
             CZPG.addBarycentricAttrib(sphereOctModel, true);
 
             let wireframeShader = new CZPG.WireframeShader(context, camera).setUniformObj( {
-                thickness: 2,
-                screenWidth: true,
+                thickness: 0.5,
+                screenWidth: false,
                 stroke: [ 0 / 255, 157 / 255, 118 / 255, 1.0 ],
                 fill: [ 255 / 255, 0 / 255, 0 / 255, 0.0 ],
                 backStroke: [ 255 / 255, 88 / 255, 83 / 255, 1.0 ],
                 colorBack: true,
                 noiseSmall: false,
                 noiseBig: false,
-                squeeze: true,
-                squeezeMin: 0.5,
+                squeeze: false,
+                squeezeMin: 0.8,
                 suqeezeMax: 1.0,
-                dash: true,
+                dash: false,
                 dashRepeats: 6,
                 dashLength: 0.5,
                 dashOverlap: false,
-                dashAnimate: true,
-                dualStroke: false,
-                secondThickness: 0.2,
+                dashAnimate: false,
+                dualStroke: true,
+                secondThickness: 0.1,
             } );
             let lightShader = new CZPG.PointlightShader(context, camera);
             let phongShader = new CZPG.PhongLightShader(context, camera);

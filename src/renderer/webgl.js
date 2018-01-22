@@ -44,9 +44,9 @@ function resizeCanvasToDisplaySize( canvas, multiplier ) {
 
 }
 
-function clear( gl, r, g, b, a ) {
+function clear( gl, r = 1.0, g = 1.0, b = 1.0, a = 1.0 ) {
 
-    gl.clearColor( r !== undefined ? r : 1.0, g !== undefined ? g : 1.0, b !== undefined ? b : 1.0, a !== undefined ? a : 1.0 );
+    gl.clearColor( r, g, b, a );
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
 }

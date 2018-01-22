@@ -176,7 +176,7 @@ class OrbitControls {
 
     getAutoRotationAngle() {
 
-        return 2 * Math.PI / 60 / 60 * this.autoRotateSpeed;
+        return 2 * Math.PI / 60 / 60 / this.autoRotateSpeed;
 
     }
 
