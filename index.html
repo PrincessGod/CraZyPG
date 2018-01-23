@@ -99,7 +99,8 @@
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
             camera.transform.position.set(0, 1, 3);
-            let cameraControler = new CZPG.OrbitControls(camera, context.canvas);
+            let controler = scene.controler;
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
             cameraControler.enableDamping = true;
             // cameraControler.autoRotate = true;
 
@@ -173,7 +174,7 @@
 
             let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
 
-            let colorPicker = new CZPG.FramebufferPicker(context, camera).activate();
+            let colorPicker = new CZPG.FramebufferPicker(context, camera, controler).activate();
             colorPicker.models = scene.models;
 
             let lightPos = [0, 0, 0];
@@ -202,7 +203,7 @@
                 // }
             ]);
 
-            let resized = false;
+            let resized = false; scene.setPick(true);
             let loop = new CZPG.Render(function(timespan) {
                 resized = renderer.clear().fixCanvasToDisplay(window.devicePixelRatio)
                 if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );

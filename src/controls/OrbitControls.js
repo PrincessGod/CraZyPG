@@ -6,8 +6,9 @@ import { Spherical } from '../math/Spherical';
 
 class OrbitControls {
 
-    constructor( camera, domElement ) {
+    constructor( camera, domElement, controler ) {
 
+        this.controler = controler;
         this.camera = camera;
         this.domElement = ( domElement !== undefined ) ? domElement : document;
         this.enable = true;
@@ -86,34 +87,29 @@ class OrbitControls {
         };
         this._state = this.STATE.NONE;
 
-        this.domElement.addEventListener( 'contextmenu', this.onContextMenu.bind( this ), false );
-        this.domElement.addEventListener( 'mousedown', this.onMouseDown.bind( this ), false );
-        this.domElement.addEventListener( 'wheel', this.onMouseWheel.bind( this ), false );
+        this.eventListeners = [
+            { type: 'mousedown', listener: this.onMouseDown.bind( this ) },
+            { type: 'wheel', listener: this.onMouseWheel.bind( this ) },
+            { type: 'keydown', listener: this.onKeyDown.bind( this ) },
+            { type: 'touchstart', listener: this.onTouchStart.bind( this ) },
+            { type: 'touchend', listener: this.onTouchEnd.bind( this ) },
+            { type: 'touchmove', listener: this.onTouchMove.bind( this ) },
+        ];
 
-        window.addEventListener( 'keydown', this.onKeyDown.bind( this ), false );
+        this.mouseMoveUpListeners = [
+            { type: 'mousemove', listener: this.onMouseMove.bind( this ) },
+            { type: 'mouseup', listener: this.onMouseUp.bind( this ) },
+        ];
 
-        this.domElement.addEventListener( 'touchstart', this.onTouchStart.bind( this ), false );
-        this.domElement.addEventListener( 'touchend', this.onTouchEnd.bind( this ), false );
-        this.domElement.addEventListener( 'touchmove', this.onTouchMove.bind( this ), false );
+        this.controler.addListeners( this.eventListeners );
 
         this.update();
 
     }
 
-    dispose() { // bind this need to fix
+    dispose() {
 
-        this.domElement.removeEventListener( 'contextmenu', this.onContextMenu.bind( this ), false );
-        this.domElement.removeEventListener( 'mousedown', this.onMouseDown.bind( this ), false );
-        this.domElement.removeEventListener( 'wheel', this.onMouseWheel.bind( this ), false );
-
-        document.removeEventListener( 'mousemove', this.onMouseMove.bind( this ), false );
-        document.removeEventListener( 'mouseup', this.onMouseUp.bind( this ), false );
-
-        window.removeEventListener( 'keydown', this.onKeyDown.bind( this ), false );
-
-        this.domElement.removeEventListener( 'touchstart', this.onTouchStart.bind( this ), false );
-        this.domElement.removeEventListener( 'touchend', this.onTouchEnd.bind( this ), false );
-        this.domElement.removeEventListener( 'touchmove', this.onTouchMove.bind( this ), false );
+        this.controler.removeListeners( this.eventListeners, this.mouseMoveUpListeners );
 
     }
 
@@ -454,12 +450,9 @@ class OrbitControls {
 
         }
 
-        if ( this._state !== this._state.NONE ) {
+        if ( this._state !== this._state.NONE )
+            this.controler.addListeners( this.mouseMoveUpListeners );
 
-            document.addEventListener( 'mousemove', this.onMouseMoveBindself, false );
-            document.addEventListener( 'mouseup', this.onMouseUpBindself, false );
-
-        }
 
     }
 
@@ -499,8 +492,7 @@ class OrbitControls {
 
         this._isMouseUp = true;
 
-        document.removeEventListener( 'mousemove', this.onMouseMoveBindself, false );
-        document.removeEventListener( 'mouseup', this.onMouseUpBindself, false );
+        this.controler.removeListeners( this.mouseMoveUpListeners );
 
         this._state = this.STATE.NONE;
 

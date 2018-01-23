@@ -25,46 +25,23 @@ function color2Id( colorArray ) {
 
 }
 
-function FramebufferPicker( gl, camera ) {
+function FramebufferPicker( gl, camera, controler ) {
 
     this.gl = gl;
     this.canvas = gl.canvas;
+    this.controler = controler;
     this.shader = new ColorpickShader( gl, camera );
     this.models = [];
     this.blankColor = this.id2Color( this.blankId );
     this.framebufferInfo = createFramebufferInfo( gl );
     this.flag = 0;
 
-    const self = this;
     this.isActive = false;
     this.updateCanvasParam();
-    this.mousedown = function () {
 
-        self.flag = 0;
+    this.eventListeners = { type: 'mouseleftclick', listener: this.onmouseclick.bind( this ) };
 
-    };
-    this.mousemove = function () {
-
-        self.flag = 1;
-
-    };
-    this.mouseup = function ( e ) {
-
-        if ( self.flag === 0 && self.isActive ) {
-
-            const x = e.pageX - self.offsetX;
-            const y = e.pageY - self.offsetY;
-            self.needPick = true;
-            self.pickx = x;
-            self.picky = y;
-
-        }
-
-    };
-
-    this.canvas.addEventListener( 'mousedown', this.mousedown, false );
-    this.canvas.addEventListener( 'mousemove', this.mousemove, false );
-    this.canvas.addEventListener( 'mouseup', this.mouseup, false );
+    this.controler.addListeners( this.eventListeners );
 
 }
 
@@ -156,11 +133,23 @@ Object.assign( FramebufferPicker.prototype, {
 
     },
 
+    onmouseclick( e ) {
+
+        if ( this.isActive ) {
+
+            const x = e.pageX - this.offsetX;
+            const y = e.pageY - this.offsetY;
+            this.needPick = true;
+            this.pickx = x;
+            this.picky = y;
+
+        }
+
+    },
+
     dispose() {
 
-        this.canvas.removeEventListener( 'mousedown', this.mousedown, false );
-        this.canvas.removeEventListener( 'mousemove', this.mousemove, false );
-        this.canvas.removeEventListener( 'mouseup', this.mouseup, false );
+        this.controler.removeListeners( this.eventListeners );
         return this;
 
     },

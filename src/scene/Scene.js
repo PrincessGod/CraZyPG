@@ -2,8 +2,9 @@ import { createFramebufferInfo, bindFramebufferInfo, resizeFramebufferInfo } fro
 import { Quad } from '../model/Primatives';
 import { ScreenQuadShader } from '../shader/ScreenQuadShader';
 import { BufferPicker } from '../controls/BufferPicker';
+import { Controler } from '../controls/Controler';
 
-function Scene( renderer ) {
+function Scene( renderer, controler ) {
 
     this.models = [];
     this.shaders = [];
@@ -13,6 +14,7 @@ function Scene( renderer ) {
 
     this.renderer = renderer;
     this.gl = this.renderer.context;
+    this.controler = controler || new Controler( this.gl.canvas );
     this.quad2UnitModel = Quad.createModel( 'screenQuad', 2 );
     this.ScreenQuadShader = new ScreenQuadShader( this.gl ).setDefines( 'FXAA' ).setUniformObj( { u_resolution: [ this.gl.canvas.width, this.gl.canvas.height ] } );
 
@@ -28,7 +30,7 @@ function Scene( renderer ) {
 
     this.attachments = defaultAttachment;
     this.framebufferInfo = createFramebufferInfo( this.gl, this.attachments );
-    this.bufferPicker = new BufferPicker( this.gl, this.models, this.framebufferInfo, 1 );
+    this.bufferPicker = new BufferPicker( this.gl, this.models, this.framebufferInfo, this.controler, 1 );
 
     this.setPick( false );
 

@@ -69,10 +69,11 @@
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
+            const controler = scene.controler;
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
             camera.transform.position.set(0, 0, 2);
-            let cameraControler = new CZPG.OrbitControls(camera, context.canvas);
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
             cameraControler.enableDamping = true;
             cameraControler.autoRotate = true;
             cameraControler.autoRotateSpeed = 4.0;

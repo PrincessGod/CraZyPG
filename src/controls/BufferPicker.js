@@ -1,46 +1,19 @@
 import { id2Color, color2Id } from './FramebufferPicker';
 import { readPixcelFromFrameBufferInfo } from '../renderer/framebuffer';
 
-function BufferPicker( gl, models, framebufferInfo, bufferIdx = 1 ) {
+function BufferPicker( gl, models, framebufferInfo, controler, bufferIdx = 1 ) {
 
     this.gl = gl;
     this.canvas = gl.canvas;
     this.models = models;
     this.bufferIdx = bufferIdx;
     this.framebufferInfo = framebufferInfo;
+    this.controler = controler;
+    this.eventListeners = { type: 'mouseleftclick', listener: this.onmouseclick.bind( this ) };
+    this.controler.addListeners( this.eventListeners );
 
-    this.flag = 0;
-    const self = this;
     this.isActive = false;
     this.updateCanvasParam();
-    this.mousedown = function () {
-
-        self.flag = 0;
-
-    };
-    this.mousemove = function () {
-
-        self.flag = 1;
-
-    };
-    this.mouseup = function ( e ) {
-
-        if ( self.flag === 0 && self.isActive ) {
-
-            if ( self.canvas.width !== self.lastCanvasWidth || self.canvas.height !== self.lastCanvasHeight )
-                self.updateCanvasParam();
-
-            const x = e.pageX - self.offsetX;
-            const y = e.pageY - self.offsetY;
-            self.pick( x, y );
-
-        }
-
-    };
-
-    this.canvas.addEventListener( 'mousedown', this.mousedown, false );
-    this.canvas.addEventListener( 'mousemove', this.mousemove, false );
-    this.canvas.addEventListener( 'mouseup', this.mouseup, false );
 
 }
 
@@ -73,9 +46,7 @@ Object.assign( BufferPicker.prototype, {
 
     dispose() {
 
-        this.canvas.removeEventListener( 'mousedown', this.mousedown, false );
-        this.canvas.removeEventListener( 'mousemove', this.mousemove, false );
-        this.canvas.removeEventListener( 'mouseup', this.mouseup, false );
+        this.controler.removeListeners( this.eventListeners );
         return this;
 
     },
@@ -91,6 +62,21 @@ Object.assign( BufferPicker.prototype, {
             this.isActive = false;
 
         return this;
+
+    },
+
+    onmouseclick( e ) {
+
+        if ( this.isActive ) {
+
+            if ( this.canvas.width !== this.lastCanvasWidth || this.canvas.height !== this.lastCanvasHeight )
+                this.updateCanvasParam();
+
+            const x = e.pageX - this.offsetX;
+            const y = e.pageY - this.offsetY;
+            this.pick( x, y );
+
+        }
 
     },
 
