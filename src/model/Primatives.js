@@ -3,6 +3,7 @@ import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
 import { getTypedArray } from '../renderer/typedArray';
 import { getNumComponents } from '../renderer/attributes';
+import { BezierCurve } from '../math/BezierCurve';
 
 function createMesh( name, attribArrays, options ) {
 
@@ -386,4 +387,33 @@ function addBarycentricAttrib( modelMesh, removeEdge = false ) {
 
 }
 
-export { GridAxis, Quad, Cube, Sphere, createMesh, deIndexAttribs, addBarycentricAttrib };
+const Curve = {
+
+    createModel( name, points, tolerence, numPoints, highlyMinify ) {
+
+        return new Model( Curve.createMesh( name, points, tolerence, numPoints, highlyMinify ) );
+
+    },
+
+    createMesh( name = 'curve', points, tolerence, numPoints, highlyMinify ) {
+
+        let bpoints = [];
+        for ( let i = 0; i < Math.floor( ( points.length - 1 ) / 3 ); i ++ ) {
+
+            bpoints.pop();
+            bpoints = bpoints.concat( BezierCurve.getPoints( points[ i * 3 + 0 ], points[ i * 3 + 1 ], points[ i * 3 + 2 ], points[ i * 3 + 3 ], tolerence, numPoints, highlyMinify ) );
+
+        }
+        bpoints = bpoints.map( vec3 => vec3.getArray() );
+        const vertices = bpoints.reduce( ( a, b ) => a.concat( b ) );
+
+        const attribArrays = {};
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
+
+        return createMesh( name, attribArrays, { drawMode: Constant.LINE_STRIP } );
+
+    },
+
+};
+
+export { GridAxis, Quad, Cube, Sphere, createMesh, deIndexAttribs, addBarycentricAttrib, Curve };

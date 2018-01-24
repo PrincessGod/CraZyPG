@@ -17,6 +17,7 @@ export const UNIFORM_CAMPOS = 'u_camPos';
 
 // WebGLContext
 export const LINES = 1;
+export const LINE_STRIP = 3;
 export const TRIANGLES = 4;
 export const TRIANGLE_STRIP = 5;
 

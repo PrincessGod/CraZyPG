@@ -177,17 +177,22 @@
             let colorPicker = new CZPG.FramebufferPicker(context, camera, controler).activate();
             colorPicker.models = scene.models;
 
+            let curveModel = CZPG.Curve.createModel('cur', [
+                new CZPG.Vector3(-2, 0, 0), new CZPG.Vector3(-1.5, 0.4, 0), new CZPG.Vector3(-0.5, 1, 0), new CZPG.Vector3(0, 0, 0),
+                                            new CZPG.Vector3(0.5, -1, 0), new CZPG.Vector3(1.5, -0.4, 0), new CZPG.Vector3(2, 0, 0),
+            ], 0.01, 40);
+
             let lightPos = [0, 0, 0];
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
-                // {shader: gridShader, model: gridModal},
-                // {shader: quadShader.setTexture(textures.pic), model: [quadModal, sphereModel, sphereOctModel]},
-                {shader: wireframeShader, model: [sphereModel, cubeModal, quadModal, sphereOctModel]},
-                {
-                    shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
-                    model: [terrainModel.setUniformObj({texture: textures.scalar})],
-                },
+                {shader: gridShader, model: gridModal},
+                {shader: quadShader.setTexture(textures.pic), model: [curveModel]},
+                // {shader: wireframeShader, model: [sphereModel, cubeModal, quadModal, sphereOctModel]},
+                // {
+                //     shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
+                //     model: [terrainModel.setUniformObj({texture: textures.scalar})],
+                // },
                 // {
                 //     helper: lineHelper, 
                 //     data:[
@@ -195,12 +200,13 @@
                 //         {data: terrainModel},
                 //     ]
                 // },
-                // {
-                //     helper: pointHelper,
-                //     data: [
-                //         {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
-                //     ]
-                // }
+                {
+                    helper: pointHelper,
+                    data: [
+                        // {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
+                        {data: curveModel.positionInfo},
+                    ]
+                }
             ]);
 
             let resized = false; scene.setPick(true);
