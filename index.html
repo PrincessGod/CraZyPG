@@ -39,7 +39,6 @@
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
-            
             textures = CZPG.createTextures(context, {
                 checker: {
                     mag: context.NEAREST,
@@ -139,6 +138,7 @@
                 dashAnimate: false,
                 dualStroke: true,
                 secondThickness: 0.1,
+                feather: 1.0,
             } );
             let lightShader = new CZPG.PointlightShader(context, camera);
             let phongShader = new CZPG.PhongLightShader(context, camera);
@@ -180,14 +180,24 @@
             let curveModel = CZPG.Curve.createModel('cur', [
                 new CZPG.Vector3(-2, 0, 0), new CZPG.Vector3(-1.5, 0.4, 0), new CZPG.Vector3(-0.5, 1, 0), new CZPG.Vector3(0, 0, 0),
                                             new CZPG.Vector3(0.5, -1, 0), new CZPG.Vector3(1.5, -0.4, 0), new CZPG.Vector3(2, 0, 0),
-            ], 0.01, 40);
+            ], 0.001, 40);
 
+            let meshlineShader = new CZPG.MeshLineShader(context, camera).setUniformObj({
+                linewidth: 2,
+                color: [ 255 / 255, 105 / 255, 180 / 255, 255 / 255 ],
+                sizeAttenuation: false,
+                visibilityStart: 0.2,
+                visibilityEnd: 0.5,
+            })
+            let meshlineModel = new CZPG.MeshLineModel(curveModel.mesh, meshlineShader);//function( p ) { return Math.abs(Math.sin( Math.PI * 2 * p )); }
+            meshlineModel.mesh.blend = true;
             let lightPos = [0, 0, 0];
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
                 {shader: gridShader, model: gridModal},
-                {shader: quadShader.setTexture(textures.pic), model: [curveModel]},
+                // {shader: quadShader.setTexture(textures.pic), model: [curveModel]},
+                {shader: meshlineShader, model: [meshlineModel]},
                 // {shader: wireframeShader, model: [sphereModel, cubeModal, quadModal, sphereOctModel]},
                 // {
                 //     shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
@@ -204,12 +214,13 @@
                     helper: pointHelper,
                     data: [
                         // {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
-                        {data: curveModel.positionInfo},
+                        // {data: curveModel.positionInfo},
+                        // {data: meshlineModel.positions},
                     ]
                 }
             ]);
 
-            let resized = false; scene.setPick(true);
+            let resized = false;
             let loop = new CZPG.Render(function(timespan) {
                 resized = renderer.clear().fixCanvasToDisplay(window.devicePixelRatio)
                 if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
@@ -224,6 +235,10 @@
                 lightShader.setUniformObj({ position: lightPos });
                 phongShader.setUniformObj({ position: lightPos });
                 wireframeShader.setUniformObj({time: performance.now() * 0.005});
+                meshlineShader.setUniformObj({
+                    visibilityStart: Math.abs( Math.sin( performance.now() * 0.0003) ),
+                    visibilityEnd: Math.abs( Math.sin( performance.now() * 0.0003) ) + 0.3,
+                })
                 // scene.render2Buffer(resized).render2Screen(0);
                 scene.render();
 

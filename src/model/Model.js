@@ -126,9 +126,9 @@ Object.assign( Model.prototype, {
 
     },
 
-    createVAO( gl ) {
+    createVAO( gl, shader = getDefaultShader( gl ) ) {
 
-        this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, getDefaultShader( gl ).program, getDefaultShader( gl ).attribSetters );
+        this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, shader.program, shader.attribSetters );
         return this;
 
     },
