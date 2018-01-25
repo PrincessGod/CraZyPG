@@ -22,7 +22,7 @@ layout(location = 1) out vec4 pickColor;
 #endif
 
 float aastep(float thickness, float d) {
-    return smoothstep(thickness, thickness + u_tile * 0.5, d);
+    return smoothstep(thickness, thickness + u_tile, d);
 }
 
 void main() {
@@ -33,7 +33,7 @@ void main() {
     c.a *= aastep(0.0, (v_counters - u_visibilityStart) / (u_visibilityEnd - u_visibilityStart));
     c.a *= aastep(0.0, (u_visibilityEnd - v_counters) / (u_visibilityEnd - u_visibilityStart));
 
-    finalColor = vec4(aastep(0.0, 0.4));
+    finalColor = c;
 
     #ifdef ColorPick
     pickColor = vec4(u_colorId, 1.0);

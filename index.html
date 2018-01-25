@@ -186,8 +186,9 @@
                 linewidth: 2,
                 color: [ 255 / 255, 105 / 255, 180 / 255, 255 / 255 ],
                 sizeAttenuation: false,
-                visibilityStart: 0.2,
+                visibilityStart: 0.0,
                 visibilityEnd: 0.5,
+                u_tile: 0.3,
             })
             let meshlineModel = new CZPG.MeshLineModel(curveModel.mesh, meshlineShader);//function( p ) { return Math.abs(Math.sin( Math.PI * 2 * p )); }
             meshlineModel.mesh.blend = true;
@@ -236,8 +237,8 @@
                 phongShader.setUniformObj({ position: lightPos });
                 wireframeShader.setUniformObj({time: performance.now() * 0.005});
                 meshlineShader.setUniformObj({
-                    visibilityStart: Math.abs( Math.sin( performance.now() * 0.0003) ),
-                    visibilityEnd: Math.abs( Math.sin( performance.now() * 0.0003) ) + 0.3,
+                    visibilityStart: 0.7 * Math.sin( Math.sin( performance.now() * 0.0003) ),
+                    visibilityEnd: 0.7 * Math.sin( Math.sin( performance.now() * 0.0003) ) + 0.3,
                 })
                 // scene.render2Buffer(resized).render2Screen(0);
                 scene.render();
