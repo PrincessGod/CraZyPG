@@ -14,6 +14,7 @@ uniform vec4 u_stroke;
 uniform vec4 u_fill;
 uniform float u_secondThickness;
 uniform bool u_dualStroke;
+uniform float u_feather;
 
 uniform bool u_screenWidth;
 
@@ -36,12 +37,12 @@ uniform bool u_dashAnimate;
 
 float edgeFactor(float offset, float thickness){
     vec3 d = fwidth(v_barycentric);
-    vec3 a3 = smoothstep(d * ((thickness * 0.5) - 0.5) , d * ((thickness * 0.5) + 0.5), v_barycentric + offset);
+    vec3 a3 = smoothstep(d * ((thickness * 0.5) - u_feather) , d * ((thickness * 0.5) + u_feather), v_barycentric + offset);
     return min(min(a3.x, a3.y), a3.z);
 }
 
-float aastep(float d, float thickness) {
-    float afwidth = fwidth(d) * 0.5;
+float aastep(float thickness, float d) {
+    float afwidth = fwidth(d) * u_feather;
     return smoothstep(thickness - afwidth, thickness + afwidth, d);
 }
 
@@ -89,12 +90,12 @@ void main() {
     if (u_screenWidth) {
         frag = edgeFactor(noiseOff, computedThickness * 10.0);
     } else {
-        frag = aastep(d, computedThickness / 10.0);
+        frag = aastep(computedThickness / 10.0, d);
     }
 
     float inner = 0.0;
     if(u_dualStroke) {
-        inner = aastep(u_secondThickness, d);       
+        inner = 1.0 - aastep(u_secondThickness, d);       
     }
 
     if(u_colorBack && !gl_FrontFacing) {

@@ -13,6 +13,7 @@ function WireframeShader( gl, camera ) {
         stroke: [ 0 / 255, 157 / 255, 118 / 255, 1.0 ],
         fill: [ 255 / 255, 147 / 255, 172 / 255, 0.0 ],
         backStroke: [ 0 / 255, 88 / 255, 83 / 255, 1.0 ],
+        feather: 1.0,
         colorBack: false,
         noiseSmall: false,
         noiseBig: false,

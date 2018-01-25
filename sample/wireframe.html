@@ -124,6 +124,7 @@
                 stroke: [ 0, 157 / 255, 118 / 255, 255 / 255 ],
                 fill: [ 255 / 255, 0 / 255, 0 / 255, 0.0 ],
                 backStroke: [ 255 / 255, 88 / 255, 83 / 255, 1.0 ],
+                feather: 1.0,
                 colorBack: true,
                 noiseSmall: false,
                 noiseBig: false,
@@ -158,6 +159,7 @@
             let datgui = new dat.GUI();
             let basic = datgui.addFolder('Wireframe');
             basic.add(uniformObj, 'thickness', 0.01, 1.0);
+            basic.add(uniformObj, 'feather', 0.01, 4.0);
             basic.add(uniformObj, 'screenWidth');
             let colorStroke =  basic.addColor(colors, 'stroke').listen();
             colorStroke.onChange(value => {
