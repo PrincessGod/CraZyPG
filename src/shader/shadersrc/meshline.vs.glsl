@@ -17,7 +17,7 @@ uniform vec2 u_resolution;
 uniform float u_linewidth;
 uniform float u_near;
 uniform float u_far;
-uniform bool u_sizeAttenuation;
+uniform bool u_screenSize;
 
 out vec2 v_uv;
 out float v_counters;
@@ -47,7 +47,7 @@ void main() {
     float pixelWidth = finalPosition.w * pixelWidthRatio;
     float w = 1.8 * pixelWidth * u_linewidth * a_width * 10.0;
 
-    if(u_sizeAttenuation) {
+    if(!u_screenSize) {
         w = 1.8 * u_linewidth * a_width * 0.01;
     }
 

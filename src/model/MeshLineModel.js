@@ -2,7 +2,7 @@ import { Model } from './Model';
 import { createMesh } from './Primatives';
 import * as Constant from '../renderer/constant';
 
-function MeshLineModel( mesh, meshlineShader, widthCallback, name ) {
+function MeshLineModel( mesh, widthCallback, name ) {
 
     const array = ( mesh && mesh.attribArrays && mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ] && mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data ) || mesh;
 
@@ -14,7 +14,6 @@ function MeshLineModel( mesh, meshlineShader, widthCallback, name ) {
     }
 
     this.name = name || ( mesh.name && `${mesh.name}_Meshline` ) || 'MeshLine';
-    this.meshlineShader = meshlineShader;
     this.widthCallback = widthCallback;
     const meshc = this.process( array );
 
@@ -142,13 +141,6 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: this.uv };
 
         return createMesh( this.name, attribArrays );
-
-    },
-
-    createVAO( gl ) {
-
-        Model.prototype.createVAO.call( this, gl, this.meshlineShader );
-        return this;
 
     },
 

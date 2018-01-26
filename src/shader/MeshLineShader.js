@@ -11,11 +11,12 @@ function MeshLineShader( gl, camera ) {
     this.setUniformObj( {
         linewidth: 1.0,
         color: [ 255 / 255, 105 / 255, 180 / 255, 255 / 255 ],
-        sizeAttenuation: true,
-        u_tile: 0.3,
+        screenSize: true,
+        tile: 0.3,
     } );
 
     this.blend = true;
+    this.depth = false;
 
     this.deactivate();
 

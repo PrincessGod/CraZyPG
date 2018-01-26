@@ -35,7 +35,13 @@ const GridAxis = {};
 
 Object.assign( GridAxis, {
 
-    createMesh( size = 10, div = 20 ) {
+    createModel( name, size, div ) {
+
+        return new Model( GridAxis.createMesh( name, size, div ) );
+
+    },
+
+    createMesh( name = 'GridAxis', size = 10, div = 20 ) {
 
         const vertices = [];
         const color = [];
@@ -103,7 +109,7 @@ Object.assign( GridAxis, {
         };
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
 
-        return createMesh( 'gridAxis', attribArrays, { drawMode: Constant.LINES } );
+        return createMesh( name, attribArrays, { drawMode: Constant.LINES } );
 
     },
 

@@ -46,7 +46,7 @@ Object.assign( Vector3.prototype, {
 
     setFromSpherical( s ) {
 
-        return this.fromSpherical( this, s );
+        return Vector3.fromSpherical( this, s );
 
     },
 
@@ -136,13 +136,13 @@ Object.assign( Vector3.prototype, {
 
     cross( v ) {
 
-        return this.crossVectors( new Vector3(), this, v );
+        return Vector3.crossVectors( new Vector3(), this, v );
 
     },
 
     applyQuaternion( q ) {
 
-        this.transformQuat( this, this, q );
+        Vector3.transformQuat( this, this, q );
         return this;
 
     },
@@ -152,6 +152,10 @@ Object.assign( Vector3.prototype, {
         return ( v1.x * v2.z ) + ( v1.y * v2.y ) + ( v1.z * v2.z );
 
     },
+
+} );
+
+Object.assign( Vector3, {
 
     crossVectors( out, v1, v2 ) {
 

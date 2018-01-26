@@ -172,7 +172,7 @@ const BezierCurve = {
 
     },
 
-    getPoints( p0, p1, p2, p3, tolerance = 0.1, numPoints = 100, highlyMinify = true ) {
+    getPoints( p0, p1, p2, p3, tolerance, numPoints = 100, highlyMinify = true ) {
 
         const points = [];
         for ( let i = 0; i < numPoints; i ++ ) {
@@ -182,7 +182,7 @@ const BezierCurve = {
 
         }
 
-        return simplify( points, tolerance, highlyMinify );
+        return tolerance ? simplify( points, tolerance, highlyMinify ) : points;
 
     },
 

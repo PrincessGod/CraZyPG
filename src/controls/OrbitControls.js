@@ -14,7 +14,7 @@ class OrbitControls {
         this.enable = true;
         this.target = new Vector3();
 
-        this.minDistance = 0;
+        this.minDistance = 0.1;
         this.maxDistance = Infinity;
 
         this.minPolarAngle = 0;

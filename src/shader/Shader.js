@@ -9,6 +9,7 @@ function Shader( gl, vs, fs ) {
 
     this.cullFace = true;
     this.blend = false;
+    this.depth = true;
     this.sampleBlend = false;
     this.shaders = [ vs, fs ];
     this.program = null;
@@ -205,11 +206,13 @@ Object.assign( Shader.prototype, {
             model.createBufferInfo( this.gl );
 
         if ( ! model.mesh.vao )
-            model.createVAO( this.gl );
+            model.createVAO( this.gl, this._customAttrib ? this : undefined );
 
         if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.disable( this.gl.CULL_FACE );
 
         if ( this.blend || model.mesh.blend ) this.gl.enable( this.gl.BLEND );
+
+        if ( this.depth === false || model.mesh.depth === false ) this.gl.depthMask( false );
 
         if ( this.sampleBlend || model.mesh.sampleBlend ) this.gl.enable( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
 
@@ -233,6 +236,8 @@ Object.assign( Shader.prototype, {
         if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.enable( this.gl.CULL_FACE );
 
         if ( this.blend || model.mesh.blend ) this.gl.disable( this.gl.BLEND );
+
+        if ( this.depth === false || model.mesh.depth === false ) this.gl.depthMask( true );
 
         if ( this.sampleBlend || model.mesh.sampleBlend ) this.gl.disable( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
 
@@ -326,6 +331,7 @@ Object.assign( Shader.prototype, {
             this._needMVPMat = this.programInfos[ index ]._needMVPMat;
             this._needCamPos = this.programInfos[ index ]._needCamPos;
             this._needNormMat = this.programInfos[ index ]._needNormMat;
+            this._customAttrib = this.programInfos[ index ]._customAttrib;
 
         } else {
 
@@ -337,6 +343,7 @@ Object.assign( Shader.prototype, {
             this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_MVP_MAT_NAME );
             this._needCamPos = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_CAMPOS );
             this._needNormMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_NORMAL_MAT_NAME );
+            this._customAttrib = Object.keys( this.attribSetters ).filter( attrib => [ Constant.ATTRIB_POSITION_NAME, Constant.ATTRIB_UV_NAME, Constant.ATTRIB_NORMAL_NAME, Constant.ATTRIB_BARYCENTRIC_NAME ].indexOf( attrib ) < 0 ).length > 0;
             this.programInfos[ index ] = {
                 attribSetters: this.attribSetters,
                 uniformSetters: this.uniformSetters,
@@ -345,6 +352,7 @@ Object.assign( Shader.prototype, {
                 _needMVPMat: this._needMVPMat,
                 _needCamPos: this._needCamPos,
                 _needNormMat: this._needNormMat,
+                _customAttrib: this._customAttrib,
             };
             this.uniformObjs[ index ] = Object.assign( {}, this.currentUniformObj );
 
