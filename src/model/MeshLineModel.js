@@ -1,15 +1,36 @@
 import { Model } from './Model';
 import { createMesh } from './Primatives';
 import * as Constant from '../renderer/constant';
+import { createBufferFromArray } from '../renderer/attributes';
 
-function MeshLineModel( mesh, widthCallback, name ) {
+function MeshLineModel( meshModel, widthCallback, name ) {
 
-    const array = ( mesh && mesh.attribArrays && mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ] && mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data ) || mesh;
+    const mesh = meshModel.mesh || meshModel;
+    let array;
+    if ( mesh && mesh.attribArrays && mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ] ) {
 
-    if ( ! ( array instanceof Float32Array || Array.isArray( array ) ) ) {
+        if ( mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].numComponents !== 3 ) {
 
-        console.warn( 'MeshLine need an array of positions' );
-        return;
+            console.error( `MeshLine need 3 dimensions points array, but received ${mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].numComponents} dimensions array.` );
+            return null;
+
+        }
+        array = mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data;
+
+    } else if ( array.isArray( mesh ) ) {
+
+        if ( mesh.length % 3 !== 0 ) {
+
+            console.error( 'MeshLine need 3 dimensions points array, but received array\'s length divided by 3 not 0.' );
+            return null;
+
+        }
+        array = mesh;
+
+    } else {
+
+        console.error( `MeshLine need 3 dimensions points array, but received Object ${meshModel}` );
+        return null;
 
     }
 
@@ -129,18 +150,41 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
 
         }
 
+        this.positionArray = [];
+        this.positionArray.push( this.previous[ 0 ], this.previous[ 1 ], this.previous[ 2 ], 0, this.previous[ 0 ], this.previous[ 1 ], this.previous[ 2 ], 0 );
+        for ( let i = 0; i < this.positions.length / 3; i ++ )
+            this.positionArray.push( this.positions[ i * 3 ], this.positions[ i * 3 + 1 ], this.positions[ i * 3 + 2 ], this.side[ i ] );
+
+        this.positionArray.push( this.next[ this.next.length - 3 ], this.next[ this.next.length - 2 ], this.next[ this.next.length - 1 ], 0, this.next[ this.next.length - 3 ], this.next[ this.next.length - 2 ], this.next[ this.next.length - 1 ], 0 );
+
         const attribArrays = {
             indices: { data: this.indices },
-            a_previous: { data: this.previous, numComponents: 3 },
-            a_next: { data: this.next, numComponents: 3 },
-            a_side: { data: this.side, numComponents: 1 },
+            a_previous: { data: this.previous, numComponents: 3, stride: 4 * Float32Array.BYTES_PER_ELEMENT },
+            a_next: {
+                data: this.next, numComponents: 3, offset: 16 * Float32Array.BYTES_PER_ELEMENT, stride: 4 * Float32Array.BYTES_PER_ELEMENT,
+            },
+            a_side: {
+                data: this.side, numComponents: 1, offset: 11 * Float32Array.BYTES_PER_ELEMENT, stride: 4 * Float32Array.BYTES_PER_ELEMENT,
+            },
             a_width: { data: this.width, numComponents: 1 },
             a_counters: { data: this.conters, numComponents: 1 },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: this.positions };
+        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: this.positions, offset: 8 * Float32Array.BYTES_PER_ELEMENT, stride: 4 * Float32Array.BYTES_PER_ELEMENT };
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: this.uv };
 
         return createMesh( this.name, attribArrays );
+
+    },
+
+    createBufferInfo( gl ) {
+
+        const positionBuffer = createBufferFromArray( gl, this.positionArray, 'position' );
+        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].buffer = positionBuffer;
+        this.mesh.attribArrays.a_previous.buffer = positionBuffer;
+        this.mesh.attribArrays.a_next.buffer = positionBuffer;
+        this.mesh.attribArrays.a_side.buffer = positionBuffer;
+
+        Model.prototype.createBufferInfo.call( this, gl );
 
     },
 
