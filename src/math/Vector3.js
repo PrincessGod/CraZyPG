@@ -19,9 +19,22 @@ Object.assign( Vector3.prototype, {
         // Get magnitude based on another vector
         const x = v.x - this.x;
         const y = v.y - this.y;
-        const z = v.y - this.z;
+        const z = v.z - this.z;
 
         return Math.sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
+
+    },
+
+    squareLength( v ) {
+
+        if ( v === undefined )
+            return ( this.x * this.x ) + ( this.y * this.y ) + ( this.z * this.z );
+
+        const x = v.x - this.x;
+        const y = v.y - this.y;
+        const z = v.z - this.z;
+
+        return ( x * x ) + ( y * y ) + ( z * z );
 
     },
 

@@ -253,39 +253,6 @@ Object.assign( Matrix4, {
 
     },
 
-    multiplyVector( mat4, v ) {
-
-        const x = v[ 0 ];
-        const y = v[ 1 ];
-        const z = v[ 2 ];
-        const w = v[ 3 ];
-
-        const c1r1 = mat4[ 0 ];
-        const c2r1 = mat4[ 1 ];
-        const c3r1 = mat4[ 2 ];
-        const c4r1 = mat4[ 3 ];
-        const c1r2 = mat4[ 4 ];
-        const c2r2 = mat4[ 5 ];
-        const c3r2 = mat4[ 6 ];
-        const c4r2 = mat4[ 7 ];
-        const c1r3 = mat4[ 8 ];
-        const c2r3 = mat4[ 9 ];
-        const c3r3 = mat4[ 10 ];
-        const c4r3 = mat4[ 11 ];
-        const c1r4 = mat4[ 12 ];
-        const c2r4 = mat4[ 13 ];
-        const c3r4 = mat4[ 14 ];
-        const c4r4 = mat4[ 15 ];
-
-        return [
-            x * c1r1 + y * c1r2 + z * c1r3 + w * c1r4,
-            x * c2r1 + y * c2r2 + z * c2r3 + w * c2r4,
-            x * c3r1 + y * c3r2 + z * c3r3 + w * c3r4,
-            x * c4r1 + y * c4r2 + z * c4r3 + w * c4r4,
-        ];
-
-    },
-
     transformVec4( out, m, v ) {
 
         out[ 0 ] = m[ 0 ] * v[ 0 ] + m[ 4 ] * v[ 1 ] + m[ 8 ] * v[ 2 ] + m[ 12 ] * v[ 3 ];

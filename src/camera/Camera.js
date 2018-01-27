@@ -11,6 +11,7 @@ class Camera {
         this.projMat = Matrix4.identity();
         this.viewMat = Matrix4.identity();
         this.matrix = this.transform.matrix.raw;
+        this.position = this.transform.position;
 
     }
 
@@ -62,6 +63,7 @@ class PerspectiveCamera extends Camera {
 
         Matrix4.lookAt( this.viewMat, this.transform.position.getArray(), this.target.getArray(), this.up );
         Matrix4.invert( this.matrix, this.viewMat );
+        this.position.set( this.matrix[ 12 ], this.matrix[ 13 ], this.matrix[ 14 ] );
 
     }
 

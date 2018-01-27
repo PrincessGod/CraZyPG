@@ -142,7 +142,7 @@ Object.assign( Shader.prototype, {
         if ( ! this.camera ) return this;
 
         if ( this._needCamPos )
-            this.setUniformObjProp( Constant.UNIFORM_CAMPOS, [ this.camera.matrix[ 12 ], this.camera.matrix[ 13 ], this.camera.matrix[ 14 ] ], PMath.arrayEquals );
+            this.setUniformObjProp( Constant.UNIFORM_CAMPOS, this.camera.position.getArray(), PMath.arrayEquals );
 
         this.setProjMatrix( this.camera.projMat );
         this.setViewMatrix( this.camera.viewMat );

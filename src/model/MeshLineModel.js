@@ -17,7 +17,7 @@ function MeshLineModel( meshModel, widthCallback, name ) {
         }
         array = mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data;
 
-    } else if ( array.isArray( mesh ) ) {
+    } else if ( Array.isArray( mesh ) ) {
 
         if ( mesh.length % 3 !== 0 ) {
 
