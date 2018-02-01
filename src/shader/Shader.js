@@ -5,7 +5,7 @@ import { PMath } from '../math/Math';
 import { Matrix3 } from '../math/Matrix3';
 import { Matrix4 } from '../math/Matrix4';
 
-function Shader( gl, vs, fs ) {
+function Shader( gl, vs, fs, opts ) {
 
     this.cullFace = true;
     this.blend = false;
@@ -16,6 +16,7 @@ function Shader( gl, vs, fs ) {
     this.programs = [];
     this.programMap = [];
     this.gl = gl;
+    this.opts = opts;
     this.camera = null;
     this.currentUniformObj = {};
     this.uniformObj = {};
@@ -283,7 +284,7 @@ Object.assign( Shader.prototype, {
 
             if ( index < 0 ) {
 
-                this.programs[ currentProgNum ] = createProgram( this.gl, ...Shader.injectDefines( this.shaders, ...defines ) );
+                this.programs[ currentProgNum ] = createProgram( this.gl, ...Shader.injectDefines( this.shaders, ...defines ), this.opts );
                 this.program = this.programs[ currentProgNum ];
                 this.programMap[ currentProgNum ] = defines;
                 this.updateProgram( currentProgNum );
@@ -312,7 +313,7 @@ Object.assign( Shader.prototype, {
 
         }
 
-        this.programs[ 0 ] = createProgram( this.gl, ...this.shaders );
+        this.programs[ 0 ] = createProgram( this.gl, ...this.shaders, this.opts );
         this.program = this.programs[ 0 ];
         this.programMap[ 0 ] = [];
         this.updateProgram( 0 );

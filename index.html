@@ -34,11 +34,131 @@
     </div>
     <script src="./build/czpg.js"></script>
     <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
-    <script>
+    <script id="tf-vs" type="nonjs">#version 300 es
+
+        out vec3 a_position;
+        out vec3 a_normal;
+        out vec2 a_texcoord;
+        flat out uint a_color;
+
+        uniform float u_vertexCount;
+        uniform float u_around;
+        uniform float u_hue;
+
+        const float PI = radians(180.);
+
+        vec3 hsv2rgb(vec3 c) {
+            c = vec3(c.x, clamp(c.yz, 0.0, 1.0));
+            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+
+        void main() {
+            float numQuads = floor(u_vertexCount / 6.);
+            float down = numQuads / u_around;
+            float quadId = floor(float(gl_VertexID) / 6.);
+
+            float qx = mod(quadId, u_around);
+            float qy = floor(quadId / u_around);
+
+            // 0--1 3
+            // | / /|
+            // |/ / |
+            // 2 4--5
+            //
+            // 0 1 0 1 0 1
+            // 0 0 1 0 1 1
+
+            float edgeId = mod(float(gl_VertexID), 6.);
+            float ux = mod(edgeId, 2.);
+            float vy = mod(floor(edgeId / 2.) + floor(edgeId / 3.), 2.);
+
+            float qu = (qx + ux) / u_around;
+            float qv = (qy + vy) / down;
+
+            float r = sin(qv * PI);
+            float x = cos(qu * PI * 2.) * r;
+            float z = sin(qu * PI * 2.) * r;
+
+            a_position = vec3(x, cos(qv * PI), z);
+            a_normal = normalize(a_position);
+            a_texcoord = vec2(qu, qv);
+
+            float hue = sin(qu * PI) * .1 + u_hue;
+            float sat = mix(0.5, 1., mod(quadId, 2.));
+            float val = 1.;
+            uvec4 ucolor = uvec4(vec4(hsv2rgb(vec3(hue, sat, val)), 1.) * 255.);
+            a_color = (ucolor.r <<  0) |
+                    (ucolor.g <<  8) |
+                    (ucolor.b << 16) |
+                    (ucolor.a << 24) ;
+        }
+    </script>
+    <script id="tf-fs" type="notjs">#version 300 es
+        precision mediump float;
+        out vec4 o;
+        void main() {
+        o = vec4(0);
+        }
+    </script>
+    <script>    
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
+
+            const feedbackShader = new CZPG.Shader(context, "tf-vs", "tf-fs", {
+            // note: you can pass a bufferInfo instead of this array
+                transformFeedbackVaryings: [
+                "a_position",
+                "a_normal",
+                "a_texcoord",
+                "a_color",
+                ],
+            });
+            const feedbackProgram = feedbackShader.program;
+            const feedbackInfo = CZPG.createTransformFeedbackInfo(context, feedbackProgram);
+
+            let numVerts = 20;
+            const bufferInfo = CZPG.createBufferInfoFromArrays(context, {
+                a_position: numVerts * 3,
+                a_normal: numVerts * 3,
+                a_texcoord: numVerts * 2,
+                a_color: { data: numVerts * 4, type: Uint8Array, },
+            });
+
+            const feedback = CZPG.createTransformFeedback(context, feedbackProgram, feedbackInfo, bufferInfo);    
+
+            var model;
+            function generateMesh(tf, bufferInfo, numVerts, around, hue) {
+                context.enable(context.RASTERIZER_DISCARD);
+
+                feedbackShader.activate();
+                context.bindTransformFeedback(context.TRANSFORM_FEEDBACK, tf);
+                context.beginTransformFeedback(context.TRIANGLES);
+                feedbackShader.setUniformObj({
+                    u_vertexCount: numVerts,
+                    u_around: around,
+                    u_hue: hue,
+                });
+                var mesh = {
+                    name: 'testtst',
+                    bufferInfo,
+                    drawMode: context.TRIANGLES,
+                    attribArrays: {},
+                }
+                model = new CZPG.Model(mesh);
+                feedbackShader.renderModel(model);
+                model.vao = undefined;
+                context.endTransformFeedback();
+                context.bindTransformFeedback(context.TRANSFORM_FEEDBACK, null);
+
+                context.disable(context.RASTERIZER_DISCARD);
+            }
+
+            generateMesh(feedback, bufferInfo, 4, 3, 2);
+
             textures = CZPG.createTextures(context, {
                 checker: {
                     mag: context.NEAREST,
@@ -94,7 +214,7 @@
                         100, 100, 100, 255,
                     ],
                 }
-            })
+            });
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
             camera.transform.position.set(0, 1, 3);
@@ -104,120 +224,20 @@
             // cameraControler.autoRotate = true;
 
             let gridShader = new CZPG.GridAxisShader(context, camera);
-            let gridMesh = CZPG.GridAxis.createMesh();
-            let gridModal = new CZPG.Model(gridMesh);
-
-            let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
-            let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
-            let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
-            let sphereModel = CZPG.Sphere.createModel();//.setPosition(2.5, 0.5, -2.5);
-            let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0, Math.PI * 0.5, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
-            sphereOctModel.mesh.cullFace = false;
-            // sphereOctModel.setUniformObj({isFlat: false});
-            CZPG.addBarycentricAttrib(sphereModel, true);
-            CZPG.addBarycentricAttrib(cubeModal, true);
-            CZPG.addBarycentricAttrib(quadModal, true);
-            CZPG.addBarycentricAttrib(sphereOctModel, true);
-
-            let wireframeShader = new CZPG.WireframeShader(context, camera).setUniformObj( {
-                thickness: 0.5,
-                screenWidth: false,
-                stroke: [ 0 / 255, 157 / 255, 118 / 255, 1.0 ],
-                fill: [ 255 / 255, 0 / 255, 0 / 255, 0.0 ],
-                backStroke: [ 255 / 255, 88 / 255, 83 / 255, 1.0 ],
-                colorBack: true,
-                noiseSmall: false,
-                noiseBig: false,
-                squeeze: false,
-                squeezeMin: 0.8,
-                suqeezeMax: 1.0,
-                dash: false,
-                dashRepeats: 6,
-                dashLength: 0.5,
-                dashOverlap: false,
-                dashAnimate: false,
-                dualStroke: true,
-                secondThickness: 0.1,
-                feather: 1.0,
-            } );
-            let lightShader = new CZPG.PointlightShader(context, camera);
-            let phongShader = new CZPG.PhongLightShader(context, camera);
-            let objModels = [];
-            CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
-                for (let i = 0; i < meshs.length; i++) {
-                    objModels.push((new CZPG.Model(meshs[i])).setScale(0.1, 0.1, 0.1).setUniformObj({
-                            ambientColor: [ 0.05, 0.05, 0.05 ],
-                            falloff: 0.15,
-                            radius: 8.0,
-                            // materials
-                            shiness: 10.0,
-                            specularFactor: 0.1,
-                            roughness: 0.6,
-                            albedo: 0.9,
-                            isFlat: i % 2 === 1,
-                            isGamma: true,
-                        }));
-                }
-                // colorPicker.addModels(objModels);
-                scene.add([
-                    // { shader: phongShader.setTexture(textures.barrel), model: objModels },
-                    // { helper: pointHelper, data: objModels.map(m => { return { data: m.positionInfo, transform: m.transform }; } ) },
-                ]);
-            
-            });
+            let gridModal = CZPG.GridAxis.createModel();
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
             let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 200, 200, 200, 0, 0, 0));
 
-            let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
-            let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
-
-            let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
-
             let colorPicker = new CZPG.FramebufferPicker(context, camera, controler).activate();
             colorPicker.models = scene.models;
 
-            let curveModel = CZPG.Curve.createModel('cur', [
-                new CZPG.Vector3(-2, 0, 0), new CZPG.Vector3(-1.5, 0.4, 0), new CZPG.Vector3(-0.5, 1, 0), new CZPG.Vector3(0, 0, 0),
-                                            new CZPG.Vector3(0.5, -1, 0), new CZPG.Vector3(1.5, -0.4, 0), new CZPG.Vector3(2, 0, 0),
-            ], 0.001, 40);
-
-            let meshlineShader = new CZPG.MeshLineShader(context, camera).setUniformObj({
-                linewidth: 2,
-                color: [ 255 / 255, 105 / 255, 180 / 255, 255 / 255 ],
-                screenSize: false,
-                visibilityStart: 0.0,
-                visibilityEnd: 0.3,
-                tile: 0.5,
-            })
-            let meshlineModel = new CZPG.MeshLineModel(curveModel.mesh);//function( p ) { return Math.abs(Math.sin( Math.PI * 2 * p )); }
-            let lightPos = [0, 0, 0];
+            var fshader = new CZPG.FlatTextureShader(context, camera, textures.pic);            
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
                 {shader: gridShader, model: gridModal},
-                // {shader: quadShader.setTexture(textures.pic), model: [curveModel]},
-                {shader: meshlineShader, model: [meshlineModel]},
-                // {shader: wireframeShader, model: [sphereModel, cubeModal, quadModal, sphereOctModel]},
-                // {
-                //     shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
-                //     model: [terrainModel.setUniformObj({texture: textures.scalar})],
-                // },
-                // {
-                //     helper: lineHelper, 
-                //     data:[
-                //         {data: cubeModal},
-                //         {data: terrainModel},
-                //     ]
-                // },
-                {
-                    helper: pointHelper,
-                    data: [
-                        // {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
-                        // {data: curveModel.positionInfo},
-                        // {data: meshlineModel.positions},
-                    ]
-                }
+                {shader: fshader, model: model},
             ]);
 
             let resized = false;
@@ -226,25 +246,15 @@
                 if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
 
-                lightPos[0] = 2 * Math.cos(performance.now() * 0.0003);
-                lightPos[1] = 2 * Math.abs(Math.cos(performance.now() * 0.0003));
-                lightPos[2] = 2 * Math.sin(performance.now() * 0.0003);
-
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) );
-                terrainModel.addTime(context, timespan * 2);
-                lightShader.setUniformObj({ position: lightPos });
-                phongShader.setUniformObj({ position: lightPos });
-                wireframeShader.setUniformObj({time: performance.now() * 0.005});
-                // meshlineShader.setUniformObj({
-                //     visibilityStart: 0.7 * Math.abs( Math.sin( performance.now() * 0.0003) ),
-                //     visibilityEnd: 0.7 * Math.abs( Math.cos( performance.now() * 0.0003) ) + 0.3,
-                // })
+
                 // scene.render2Buffer(resized).render2Screen(0);
                 scene.render();
 
                 colorPicker.update();
 
             }).start();
+
         });
         
     </script>

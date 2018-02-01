@@ -5,7 +5,7 @@ import * as Constant from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
 import { getTypedArray } from '../renderer/typedArray';
 
-function PointHelper( gl, camera, data, pointSize, pointColor ) {
+function PointHelper( gl, camera, data = [], pointSize, pointColor ) {
 
     this.shader = new ColorPointShader( gl, camera, pointSize, pointColor );
 

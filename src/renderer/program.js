@@ -8,7 +8,6 @@ function getHTMLElementSrc( id ) {
     if ( ! ele || ele.textContent === '' )
         throw new Error( `${id} shader element does not exist or have text.` );
 
-
     return ele.textContent;
 
 }
@@ -46,7 +45,7 @@ function createShader( gl, src, type ) {
 
 }
 
-function createProgram( gl, vs, fs ) {
+function createProgram( gl, vs, fs, opts = {} ) {
 
     let vShader;
     let fShader;
@@ -75,6 +74,15 @@ function createProgram( gl, vs, fs ) {
     gl.bindAttribLocation( prog, Constant.ATTRIB_NORMAL_LOC, Constant.ATTRIB_NORMAL_NAME );
     gl.bindAttribLocation( prog, Constant.ATTRIB_UV_LOC, Constant.ATTRIB_UV_NAME );
     gl.bindAttribLocation( prog, Constant.ATTRIB_BARYCENTRIC_LOC, Constant.ATTRIB_BARYCENTRIC_NAME );
+
+    if ( opts.transformFeedbackVaryings ) {
+
+        let varyings = opts.transformFeedbackVaryings;
+        if ( ! Array.isArray( varyings ) )
+            varyings = Object.keys( varyings );
+        gl.transformFeedbackVaryings( prog, varyings, opts.transformFeedbackMode || gl.SEPARATE_ATTRIBS );
+
+    }
 
     gl.linkProgram( prog );
 
@@ -938,6 +946,75 @@ function setBlockUniformsForProgram( gl, uniformBlockSpec, uniformBlockInfos, va
 
 }
 
+function createTransformFeedbackInfo( gl, program ) {
+
+    const info = {};
+    const numVaryings = gl.getProgramParameter( program, gl.TRANSFORM_FEEDBACK_VARYINGS );
+    for ( let i = 0; i < numVaryings; i ++ ) {
+
+        const varying = gl.getTransformFeedbackVarying( program, i );
+        info[ varying.name ] = {
+            index: i,
+            type: varying.type,
+            size: varying.size,
+        };
+
+    }
+
+    return info;
+
+}
+
+function bindTransformFeedbackInfo( gl, transformfeedbaclnfo, bufferInfo ) {
+
+    if ( bufferInfo.attribs )
+        bufferInfo = bufferInfo.attribs; // eslint-disable-line
+
+    Object.keys( bufferInfo ).forEach( ( name ) => {
+
+        const varying = transformfeedbaclnfo[ name ];
+        if ( varying ) {
+
+            const buf = bufferInfo[ name ];
+            if ( buf.offset )
+                gl.bindBufferRange( gl.TRANSFORM_FEEDBACK_BUFFER, varying.index, buf.buffer, buf.offset, buf.size );
+            else
+                gl.bindBufferBase( gl.TRANSFORM_FEEDBACK_BUFFER, varying.index, buf.buffer );
+
+        }
+
+    } );
+
+}
+
+function unbindTransformFeedbackInfo( gl, transformfeedbaclnfo, bufferInfo ) {
+
+    if ( bufferInfo.attribs )
+        bufferInfo = bufferInfo.attribs; // eslint-disable-line
+
+    Object.keys( bufferInfo ).forEach( ( name ) => {
+
+        const varying = transformfeedbaclnfo[ name ];
+        if ( varying )
+            gl.bindBufferBase( gl.TRANSFORM_FEEDBACK_BUFFER, varying.index, null );
+
+    } );
+
+}
+
+function createTransformFeedback( gl, program, transformfeedbaclnfo, bufferInfo ) {
+
+    const tf = gl.createTransformFeedback();
+    gl.bindTransformFeedback( gl.TRANSFORM_FEEDBACK, tf );
+    gl.useProgram( program );
+    bindTransformFeedbackInfo( gl, transformfeedbaclnfo, bufferInfo );
+    gl.bindTransformFeedback( gl.TRANSFORM_FEEDBACK, null );
+    unbindTransformFeedbackInfo( gl, transformfeedbaclnfo, bufferInfo );
+
+    return tf;
+
+}
+
 export {
     createProgram,
     createAttributesSetters,
@@ -951,4 +1028,7 @@ export {
     setUniformBlock,
     setBlockUniforms,
     setBlockUniformsForProgram,
+
+    createTransformFeedbackInfo,
+    createTransformFeedback,
 };

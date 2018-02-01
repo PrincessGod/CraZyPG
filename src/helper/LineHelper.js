@@ -10,7 +10,7 @@ function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
     this.shader = new ColorLineShader( gl, camera, colors );
     this.normalLength = normalLength;
 
-    const vertices = this._getdata( points );
+    const vertices = points && this._getdata( points );
     const attribArrays = {};
     attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: gl.DYNAMIC_DRAW };
     this.mesh = createMesh( 'LineHelper', attribArrays, { drawMode: gl.LINES } );
