@@ -8,7 +8,8 @@ function getHTMLElementSrc( id ) {
     if ( ! ele || ele.textContent === '' )
         throw new Error( `${id} shader element does not exist or have text.` );
 
-    return ele.textContent;
+    const idx = ele.textContent.indexOf( '#version 300 es' );
+    return ele.textContent.slice( idx );
 
 }
 

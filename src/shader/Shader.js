@@ -138,6 +138,7 @@ Object.assign( Shader.prototype, {
     setCamera( camera ) {
 
         this.camera = camera;
+        return this;
 
     },
 
@@ -167,15 +168,10 @@ Object.assign( Shader.prototype, {
 
         if ( this._programUpdated ) {
 
-            this.activate();
-            this.updateCamera();
             this.uniformObj = this.currentUniformObj;
             this._programUpdated = false;
 
-        } else if ( Shader.currentProgram !== this.program ) {
-
-            this.activate();
-            this.updateCamera();
+        } else if ( Shader.currentProgram !== this.program )
             Object.keys( this.currentUniformObj ).forEach( ( prop ) => {
 
                 if ( this.currentUniformObj[ prop ] instanceof WebGLTexture )
@@ -183,9 +179,8 @@ Object.assign( Shader.prototype, {
 
             } );
 
-            Shader.currentProgram = this.program;
-
-        }
+        this.activate();
+        this.updateCamera();
 
         if ( this._needMVPMat && ( Object.hasOwnProperty.call( this.uniformObj, Constant.UNIFORM_WORLD_MAT_NAME )
             || Object.hasOwnProperty.call( this.uniformObj, Constant.UNIFORM_VIEW_MAT_NAME )

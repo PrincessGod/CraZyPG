@@ -4,7 +4,7 @@ import { getTypedArray } from '../renderer/typedArray';
 import { getNumComponents } from '../renderer/attributes';
 import { BezierCurve } from '../math/BezierCurve';
 
-function Mesh( name, attribArrays, options ) {
+function Mesh( name, attribArrays = {}, options ) {
 
     Object.keys( attribArrays ).forEach( ( prop ) => {
 
