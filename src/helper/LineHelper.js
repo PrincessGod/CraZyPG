@@ -1,5 +1,5 @@
 import { ColorLineShader } from '../shader/ColorLineShader';
-import { createMesh } from '../model/Primatives';
+import { Mesh } from '../model/Primatives';
 import { Model } from '../model/Model';
 import * as Constant from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
@@ -13,7 +13,7 @@ function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
     const vertices = points && this._getdata( points );
     const attribArrays = {};
     attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: gl.DYNAMIC_DRAW };
-    this.mesh = createMesh( 'LineHelper', attribArrays, { drawMode: gl.LINES } );
+    this.mesh = new Mesh( 'LineHelper', attribArrays, { drawMode: gl.LINES } );
     this.model = new Model( this.mesh );
     if ( points.isModel )
         this.setTransform( points.transform );

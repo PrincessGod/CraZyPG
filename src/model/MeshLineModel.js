@@ -1,5 +1,5 @@
 import { Model } from './Model';
-import { createMesh } from './Primatives';
+import { Mesh } from './Primatives';
 import * as Constant from '../renderer/constant';
 import { createBufferFromArray } from '../renderer/attributes';
 
@@ -172,7 +172,7 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: this.positions, offset: 8 * Float32Array.BYTES_PER_ELEMENT, stride: 4 * Float32Array.BYTES_PER_ELEMENT };
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: this.uv };
 
-        return createMesh( this.name, attribArrays );
+        return new Mesh( this.name, attribArrays );
 
     },
 

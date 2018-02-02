@@ -1,11 +1,10 @@
-import * as properties from '../core/properties';
 import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
 import { getTypedArray } from '../renderer/typedArray';
 import { getNumComponents } from '../renderer/attributes';
 import { BezierCurve } from '../math/BezierCurve';
 
-function createMesh( name, attribArrays, options ) {
+function Mesh( name, attribArrays, options ) {
 
     Object.keys( attribArrays ).forEach( ( prop ) => {
 
@@ -19,15 +18,16 @@ function createMesh( name, attribArrays, options ) {
 
     } );
 
-    const mesh = Object.assign( {
+    Object.assign( this, {
         isMesh: true,
         name,
         attribArrays,
         drawMode: Constant.TRIANGLES,
+        cullFace: true,
+        blend: false,
+        depth: true,
+        sampleBlend: false,
     }, options );
-
-    properties.meshs[ mesh.name ] = mesh;
-    return mesh;
 
 }
 
@@ -109,7 +109,7 @@ Object.assign( GridAxis, {
         };
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
 
-        return createMesh( name, attribArrays, { drawMode: Constant.LINES } );
+        return new Mesh( name, attribArrays, { drawMode: Constant.LINES } );
 
     },
 
@@ -150,7 +150,7 @@ Object.assign( Quad, {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
-        return createMesh( name, attribArrays, {
+        return new Mesh( name, attribArrays, {
             cullFace: false,
         } );
 
@@ -236,7 +236,7 @@ Object.assign( Cube, {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
-        return createMesh( name, attribArrays, { cullFace: false } );
+        return new Mesh( name, attribArrays, { cullFace: false } );
 
     },
 
@@ -303,7 +303,7 @@ Object.assign( Sphere, {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uvs };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normals };
 
-        return createMesh( name, attribArrays );
+        return new Mesh( name, attribArrays );
 
     },
 } );
@@ -416,10 +416,10 @@ const Curve = {
         const attribArrays = {};
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
 
-        return createMesh( name, attribArrays, { drawMode: Constant.LINE_STRIP } );
+        return new Mesh( name, attribArrays, { drawMode: Constant.LINE_STRIP } );
 
     },
 
 };
 
-export { GridAxis, Quad, Cube, Sphere, createMesh, deIndexAttribs, addBarycentricAttrib, Curve };
+export { Mesh, GridAxis, Quad, Cube, Sphere, deIndexAttribs, addBarycentricAttrib, Curve };

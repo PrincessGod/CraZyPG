@@ -1,4 +1,3 @@
-export * from './core/properties.js';
 export * from './renderer/constant.js';
 export * from './model/Transform.js';
 export * from './model/Model.js';

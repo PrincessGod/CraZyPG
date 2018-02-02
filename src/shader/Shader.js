@@ -1,6 +1,5 @@
 import { createProgram, createUniformSetters, setUniforms, createAttributesSetters, createUniformBlockSpec, createUniformBlockInfos, setBlockUniformsForProgram } from '../renderer/program';
 import * as Constant from '../renderer/constant';
-import { _privates } from '../core/properties';
 import { PMath } from '../math/Math';
 import { Matrix3 } from '../math/Matrix3';
 import { Matrix4 } from '../math/Matrix4';
@@ -38,8 +37,12 @@ Object.assign( Shader.prototype, {
 
     activate() {
 
-        this.gl.useProgram( this.program );
-        _privates.currentShader = this;
+        if ( Shader.currentProgram !== this.program ) {
+
+            this.gl.useProgram( this.program );
+            Shader.currentProgram = this.program;
+
+        }
         return this;
 
     },
@@ -47,7 +50,7 @@ Object.assign( Shader.prototype, {
     deactivate() {
 
         this.gl.useProgram( null );
-        _privates.currentShader = null;
+        Shader.currentProgram = null;
         return this;
 
     },
@@ -169,7 +172,7 @@ Object.assign( Shader.prototype, {
             this.uniformObj = this.currentUniformObj;
             this._programUpdated = false;
 
-        } else if ( _privates.currentShader !== this ) {
+        } else if ( Shader.currentProgram !== this.program ) {
 
             this.activate();
             this.updateCamera();
@@ -179,6 +182,8 @@ Object.assign( Shader.prototype, {
                     this.uniformObj[ prop ] = this.currentUniformObj[ prop ];
 
             } );
+
+            Shader.currentProgram = this.program;
 
         }
 
@@ -209,13 +214,33 @@ Object.assign( Shader.prototype, {
         if ( ! model.mesh.vao )
             model.createVAO( this.gl, this._customAttrib ? this : undefined );
 
-        if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.disable( this.gl.CULL_FACE );
+        if ( Shader.cullFace !== ( this.cullFace && model.mesh.cullFace ) ) {
 
-        if ( this.blend || model.mesh.blend ) this.gl.enable( this.gl.BLEND );
+            this.gl[( ( this.cullFace && model.mesh.cullFace ) ? 'enable' : 'disable' )]( this.gl.CULL_FACE );
+            Shader.cullFace = ( this.cullFace && model.mesh.cullFace );
 
-        if ( this.depth === false || model.mesh.depth === false ) this.gl.depthMask( false );
+        }
 
-        if ( this.sampleBlend || model.mesh.sampleBlend ) this.gl.enable( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
+        if ( Shader.blend !== ( this.blend || model.mesh.blend ) ) {
+
+            this.gl[( ( this.blend || model.mesh.blend ) ? 'enable' : 'disable' )]( this.gl.BLEND );
+            Shader.blend = ( this.blend || model.mesh.blend );
+
+        }
+
+        if ( Shader.depth !== ( this.depth && model.mesh.depth ) ) {
+
+            this.gl.depthMask( ( this.depth && model.mesh.depth ) );
+            Shader.depth = ( this.depth && model.mesh.depth );
+
+        }
+
+        if ( Shader.sampleBlend !== ( this.sampleBlend || model.mesh.sampleBlend ) ) {
+
+            this.gl[( ( this.sampleBlend || model.mesh.sampleBlend ) ? 'enable' : 'disable' )]( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
+            Shader.sampleBlend = ( this.sampleBlend || model.mesh.sampleBlend );
+
+        }
 
         model.preRender();
         this.setWorldMatrix( model.transform.getMatrix() );
@@ -233,14 +258,6 @@ Object.assign( Shader.prototype, {
             this.gl.drawArrays( model.mesh.drawMode, 0, bufferInfo.numElements );
 
         this.gl.bindVertexArray( null );
-
-        if ( this.cullFace === false || model.mesh.cullFace === false ) this.gl.enable( this.gl.CULL_FACE );
-
-        if ( this.blend || model.mesh.blend ) this.gl.disable( this.gl.BLEND );
-
-        if ( this.depth === false || model.mesh.depth === false ) this.gl.depthMask( true );
-
-        if ( this.sampleBlend || model.mesh.sampleBlend ) this.gl.disable( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
 
         return this;
 
@@ -359,7 +376,7 @@ Object.assign( Shader.prototype, {
 
         }
 
-        _privates.currentShader = null;
+        Shader.currentProgram = null;
         this._programUpdated = true;
         this.currentUniformObj = this.uniformObjs[ index ];
 
@@ -374,6 +391,12 @@ function insertToString( string, position, value ) {
 }
 
 Object.assign( Shader, {
+
+    currentProgram: null,
+    cullFace: true,
+    blend: false,
+    depth: true,
+    sampleBlend: false,
 
     injectDefines( shader, ...defines ) {
 

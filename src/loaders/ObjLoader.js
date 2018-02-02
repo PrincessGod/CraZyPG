@@ -1,5 +1,5 @@
 import { FileLoader } from './Fileloader';
-import { createMesh } from '../model/Primatives';
+import { Mesh } from '../model/Primatives';
 
 function LinePaser( ) {
 
@@ -165,7 +165,7 @@ Object.assign( ObjLoader, {
                     if ( oNorm.length > 0 )
                         attribArrays.a_normal = { data: oNorm.slice() };
 
-                    objects.push( createMesh( currentObject, attribArrays ) );
+                    objects.push( new Mesh( currentObject, attribArrays ) );
 
                 }
 
@@ -196,7 +196,7 @@ Object.assign( ObjLoader, {
             if ( oNorm.length > 0 )
                 attribArrays.a_normal = { data: oNorm };
 
-            objects.push( createMesh( currentObject, attribArrays ) );
+            objects.push( new Mesh( currentObject, attribArrays ) );
 
         }
 

@@ -111,7 +111,7 @@ function getNumElementsFromAttribs( gl, attribs ) {
 
     let numElements;
     if ( attrib.stride !== 0 )
-        numElements = Math.floor( ( numBytes - attrib.offset ) / attrib.stride );
+        numElements = Math.floor( ( numBytes - attrib.offset ) / attrib.stride ); // need consider padding end
     else {
 
         const bytesPerValue = getBytesPerValueForGLType( gl, attrib.type );

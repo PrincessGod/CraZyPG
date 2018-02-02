@@ -1,4 +1,4 @@
-import { createMesh } from './Primatives';
+import { Mesh } from './Primatives';
 import * as Constant from '../renderer/constant';
 import { Perlin } from '../math/Perlin';
 import { PMath } from '../math/Math';
@@ -153,7 +153,7 @@ Object.assign( Terrain, {
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: Constant.DYNAMIC_DRAW };
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normals };
-        const mesh = createMesh( name || 'Terrain', attribArrays, { drawMode: Constant.TRIANGLE_STRIP } );
+        const mesh = new Mesh( name || 'Terrain', attribArrays, { drawMode: Constant.TRIANGLE_STRIP } );
         return Object.assign( mesh, {
             time,
             minHeight,
