@@ -23,7 +23,7 @@ TransformShader.prototype = Object.assign( Object.create( Shader.prototype ), {
             const options = attribArrays[ prop ];
             if ( typeof options === 'number' )
                 attribArrays[ prop ] = { data: options, drawType: this.gl.STREAM_COPY }; // eslint-disable-line
-            else
+            else if ( typeof options.drawType === 'undefined' )
                 attribArrays[ prop ].drawType = this.gl.STREAM_COPY; // eslint-disable-line
 
         } );

@@ -51,6 +51,7 @@
         out vec3 v_velocity;
         out float v_spawntime;
         out float v_lifetime;
+        flat out float v_ID;
         float rand(vec2 co){
             return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
         }
@@ -68,6 +69,7 @@
                 v_spawntime = a_spawntime;
                 v_lifetime = a_lifetime;
             }
+            v_ID = a_ID;
             gl_Position = u_mvpMat * vec4(v_position, 1.0);
             gl_PointSize = 1.0;
         }
@@ -78,13 +80,15 @@
         precision highp float;
         precision highp int;
         uniform vec4 u_color;
+        flat in float v_ID;
         out vec4 color;
         void main()
         {
             color = u_color;
+            color.g = v_ID / 10000.0;
         }
     </script>
-    <script>    
+    <script>
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
@@ -139,7 +143,7 @@
                 particleVelocities[p * 3 + 2] = 0.0;
                 particleSpawntime[p] = 0.0;
                 particleLifetime[p] = 0.0;
-                particleIDs[p] = p;
+                particleIDs[p] = Math.random() * NUM_PARTICLES;
             }
 
             const transformShader = new CZPG.TransformShader(context, "vs-draw", "fs-draw", [
@@ -165,7 +169,7 @@
             })
 
             const bufferInfo2 = Object.assign({}, bufferInfo1, {
-                attribs: {      
+                attribs: {
                     a_position: bufferInfo1.attribs.v_position,
                     a_velocity: bufferInfo1.attribs.v_velocity,
                     a_spawntime: bufferInfo1.attribs.v_spawntime,
@@ -195,7 +199,7 @@
             let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 200, 200, 200, 0, 0, 0));
 
             let colorPicker = new CZPG.FramebufferPicker(context, camera, controler).activate();
-            colorPicker.models = scene.models;     
+            colorPicker.models = scene.models;
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
@@ -215,9 +219,9 @@
                 skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) );
 
                 transformShader.setUniformObj({u_time: performance.now()}).transform(tfs[cursor], models[(cursor + 1) % 2]);
-                scene.removeAll().add([
-                    {shader: skymapShader, model: skyCubeModal},
-                    {shader: gridShader, model: gridModal},
+                scene.remove(
+                    {shader: feedbackShader, model: models[cursor]},
+                ).add([
                     {shader: feedbackShader, model: models[(cursor + 1) % 2]},
                 ]);
                 cursor ++;
@@ -229,7 +233,7 @@
             }).start();
 
         });
-        
+
     </script>
 </body>
 </html>

@@ -52,6 +52,8 @@ Object.assign( Scene.prototype, {
 
             }
 
+        return this;
+
     },
 
     addModelToShader( shader, model ) {
@@ -87,6 +89,8 @@ Object.assign( Scene.prototype, {
 
         }
 
+        return this;
+
     },
 
     addDataToHelper( helper, data ) {
@@ -107,6 +111,78 @@ Object.assign( Scene.prototype, {
             }
 
         }
+
+        return this;
+
+    },
+
+    remove( ...objs ) {
+
+        for ( let i = 0; i < objs.length; i ++ )
+            if ( Array.isArray( objs[ i ] ) )
+                this.remove( ...objs[ i ] );
+            else {
+
+                if ( objs[ i ].shader )
+                    this.removeModelFromShader( objs[ i ].shader, objs[ i ].model );
+                if ( objs[ i ].helper )
+                    this.removeDataFromHelper( objs[ i ].helper, objs[ i ].data );
+
+            }
+
+        return this;
+
+    },
+
+    removeModelFromShader( shader, model ) {
+
+        if ( Array.isArray( model ) )
+            model.forEach( m => this.removeModelFromShader( shader, m ) );
+        else {
+
+            const shaderIdx = this.shadersMap.indexOf( shader );
+            let modelIdx = - 1;
+            if ( shaderIdx > - 1 ) {
+
+                modelIdx = this.shaders[ shaderIdx ].models.indexOf( model );
+                if ( modelIdx > - 1 )
+                    this.shaders[ shaderIdx ].models.splice( modelIdx, 1 );
+
+            }
+
+            modelIdx = this.models.indexOf( model );
+            if ( modelIdx > - 1 ) {
+
+                this.models.splice( modelIdx, 1 );
+                if ( this.enablePick )
+                    this.needUpdateColorId = true;
+
+            }
+
+        }
+
+        return this;
+
+    },
+
+    removeDataFromHelper( helper, data ) {
+
+        if ( Array.isArray( data ) )
+            data.forEach( d => this.removeDataFromHelper( helper, d ) );
+        else {
+
+            const helperIdx = this.helpersMap.indexOf( helper );
+            if ( helperIdx > - 1 ) {
+
+                const dataIdx = this.helpers[ helperIdx ].datas.indexOf( data );
+                if ( dataIdx > - 1 )
+                    this.helpers[ helperIdx ].datas.splice( dataIdx, 1 );
+
+            }
+
+        }
+
+        return this;
 
     },
 
@@ -134,6 +210,13 @@ Object.assign( Scene.prototype, {
     },
 
     render() {
+
+        if ( this.enablePick && this.needUpdateColorId ) {
+
+            this.models.forEach( ( m, id ) => m.setUniformObj( { u_colorId: id + 1 } ) );
+            this.needUpdateColorId = false;
+
+        }
 
         let curShader;
         let curShaderObj;
