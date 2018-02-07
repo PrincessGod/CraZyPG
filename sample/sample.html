@@ -40,7 +40,7 @@
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
             const controler = scene.controler;
-            
+
             textures = CZPG.createTextures(context, {
                 checker: {
                     mag: context.NEAREST,
@@ -52,7 +52,7 @@
                         255,255,255,255,
                     ],
                 },
-                pic: { 
+                pic: {
                     src : './resource/UV_Grid_Lrg.jpg',
                     min : context.LINEAR_MIPMAP_LINEAR,
                     mag : context.LINEAR,
@@ -138,7 +138,7 @@
                     { shader: phongShader.setTexture(textures.barrel), model: objModels },
                     // { helper: pointHelper, data: objModels.map(m => { return { data: m.positionInfo, transform: m.transform }; } ) },
                 ]);
-            
+
             });
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
@@ -163,7 +163,7 @@
                     model: [cubeModal.setUniformObj({texture: textures.pic}), quadModal, sphereModel, sphereOctModel, terrainModel.setUniformObj({texture: textures.scalar})],
                 },
                 {
-                    helper: lineHelper, 
+                    helper: lineHelper,
                     data:[
                         {data: cubeModal},
                         {data: terrainModel},
@@ -199,7 +199,7 @@
 
             }).start();
         });
-        
+
     </script>
 </body>
 </html>

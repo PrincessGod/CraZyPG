@@ -27,7 +27,8 @@ Object.assign( BufferPicker.prototype, {
 
     pick( x, y ) {
 
-        const p = readPixcelFromFrameBufferInfo( this.gl, this.framebufferInfo, x, this.gl.canvas.height - y, this.bufferIdx );
+        const ratio = this.framebufferInfo.width / this.canvas.clientWidth;
+        const p = readPixcelFromFrameBufferInfo( this.gl, this.framebufferInfo, x * ratio, this.gl.canvas.height - y * ratio, this.bufferIdx );
         const id = this.color2Id( p );
         console.log( x, y, p, id, this.models[ id - 1 ] );
 

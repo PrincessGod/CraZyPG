@@ -116,7 +116,7 @@ Object.assign( FramebufferPicker.prototype, {
 
     pick( x, y ) {
 
-        const p = readPixcelFromFrameBufferInfo( this.gl, this.framebufferInfo, x, this.gl.canvas.height - y );
+        const p = readPixcelFromFrameBufferInfo( this.gl, this.framebufferInfo, x, this.gl.canvas.clientHeight - y );
         const id = this.color2Id( p );
         console.log( x, y, p, id, this.models[ id - 1 ] );
 
@@ -127,8 +127,8 @@ Object.assign( FramebufferPicker.prototype, {
         const box = this.canvas.getBoundingClientRect();
         this.offsetX = box.left;
         this.offsetY = box.top;
-        this.lastCanvasWidth = this.canvas.width;
-        this.lastCanvasHeight = this.canvas.height;
+        this.lastCanvasWidth = this.canvas.clientWidth;
+        this.lastCanvasHeight = this.canvas.clientWidth;
         return this;
 
     },
@@ -158,9 +158,9 @@ Object.assign( FramebufferPicker.prototype, {
 
         if ( this.needPick ) {
 
-            if ( this.canvas.width !== this.lastCanvasWidth || this.canvas.height !== this.lastCanvasHeight ) {
+            if ( this.canvas.clientWidth !== this.lastCanvasWidth || this.canvas.clientHeight !== this.lastCanvasHeight ) {
 
-                this.resizeFramebufferInfo();
+                this.resizeFramebufferInfo( this.canvas.clientWidth, this.canvas.clientHeight );
                 this.updateCanvasParam();
 
             }

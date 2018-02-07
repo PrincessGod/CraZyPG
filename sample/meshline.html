@@ -133,7 +133,7 @@
                     new CZPG.Vector3(0, 0, 0), new CZPG.Vector3(1 / 6 * x, 0.4 * maxY, 1 / 6 * z), new CZPG.Vector3( 2 / 6 * x, maxY, 2 / 6 * z), new CZPG.Vector3(3 / 6 * x, 0, 3 / 6 * z),
                     new CZPG.Vector3( 4 / 6 * x, - maxY, 4 / 6 * z), new CZPG.Vector3(5 / 6 * x, -0.4 * maxY, 5 / 6 * z), new CZPG.Vector3( x, 0, z),
                 ], undefined, 40);
-                
+
                 let model = new CZPG.MeshLineModel(curve);
                 let modelSqud = new CZPG.MeshLineModel(curve, widthFun);
                 model.position = modelSqud.position = new CZPG.Vector3(1 * x, 1, 1 * z);
@@ -141,7 +141,7 @@
                 models.patten[0].push(modelSqud);
 
             }
-            
+
             let rangeXYZ = 8;
             for(let i = 0; i < numberLines; i ++) {
                 let start = [Math.random() * rangeXYZ - rangeXYZ / 2, Math.random() * rangeXYZ - rangeXYZ / 2, Math.random() * rangeXYZ - rangeXYZ / 2];
@@ -154,7 +154,7 @@
             }
 
             let colors = {
-                background : [255, 0, 0],   
+                background : [255, 0, 0],
                 randomColors() {
                     let cs = colorPlettes.random();
                     colors.background = [cs[0][0], cs[0][1], cs[0][2]];
@@ -186,7 +186,7 @@
             }
 
             let meshlineShader = new CZPG.MeshLineShader(context, camera).setUniformObj(uniformObj);
-            
+
             scene.add([
                 {shader: meshlineShader, model: models.spline[0]},
             ]);
@@ -247,7 +247,7 @@
                 lineNumber: numberLines,
                 customWidth: true,
             }
-            
+
             let numControler;
 
             let modelSelect = datgui.add(currentModel, 'model', ['spline', 'curves', 'patten', 'lines']);
@@ -267,7 +267,7 @@
                         ]);
                     });
                 }
-                
+
             });
 
             let linewidth = basic.add(currentModel, 'customWidth');
@@ -278,7 +278,7 @@
             });
 
         });
-        
+
     </script>
 </body>
 </html>
