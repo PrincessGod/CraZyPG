@@ -6,7 +6,7 @@ function getContext( canvasOrId, opts ) {
     else
         canvas = canvasOrId;
 
-    const names = [ 'webgl2', 'webgl', 'experimental-webgl' ];
+    const names = [ 'webgl2', 'experimental-webgl2', 'webgl', 'experimental-webgl' ];
     let context = null;
     for ( let i = 0; i < names.length; i ++ ) {
 

@@ -16,7 +16,7 @@ const glEnumToString = ( function () {
 
             /* eslint-disable */
             for ( const key in gl )
-                if ( typeof gl[ key ] === 'number' ) { 
+                if ( typeof gl[ key ] === 'number' ) {
 
                     const existing = enums[ gl[ key ] ];
                     enums[ gl[ key ] ] = existing ? `${existing} | ${key}` : key;

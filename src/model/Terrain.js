@@ -194,7 +194,7 @@ Object.assign( Terrain, {
         let normals = generateNormals( vertices, rowCount, colCount, maxHeight - minHeight );
         normals = getTypedArray( normals );
 
-        mesh.time = newTime; // eslint-disable-line        
+        mesh.time = newTime; // eslint-disable-line
         mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ].data = normals; // eslint-disable-line
         mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = vertices; // eslint-disable-line
 
