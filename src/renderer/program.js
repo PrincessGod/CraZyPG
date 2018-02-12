@@ -567,6 +567,9 @@ function floatAttribSetter( gl, index ) {
         gl.enableVertexAttribArray( index );
         gl.vertexAttribPointer( index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0 );
 
+        if ( b.divisor !== undefined )
+            gl.vertexAttribDivisor( index, b.divisor );
+
     };
 
 }
@@ -578,6 +581,9 @@ function intAttribSetter( gl, index ) {
         gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
         gl.enableVertexAttribArray( index );
         gl.vertexAttribIPointer( index, b.numComponents || b.size, b.type || gl.INT, b.stride || 0, b.offset || 0 );
+
+        if ( b.divisor !== undefined )
+            gl.vertexAttribDivisor( index, b.divisor );
 
     };
 
@@ -603,6 +609,9 @@ function matAttribSetter( gl, index, typeInfo ) {
 
             gl.enableVertexAttribArray( index + i );
             gl.vertexAttribPointer( index + i, size, type, normalize, stride, offset + ( rowOffset * i ) );
+
+            if ( b.divisor !== undefined )
+                gl.vertexAttribDivisor( index + i, b.divisor );
 
         }
 

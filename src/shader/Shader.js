@@ -247,11 +247,19 @@ Object.assign( Shader.prototype, {
         this.gl.bindVertexArray( model.mesh.vao );
 
         const bufferInfo = model.mesh.bufferInfo;
+        const instanceCount = model.mesh.instanceCount;
         if ( bufferInfo.indices || bufferInfo.elementType )
-            this.gl.drawElements( model.mesh.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, 0 ); // eslint-disable-line
+            if ( typeof instanceCount === 'number' )
+                this.gl.drawElementsInstanced( model.mesh.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.mesh.offset, instanceCount );
+            else
+                this.gl.drawElements( model.mesh.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.mesh.offset ); // eslint-disable-line
         else
-            this.gl.drawArrays( model.mesh.drawMode, 0, bufferInfo.numElements );
-
+        /* eslint-disable */ // eslint bug
+            if ( typeof instanceCount === 'number' )
+                this.gl.drawArraysInstanced( model.mesh.drawMode, model.mesh.offset, bufferInfo.numElements, instanceCount );
+            else
+                this.gl.drawArrays( model.mesh.drawMode, model.mesh.offset, bufferInfo.numElements );
+        /* eslint-enable */
         this.gl.bindVertexArray( null );
 
         return this;

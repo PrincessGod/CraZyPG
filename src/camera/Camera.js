@@ -3,49 +3,32 @@ import { Transform } from '../model/Transform';
 import { Vector3 } from '../math/Vector3';
 import { PMath } from '../math/Math';
 
-class Camera {
+function Camera() {
 
-    constructor() {
-
-        this.transform = new Transform();
-        this.projMat = Matrix4.identity();
-        this.viewMat = Matrix4.identity();
-        this.matrix = this.transform.matrix.raw;
-        this.position = this.transform.position;
-
-    }
+    this.transform = new Transform();
+    this.projMat = Matrix4.identity();
+    this.viewMat = Matrix4.identity();
+    this.matrix = this.transform.matrix.raw;
+    this.position = this.transform.position;
 
 }
 
-class PerspectiveCamera extends Camera {
+function PerspectiveCamera( fov = 45, aspect, near = 0.01, far = 1000 ) {
 
-    constructor( fov = 45, aspect, near = 0.01, far = 1000 ) {
+    Camera.call( this );
 
-        super();
+    this._fov = fov;
+    this.fovRadian = PMath.degree2Radian( this._fov );
+    this.aspect = aspect;
+    this.near = near;
+    this.far = far;
+    this.target = new Vector3();
+    this.up = [ 0, 1, 0 ];
+    Matrix4.perspective( this.projMat, this.fovRadian, aspect, near, far );
 
-        this._fov = fov;
-        this.fovRadian = PMath.degree2Radian( this._fov );
-        this.aspect = aspect;
-        this.near = near;
-        this.far = far;
-        this.target = new Vector3();
-        this.up = [ 0, 1, 0 ];
-        Matrix4.perspective( this.projMat, this.fovRadian, aspect, near, far );
+}
 
-    }
-
-    get fov() {
-
-        return this._fov;
-
-    }
-
-    set fov( degree ) {
-
-        this._fov = degree;
-        this.fovRadian = PMath.degree2Radian( this._fov );
-
-    }
+PerspectiveCamera.prototype = Object.assign( Object.create( Camera.prototype ), {
 
     updateProjMatrix( aspect ) {
 
@@ -54,7 +37,7 @@ class PerspectiveCamera extends Camera {
 
         Matrix4.perspective( this.projMat, this.fov, this.aspect, this.near, this.far );
 
-    }
+    },
 
     updateViewMatrix( target ) {
 
@@ -65,7 +48,7 @@ class PerspectiveCamera extends Camera {
         Matrix4.invert( this.matrix, this.viewMat );
         this.position.set( this.matrix[ 12 ], this.matrix[ 13 ], this.matrix[ 14 ] );
 
-    }
+    },
 
     getOrientMatrix() {
 
@@ -73,8 +56,26 @@ class PerspectiveCamera extends Camera {
         mat[ 12 ] = mat[ 13 ] = mat[ 14 ] = 0.0; // eslint-disable-line
         return mat;
 
-    }
+    },
 
-}
+} );
+
+Object.defineProperties( PerspectiveCamera.prototype, {
+
+    fov: {
+        get() {
+
+            return this._fov;
+
+        },
+        set( degree ) {
+
+            this._fov = degree;
+            this.fovRadian = PMath.degree2Radian( this._fov );
+
+        },
+    },
+
+} );
 
 export { PerspectiveCamera };

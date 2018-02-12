@@ -17,18 +17,77 @@ function getDefaultShader( gl ) {
 function Model( mesh ) {
 
     this.mesh = mesh;
-    this.name = this.mesh.name;
     this.enablePick = true;
     this.transform = new Transform();
-    this.normMat = this.transform.normMat;
-    this.matrix = this.transform.matrix.raw;
-    this.positionInfo = this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ];
-    this.uvInfo = this.mesh.attribArrays[ Constant.ATTRIB_UV_NAME ];
-    this.normalInfo = this.mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ];
     this._needUpdateMatrix = false;
-    this.uniformObj = {};
+    this._uniformObj = {};
 
 }
+
+Object.defineProperties( Model.prototype, {
+
+    name: {
+        get() {
+
+            return this.mesh.name;
+
+        },
+        set( value ) {
+
+            this.mesh.name = value;
+
+        },
+    },
+
+    normMat: {
+        get() {
+
+            return this.transform.normMat;
+
+        },
+    },
+
+    matrix: {
+        get() {
+
+            return this.transform.matrix.raw;
+
+        },
+    },
+
+    positionInfo: {
+        get() {
+
+            return this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ];
+
+        },
+    },
+
+    uvInfo: {
+        get() {
+
+            return this.mesh.attribArrays[ Constant.ATTRIB_UV_NAME ];
+
+        },
+    },
+
+    normalInfo: {
+        get() {
+
+            return this.mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ];
+
+        },
+    },
+
+    uniformObj: {
+        get() {
+
+            return this._uniformObj;
+
+        },
+    },
+
+} );
 
 Object.assign( Model.prototype, {
 
@@ -143,7 +202,7 @@ Object.assign( Model.prototype, {
 
     setUniformObj( obj ) {
 
-        Object.assign( this.uniformObj, obj );
+        Object.assign( this._uniformObj, obj );
         return this;
 
     },

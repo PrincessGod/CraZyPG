@@ -196,6 +196,7 @@ function createAttribsFromArrays( gl, arrays ) {
                 normalize: normalization,
                 stride: array.stride || 0,
                 offset: array.offset || 0,
+                divisor: typeof array.divisor === 'undefined' ? undefined : array.divisor,
                 drawType: array.drawType || gl.STATIC_DRAW,
             };
 

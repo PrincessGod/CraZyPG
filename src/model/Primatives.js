@@ -27,6 +27,8 @@ function Mesh( name, attribArrays = {}, options ) {
         blend: false,
         depth: true,
         sampleBlend: false,
+        instanceCount: undefined,
+        offset: 0,
     }, options );
 
 }
