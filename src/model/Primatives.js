@@ -169,7 +169,14 @@ Object.assign( Cube, {
 
     },
 
-    createMesh( name = 'Cube', width = 1, height = 1, depth = 1, x = 0, y = 0, z = 0 ) {
+    createMesh( name = 'Cube', width, height, depth, x, y, z ) {
+
+        const attribArrays = Cube.createVertices( width, height, depth, x, y, z );
+        return new Mesh( name, attribArrays, { cullFace: false } );
+
+    },
+
+    createVertices( width = 1, height = 1, depth = 1, x = 0, y = 0, z = 0 ) {
 
         const w = width * 0.5;
         const h = height * 0.5;
@@ -238,7 +245,7 @@ Object.assign( Cube, {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
-        return new Mesh( name, attribArrays, { cullFace: false } );
+        return attribArrays;
 
     },
 

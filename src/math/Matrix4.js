@@ -90,7 +90,17 @@ Object.assign( Matrix4.prototype, {
 
 Object.assign( Matrix4, {
 
-    identity() {
+    identity( out ) {
+
+        if ( out ) {
+
+            out[ 0 ] = 1;
+            out[ 5 ] = 1;
+            out[ 10 ] = 1;
+            out[ 15 ] = 1;
+            return out;
+
+        }
 
         const a = new Float32Array( 16 );
         a[ 0 ] = 1;

@@ -34,9 +34,8 @@ function MeshLineModel( meshModel, widthCallback, name ) {
 
     }
 
-    this.name = name || ( mesh.name && `${mesh.name}_Meshline` ) || 'MeshLine';
     this.widthCallback = widthCallback;
-    const meshc = this.process( array );
+    const meshc = this.process( array, name || ( mesh.name && `${mesh.name}_Meshline` ) || 'MeshLine' );
 
     Model.call( this, meshc );
 
@@ -61,7 +60,7 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
 
     },
 
-    process( array ) {
+    process( array, name ) {
 
         this.positions = [];
         this.conters = [];
@@ -172,7 +171,7 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
         attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: this.positions, offset: 8 * Float32Array.BYTES_PER_ELEMENT, stride: 4 * Float32Array.BYTES_PER_ELEMENT };
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: this.uv };
 
-        return new Mesh( this.name, attribArrays );
+        return new Mesh( name, attribArrays );
 
     },
 

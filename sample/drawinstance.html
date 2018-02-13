@@ -5,7 +5,7 @@
     <link rel="shortcut icon" href="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>CraZyPG</title>
+    <title>Draw Instance</title>
     <style>
         html, body {
             background: black;
@@ -32,8 +32,7 @@
     <div>
         <canvas id="glpaper"></canvas>
     </div>
-    <script src="./build/czpg.js"></script>
-    <img id="test-tex" src="./resource/UV_Grid_Lrg.jpg" style="display:none;"/>
+    <script src="./czpg.js"></script>
     <script id="vs-draw" type="x-shader/x-vertex">
         #version 300 es
         // https://twgljs.org/examples/instancing.html
@@ -107,7 +106,7 @@
     </script>
     <script>
         window.addEventListener('load', function() {
-            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
 
@@ -115,11 +114,8 @@
             camera.transform.position.set(15, 10, 15);
             let controler = scene.controler;
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
-            cameraControler.enableDamping = true;
+            // cameraControler.enableDamping = true;
             cameraControler.autoRotate = true;
-
-            let colorPicker = new CZPG.FramebufferPicker(context, camera, controler).activate();
-            colorPicker.models = scene.models;
 
             var instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw").setUniformObj({
                 u_lightWorldPos: [1, 8, -30],
@@ -182,9 +178,6 @@
 
                 // scene.render2Buffer(resized).render2Screen(0);
                 scene.render();
-
-                colorPicker.update();
-
             }).start();
 
         });
