@@ -117,19 +117,10 @@
             // cameraControler.enableDamping = true;
             cameraControler.autoRotate = true;
 
-            var instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw").setUniformObj({
-                u_lightWorldPos: [1, 8, -30],
-                u_lightColor: [1, 1, 1, 1],
-                u_ambient: [0, 0, 0, 1],
-                u_specular: [1, 1, 1, 1],
-                u_shininess: 50,
-                u_specularFactor: 1,
-            }).setCamera(camera);
-
             function rand(min, max) {
                 if (max === undefined) {
-                max = min;
-                min = 0;
+                    max = min;
+                    min = 0;
                 }
                 return min + Math.random() * (max - min);
             }
@@ -166,6 +157,15 @@
             var cubesMesh = new CZPG.Mesh('instances', cubeAttribArrays, { instanceCount: INSTANCECOUNT });
             var cubesModel = new CZPG.Model(cubesMesh);
 
+            var instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw").setUniformObj({
+                u_lightWorldPos: [1, 8, -30],
+                u_lightColor: [1, 1, 1, 1],
+                u_ambient: [0, 0, 0, 1],
+                u_specular: [1, 1, 1, 1],
+                u_shininess: 50,
+                u_specularFactor: 1,
+            }).setCamera(camera);
+
             scene.add([
                 {shader: instanceShader, model: cubesModel},
             ]);
@@ -175,8 +175,6 @@
                 resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio)
                 if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
-
-                // scene.render2Buffer(resized).render2Screen(0);
                 scene.render();
             }).start();
 

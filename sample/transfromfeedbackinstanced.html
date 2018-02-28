@@ -5,7 +5,7 @@
     <link rel="shortcut icon" href="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>CraZyPG</title>
+    <title>TransformFeedback Instance</title>
     <style>
         html, body {
             background: black;
@@ -32,7 +32,7 @@
     <div>
         <canvas id="glpaper"></canvas>
     </div>
-    <script src="./build/czpg.js"></script>
+    <script src="./czpg.js"></script>
     <script id="vs-transform" type="x-shader/x-vertex">
         #version 300 es
         // http://webglsamples.org/WebGL2Samples/#transform_feedback_separated_2
@@ -165,7 +165,7 @@
     </script>
     <script>
         window.addEventListener('load', function() {
-            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
 
