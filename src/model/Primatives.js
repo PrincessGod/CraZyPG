@@ -121,20 +121,29 @@ const Quad = {};
 
 Object.assign( Quad, {
 
-    createModel( name, size, xOffset, yOffset ) {
+    createModel( name, size, x, y ) {
 
-        return new Model( Quad.createMesh( name, size, xOffset, yOffset ) );
+        return new Model( Quad.createMesh( name, size, x, y ) );
 
     },
 
-    createMesh( name = 'Quad', size = 1, xOffset = 0, yOffset = 0 ) {
+    createMesh( name = 'Quad', size, x, y ) {
+
+        const attribArrays = Quad.createVertices( size, x, y );
+        return new Mesh( name, attribArrays, {
+            cullFace: false,
+        } );
+
+    },
+
+    createVertices( size = 1, x = 0, y = 0 ) {
 
         const helfSize = size / 2;
         const vertices = [
-            xOffset + - 1 * helfSize, yOffset + 1 * helfSize,
-            xOffset + - 1 * helfSize, yOffset + - 1 * helfSize,
-            xOffset + 1 * helfSize, yOffset + - 1 * helfSize,
-            xOffset + 1 * helfSize, yOffset + 1 * helfSize,
+            x + - 1 * helfSize, y + 1 * helfSize,
+            x + - 1 * helfSize, y + - 1 * helfSize,
+            x + 1 * helfSize, y + - 1 * helfSize,
+            x + 1 * helfSize, y + 1 * helfSize,
         ];
         const uv = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
         const normal = [
@@ -152,11 +161,10 @@ Object.assign( Quad, {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
 
-        return new Mesh( name, attribArrays, {
-            cullFace: false,
-        } );
+        return attribArrays;
 
     },
+
 } );
 
 const Cube = {};
@@ -261,7 +269,14 @@ Object.assign( Sphere, {
 
     },
 
-    createMesh( name = 'sphere', radius = 0.5, subdivAixs = 16, subdivHeight = 8, startLon = 0, endLon = Math.PI * 2, startLat = 0, endLat = Math.PI ) {
+    createMesh( name = 'sphere', radius, subdivAixs, subdivHeight, startLon, endLon, startLat, endLat ) {
+
+        const attribArrays = Sphere.createVertices( radius, subdivAixs, subdivHeight, startLon, endLon, startLat, endLat );
+        return new Mesh( name, attribArrays );
+
+    },
+
+    createVertices( radius = 0.5, subdivAixs = 16, subdivHeight = 8, startLon = 0, endLon = Math.PI * 2, startLat = 0, endLat = Math.PI ) {
 
         const latRange = endLat - startLat;
         const lonRange = endLon - startLon;
@@ -312,9 +327,10 @@ Object.assign( Sphere, {
         attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uvs };
         attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normals };
 
-        return new Mesh( name, attribArrays );
+        return attribArrays;
 
     },
+
 } );
 
 function deIndexAttribs( modelMesh ) {
