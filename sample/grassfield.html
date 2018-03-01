@@ -5,7 +5,7 @@
     <link rel="shortcut icon" href="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>CraZyPG</title>
+    <title>Grass Field</title>
     <style>
         html, body {
             background: black;
@@ -41,7 +41,7 @@
             <canvas id="glpaper"></canvas>
         </div>
     </div>
-    <script src="./build/czpg.js"></script>
+    <script src="./czpg.js"></script>
     <script id="vs-draw" type="x-shader/x-vertex">
         #version 300 es
         // https://twgljs.org/examples/instancing.html
@@ -101,7 +101,7 @@
     </script>
     <script>
         window.addEventListener('load', function() {
-            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
 
