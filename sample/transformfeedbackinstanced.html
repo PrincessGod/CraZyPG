@@ -14,23 +14,44 @@
             width: 100%;
             height: 100%;
         }
-        canvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-        }
-        div {
+
+        div#canvas {
             display: flex;
             width: 100%;
             height: 100%;
             align-items: center;
             justify-content: center;
         }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
     </style>
 </head>
 <body>
-    <div>
-        <canvas id="glpaper"></canvas>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
     </div>
     <script src="./czpg.js"></script>
     <script id="vs-transform" type="x-shader/x-vertex">
@@ -39,7 +60,7 @@
         precision highp float;
         precision highp int;
         precision highp sampler3D;
-    
+
         uniform float u_time;
         uniform vec3 u_acceleration;
 

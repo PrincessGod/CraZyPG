@@ -15,12 +15,6 @@
             height: 100%;
         }
 
-        canvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-        }
-
         div#canvas {
             display: flex;
             width: 100%;
@@ -33,6 +27,21 @@
             width: 100%;
             height: 100%;
         }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
     </style>
 </head>
 <body>
@@ -40,6 +49,9 @@
         <div id="canvas">
             <canvas id="glpaper"></canvas>
         </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
     </div>
     <script src="./build/czpg.js"></script>
     <script id="vs-draw" type="x-shader/x-vertex">
@@ -66,7 +78,7 @@
             vec4 worldPosition;
             vec3 pos = a_position;
             if(gl_VertexID < 1 || gl_VertexID > 2) {
-                pos.x += sin(float(gl_InstanceID) + u_time * 0.001) * 0.2;
+                pos.x += sin(float(gl_InstanceID) + u_time * 0.0005) * 0.2;
             }
             vec3 right = vec3(u_viewMat[0].x, u_viewMat[1].x, u_viewMat[2].x);
             vec3 up = vec3(u_viewMat[0].y, u_viewMat[1].y, u_viewMat[2].y);
@@ -159,7 +171,7 @@
                 return min + Math.random() * (max - min);
             }
 
-            const INSTANCECOUNT = 5000;
+            const INSTANCECOUNT = 4000;
             const ACCELERATION = -1.0;
 
             const instanceWorlds = new Float32Array(INSTANCECOUNT * 16);
