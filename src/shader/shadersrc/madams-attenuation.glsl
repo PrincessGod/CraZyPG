@@ -1,7 +1,7 @@
 // by Tom Madams
 // Simple:
 // https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
-// 
+//
 // Improved
 // https://imdoingitwrong.wordpress.com/2011/02/10/improved-light-attenuation/
 float attenuation(float r, float f, float d) {

@@ -13,6 +13,6 @@ out vec4 finalColor;
 
 void main() {
     vec4 color = texture(u_texture, v_uv);
-    
+
     finalColor = color + vec4(normalize(v_pos) + vec3(v_uv, 1.0) + v_barycentric, 0.0);
 }

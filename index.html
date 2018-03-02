@@ -56,38 +56,50 @@
     <script src="./build/czpg.js"></script>
     <script id="vs-draw" type="x-shader/x-vertex">
         #version 300 es
-        // https://twgljs.org/examples/instancing.html
+        // https://github.com/chinedufn/webgl-particle-effect-tutorial
 
-        uniform mat4 u_projMat;
+        uniform mat4 u_mvpMat;
         uniform mat4 u_viewMat;
+        uniform vec3 u_firePos;
         uniform bool u_billboard;
-        uniform bool u_cylindrical;
         uniform float u_time;
 
-        in mat4 instanceWorld;
         in vec3 a_position;
         in vec2 a_uv;
 
+        in float a_lifetime;
+        in vec3 a_offset;
+        in vec3 a_velocity;
+
         out vec2 v_uv;
-        flat out int v_id;
+        out float v_lifetime;
 
         void main() {
+            float time = mod(u_time, a_lifetime);
+
+            vec4 position = vec4(u_firePos + a_offset + (time * a_velocity), 1.0);
+
+            v_lifetime = 1.3 - (time / a_lifetime);
+            v_lifetime = clamp(v_lifetime, 0.0, 1.0);
+            float size = (v_lifetime * v_lifetime) * 0.05;
+
+            if(u_billboard) {
+                vec3 right = vec3(
+                    u_viewMat[0].x, u_viewMat[1].x, u_viewMat[2].x
+                );
+                vec3 up = vec3(
+                    u_viewMat[0].y, u_viewMat[1].y, u_viewMat[2].y
+                );
+
+                position.xyz += (right * a_position.x * size) + (up * a_position.y * size);
+            } else {
+                position.xy += a_position.xy * size;
+            }
+
+            gl_Position = u_mvpMat * position;
+
             v_uv = a_uv;
-            v_id = gl_InstanceID;
-
-            vec4 worldPosition;
-            vec3 pos = a_position;
-            if(gl_VertexID < 1 || gl_VertexID > 2) {
-                pos.x += sin(float(gl_InstanceID) + u_time * 0.0005) * 0.2;
-            }
-            vec3 right = vec3(u_viewMat[0].x, u_viewMat[1].x, u_viewMat[2].x);
-            vec3 up = vec3(u_viewMat[0].y, u_viewMat[1].y, u_viewMat[2].y);
-            if(u_cylindrical) {
-                up = vec3(0.0, 1.0, 0.0);
-            }
-            worldPosition = instanceWorld * vec4((right * pos.x) + (up * pos.y), 1.0);
-
-            gl_Position = u_projMat * u_viewMat * worldPosition;
+            v_lifetime = a_lifetime;
         }
     </script>
 
@@ -96,19 +108,30 @@
         precision mediump float;
 
         in vec2 v_uv;
-        flat in int v_id;
+        in float v_lifetime;
 
+        uniform vec4 u_color;
+        uniform highp float u_time;
         uniform sampler2D u_texture;
-        uniform sampler2D u_flower;
 
         out vec4 finalColor;
 
         void main() {
-            if(v_id % 20 < 1) {
-                finalColor = texture(u_flower, v_uv);
-            } else {
-                finalColor = texture(u_texture, v_uv);
-            }
+            float time = mod(u_time, v_lifetime);
+            float percentOfLife = time / v_lifetime;
+            percentOfLife = clamp(percentOfLife, 0.0, 1.0);
+
+            float offset = floor(16.0 * percentOfLife);
+            float offsetX = floor(mod(offset, 4.0)) / 4.0;
+            float offsetY = 0.75 - floor(offset / 4.0) / 4.0;
+
+            vec4 texColor = texture(u_texture, vec2(
+                (v_uv.x / 4.0) + offsetX,
+                (v_uv.y / 4.0) + offsetY
+            ));
+
+            finalColor = u_color * texColor;
+            finalColor.a *= v_lifetime;
         }
     </script>
     <script>
@@ -118,7 +141,7 @@
             const scene = new CZPG.Scene(renderer);
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            camera.transform.position.set(35, 5, 0);
+            camera.transform.position.set(1, 1, 0);
             let controler = scene.controler;
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
             cameraControler.enableDamping = true;
@@ -150,7 +173,7 @@
                 },
 
                 grass: {
-                    src: './resource/grass.png',
+                    src: './resource/fire-texture-atlas.jpg',
                     min : context.LINEAR_MIPMAP_LINEAR,
                     mag : context.LINEAR,
                 },
@@ -171,34 +194,66 @@
                 return min + Math.random() * (max - min);
             }
 
-            const INSTANCECOUNT = 4000;
-            const ACCELERATION = -1.0;
+            const INSTANCECOUNT = 1000;
 
-            const instanceWorlds = new Float32Array(INSTANCECOUNT * 16);
-            const r = 70;
+            const lifetimes = [];
+            const offsets = [];
+            const velocities = [];
+            const diameterAroundCenter = 0.5;
+            const halfDiameterAroundCenter = diameterAroundCenter / 2;
             for(let i = 0; i < INSTANCECOUNT; i++) {
-                const mat = new Float32Array(instanceWorlds.buffer, i * 16 * 4, 16);
+                var lifetime = 6 * Math.random();
 
-                CZPG.Matrix4.identity(mat);
-                mat[12] = rand(70) - 35;
-                mat[13] = 1;
-                mat[14] = rand(70) - 35;
+                var xStartOffset = diameterAroundCenter * Math.random() - halfDiameterAroundCenter;
+                xStartOffset /=3;
+                var yStartOffset = diameterAroundCenter * Math.random() - halfDiameterAroundCenter;
+                yStartOffset /= 10;
+                var zSatrtOffset = diameterAroundCenter * Math.random() - halfDiameterAroundCenter;
+                zSatrtOffset /= 3;
+
+                var upVelocity = 0.1 * Math.random();
+                var xSideVelocity = 0.02 * Math.random();
+                if(xStartOffset > 0) {
+                    xSideVelocity *= -1;
+                }
+                var zSideVelocity = 0.02 * Math.random();
+                if(zSatrtOffset > 0) {
+                    zSideVelocity *= -1;
+                }
+
+                lifetimes.push(lifetime);
+                offsets.push(xStartOffset);
+                offsets.push(yStartOffset + Math.abs(xStartOffset / 2.0));
+                offsets.push(zSatrtOffset);
+                velocities.push(xSideVelocity);
+                velocities.push(upVelocity);
+                velocities.push(zSideVelocity);
             }
 
             var quadAttribArrays = CZPG.Quad.createVertices(2);
 
             Object.assign(quadAttribArrays, {
-                instanceWorld: {
-                    numComponents: 16,
-                    data: instanceWorlds,
+                a_lifetime: {
+                    numComponents: 1,
+                    data: lifetimes,
+                    divisor: 1,
+                },
+                a_offset: {
+                    numComponents: 3,
+                    data: offsets,
+                    divisor: 1,
+                },
+                a_velocity: {
+                    numComponents: 3,
+                    data: velocities,
                     divisor: 1,
                 },
             })
 
-            let quadsMesh = new CZPG.Mesh('instances', quadAttribArrays, { instanceCount: INSTANCECOUNT, cullFace: false, sampleBlend: true });
+            let quadsMesh = new CZPG.Mesh('instances', quadAttribArrays, { instanceCount: INSTANCECOUNT, cullFace: false, blend: true });
             let quadsModel = new CZPG.Model(quadsMesh);
             let instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw")
-                .setUniformObj({cylindrical: true, flower: textures.flower})
+                .setUniformObj({billboard: true, color: [0.8, 0.25, 0.25, 1.0], firePos: [0, -0.3, 0]})
                 .setTexture(textures.grass)
                 .setCamera(camera);
 
@@ -209,8 +264,8 @@
             let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 1000, 1000, 1000, 0, 0, 0));
 
             scene.add([
-                {shader: skymapShader, model: skyCubeModal},
-                //{shader: gridShader, model: gridModal},
+                // {shader: skymapShader, model: skyCubeModal},
+                // {shader: gridShader, model: gridModal},
                 {shader: instanceShader, model: quadsModel},
             ]);
 
@@ -219,8 +274,8 @@
                 resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio)
                 if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
-
-                instanceShader.setUniformObj({time: performance.now()});
+                context.blendFunc(context.ONE, context.ONE);
+                instanceShader.setUniformObj({time: performance.now() / 1000});
                 scene.render();
             }).start();
 
