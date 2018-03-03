@@ -17,6 +17,9 @@ class OrbitControls {
         this.minDistance = 0.1;
         this.maxDistance = Infinity;
 
+        this.minZoom = 0.01;
+        this.maxZoom = Infinity;
+
         this.minPolarAngle = 0;
         this.maxPolarAngle = Math.PI;
 
@@ -123,7 +126,6 @@ class OrbitControls {
         if ( this.autoRotate && this._state === this.STATE.NONE )
             this.rotateLeft( this.getAutoRotationAngle() );
 
-
         this._spherical.theta += this._sphericalDelta.theta;
         this._spherical.phi += this._sphericalDelta.phi;
 
@@ -220,26 +222,49 @@ class OrbitControls {
 
         const element = this.domElement === document ? this.domElement.body : this.domElement;
 
-        const position = this.camera.transform.position;
-        this._vPan.copy( position ).sub( this.target );
-        let targetDisitance = this._vPan.length();
+        if ( this.camera.isPerspectiveCamera ) {
 
-        targetDisitance *= ( this.camera.fov / 2 ) * ( Math.PI / 180.0 );
+            const position = this.camera.transform.position;
+            this._vPan.copy( position ).sub( this.target );
+            let targetDisitance = this._vPan.length();
 
-        this.panLeft( 2 * deltaX * ( targetDisitance / element.clientHeight ), this.camera.matrix );
-        this.panUp( 2 * deltaY * ( targetDisitance / element.clientHeight ), this.camera.matrix );
+            targetDisitance *= ( this.camera.fov / 2 ) * ( Math.PI / 180.0 );
+
+            this.panLeft( 2 * deltaX * ( targetDisitance / element.clientHeight ), this.camera.matrix );
+            this.panUp( 2 * deltaY * ( targetDisitance / element.clientHeight ), this.camera.matrix );
+
+        } else if ( this.camera.isOrthographicCamera ) {
+
+            this.panLeft( deltaX * ( this.camera.right - this.camera.left ) / this.camera.zoom / element.clientHeight, this.camera.matrix );
+            this.panUp( deltaY * ( this.camera.top - this.camera.bottom ) / this.camera.zoom / element.clientHeight, this.camera.matrix );
+
+        }
 
     }
 
     zoomIn( zoomScale ) {
 
-        this._scale /= zoomScale;
+        if ( this.camera.isPerspectiveCamera )
+            this._scale /= zoomScale;
+        else if ( this.camera.isOrthographicCamera ) {
+
+            this.camera.zoom = Math.max( this.minZoom, Math.min( this.maxZoom, this.camera.zoom * zoomScale ) );
+            this.camera.updateProjMatrix();
+
+        }
 
     }
 
     zoomOut( zoomScale ) {
 
-        this._scale *= zoomScale;
+        if ( this.camera.isPerspectiveCamera )
+            this._scale *= zoomScale;
+        else if ( this.camera.isOrthographicCamera ) {
+
+            this.camera.zoom = Math.max( this.minZoom, Math.min( this.maxZoom, this.camera.zoom / zoomScale ) );
+            this.camera.updateProjMatrix();
+
+        }
 
     }
 

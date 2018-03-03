@@ -126,8 +126,7 @@
             // cameraControler.autoRotate = true;
 
             let gridShader = new CZPG.GridAxisShader(context, camera);
-            let gridMesh = CZPG.GridAxis.createMesh();
-            let gridModal = new CZPG.Model(gridMesh);
+            let gridModal = CZPG.GridAxis.createModel()
 
             let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
             let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
