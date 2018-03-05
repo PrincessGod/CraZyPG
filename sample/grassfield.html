@@ -118,7 +118,7 @@
             const scene = new CZPG.Scene(renderer);
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            camera.transform.position.set(35, 5, 0);
+            camera.transform.position.set(15, 3, 0);
             let controler = scene.controler;
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
             cameraControler.enableDamping = true;
@@ -171,18 +171,17 @@
                 return min + Math.random() * (max - min);
             }
 
-            const INSTANCECOUNT = 4000;
-            const ACCELERATION = -1.0;
+            const INSTANCECOUNT = 2000;
 
             const instanceWorlds = new Float32Array(INSTANCECOUNT * 16);
-            const r = 70;
+            const r = 40;
             for(let i = 0; i < INSTANCECOUNT; i++) {
                 const mat = new Float32Array(instanceWorlds.buffer, i * 16 * 4, 16);
 
                 CZPG.Matrix4.identity(mat);
-                mat[12] = rand(70) - 35;
+                mat[12] = rand(r) - r / 2;
                 mat[13] = 1;
-                mat[14] = rand(70) - 35;
+                mat[14] = rand(r) - r / 2;
             }
 
             var quadAttribArrays = CZPG.Quad.createVertices(2);
@@ -216,7 +215,7 @@
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {
-                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio)
+                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio);
                 if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
 
