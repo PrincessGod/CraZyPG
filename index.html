@@ -52,70 +52,101 @@
     </div>
     <div id="footbar">
         <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+        <p><a href="https://music.163.com/#/song?id=387851">Music: 小熊饼干 - 零柒年 (下半年)</a></p>
     </div>
     <script src="./build/czpg.js"></script>
+    <script src="./sample/js/audiostreamsource.min.js"></script>
+    <script type='shader' id="v-shader">
+        #version 300 es
+        // https://twgljs.org/examples/dynamic-buffers.html
+
+        in float a_spread;
+        in float a_height;
+
+        out vec4 v_color;
+
+        vec3 hsv2rgb(vec3 c) {
+            c = vec3(c.x, clamp(c.yz, 0.0, 1.0));
+            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+
+        void main() {
+            gl_Position = vec4(a_spread, a_height * 2.0 - 1.0, 0, 1.0);
+            v_color = vec4(hsv2rgb(vec3(a_spread * 0.5 + 0.5, a_height, 1.0)), 1.0);
+        }
+    </script>
+    <script type="shader" id="f-shader">
+        #version 300 es
+
+        precision mediump float;
+
+        in vec4 v_color;
+
+        out vec4 finalColor;
+
+        void main() {
+            finalColor = v_color;
+        }
+    </script>
     <script>
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
 
-            textures = CZPG.createTextures(context, {
-                scalar: {
-                    src : './resource/UV_Grid_Lrg.jpg',
-                    min : context.LINEAR_MIPMAP_LINEAR,
-                    mag : context.LINEAR,
-                },
-                day: {
-                    target: context.TEXTURE_CUBE_MAP,
-                    src: [
-                        './resource/miramar_right.png',
-                        './resource/miramar_left.png',
-                        './resource/miramar_top.png',
-                        './resource/miramar_bottom.png',
-                        './resource/miramar_back.png',
-                        './resource/miramar_front.png',
-                    ]
-                },
-                night: {
-                    target: context.TEXTURE_CUBE_MAP,
-                    src: [
-                        './resource/grimmnight_right.png',
-                        './resource/grimmnight_left.png',
-                        './resource/grimmnight_top.png',
-                        './resource/grimmnight_bottom.png',
-                        './resource/grimmnight_back.png',
-                        './resource/grimmnight_front.png',
-                    ]
-                },
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioCtx.createAnalyser();
+
+            const streamSource = audioStreamSource.create({
+                context: audioCtx,
+                loop: true,
+            });
+
+            streamSource.on('error', function(e) {
+                console.error('stream audio error: ' + e);
             })
 
-            let camera = new CZPG.OrthographicCamera(10, context.canvas.width/context.canvas.height);
-            // let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            camera.transform.position.set(1.5, 4, 1.5);
-            camera.updateViewMatrix();
-            let controler = scene.controler;
-            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
-            cameraControler.enableDamping = true;
-            cameraControler.autoRotate = true;
+            streamSource.on('newSource', function() {
+                streamSource.play();
+                streamSource.getSource().connect(analyser);
+                analyser.connect(audioCtx.destination);
+            });
 
-            let cubeModel = CZPG.Cube.createModel();
-            let shader = new CZPG.FlatTextureShader(context, camera, textures.scalar);
+            streamSource.setSource('./resource/小熊饼干 - 零柒年 (下半年).mp3');
 
-            let gridShader = new CZPG.GridAxisShader(context, camera);
-            let gridModal = CZPG.GridAxis.createModel()
+            const numPoints = analyser.frequencyBinCount;
 
-            scene.add([
-                {shader: shader, model: cubeModel},
-                {shader: gridShader, model: gridModal},
-            ]);
+            const frequencyArray = new Float32Array(numPoints);
+            const heightArray = new Uint8Array(numPoints);
+            for(let i = 0; i < numPoints; i++) {
+                frequencyArray[i] = i / numPoints * 2 - 1;
+            }
 
-            context.blendFunc(context.ONE, context.ONE);
+            const attrbArrays = {
+                a_spread: {data: frequencyArray, numComponents: 1},
+                a_height: {data: heightArray, numComponents: 1, normalize: true, drawType: context.DYNAMIC_DRAW}
+            };
+
+            var mesh = new CZPG.Mesh('frequency', attrbArrays, {drawMode: context.LINE_STRIP});
+            var model = new CZPG.Model(mesh);
+
+            var frequencyShader = new CZPG.Shader(context, 'v-shader', 'f-shader');
+
+            scene.add(
+                {shader: frequencyShader, model: model}
+            );
+
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {
-                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio)
-                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
-                cameraControler.update();
+                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio);
+
+                if(mesh.bufferInfo) {
+                    analyser.getByteFrequencyData(heightArray);
+                    CZPG.setTypedArrayToBuffer(context, mesh.bufferInfo.attribs.a_height.buffer, heightArray);
+                }
+
                 scene.render();
             }).start();
 
