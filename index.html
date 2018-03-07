@@ -60,8 +60,9 @@
         #version 300 es
         // https://twgljs.org/examples/dynamic-buffers.html
 
-        in float a_spread;
-        in float a_height;
+        in vec3 a_position;
+
+        uniform mat4 u_mvpMat;
 
         out vec4 v_color;
 
@@ -73,8 +74,9 @@
         }
 
         void main() {
-            gl_Position = vec4(a_spread, a_height * 2.0 - 1.0, 0, 1.0);
-            v_color = vec4(hsv2rgb(vec3(a_spread * 0.5 + 0.5, a_height, 1.0)), 1.0);
+            gl_Position = u_mvpMat * vec4(a_position, 1.0);
+            gl_PointSize = 1.0;
+            v_color = vec4(1.0, 0.0, 0.0, 0.15);
         }
     </script>
     <script type="shader" id="f-shader">
@@ -91,64 +93,92 @@
         }
     </script>
     <script>
+
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.transform.position.set(0, 0, 3);
+            camera.updateViewMatrix();
 
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const analyser = audioCtx.createAnalyser();
 
             const streamSource = audioStreamSource.create({
                 context: audioCtx,
-                loop: true,
+                loop: false,
             });
 
             streamSource.on('error', function(e) {
                 console.error('stream audio error: ' + e);
             })
 
+            let time = 0;
+            let duration = 100;
+            const alpha = 0.25;
+            const dist = 0.25;
+            const ySize = 0.15;
             streamSource.on('newSource', function() {
                 streamSource.play();
                 streamSource.getSource().connect(analyser);
                 analyser.connect(audioCtx.destination);
+
+                duration = streamSource.getSource().mediaElement.duration;
+                loop.start();
             });
 
             streamSource.setSource('./resource/小熊饼干 - 零柒年 (下半年).mp3');
 
             const numPoints = analyser.frequencyBinCount;
 
-            const frequencyArray = new Float32Array(numPoints);
-            const heightArray = new Uint8Array(numPoints);
-            for(let i = 0; i < numPoints; i++) {
-                frequencyArray[i] = i / numPoints * 2 - 1;
-            }
+            const positionArray = new Float32Array(numPoints * 3);
+            const frequencyArray = new Uint8Array(numPoints);
 
             const attrbArrays = {
-                a_spread: {data: frequencyArray, numComponents: 1},
-                a_height: {data: heightArray, numComponents: 1, normalize: true, drawType: context.DYNAMIC_DRAW}
+                a_position: {data: positionArray, drawMode: context.DYNAMIC_DRAW},
             };
 
-            var mesh = new CZPG.Mesh('frequency', attrbArrays, {drawMode: context.LINE_STRIP});
+            var mesh = new CZPG.Mesh('frequency', attrbArrays, {drawMode: context.POINTS, blend: true});
             var model = new CZPG.Model(mesh);
 
-            var frequencyShader = new CZPG.Shader(context, 'v-shader', 'f-shader');
+            var frequencyShader = new CZPG.Shader(context, 'v-shader', 'f-shader').setCamera(camera);
 
             scene.add(
                 {shader: frequencyShader, model: model}
             );
 
             let resized = false;
+            renderer.clear(1,1,1,1);
             let loop = new CZPG.Render(function(timespan) {
-                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio);
+                resized = renderer.fixCanvasToDisplay(window.devicePixelRatio);
 
                 if(mesh.bufferInfo) {
-                    analyser.getByteFrequencyData(heightArray);
-                    CZPG.setTypedArrayToBuffer(context, mesh.bufferInfo.attribs.a_height.buffer, heightArray);
+                    time += timespan;
+                    const dur = time / duration;
+                    if(dur > 1) return loop.stop();
+
+                    analyser.getByteFrequencyData(frequencyArray);
+
+                    let radius = 1 - dur;
+                    const startAngle = time;
+                    for(let i = 0; i < numPoints; i++) {
+                        const alpha = i / numPoints;
+                        const angle = startAngle + 0.25 * alpha;
+                        positionArray[i*3] = Math.cos(angle) * radius;
+                        positionArray[i*3 + 1] = Math.sin(angle) * radius;
+
+                        const amplitude = (frequencyArray[i] / 128);
+                        const waveY = amplitude * ySize / 2;
+
+                        positionArray[i * 3 + 2] = waveY;
+                    }
+                    CZPG.setTypedArrayToBuffer(context, mesh.bufferInfo.attribs.a_position.buffer, positionArray);
                 }
 
                 scene.render();
-            }).start();
+            })//.start();
 
         });
 
