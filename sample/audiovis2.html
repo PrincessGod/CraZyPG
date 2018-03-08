@@ -5,7 +5,7 @@
     <link rel="shortcut icon" href="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>CraZyPG</title>
+    <title>Audio Vis</title>
     <style>
         html, body {
             background: black;
@@ -54,8 +54,8 @@
         <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
         <p><a href="https://music.163.com/#/song?id=387851">Music: 小熊饼干 - 零柒年 (下半年)</a></p>
     </div>
-    <script src="./build/czpg.js"></script>
-    <script src="./sample/js/audiostreamsource.min.js"></script>
+    <script src="./czpg.js"></script>
+    <script src="./js/audiostreamsource.min.js"></script>
     <script type='shader' id="v-shader">
         #version 300 es
         // https://twgljs.org/examples/dynamic-buffers.html
@@ -76,7 +76,7 @@
         void main() {
             gl_Position = u_mvpMat * vec4(a_position, 1.0);
             gl_PointSize = 1.0;
-            v_color = vec4(1.0, 1.0, 1.0, 0.005);
+            v_color = vec4(1.0, 1.0, 1.0, 0.01);
         }
     </script>
     <script type="shader" id="f-shader">
@@ -95,7 +95,7 @@
     <script>
 
         window.addEventListener('load', function() {
-            const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('80%', '80%').clear();
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('100%', '100%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
 
