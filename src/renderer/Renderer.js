@@ -2,9 +2,9 @@ import { getContext, clear, resizeCanvasToDisplaySize } from './webgl';
 
 class Renderer {
 
-    constructor( canvasOrId ) {
+    constructor( canvasOrId, opts ) {
 
-        this.context = getContext( canvasOrId );
+        this.context = getContext( canvasOrId, opts );
         this.canvas = this.context.canvas;
         this.multiplier = 1.0;
 
