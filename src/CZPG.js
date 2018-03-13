@@ -27,6 +27,7 @@ export * from './math/Spherical.js';
 export * from './math/Matrix4.js';
 export * from './loaders/Fileloader.js';
 export * from './loaders/ObjLoader.js';
+export * from './loaders/GLTFLoader.js';
 export * from './helper/PointHelper.js';
 export * from './helper/LineHelper.js';
 export * from './model/Terrain.js';

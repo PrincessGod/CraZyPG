@@ -62,7 +62,7 @@
             const scene = new CZPG.Scene(renderer);
             const controler = scene.controler;
 
-            textures = CZPG.createTextures(context, {
+            const textures = CZPG.createTextures(context, {
                 checker: {
                     mag: context.NEAREST,
                     min: context.LINEAR,
@@ -117,7 +117,7 @@
                         100, 100, 100, 255,
                     ],
                 }
-            })
+            });
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
             camera.transform.position.set(0, 1, 3);
