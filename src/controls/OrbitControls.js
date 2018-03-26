@@ -1,7 +1,6 @@
 /* eslint default-case: 0 */
 import { Vector2 } from '../math/Vector2';
 import { Vector3 } from '../math/Vector3';
-import { Quaternion } from '../math/Quaternion';
 import { Spherical } from '../math/Spherical';
 
 class OrbitControls {
@@ -56,7 +55,6 @@ class OrbitControls {
         // update
         this._offset = new Vector3();
         this._lastPosition = new Vector3();
-        this._lastQuaternion = new Quaternion();
         this._spherical = new Spherical();
         this._sphericalDelta = new Spherical();
         this._sphericalDump = new Spherical();

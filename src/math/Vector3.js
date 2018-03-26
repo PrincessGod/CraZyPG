@@ -2,11 +2,55 @@
 
 function Vector3( x, y, z ) {
 
-    this.x = x || 0.0;
-    this.y = y || 0.0;
-    this.z = z || 0.0;
+    this.raw = [];
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
 
 }
+
+Object.defineProperties( Vector3.prototype, {
+
+    x: {
+        get() {
+
+            return this.raw[ 0 ];
+
+        },
+        set( v ) {
+
+            this.raw[ 0 ] = v;
+
+        },
+    },
+
+    y: {
+        get() {
+
+            return this.raw[ 1 ];
+
+        },
+        set( v ) {
+
+            this.raw[ 1 ] = v;
+
+        },
+    },
+
+    z: {
+        get() {
+
+            return this.raw[ 2 ];
+
+        },
+        set( v ) {
+
+            this.raw[ 2 ] = v;
+
+        },
+    },
+
+} );
 
 Object.assign( Vector3.prototype, {
 
@@ -59,7 +103,7 @@ Object.assign( Vector3.prototype, {
 
     setFromSpherical( s ) {
 
-        return Vector3.fromSpherical( this, s );
+        return Vector3.fromSpherical( this.raw, s );
 
     },
 
@@ -85,13 +129,13 @@ Object.assign( Vector3.prototype, {
 
     getArray() {
 
-        return [ this.x, this.y, this.z ];
+        return this.raw;
 
     },
 
     getFloatArray() {
 
-        return new Float32Array( [ this.x, this.y, this.z ] );
+        return new Float32Array( this.raw );
 
     },
 
@@ -147,15 +191,17 @@ Object.assign( Vector3.prototype, {
 
     },
 
-    cross( v ) {
+    cross( v, frag ) {
 
-        return Vector3.crossVectors( new Vector3(), this, v );
+        const result = frag || new Vector3();
+        Vector3.crossVectors( result.raw, this.raw, v.raw );
+        return result;
 
     },
 
     applyQuaternion( q ) {
 
-        Vector3.transformQuat( this, this, q );
+        Vector3.transformQuat( this.raw, this.raw, q.raw );
         return this;
 
     },
@@ -172,15 +218,15 @@ Object.assign( Vector3, {
 
     crossVectors( out, v1, v2 ) {
 
-        const ax = v1.x;
-        const ay = v1.y;
-        const az = v1.z;
-        const bx = v2.x;
-        const by = v2.y;
-        const bz = v2.z;
-        out.x = ay * bz - az * by;
-        out.y = az * bx - ax * bz;
-        out.z = ax * by - ay * bx;
+        const ax = v1[ 0 ];
+        const ay = v1[ 1 ];
+        const az = v1[ 2 ];
+        const bx = v2[ 0 ];
+        const by = v2[ 1 ];
+        const bz = v2[ 2 ];
+        out[ 0 ] = ay * bz - az * by;
+        out[ 1 ] = az * bx - ax * bz;
+        out[ 2 ] = ax * by - ay * bx;
 
         return out;
 
@@ -190,9 +236,9 @@ Object.assign( Vector3, {
 
         const sinPhiRadius = Math.sin( s.phi ) * s.radius;
 
-        out.x = sinPhiRadius * Math.sin( s.theta );
-        out.y = Math.cos( s.phi ) * s.radius;
-        out.z = sinPhiRadius * Math.cos( s.theta );
+        out[ 0 ] = sinPhiRadius * Math.sin( s.theta );
+        out[ 1 ] = Math.cos( s.phi ) * s.radius;
+        out[ 2 ] = sinPhiRadius * Math.cos( s.theta );
 
         return out;
 
@@ -200,13 +246,13 @@ Object.assign( Vector3, {
 
     transformQuat( out, a, q ) {
 
-        const x = a.x;
-        const y = a.y;
-        const z = a.z;
-        const qx = q.x;
-        const qy = q.y;
-        const qz = q.z;
-        const qw = q.w;
+        const x = a[ 0 ];
+        const y = a[ 1 ];
+        const z = a[ 2 ];
+        const qx = q[ 0 ];
+        const qy = q[ 1 ];
+        const qz = q[ 2 ];
+        const qw = q[ 3 ];
 
         // calculate quat * vector
         const ix = qw * x + qy * z - qz * y;

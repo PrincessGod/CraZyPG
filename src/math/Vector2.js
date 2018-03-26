@@ -1,5 +1,6 @@
 function Vector2( x, y ) {
 
+    this.raw = [];
     this.x = x || 0;
     this.y = y || 0;
 
@@ -7,17 +8,45 @@ function Vector2( x, y ) {
 
 Object.defineProperties( Vector2.prototype, {
 
-    width: {
+    x: {
+        get() {
 
-        get: function width() {
-
-            return this.x;
+            return this.raw[ 0 ];
 
         },
 
-        set: function width( value ) {
+        set( v ) {
 
-            this.x = value;
+            this.raw[ 0 ] = v;
+
+        },
+    },
+
+    y: {
+        get() {
+
+            return this.raw[ 1 ];
+
+        },
+
+        set( v ) {
+
+            this.raw[ 1 ] = v;
+
+        },
+    },
+
+    width: {
+
+        get() {
+
+            return this.raw[ 0 ];
+
+        },
+
+        set( v ) {
+
+            this.raw[ 0 ] = v;
 
         },
 
@@ -25,15 +54,15 @@ Object.defineProperties( Vector2.prototype, {
 
     height: {
 
-        get: function height() {
+        get() {
 
-            return this.y;
+            return this.raw[ 1 ];
 
         },
 
-        set: function height( value ) {
+        set( v ) {
 
-            this.y = value;
+            this.raw[ 1 ] = v;
 
         },
 
