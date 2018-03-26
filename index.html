@@ -52,7 +52,6 @@
     </div>
     <div id="footbar">
         <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
-        <p><a href="https://music.163.com/#/song?id=387851">Music: 小熊饼干 - 零柒年 (下半年)</a></p>
     </div>
     <script src="./build/czpg.js"></script>
     <script src="./sample/js/audiostreamsource.min.js"></script>
@@ -133,22 +132,29 @@
                     {
                     "primitives" : [ {
                         "attributes" : {
-                        "POSITION" : 0
-                        }
+                        "POSITION" : 1
+                        },
+                        "indices" : 0
                     } ]
                     }
                 ],
 
                 "buffers" : [
                     {
-                    "uri" : "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAA",
-                    "byteLength" : 36
+                    "uri" : "data:application/octet-stream;base64,AAABAAIAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAACAPwAAAAA=",
+                    "byteLength" : 44
                     }
                 ],
                 "bufferViews" : [
                     {
                     "buffer" : 0,
                     "byteOffset" : 0,
+                    "byteLength" : 6,
+                    "target" : 34963
+                    },
+                    {
+                    "buffer" : 0,
+                    "byteOffset" : 8,
                     "byteLength" : 36,
                     "target" : 34962
                     }
@@ -156,6 +162,15 @@
                 "accessors" : [
                     {
                     "bufferView" : 0,
+                    "byteOffset" : 0,
+                    "componentType" : 5123,
+                    "count" : 3,
+                    "type" : "SCALAR",
+                    "max" : [ 2 ],
+                    "min" : [ 0 ]
+                    },
+                    {
+                    "bufferView" : 1,
                     "byteOffset" : 0,
                     "componentType" : 5126,
                     "count" : 3,

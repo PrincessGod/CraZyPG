@@ -180,7 +180,7 @@ Object.assign( GLTFLoader.prototype, {
 
             } );
 
-            if ( indices ) {
+            if ( indices !== undefined ) {
 
                 const accessor = this.parseAccessor( indices );
                 if ( accessor )
@@ -224,6 +224,7 @@ Object.assign( GLTFLoader.prototype, {
         const offset = ( accessor.byteOffset || 0 ) + ( bufferView.byteOffset || 0 );
         const glType = accessor.componentType;
         const arrayType = getTypedArrayTypeFromGLType( glType );
+        const bytesPerElement = arrayType.BYTES_PER_ELEMENT;
         let numComponents = 1;
         switch ( accessor.type ) {
 
@@ -259,24 +260,23 @@ Object.assign( GLTFLoader.prototype, {
 
         }
 
-        let byteLength = bufferView.byteLength;
+        let byteLength = - 1;
         if ( bufferView.byteStride )
             byteLength = bufferView.byteStride * accessor.count;
         else
-            byteLength = accessor.count * numComponents * arrayType.BYTES_PER_ELEMENT;
+            byteLength = accessor.count * numComponents * bytesPerElement;
 
-        const bytesPerElement = arrayType.BYTES_PER_ELEMENT;
-        const arrayLength = byteLength / bytesPerElement;
-        const typedArray = new arrayType( arrayLength ); // eslint-disable-line
-        let pos = 0;
-        const strArrayType = arrayType.prototype.constructor.name;
-        const decodeFun = `get${strArrayType.substr( 0, strArrayType.length - 5 )}`;
-        for ( let i = 0; i < arrayLength; i ++ ) {
+        if ( byteLength < 0 ) {
 
-            pos = offset + i * bytesPerElement;
-            typedArray[ i ] = buffer.dbuffer[ decodeFun ]( pos, true );
+            console.error( ` glTF parse error when compute byteLength on accessor ${accessorId}, error value: ${byteLength}` );
+            return false;
 
         }
+        if ( byteLength !== bufferView.byteLength )
+            console.error( `glTF has different byteLength at accessor ${accessorId}, compute byteLength: ${byteLength}, accessor byteLength: ${accessor.byteLength}` );
+
+        const arrayLength = byteLength / bytesPerElement;
+        const typedArray = new arrayType( buffer.dbuffer, offset, arrayLength ); // eslint-disable-line
 
         accessor.isParsed = true;
         accessor.computeResult = {
@@ -307,11 +307,11 @@ Object.assign( GLTFLoader.prototype, {
 
         const base64Idx = buffer.uri.indexOf( this.BASE64_MARKER ) + this.BASE64_MARKER.length;
         const blob = window.atob( buffer.uri.substr( base64Idx ) );
-        const dataView = new DataView( new ArrayBuffer( blob.length ) );
+        const bytes = new Uint8Array( blob.length );
         for ( let i = 0; i < blob.length; i ++ )
-            dataView.setUint8( i, blob.charCodeAt( i ) );
+            bytes[ i ] = blob.charCodeAt( i );
 
-        buffer.dbuffer = dataView;
+        buffer.dbuffer = bytes.buffer;
         buffer.isParsed = true;
         return buffer;
 
