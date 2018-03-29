@@ -54,7 +54,6 @@ class OrbitControls {
 
         // update
         this._offset = new Vector3();
-        this._lastPosition = new Vector3();
         this._spherical = new Spherical();
         this._sphericalDelta = new Spherical();
         this._sphericalDump = new Spherical();
