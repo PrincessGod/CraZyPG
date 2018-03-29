@@ -1,7 +1,4 @@
 /* eslint no-param-reassign: 0 */
-
-const EPS = 0.000001;
-
 function Matrix4() {
 
     this.raw = Matrix4.identity();
@@ -43,6 +40,19 @@ Object.assign( Matrix4.prototype, {
         return this;
 
     },
+
+    applyQuaternion: ( function () {
+
+        const matArray = new Array( 16 );
+        return function applyQuaternion( quat ) {
+
+            Matrix4.fromQuat( matArray, typeof quat.x === 'undefined' ? quat : quat.raw );
+            Matrix4.mult( this.raw, this.raw, matArray );
+            return this;
+
+        };
+
+    }() ),
 
     scale( x, y, z ) {
 
@@ -627,59 +637,65 @@ Object.assign( Matrix4, {
 
     },
 
-    equals( a, b ) {
+    equals: ( function () {
 
-        const a0 = a[ 0 ];
-        const a1 = a[ 1 ];
-        const a2 = a[ 2 ];
-        const a3 = a[ 3 ];
-        const a4 = a[ 4 ];
-        const a5 = a[ 5 ];
-        const a6 = a[ 6 ];
-        const a7 = a[ 7 ];
-        const a8 = a[ 8 ];
-        const a9 = a[ 9 ];
-        const a10 = a[ 10 ];
-        const a11 = a[ 11 ];
-        const a12 = a[ 12 ];
-        const a13 = a[ 13 ];
-        const a14 = a[ 14 ];
-        const a15 = a[ 15 ];
-        const b0 = b[ 0 ];
-        const b1 = b[ 1 ];
-        const b2 = b[ 2 ];
-        const b3 = b[ 3 ];
-        const b4 = b[ 4 ];
-        const b5 = b[ 5 ];
-        const b6 = b[ 6 ];
-        const b7 = b[ 7 ];
-        const b8 = b[ 8 ];
-        const b9 = b[ 9 ];
-        const b10 = b[ 10 ];
-        const b11 = b[ 11 ];
-        const b12 = b[ 12 ];
-        const b13 = b[ 13 ];
-        const b14 = b[ 14 ];
-        const b15 = b[ 15 ];
+        const EPS = 0.000001;
 
-        return ( Math.abs( a0 - b0 ) <= EPS * Math.max( 1.0, Math.abs( a0 ), Math.abs( b0 ) ) &&
-          Math.abs( a1 - b1 ) <= EPS * Math.max( 1.0, Math.abs( a1 ), Math.abs( b1 ) ) &&
-          Math.abs( a2 - b2 ) <= EPS * Math.max( 1.0, Math.abs( a2 ), Math.abs( b2 ) ) &&
-          Math.abs( a3 - b3 ) <= EPS * Math.max( 1.0, Math.abs( a3 ), Math.abs( b3 ) ) &&
-          Math.abs( a4 - b4 ) <= EPS * Math.max( 1.0, Math.abs( a4 ), Math.abs( b4 ) ) &&
-          Math.abs( a5 - b5 ) <= EPS * Math.max( 1.0, Math.abs( a5 ), Math.abs( b5 ) ) &&
-          Math.abs( a6 - b6 ) <= EPS * Math.max( 1.0, Math.abs( a6 ), Math.abs( b6 ) ) &&
-          Math.abs( a7 - b7 ) <= EPS * Math.max( 1.0, Math.abs( a7 ), Math.abs( b7 ) ) &&
-          Math.abs( a8 - b8 ) <= EPS * Math.max( 1.0, Math.abs( a8 ), Math.abs( b8 ) ) &&
-          Math.abs( a9 - b9 ) <= EPS * Math.max( 1.0, Math.abs( a9 ), Math.abs( b9 ) ) &&
-          Math.abs( a10 - b10 ) <= EPS * Math.max( 1.0, Math.abs( a10 ), Math.abs( b10 ) ) &&
-          Math.abs( a11 - b11 ) <= EPS * Math.max( 1.0, Math.abs( a11 ), Math.abs( b11 ) ) &&
-          Math.abs( a12 - b12 ) <= EPS * Math.max( 1.0, Math.abs( a12 ), Math.abs( b12 ) ) &&
-          Math.abs( a13 - b13 ) <= EPS * Math.max( 1.0, Math.abs( a13 ), Math.abs( b13 ) ) &&
-          Math.abs( a14 - b14 ) <= EPS * Math.max( 1.0, Math.abs( a14 ), Math.abs( b14 ) ) &&
-          Math.abs( a15 - b15 ) <= EPS * Math.max( 1.0, Math.abs( a15 ), Math.abs( b15 ) ) );
+        return function equals( a, b ) {
 
-    },
+            const a0 = a[ 0 ];
+            const a1 = a[ 1 ];
+            const a2 = a[ 2 ];
+            const a3 = a[ 3 ];
+            const a4 = a[ 4 ];
+            const a5 = a[ 5 ];
+            const a6 = a[ 6 ];
+            const a7 = a[ 7 ];
+            const a8 = a[ 8 ];
+            const a9 = a[ 9 ];
+            const a10 = a[ 10 ];
+            const a11 = a[ 11 ];
+            const a12 = a[ 12 ];
+            const a13 = a[ 13 ];
+            const a14 = a[ 14 ];
+            const a15 = a[ 15 ];
+            const b0 = b[ 0 ];
+            const b1 = b[ 1 ];
+            const b2 = b[ 2 ];
+            const b3 = b[ 3 ];
+            const b4 = b[ 4 ];
+            const b5 = b[ 5 ];
+            const b6 = b[ 6 ];
+            const b7 = b[ 7 ];
+            const b8 = b[ 8 ];
+            const b9 = b[ 9 ];
+            const b10 = b[ 10 ];
+            const b11 = b[ 11 ];
+            const b12 = b[ 12 ];
+            const b13 = b[ 13 ];
+            const b14 = b[ 14 ];
+            const b15 = b[ 15 ];
+
+            return ( Math.abs( a0 - b0 ) <= EPS * Math.max( 1.0, Math.abs( a0 ), Math.abs( b0 ) ) &&
+              Math.abs( a1 - b1 ) <= EPS * Math.max( 1.0, Math.abs( a1 ), Math.abs( b1 ) ) &&
+              Math.abs( a2 - b2 ) <= EPS * Math.max( 1.0, Math.abs( a2 ), Math.abs( b2 ) ) &&
+              Math.abs( a3 - b3 ) <= EPS * Math.max( 1.0, Math.abs( a3 ), Math.abs( b3 ) ) &&
+              Math.abs( a4 - b4 ) <= EPS * Math.max( 1.0, Math.abs( a4 ), Math.abs( b4 ) ) &&
+              Math.abs( a5 - b5 ) <= EPS * Math.max( 1.0, Math.abs( a5 ), Math.abs( b5 ) ) &&
+              Math.abs( a6 - b6 ) <= EPS * Math.max( 1.0, Math.abs( a6 ), Math.abs( b6 ) ) &&
+              Math.abs( a7 - b7 ) <= EPS * Math.max( 1.0, Math.abs( a7 ), Math.abs( b7 ) ) &&
+              Math.abs( a8 - b8 ) <= EPS * Math.max( 1.0, Math.abs( a8 ), Math.abs( b8 ) ) &&
+              Math.abs( a9 - b9 ) <= EPS * Math.max( 1.0, Math.abs( a9 ), Math.abs( b9 ) ) &&
+              Math.abs( a10 - b10 ) <= EPS * Math.max( 1.0, Math.abs( a10 ), Math.abs( b10 ) ) &&
+              Math.abs( a11 - b11 ) <= EPS * Math.max( 1.0, Math.abs( a11 ), Math.abs( b11 ) ) &&
+              Math.abs( a12 - b12 ) <= EPS * Math.max( 1.0, Math.abs( a12 ), Math.abs( b12 ) ) &&
+              Math.abs( a13 - b13 ) <= EPS * Math.max( 1.0, Math.abs( a13 ), Math.abs( b13 ) ) &&
+              Math.abs( a14 - b14 ) <= EPS * Math.max( 1.0, Math.abs( a14 ), Math.abs( b14 ) ) &&
+              Math.abs( a15 - b15 ) <= EPS * Math.max( 1.0, Math.abs( a15 ), Math.abs( b15 ) ) );
+
+        };
+
+    }() ),
 
     clone( a ) {
 

@@ -1,4 +1,5 @@
 /* eslint no-param-reassign: 0 */
+import { PMath } from './Math';
 
 function Vector3( x, y, z ) {
 
@@ -115,6 +116,34 @@ Object.assign( Vector3.prototype, {
         this.z = array[ offset + 2 ];
 
         return this;
+
+    },
+
+    // XYZ order
+    setFromRotationMatrix( m ) {
+
+        const te = m.raw || m;
+        const m11 = te[ 0 ];
+        const m12 = te[ 4 ];
+        const m13 = te[ 8 ];
+        const m22 = te[ 5 ];
+        const m23 = te[ 9 ];
+        const m32 = te[ 6 ];
+        const m33 = te[ 10 ];
+
+        this.y = Math.asin( PMath.clamp( m13, - 1, 1 ) );
+
+        if ( Math.abs( m13 ) < 0.99999 ) {
+
+            this.x = Math.atan2( - m23, m33 );
+            this.z = Math.atan2( - m12, m11 );
+
+        } else {
+
+            this.x = Math.atan2( m32, m22 );
+            this.z = 0;
+
+        }
 
     },
 

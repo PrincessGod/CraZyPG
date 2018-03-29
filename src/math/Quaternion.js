@@ -1,14 +1,10 @@
 /* eslint no-param-reassign: 0 no-mixed-operators:0 */
 import { Vector3 } from './Vector3';
 
-let v1 = new Vector3();
-let r;
-const ESP = 0.000001;
-
 function Quaternion( x, y, z, w ) {
 
     this.raw = [];
-    if ( y === undefined )
+    if ( arguments.length === 1 )
         this.raw = x.slice( 0, 4 );
     else {
 
@@ -85,7 +81,7 @@ Object.assign( Quaternion.prototype, {
 
     set( x, y, z, w ) {
 
-        if ( y === undefined )
+        if ( arguments.length === 1 )
             this.raw = x.slice( 0, 4 );
         else {
 
@@ -132,30 +128,37 @@ Object.assign( Quaternion.prototype, {
 
     },
 
-    setFromUnitVectors( vFrom, vTo ) {
+    setFromUnitVectors: ( function () {
 
-        if ( v1 === undefined ) v1 = new Vector3();
-        r = vFrom.dot( vTo ) + 1;
+        let v1 = new Vector3();
+        const ESP = 0.000001;
 
-        if ( r < ESP ) {
+        return function setFromUnitVectors( vFrom, vTo ) {
 
-            r = 0;
-            if ( Math.abs( vFrom.x ) > Map.abs( vFrom.z ) )
-                v1.set( - vFrom.y, vFrom.x, 0 );
-            else
-                v1.set( 0, - vFrom.z, vFrom.y );
+            v1 = new Vector3();
+            let r = vFrom.dot( vTo ) + 1;
 
-        } else
-            Vector3.cross( v1, vFrom, vTo );
+            if ( r < ESP ) {
 
-        this.x = v1.x;
-        this.y = v1.y;
-        this.z = v1.z;
-        this.w = v1.w;
+                r = 0;
+                if ( Math.abs( vFrom.x ) > Map.abs( vFrom.z ) )
+                    v1.set( - vFrom.y, vFrom.x, 0 );
+                else
+                    v1.set( 0, - vFrom.z, vFrom.y );
 
-        return this.normalize();
+            } else
+                Vector3.cross( v1, vFrom, vTo );
 
-    },
+            this.x = v1.x;
+            this.y = v1.y;
+            this.z = v1.z;
+            this.w = v1.w;
+
+            return this.normalize();
+
+        };
+
+    }() ),
 
     invert() {
 
@@ -195,7 +198,7 @@ Object.assign( Quaternion, {
 
     fromEuler( out, x, y, z ) {
 
-        const halfToRad = 0.5 * Math.PI / 180.0;
+        const halfToRad = 0.5; //* Math.PI / 180.0;
         x *= halfToRad;
         y *= halfToRad;
         z *= halfToRad;

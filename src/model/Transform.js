@@ -1,4 +1,5 @@
 import { Vector3 } from '../math/Vector3';
+import { Quaternion } from '../math/Quaternion';
 import { Matrix4 } from '../math/Matrix4';
 
 function Transform() {
@@ -6,6 +7,7 @@ function Transform() {
     this._position = new Vector3( 0, 0, 0 );
     this._scale = new Vector3( 1, 1, 1 );
     this._rotation = new Vector3( 0, 0, 0 );
+    this._quaternion = new Quaternion();
     this.matrix = new Matrix4();
     this.normMat = new Float32Array( 9 );
 
@@ -41,6 +43,14 @@ Object.defineProperties( Transform.prototype, {
         },
     },
 
+    quaternion: {
+        get: function quaternion() {
+
+            return this._quaternion;
+
+        },
+    },
+
 } );
 
 Object.assign( Transform.prototype, {
@@ -48,11 +58,12 @@ Object.assign( Transform.prototype, {
     updateMatrix() {
 
         this.matrix.reset()
-            .translate( this.position )
-            .rotateZ( this.rotation.z )
-            .rotateX( this.rotation.x )
-            .rotateY( this.rotation.y )
-            .scale( this.scale );
+            .translate( this._position )
+            // .rotateZ( this.rotation.z )
+            // .rotateX( this.rotation.x )
+            // .rotateY( this.rotation.y )
+            .applyQuaternion( this._quaternion )
+            .scale( this._scale );
 
         Matrix4.normalMat3( this.normMat, this.matrix.raw );
 
@@ -87,9 +98,10 @@ Object.assign( Transform.prototype, {
 
     reset() {
 
-        this.position.set( 0, 0, 0 );
-        this.scale.set( 1, 1, 1 );
-        this.rotation.set( 0, 0, 0 );
+        this._position.set( 0, 0, 0 );
+        this._scale.set( 1, 1, 1 );
+        this._rotation.set( 0, 0, 0 );
+        this._quaternion.set( 0, 0, 0, 1 );
 
     },
 

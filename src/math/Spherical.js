@@ -1,7 +1,5 @@
 import { PMath } from './Math';
 
-const ESP = 0.000001;
-
 function Spherical( radius, phi, theta ) {
 
     this.radius = ( radius !== undefined ) ? radius : 1.0;
@@ -38,12 +36,18 @@ Object.assign( Spherical.prototype, {
 
     },
 
-    makeSafe() {
+    makeSafe: ( function () {
 
-        this.phi = Math.max( ESP, Math.min( Math.PI - ESP, this.phi ) );
-        return this;
+        const ESP = 0.000001;
 
-    },
+        return function makeSafe() {
+
+            this.phi = Math.max( ESP, Math.min( Math.PI - ESP, this.phi ) );
+            return this;
+
+        };
+
+    }() ),
 
     setFromVecor3( vec3 ) {
 

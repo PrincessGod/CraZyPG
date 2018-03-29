@@ -3,16 +3,23 @@ import { createVertexArray } from '../renderer/vertexArray';
 import { createBufferInfoFromArrays } from '../renderer/attributes';
 import { CommonVAOShader } from '../shader/CommonVAOShader';
 import * as Constant from '../renderer/constant';
+import { Matrix4 } from '../math/Matrix4';
 
-let commonVAOShader;
-function getDefaultShader( gl ) {
+const getDefaultShader = ( function () {
 
-    if ( ! commonVAOShader )
-        commonVAOShader = new CommonVAOShader( gl );
+    let commonVAOShader;
 
-    return commonVAOShader;
+    return function getDefaultShader( gl ) { // eslint-disable-line
 
-}
+        if ( ! commonVAOShader )
+            commonVAOShader = new CommonVAOShader( gl );
+
+        return commonVAOShader;
+
+    };
+
+}() );
+
 
 function Model( mesh ) {
 
@@ -130,44 +137,40 @@ Object.assign( Model.prototype, {
             return this.setRotation( ...x );
 
         this.transform.rotation.set( x, y, z );
+        this.transform.quaternion.setFromEuler( x, y, z );
         this._needUpdateMatrix = true;
         return this;
 
     },
+
+    setQuaternion: ( function () {
+
+        const mat4 = new Matrix4();
+
+        return function ( x, y, z, w ) {
+
+            if ( x instanceof Transform )
+                return this.setQuaternion( ...( x.quaternion.getArray() ) );
+
+            if ( x.w !== undefined )
+                return this.setQuaternion( ...( x.getArray() ) );
+
+            if ( Array.isArray( x ) && x.length === 4 )
+                return this.setQuaternion( ...x );
+
+            this.transform.quaternion.set( x, y, z, w );
+            mat4.reset().applyQuaternion( this.transform.quaternion );
+            this.transform.rotation.setFromRotationMatrix( mat4.raw );
+            this._needUpdateMatrix = true;
+            return this;
+
+        };
+
+    }() ),
 
     setTransform( transform ) {
 
         this.transform = transform;
-        return this;
-
-    },
-
-    addScale( x, y, z ) {
-
-        this.transform.scale.x += x;
-        this.transform.scale.y += y;
-        this.transform.scale.z += z;
-        this._needUpdateMatrix = true;
-        return this;
-
-    },
-
-    addPosition( x, y, z ) {
-
-        this.transform.position.x += x;
-        this.transform.position.y += y;
-        this.transform.position.z += z;
-        this._needUpdateMatrix = true;
-        return this;
-
-    },
-
-    addRotation( x, y, z ) {
-
-        this.transform.rotation.x += x;
-        this.transform.rotation.y += y;
-        this.transform.rotation.z += z;
-        this._needUpdateMatrix = true;
         return this;
 
     },
