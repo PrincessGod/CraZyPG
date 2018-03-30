@@ -1,12 +1,15 @@
 /* eslint no-param-reassign: 0 */
 import { PMath } from './Math';
 
+function noop() {}
+
 function Vector3( x, y, z ) {
 
     this.raw = [];
     this.x = x || 0;
     this.y = y || 0;
     this.z = z || 0;
+    this._afterSetted = noop;
 
 }
 
@@ -47,6 +50,20 @@ Object.defineProperties( Vector3.prototype, {
         set( v ) {
 
             this.raw[ 2 ] = v;
+
+        },
+    },
+
+    afterSetted: {
+        get() {
+
+            return this._afterSetted;
+
+        },
+        set( fun ) {
+
+            if ( typeof fun === 'function' )
+                this._afterSetted = fun;
 
         },
     },
@@ -98,13 +115,15 @@ Object.assign( Vector3.prototype, {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.afterSetted();
         return this;
 
     },
 
     setFromSpherical( s ) {
 
-        return Vector3.fromSpherical( this.raw, s );
+        Vector3.fromSpherical( this.raw, s );
+        return this;
 
     },
 
@@ -144,6 +163,8 @@ Object.assign( Vector3.prototype, {
             this.z = 0;
 
         }
+
+        return this;
 
     },
 
@@ -216,7 +237,8 @@ Object.assign( Vector3.prototype, {
 
     dot( v ) {
 
-        return this.dotVectors( this, v );
+        this.dotVectors( this, v );
+        return this;
 
     },
 

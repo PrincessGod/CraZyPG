@@ -3,7 +3,6 @@ import { createVertexArray } from '../renderer/vertexArray';
 import { createBufferInfoFromArrays } from '../renderer/attributes';
 import { CommonVAOShader } from '../shader/CommonVAOShader';
 import * as Constant from '../renderer/constant';
-import { Matrix4 } from '../math/Matrix4';
 
 const getDefaultShader = ( function () {
 
@@ -137,36 +136,27 @@ Object.assign( Model.prototype, {
             return this.setRotation( ...x );
 
         this.transform.rotation.set( x, y, z );
-        this.transform.quaternion.setFromEuler( x, y, z );
         this._needUpdateMatrix = true;
         return this;
 
     },
 
-    setQuaternion: ( function () {
+    setQuaternion( x, y, z, w ) {
 
-        const mat4 = new Matrix4();
+        if ( x instanceof Transform )
+            return this.setQuaternion( ...( x.quaternion.getArray() ) );
 
-        return function ( x, y, z, w ) {
+        if ( x.w !== undefined )
+            return this.setQuaternion( ...( x.getArray() ) );
 
-            if ( x instanceof Transform )
-                return this.setQuaternion( ...( x.quaternion.getArray() ) );
+        if ( Array.isArray( x ) && x.length === 4 )
+            return this.setQuaternion( ...x );
 
-            if ( x.w !== undefined )
-                return this.setQuaternion( ...( x.getArray() ) );
+        this.transform.quaternion.set( x, y, z, w );
+        this._needUpdateMatrix = true;
+        return this;
 
-            if ( Array.isArray( x ) && x.length === 4 )
-                return this.setQuaternion( ...x );
-
-            this.transform.quaternion.set( x, y, z, w );
-            mat4.reset().applyQuaternion( this.transform.quaternion );
-            this.transform.rotation.setFromRotationMatrix( mat4.raw );
-            this._needUpdateMatrix = true;
-            return this;
-
-        };
-
-    }() ),
+    },
 
     setTransform( transform ) {
 

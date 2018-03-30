@@ -15,6 +15,9 @@ function Transform() {
     this.up = new Float32Array( 4 );
     this.right = new Float32Array( 4 );
 
+    this.rotation.afterSetted = this.updateQuaternion.bind( this );
+    this.quaternion.afterSetted = this.updateEuler.bind( this );
+
 }
 
 Object.defineProperties( Transform.prototype, {
@@ -57,13 +60,11 @@ Object.assign( Transform.prototype, {
 
     updateMatrix() {
 
-        this.matrix.reset()
-            .translate( this._position )
-            // .rotateZ( this.rotation.z )
-            // .rotateX( this.rotation.x )
-            // .rotateY( this.rotation.y )
-            .applyQuaternion( this._quaternion )
-            .scale( this._scale );
+        this.matrix.fromTRS( this.position.raw, this.quaternion.raw, this.scale.raw );
+        // .reset()
+        //     .translate( this._position )
+        //     .applyQuaternion( this._quaternion )
+        //     .scale( this._scale );
 
         Matrix4.normalMat3( this.normMat, this.matrix.raw );
 
@@ -102,6 +103,25 @@ Object.assign( Transform.prototype, {
         this._scale.set( 1, 1, 1 );
         this._rotation.set( 0, 0, 0 );
         this._quaternion.set( 0, 0, 0, 1 );
+
+    },
+
+    updateEuler: ( function () {
+
+        const mat4 = new Matrix4();
+
+        return function updateEular() {
+
+            mat4.reset().applyQuaternion( this.quaternion );
+            this.rotation.setFromRotationMatrix( mat4.raw );
+
+        };
+
+    }() ),
+
+    updateQuaternion() {
+
+        this.quaternion.setFromEuler( ...this.rotation.getArray() );
 
     },
 

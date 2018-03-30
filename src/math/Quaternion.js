@@ -1,6 +1,8 @@
 /* eslint no-param-reassign: 0 no-mixed-operators:0 */
 import { Vector3 } from './Vector3';
 
+function noop() {}
+
 function Quaternion( x, y, z, w ) {
 
     this.raw = [];
@@ -14,6 +16,8 @@ function Quaternion( x, y, z, w ) {
         this.w = w || 1;
 
     }
+
+    this._afterSetted = noop;
 
 }
 
@@ -75,6 +79,23 @@ Object.defineProperties( Quaternion.prototype, {
         },
     },
 
+    afterSetted: {
+
+        get() {
+
+            return this._afterSetted;
+
+        },
+
+        set( fun ) {
+
+            if ( typeof fun === 'function' )
+                this._afterSetted = fun;
+
+        },
+
+    },
+
 } );
 
 Object.assign( Quaternion.prototype, {
@@ -92,6 +113,7 @@ Object.assign( Quaternion.prototype, {
 
         }
 
+        this.afterSetted();
         return this;
 
     },
@@ -154,7 +176,8 @@ Object.assign( Quaternion.prototype, {
             this.z = v1.z;
             this.w = v1.w;
 
-            return this.normalize();
+            this.normalize();
+            return this;
 
         };
 
@@ -173,7 +196,7 @@ Object.assign( Quaternion, {
 
     normalize( out, a ) {
 
-        let l = a.length();
+        let l = Math.sqrt( a[ 0 ] * a[ 0 ] + a[ 1 ] * a[ 1 ] + a[ 2 ] * a[ 2 ] + a[ 3 ] * a[ 3 ] );
 
         if ( l === 0 ) {
 
@@ -198,21 +221,22 @@ Object.assign( Quaternion, {
 
     fromEuler( out, x, y, z ) {
 
-        const halfToRad = 0.5; //* Math.PI / 180.0;
-        x *= halfToRad;
-        y *= halfToRad;
-        z *= halfToRad;
-        const sx = Math.sin( x );
-        const cx = Math.cos( x );
-        const sy = Math.sin( y );
-        const cy = Math.cos( y );
-        const sz = Math.sin( z );
-        const cz = Math.cos( z );
-        out[ 0 ] = sx * cy * cz - cx * sy * sz;
-        out[ 1 ] = cx * sy * cz + sx * cy * sz;
-        out[ 2 ] = cx * cy * sz - sx * sy * cz;
-        out[ 3 ] = cx * cy * cz + sx * sy * sz;
-        return out;
+        // XYZ order
+        const cos = Math.cos;
+        const sin = Math.sin;
+
+        const c1 = cos( x / 2 );
+        const c2 = cos( y / 2 );
+        const c3 = cos( z / 2 );
+
+        const s1 = sin( x / 2 );
+        const s2 = sin( y / 2 );
+        const s3 = sin( z / 2 );
+
+        out[ 0 ] = s1 * c2 * c3 + c1 * s2 * s3;
+        out[ 1 ] = c1 * s2 * c3 - s1 * c2 * s3;
+        out[ 2 ] = c1 * c2 * s3 + s1 * s2 * c3;
+        out[ 3 ] = c1 * c2 * c3 - s1 * s2 * s3;
 
     },
 
