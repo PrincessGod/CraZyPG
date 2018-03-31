@@ -15,41 +15,71 @@ function Transform() {
     this.up = new Float32Array( 4 );
     this.right = new Float32Array( 4 );
 
-    this.rotation.afterSetted = this.updateQuaternion.bind( this );
-    this.quaternion.afterSetted = this.updateEuler.bind( this );
+    this._needUpdateMatrix = false;
 
 }
 
 Object.defineProperties( Transform.prototype, {
 
     position: {
-        get: function position() {
 
-            return this._position;
+        get() {
+
+            return this._position.getArray().slice();
 
         },
+
+        set( v ) {
+
+            this.setPosition( v );
+
+        },
+
     },
 
     scale: {
-        get: function scale() {
 
-            return this._scale;
+        get() {
+
+            return this._scale.getArray().slice();
 
         },
+
+        set( v ) {
+
+            this.setScale( v );
+
+        },
+
     },
 
     rotation: {
-        get: function rotation() {
 
-            return this._rotation;
+        get() {
+
+            return this._rotation.getArray().slice();
 
         },
+
+        set( v ) {
+
+            this.setRotation( v );
+
+        },
+
     },
 
     quaternion: {
-        get: function quaternion() {
 
-            return this._quaternion;
+        get() {
+
+            return this._quaternion.getArray().slice();
+
+        },
+
+        set( v ) {
+
+            this.setQuaternion( v );
 
         },
     },
@@ -60,19 +90,21 @@ Object.assign( Transform.prototype, {
 
     updateMatrix() {
 
-        this.matrix.fromTRS( this.position.raw, this.quaternion.raw, this.scale.raw );
-        // .reset()
-        //     .translate( this._position )
-        //     .applyQuaternion( this._quaternion )
-        //     .scale( this._scale );
+        if ( this._needUpdateMatrix ) {
 
-        Matrix4.normalMat3( this.normMat, this.matrix.raw );
+            this.matrix.fromTRS( this.position, this.quaternion, this.scale );
 
-        Matrix4.transformVec4( this.forward, this.matrix.raw, [ 0, 0, 1, 0 ] );
-        Matrix4.transformVec4( this.up, this.matrix.raw, [ 0, 1, 0, 0 ] );
-        Matrix4.transformVec4( this.right, this.matrix.raw, [ 1, 0, 0, 0 ] );
+            Matrix4.normalMat3( this.normMat, this.matrix.raw );
 
-        return this.matrix.raw;
+            Matrix4.transformVec4( this.forward, this.matrix.raw, [ 0, 0, 1, 0 ] );
+            Matrix4.transformVec4( this.up, this.matrix.raw, [ 0, 1, 0, 0 ] );
+            Matrix4.transformVec4( this.right, this.matrix.raw, [ 1, 0, 0, 0 ] );
+
+            this._needUpdateMatrix = false;
+
+        }
+
+        return this;
 
     },
 
@@ -112,8 +144,8 @@ Object.assign( Transform.prototype, {
 
         return function updateEular() {
 
-            mat4.reset().applyQuaternion( this.quaternion );
-            this.rotation.setFromRotationMatrix( mat4.raw );
+            mat4.reset().applyQuaternion( this._quaternion );
+            this._rotation.setFromRotationMatrix( mat4.raw );
 
         };
 
@@ -121,7 +153,99 @@ Object.assign( Transform.prototype, {
 
     updateQuaternion() {
 
-        this.quaternion.setFromEuler( ...this.rotation.getArray() );
+        this._quaternion.setFromEuler( ...this.rotation );
+
+    },
+
+    setScale( x, y, z ) {
+
+        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+
+            if ( x instanceof Vector3 )
+                return this.setScale( ...x.getArray() );
+
+            if ( Array.isArray( x ) && x.length === 3 )
+                return this.setScale( ...x );
+
+        } else if ( arguments.length === 3 ) {
+
+            this._scale.set( x, y, z );
+            this._needUpdateMatrix = true;
+
+        }
+
+        return this;
+
+    },
+
+    setPosition( x, y, z ) {
+
+        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+
+            if ( x instanceof Vector3 )
+                return this.setPosition( ...x.getArray() );
+
+            if ( Array.isArray( x ) && x.length === 3 )
+                return this.setPosition( ...x );
+
+        } else if ( arguments.length === 3 ) {
+
+            this._position.set( x, y, z );
+            this._needUpdateMatrix = true;
+
+        }
+
+        return this;
+
+    },
+
+    setRotation( x, y, z ) {
+
+        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+
+            if ( x instanceof Vector3 )
+                return this.setRotation( ...x.getArray() );
+
+            if ( Array.isArray( x ) && x.length === 3 )
+                return this.setRotation( ...x );
+
+        } else if ( arguments.length === 3 ) {
+
+            this._rotation.set( x, y, z );
+            this.updateQuaternion();
+            this._needUpdateMatrix = true;
+
+        }
+
+        return this;
+
+    },
+
+    setQuaternion( x, y, z, w ) {
+
+        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+
+            if ( x instanceof Quaternion )
+                return this.setQuaternion( ...( x.getArray() ) );
+
+            if ( Array.isArray( x ) && x.length === 4 )
+                return this.setQuaternion( ...x );
+
+        } else if ( arguments.length === 4 ) {
+
+            this._quaternion.set( x, y, z, w );
+            this.updateEuler();
+            this._needUpdateMatrix = true;
+
+        }
+
+        return this;
+
+    },
+
+    getVec3Position() {
+
+        return this._position;
 
     },
 

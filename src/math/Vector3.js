@@ -1,15 +1,12 @@
 /* eslint no-param-reassign: 0 */
 import { PMath } from './Math';
 
-function noop() {}
-
 function Vector3( x, y, z ) {
 
     this.raw = [];
     this.x = x || 0;
     this.y = y || 0;
     this.z = z || 0;
-    this._afterSetted = noop;
 
 }
 
@@ -50,20 +47,6 @@ Object.defineProperties( Vector3.prototype, {
         set( v ) {
 
             this.raw[ 2 ] = v;
-
-        },
-    },
-
-    afterSetted: {
-        get() {
-
-            return this._afterSetted;
-
-        },
-        set( fun ) {
-
-            if ( typeof fun === 'function' )
-                this._afterSetted = fun;
 
         },
     },
@@ -115,7 +98,6 @@ Object.assign( Vector3.prototype, {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.afterSetted();
         return this;
 
     },

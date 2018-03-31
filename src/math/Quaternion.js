@@ -1,8 +1,6 @@
 /* eslint no-param-reassign: 0 no-mixed-operators:0 */
 import { Vector3 } from './Vector3';
 
-function noop() {}
-
 function Quaternion( x, y, z, w ) {
 
     this.raw = [];
@@ -16,8 +14,6 @@ function Quaternion( x, y, z, w ) {
         this.w = w || 1;
 
     }
-
-    this._afterSetted = noop;
 
 }
 
@@ -79,23 +75,6 @@ Object.defineProperties( Quaternion.prototype, {
         },
     },
 
-    afterSetted: {
-
-        get() {
-
-            return this._afterSetted;
-
-        },
-
-        set( fun ) {
-
-            if ( typeof fun === 'function' )
-                this._afterSetted = fun;
-
-        },
-
-    },
-
 } );
 
 Object.assign( Quaternion.prototype, {
@@ -113,7 +92,6 @@ Object.assign( Quaternion.prototype, {
 
         }
 
-        this.afterSetted();
         return this;
 
     },

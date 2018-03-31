@@ -49,9 +49,6 @@ class OrbitControls {
             ORBIT: 0, ZOOM: 1, PAN: 2,
         };
 
-        this.target0 = this.target.clone();
-        this.position0 = this.camera.transform.position.clone();
-
         // update
         this._offset = new Vector3();
         this._spherical = new Spherical();
@@ -115,7 +112,7 @@ class OrbitControls {
 
     update() {
 
-        const position = this.camera.transform.position;
+        const position = this.camera.getVec3Position();
 
         this._offset.copy( position ).sub( this.target );
         this._spherical.setFromVecor3( this._offset );
@@ -221,7 +218,7 @@ class OrbitControls {
 
         if ( this.camera.isPerspectiveCamera ) {
 
-            const position = this.camera.transform.position;
+            const position = this.camera.getVec3Position();
             this._vPan.copy( position ).sub( this.target );
             let targetDisitance = this._vPan.length();
 

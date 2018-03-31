@@ -25,7 +25,6 @@ function Model( mesh ) {
     this.mesh = mesh;
     this.enablePick = true;
     this.transform = new Transform();
-    this._needUpdateMatrix = false;
     this._uniformObj = {};
 
 }
@@ -33,64 +32,142 @@ function Model( mesh ) {
 Object.defineProperties( Model.prototype, {
 
     name: {
+
         get() {
 
             return this.mesh.name;
 
         },
+
         set( value ) {
 
             this.mesh.name = value;
 
         },
+
     },
 
     normMat: {
+
         get() {
 
             return this.transform.normMat;
 
         },
+
     },
 
     matrix: {
+
         get() {
 
             return this.transform.matrix.raw;
 
         },
+
     },
 
     positionInfo: {
+
         get() {
 
             return this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ];
 
         },
+
     },
 
     uvInfo: {
+
         get() {
 
             return this.mesh.attribArrays[ Constant.ATTRIB_UV_NAME ];
 
         },
+
     },
 
     normalInfo: {
+
         get() {
 
             return this.mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ];
 
         },
+
     },
 
     uniformObj: {
+
         get() {
 
             return this._uniformObj;
 
         },
+
+    },
+
+    position: {
+
+        get() {
+
+            return this.transform.position;
+
+        },
+
+        set( array ) {
+
+            this.setPosition( array );
+
+        },
+    },
+
+    scale: {
+
+        get() {
+
+            return this.transform.scale;
+
+        },
+
+        set( array ) {
+
+            this.setScale( array );
+
+        },
+
+    },
+
+    rotation: {
+
+        get() {
+
+            return this.transform.rotation;
+
+        },
+
+        set( array ) {
+
+            this.setRotation( array );
+
+        },
+
+    },
+
+    quaternion: {
+
+        get() {
+
+            return this.transform.quaternion;
+
+        },
+
+        set( arrayQuat ) {
+
+            this.setQuaternion( arrayQuat );
+
+        },
+
     },
 
 } );
@@ -102,13 +179,9 @@ Object.assign( Model.prototype, {
     setScale( x, y, z ) {
 
         if ( x instanceof Transform )
-            return this.setScale( ...( x.scale.getArray() ) );
+            return this.setScale( ...( x.scale ) );
 
-        if ( Array.isArray( x ) && x.length === 3 )
-            return this.setScale( ...x );
-
-        this.transform.scale.set( x, y, z );
-        this._needUpdateMatrix = true;
+        this.transform.setScale( x, y, z );
         return this;
 
     },
@@ -118,11 +191,7 @@ Object.assign( Model.prototype, {
         if ( x instanceof Transform )
             return this.setPosition( ...( x.position.getArray() ) );
 
-        if ( Array.isArray( x ) && x.length === 3 )
-            return this.setPosition( ...x );
-
-        this.transform.position.set( x, y, z );
-        this._needUpdateMatrix = true;
+        this.transform.setPosition( x, y, z );
         return this;
 
     },
@@ -132,11 +201,7 @@ Object.assign( Model.prototype, {
         if ( x instanceof Transform )
             return this.setRotation( ...( x.rotation.getArray() ) );
 
-        if ( Array.isArray( x ) && x.length === 3 )
-            return this.setRotation( ...x );
-
-        this.transform.rotation.set( x, y, z );
-        this._needUpdateMatrix = true;
+        this.transform.setRotation( x, y, z );
         return this;
 
     },
@@ -146,14 +211,7 @@ Object.assign( Model.prototype, {
         if ( x instanceof Transform )
             return this.setQuaternion( ...( x.quaternion.getArray() ) );
 
-        if ( x.w !== undefined )
-            return this.setQuaternion( ...( x.getArray() ) );
-
-        if ( Array.isArray( x ) && x.length === 4 )
-            return this.setQuaternion( ...x );
-
-        this.transform.quaternion.set( x, y, z, w );
-        this._needUpdateMatrix = true;
+        this.setQuaternion( x, y, z, w );
         return this;
 
     },
@@ -167,13 +225,7 @@ Object.assign( Model.prototype, {
 
     preRender() {
 
-        if ( this._needUpdateMatrix ) {
-
-            this.transform.updateMatrix();
-            this._needUpdateMatrix = false;
-
-        }
-
+        this.transform.updateMatrix();
         return this;
 
     },

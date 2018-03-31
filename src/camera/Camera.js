@@ -11,9 +11,28 @@ function Camera() {
     this.target = new Vector3();
     this.up = [ 0, 1, 0 ];
     this.matrix = this.transform.matrix.raw;
-    this.position = this.transform.position;
 
 }
+
+Object.defineProperties( Camera.prototype, {
+
+    position: {
+
+        get() {
+
+            return this.transform.position;
+
+        },
+
+        set( v ) {
+
+            this.transform.position = v;
+
+        },
+
+    },
+
+} );
 
 Object.assign( Camera.prototype, {
 
@@ -25,14 +44,20 @@ Object.assign( Camera.prototype, {
 
     },
 
+    getVec3Position() {
+
+        return this.transform.getVec3Position();
+
+    },
+
     updateViewMatrix( target ) {
 
         if ( target )
             this.target = target;
 
-        Matrix4.lookAt( this.viewMat, this.transform.position.getArray(), this.target.getArray(), this.up );
+        Matrix4.lookAt( this.viewMat, this.transform.position, this.target.getArray(), this.up );
         Matrix4.invert( this.matrix, this.viewMat );
-        this.position.set( this.matrix[ 12 ], this.matrix[ 13 ], this.matrix[ 14 ] );
+        this.getVec3Position().set( this.matrix[ 12 ], this.matrix[ 13 ], this.matrix[ 14 ] );
 
     },
 
