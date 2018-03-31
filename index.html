@@ -100,7 +100,7 @@
             const controler = scene.controler;
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            camera.transform.position.set(0, 0, 7);
+            camera.transform.position = [0, 0, 7];
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
             cameraControler.enableDamping = true;
             // cameraControler.autoRotate = true;
@@ -191,6 +191,10 @@
             const models = [];
             for(let i = 0; i < meshes.length; i++) {
                 const model = new CZPG.Model(meshes[i]);
+                // model.setQuaternion(0.3696438106143861, 0.23911761839433449, 0.09904576054128762, 0.8923991008325228);
+                model.rotation = [Math.PI / 4, 0, 0];
+                model.scale = [2, 1, 1];
+                model.position = [1, 1, 1];
                 models.push(model);
             }
 

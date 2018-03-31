@@ -191,7 +191,7 @@
             const scene = new CZPG.Scene(renderer);
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            camera.transform.position.set(75, 30, 75);
+            camera.position = [75, 30, 75];
             let controler = scene.controler;
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
             cameraControler.enableDamping = true;
