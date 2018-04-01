@@ -157,19 +157,19 @@ Object.assign( Transform.prototype, {
 
     },
 
-    setScale( x, y, z ) {
+    setScale( ...args ) {
 
-        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+        if ( args.length === 1 ) {
 
-            if ( x instanceof Vector3 )
-                return this.setScale( ...x.getArray() );
+            if ( args[ 0 ] instanceof Vector3 )
+                return this.setScale( ...args[ 0 ].getArray() );
 
-            if ( Array.isArray( x ) && x.length === 3 )
-                return this.setScale( ...x );
+            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 3 )
+                return this.setScale( ...args[ 0 ] );
 
-        } else if ( arguments.length === 3 ) {
+        } else if ( args.length === 3 ) {
 
-            this._scale.set( x, y, z );
+            this._scale.set( ...args );
             this._needUpdateMatrix = true;
 
         }
@@ -178,19 +178,19 @@ Object.assign( Transform.prototype, {
 
     },
 
-    setPosition( x, y, z ) {
+    setPosition( ...args ) {
 
-        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+        if ( args.length === 1 ) {
 
-            if ( x instanceof Vector3 )
-                return this.setPosition( ...x.getArray() );
+            if ( args[ 0 ] instanceof Vector3 )
+                return this.setPosition( ...args[ 0 ].getArray() );
 
-            if ( Array.isArray( x ) && x.length === 3 )
-                return this.setPosition( ...x );
+            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 3 )
+                return this.setPosition( ...args[ 0 ] );
 
-        } else if ( arguments.length === 3 ) {
+        } else if ( args.length === 3 ) {
 
-            this._position.set( x, y, z );
+            this._position.set( ...args );
             this._needUpdateMatrix = true;
 
         }
@@ -199,19 +199,19 @@ Object.assign( Transform.prototype, {
 
     },
 
-    setRotation( x, y, z ) {
+    setRotation( ...args ) {
 
-        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+        if ( args.length === 1 ) {
 
-            if ( x instanceof Vector3 )
-                return this.setRotation( ...x.getArray() );
+            if ( args[ 0 ] instanceof Vector3 )
+                return this.setRotation( ...args[ 0 ].getArray() );
 
-            if ( Array.isArray( x ) && x.length === 3 )
-                return this.setRotation( ...x );
+            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 3 )
+                return this.setRotation( ...args[ 0 ] );
 
-        } else if ( arguments.length === 3 ) {
+        } else if ( args.length === 3 ) {
 
-            this._rotation.set( x, y, z );
+            this._rotation.set( ...args );
             this.updateQuaternion();
             this._needUpdateMatrix = true;
 
@@ -221,19 +221,19 @@ Object.assign( Transform.prototype, {
 
     },
 
-    setQuaternion( x, y, z, w ) {
+    setQuaternion( ...args ) {
 
-        if ( arguments.length === 1 || ( x !== undefined && y === undefined ) ) {
+        if ( args.length === 1 ) {
 
-            if ( x instanceof Quaternion )
-                return this.setQuaternion( ...( x.getArray() ) );
+            if ( args[ 0 ] instanceof Quaternion )
+                return this.setQuaternion( ...( args[ 0 ].getArray() ) );
 
-            if ( Array.isArray( x ) && x.length === 4 )
-                return this.setQuaternion( ...x );
+            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 4 )
+                return this.setQuaternion( ...args[ 0 ] );
 
-        } else if ( arguments.length === 4 ) {
+        } else if ( args.length === 4 ) {
 
-            this._quaternion.set( x, y, z, w );
+            this._quaternion.set( ...args );
             this.updateEuler();
             this._needUpdateMatrix = true;
 

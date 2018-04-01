@@ -176,42 +176,42 @@ Object.assign( Model.prototype, {
 
     isModel: true,
 
-    setScale( x, y, z ) {
+    setScale( ...args ) {
 
-        if ( x instanceof Transform )
-            return this.setScale( ...( x.scale ) );
+        if ( args[ 0 ] instanceof Transform )
+            return this.setScale( ...( args[ 0 ].scale ) );
 
-        this.transform.setScale( x, y, z );
+        this.transform.setScale( ...args );
         return this;
 
     },
 
-    setPosition( x, y, z ) {
+    setPosition( args ) {
 
-        if ( x instanceof Transform )
-            return this.setPosition( ...( x.position.getArray() ) );
+        if ( args[ 0 ] instanceof Transform )
+            return this.setPosition( ...( args[ 0 ].position.getArray() ) );
 
-        this.transform.setPosition( x, y, z );
+        this.transform.setPosition( ...args );
         return this;
 
     },
 
-    setRotation( x, y, z ) {
+    setRotation( ...args ) {
 
-        if ( x instanceof Transform )
-            return this.setRotation( ...( x.rotation.getArray() ) );
+        if ( args[ 0 ] instanceof Transform )
+            return this.setRotation( ...( args[ 0 ].rotation.getArray() ) );
 
-        this.transform.setRotation( x, y, z );
+        this.transform.setRotation( ...args );
         return this;
 
     },
 
-    setQuaternion( x, y, z, w ) {
+    setQuaternion( ...args ) {
 
-        if ( x instanceof Transform )
-            return this.setQuaternion( ...( x.quaternion.getArray() ) );
+        if ( args[ 0 ] instanceof Transform )
+            return this.setQuaternion( ...( args[ 0 ].quaternion.getArray() ) );
 
-        this.setQuaternion( x, y, z, w );
+        this.setQuaternion( ...args );
         return this;
 
     },
