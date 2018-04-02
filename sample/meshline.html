@@ -106,9 +106,9 @@
                 let r3 = Math.random() * 0.1 * Math.PI;
                 let curve = CZPG.Curve.createMesh('cur' + i, [
                     new CZPG.Vector3(0, -0.4, 0),
-                    CZPG.Vector3.fromSpherical(vector30, spherical.set(radius * Math.random() * 0.4, r + r2, r1)).set(vector30.x, vector30.y - down, vector30.z),
-                    CZPG.Vector3.fromSpherical(vector31, spherical.set(0.4 + radius * Math.random() * 0.4, r + r2 + r3, r1)).set(vector31.x, vector31.y - down, vector31.z),
-                    CZPG.Vector3.fromSpherical(vector32, spherical.set(radius, r, r1)).set(vector32.x, vector32.y - down, vector32.z),
+                    vector30.setFromSpherical(spherical.set(radius * Math.random() * 0.4, r + r2, r1)).set(vector30.x, vector30.y - down, vector30.z),
+                    vector31.setFromSpherical(spherical.set(0.4 + radius * Math.random() * 0.4, r + r2 + r3, r1)).set(vector31.x, vector31.y - down, vector31.z),
+                    vector32.setFromSpherical(spherical.set(radius, r, r1)).set(vector32.x, vector32.y - down, vector32.z),
                 ], undefined, 40);
 
                 let model = new CZPG.MeshLineModel(curve);
@@ -197,7 +197,7 @@
 
                 if(currentModel.model === 'patten') {
                     curentModels = models[currentModel.model][currentModel.customWidth === true ? 0 : 1].slice(0, currentModel.lineNumber);
-                    curentModels.forEach(m => m.depth = camera.position.squareLength(m.position));
+                    curentModels.forEach(m => m.depth = camera.getVec3Position().squareLength(m.position));
                     curentModels = curentModels.sort((a, b) => b.depth - a.depth);
                     scene.removeAll().add([
                         {shader: meshlineShader, model: curentModels},
