@@ -186,7 +186,7 @@ Object.assign( Model.prototype, {
 
     },
 
-    setPosition( args ) {
+    setPosition( ...args ) {
 
         if ( args[ 0 ] instanceof Transform )
             return this.setPosition( ...( args[ 0 ].position.getArray() ) );
