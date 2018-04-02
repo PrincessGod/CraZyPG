@@ -3,6 +3,7 @@ import { Quad } from '../model/Primatives';
 import { ScreenQuadShader } from '../shader/ScreenQuadShader';
 import { BufferPicker } from '../controls/BufferPicker';
 import { Controler } from '../controls/Controler';
+import { Node } from './Node';
 
 function Scene( renderer, controler ) {
 
@@ -12,6 +13,7 @@ function Scene( renderer, controler ) {
     this.helpers = [];
     this.helpersMap = [];
 
+    this.root = new Node( 'root_node' );
     this.renderer = renderer;
     this.gl = this.renderer.context;
     this.controler = controler || new Controler( this.gl.canvas );
@@ -82,6 +84,7 @@ Object.assign( Scene.prototype, {
             if ( modelIdx < 0 ) {
 
                 this.models.push( model );
+                this.root.addChild( model );
                 if ( this.enablePick )
                     model.setUniformObj( { u_colorId: this.bufferPicker.id2Color( this.models.length ) } );
 
@@ -154,6 +157,7 @@ Object.assign( Scene.prototype, {
             if ( modelIdx > - 1 ) {
 
                 this.models.splice( modelIdx, 1 );
+                this.root.remove( model.node );
                 if ( this.enablePick )
                     this.needUpdateColorId = true;
 

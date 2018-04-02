@@ -19,7 +19,6 @@ function Mesh( name, attribArrays = {}, options ) {
     } );
 
     Object.assign( this, {
-        isMesh: true,
         name,
         attribArrays,
         drawMode: Constant.TRIANGLES,
@@ -32,6 +31,18 @@ function Mesh( name, attribArrays = {}, options ) {
     }, options );
 
 }
+
+Object.defineProperties( Mesh.prototype, {
+
+    isMesh: {
+        get() {
+
+            return true;
+
+        },
+    },
+
+} );
 
 const GridAxis = {};
 

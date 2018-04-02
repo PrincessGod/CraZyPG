@@ -25,11 +25,22 @@ function Model( mesh ) {
     this.mesh = mesh;
     this.enablePick = true;
     this.transform = new Transform();
+    this.node = null;
     this._uniformObj = {};
 
 }
 
 Object.defineProperties( Model.prototype, {
+
+    isModel: {
+
+        get() {
+
+            return true;
+
+        },
+
+    },
 
     name: {
 
@@ -173,8 +184,6 @@ Object.defineProperties( Model.prototype, {
 } );
 
 Object.assign( Model.prototype, {
-
-    isModel: true,
 
     setScale( ...args ) {
 

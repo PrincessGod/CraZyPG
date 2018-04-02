@@ -2,12 +2,22 @@ import { Transform } from '../model/Transform';
 
 let nodeCount = 0;
 
-function Node( name ) {
+function Node( nameModel ) {
 
-    this.name = name || `NODE_${nodeCount ++}`;
+    if ( typeof nameModel === 'string' )
+        this.name = nameModel;
+    else if ( !! nameModel && nameModel.isModel ) {
+
+        this.model = nameModel;
+        this.name = this.model.name;
+        nameModel.node = this; // eslint-disable-line
+
+    } else
+        this.name = `NODE_${nodeCount ++}`;
+
     this.children = [];
     this.parent = null;
-    this.transform = new Transform();
+    this.transform = this.moedel ? this.model.transform : new Transform();
 
 }
 
@@ -77,12 +87,17 @@ Object.assign( Node, {
 
     remove( node ) {
 
-        const idx = this.children.indexOf( node );
+        if ( node.parent ) {
 
-        if ( idx > - 1 )
-            this.children.splice( idx, 1 );
+            const idx = node.parent.children.indexOf( node );
 
-        node.parent = null; // eslint-disable-line
+            if ( idx > - 1 )
+                node.parent.children.splice( idx, 1 );
+
+            node.parent = null; // eslint-disable-line
+
+        } else
+            node = undefined; // eslint-disable-line
 
     },
 
@@ -124,10 +139,26 @@ Object.assign( Node.prototype, {
 
     addToParent( parent ) {
 
-        if ( this.parent !== null )
+        if ( this.parent )
             Node.remove( this );
 
         parent.children.push( this );
+        node.parent = this; // eslint-disable-line
+
+        return this;
+
+    },
+
+    addChild( nodelike ) {
+
+        let node = nodelike;
+        if ( typeof nodelike === 'string' || nodelike.isModel )
+            node = new Node( nodelike );
+
+        if ( node.parent )
+            Node.remove( node );
+
+        this.children.push( node );
         node.parent = this; // eslint-disable-line
 
         return this;
@@ -165,3 +196,5 @@ Object.assign( Node.prototype, {
     },
 
 } );
+
+export { Node };
