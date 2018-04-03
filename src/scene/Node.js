@@ -1,4 +1,5 @@
 import { Transform } from '../model/Transform';
+import { Matrix4 } from '../math/Matrix4';
 
 let nodeCount = 0;
 
@@ -17,7 +18,10 @@ function Node( nameModel ) {
 
     this.children = [];
     this.parent = null;
-    this.transform = this.moedel ? this.model.transform : new Transform();
+    this.transform = this.model ? this.model.transform : new Transform();
+    this.matrix = this.transform.matrix;
+    this.worldMatrix = this.transform.worldMatrix;
+    this.needUpdateWorldMatrix = this.transform.needUpdateWorldMatrix;
 
 }
 
@@ -43,7 +47,7 @@ Object.defineProperties( Node.prototype, {
 
         get() {
 
-            return this.transform.position;
+            return this.transform.quaternion;
 
         },
 
@@ -71,16 +75,6 @@ Object.defineProperties( Node.prototype, {
 
     },
 
-    matrix: {
-
-        get() {
-
-            return this.transform.matrix.raw;
-
-        },
-
-    },
-
 } );
 
 Object.assign( Node, {
@@ -98,6 +92,31 @@ Object.assign( Node, {
 
         } else
             node = undefined; // eslint-disable-line
+
+    },
+
+    updateWorldMatrix( node, parent ) {
+
+        if ( node.needUpdateWorldMatrix ) {
+
+            if ( parent ) {
+
+                node.transform.updateMatrix();
+                Matrix4.mult( node.worldMatrix.raw, parent.worldMatrix.raw, node.matrix.raw );
+
+            } else
+                Matrix4.copy( node.worldMatrix.raw, node.matrix.raw );
+
+            node.needUpdateWorldMatrix = false; // eslint-disable-line
+
+        }
+
+    },
+
+    updateMatrixMarker( node, parent ) {
+
+        if ( parent && parent.needUpdateWorldMatrix )
+            node.needUpdateWorldMatrix = true; // eslint-disable-line
 
     },
 
@@ -191,6 +210,14 @@ Object.assign( Node.prototype, {
             return this.setScale( ...args[ 0 ].scale );
 
         this.transform.setScale( ...args );
+        return this;
+
+    },
+
+    updateMatrix() {
+
+        this.traverse( Node.updateMatrixMarker );
+        this.traverse( Node.updateWorldMatrix );
         return this;
 
     },

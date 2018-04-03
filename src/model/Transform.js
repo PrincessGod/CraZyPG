@@ -10,12 +10,14 @@ function Transform() {
     this._quaternion = new Quaternion();
     this.matrix = new Matrix4();
     this.normMat = new Float32Array( 9 );
+    this.worldMatrix = new Matrix4();
 
     this.forward = new Float32Array( 4 );
     this.up = new Float32Array( 4 );
     this.right = new Float32Array( 4 );
 
     this._needUpdateMatrix = false;
+    this.needUpdateWorldMatrix = true;
 
 }
 
@@ -82,6 +84,7 @@ Object.defineProperties( Transform.prototype, {
             this.setQuaternion( v );
 
         },
+
     },
 
 } );
@@ -120,6 +123,12 @@ Object.assign( Transform.prototype, {
     getMatrix() {
 
         return this.matrix.raw;
+
+    },
+
+    getWorldMatrix() {
+
+        return this.worldMatrix.raw;
 
     },
 
@@ -171,6 +180,7 @@ Object.assign( Transform.prototype, {
 
             this._scale.set( ...args );
             this._needUpdateMatrix = true;
+            this.needUpdateWorldMatrix = true;
 
         }
 
@@ -192,6 +202,7 @@ Object.assign( Transform.prototype, {
 
             this._position.set( ...args );
             this._needUpdateMatrix = true;
+            this.needUpdateWorldMatrix = true;
 
         }
 
@@ -214,6 +225,7 @@ Object.assign( Transform.prototype, {
             this._rotation.set( ...args );
             this.updateQuaternion();
             this._needUpdateMatrix = true;
+            this.needUpdateWorldMatrix = true;
 
         }
 
@@ -236,6 +248,7 @@ Object.assign( Transform.prototype, {
             this._quaternion.set( ...args );
             this.updateEuler();
             this._needUpdateMatrix = true;
+            this.needUpdateWorldMatrix = true;
 
         }
 

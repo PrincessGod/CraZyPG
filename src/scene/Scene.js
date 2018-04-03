@@ -215,6 +215,8 @@ Object.assign( Scene.prototype, {
 
     render() {
 
+        this.root.updateMatrix();
+
         if ( this.enablePick && this.needUpdateColorId ) {
 
             this.models.forEach( ( m, id ) => m.setUniformObj( { u_colorId: id + 1 } ) );
