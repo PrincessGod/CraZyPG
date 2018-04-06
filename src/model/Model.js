@@ -234,7 +234,6 @@ Object.assign( Model.prototype, {
 
     preRender() {
 
-        this.transform.updateMatrix();
         return this;
 
     },

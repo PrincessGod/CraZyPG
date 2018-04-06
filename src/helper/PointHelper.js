@@ -21,20 +21,13 @@ Object.assign( PointHelper.prototype, {
 
     render() {
 
-        this.shader.renderModel( this.model.preRender() );
+        this.model.transform.updateMatrix().copyToWorldMatrix();
+        this.shader.renderModel( this.model );
         return this;
 
     },
 
-    setTransform( transform ) {
-
-        if ( this.model )
-            this.model.transform = transform;
-
-        return this;
-
-    },
-
+    // array or Model.infos
     setData( array ) {
 
         let typedArray = array;

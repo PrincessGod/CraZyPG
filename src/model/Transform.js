@@ -96,13 +96,6 @@ Object.assign( Transform.prototype, {
         if ( this._needUpdateMatrix ) {
 
             this.matrix.fromTRS( this.position, this.quaternion, this.scale );
-
-            Matrix4.normalMat3( this.normMat, this.matrix.raw );
-
-            Matrix4.transformVec4( this.forward, this.matrix.raw, [ 0, 0, 1, 0 ] );
-            Matrix4.transformVec4( this.up, this.matrix.raw, [ 0, 1, 0, 0 ] );
-            Matrix4.transformVec4( this.right, this.matrix.raw, [ 1, 0, 0, 0 ] );
-
             this._needUpdateMatrix = false;
 
         }
@@ -111,11 +104,25 @@ Object.assign( Transform.prototype, {
 
     },
 
+    updateNormalMatrix() {
+
+        Matrix4.normalMat3( this.normMat, this.worldMatrix.raw );
+        return this;
+
+    },
+
     updateDirection() {
 
-        Matrix4.transformVec4( this.forward, this.matrix.raw, [ 0, 0, 1, 0 ] );
-        Matrix4.transformVec4( this.up, this.matrix.raw, [ 0, 1, 0, 0 ] );
-        Matrix4.transformVec4( this.right, this.matrix.raw, [ 1, 0, 0, 0 ] );
+        Matrix4.transformVec4( this.forward, this.worldMatrix.raw, [ 0, 0, 1, 0 ] );
+        Matrix4.transformVec4( this.up, this.worldMatrix.raw, [ 0, 1, 0, 0 ] );
+        Matrix4.transformVec4( this.right, this.worldMatrix.raw, [ 1, 0, 0, 0 ] );
+        return this;
+
+    },
+
+    copyToWorldMatrix() {
+
+        Matrix4.copy( this.worldMatrix.raw, this.matrix.raw );
         return this;
 
     },

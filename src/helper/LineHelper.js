@@ -18,6 +18,7 @@ function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
     if ( points.isModel )
         this.setTransform( points.transform );
     this.gl = gl;
+    this.copyToWorldMatrix = true;
 
 }
 
@@ -30,10 +31,15 @@ Object.assign( LineHelper.prototype, {
 
             normalPos = [ points.positionInfo.data, points.normalInfo.data ];
             this.setTransform( points.transform );
+            this.copyToWorldMatrix = false;
 
         }
-        if ( points.isMesh )
+        if ( points.isMesh ) {
+
             normalPos = [ points.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data, points.attribArrays[ Constant.ATTRIB_NORMAL_NAME ].data ];
+            this.copyToWorldMatrix = false;
+
+        }
 
         if ( normalPos.length && normalPos.length === 2 ) {
 
@@ -89,7 +95,11 @@ Object.assign( LineHelper.prototype, {
 
     render() {
 
-        this.shader.renderModel( this.model.preRender() );
+        this.model.transform.updateMatrix();
+        if ( this.copyToWorldMatrix )
+            this.model.transform.copyToWorldMatrix();
+
+        this.shader.renderModel( this.model );
         return this;
 
     },
@@ -103,7 +113,10 @@ Object.assign( LineHelper.prototype, {
 
     },
 
+    // model, mesh, arrays
     setData( points ) {
+
+        this.copyToWorldMatrix = true;
 
         const array = this._getdata( points );
         const typedArray = getTypedArray( array );

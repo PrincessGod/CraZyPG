@@ -97,7 +97,7 @@ Object.assign( Node, {
 
     updateWorldMatrix( node, parent ) {
 
-        if ( node.needUpdateWorldMatrix ) {
+        if ( node.needUpdateWorldMatrix )
 
             if ( parent ) {
 
@@ -107,6 +107,13 @@ Object.assign( Node, {
             } else
                 Matrix4.copy( node.worldMatrix.raw, node.matrix.raw );
 
+    },
+
+    updateNormalAndDirection( node ) {
+
+        if ( node.needUpdateWorldMatrix ) {
+
+            node.transform.updateNormalMatrix().updateDirection();
             node.needUpdateWorldMatrix = false; // eslint-disable-line
 
         }
@@ -144,7 +151,7 @@ Object.assign( Node.prototype, {
 
         execuFunPre( this, this.parent );
         for ( let i = 0; i < this.children.length; i ++ )
-            this.traverseTwoExeFun( execuFunPre, execuFunPost );
+            this.children[ i ].traverseTwoExeFun( execuFunPre, execuFunPost );
         execuFunPost( this, this.parent );
 
     },
@@ -217,7 +224,7 @@ Object.assign( Node.prototype, {
     updateMatrix() {
 
         this.traverse( Node.updateMatrixMarker );
-        this.traverse( Node.updateWorldMatrix );
+        this.traverseTwoExeFun( Node.updateWorldMatrix, Node.updateNormalAndDirection );
         return this;
 
     },

@@ -237,8 +237,7 @@ Object.assign( Shader.prototype, {
 
         }
 
-        model.preRender();
-        this.setWorldMatrix( model.transform.getMatrix() );
+        this.setWorldMatrix( model.transform.getWorldMatrix() );
         if ( this._needNormMat )
             this.setUniformObjProp( Constant.UNIFORM_NORMAL_MAT_NAME, model.normMat, Matrix3.equals );
 
