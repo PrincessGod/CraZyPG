@@ -832,6 +832,76 @@ Object.assign( Matrix4, {
 
     },
 
+    getTranslation( out, mat ) {
+
+        out[ 0 ] = mat[ 12 ];
+        out[ 1 ] = mat[ 13 ];
+        out[ 2 ] = mat[ 14 ];
+        return out;
+
+    },
+
+    getScaling( out, mat ) {
+
+        const m11 = mat[ 0 ];
+        const m12 = mat[ 1 ];
+        const m13 = mat[ 2 ];
+        const m21 = mat[ 4 ];
+        const m22 = mat[ 5 ];
+        const m23 = mat[ 6 ];
+        const m31 = mat[ 8 ];
+        const m32 = mat[ 9 ];
+        const m33 = mat[ 10 ];
+        out[ 0 ] = Math.sqrt( m11 * m11 + m12 * m12 + m13 * m13 );
+        out[ 1 ] = Math.sqrt( m21 * m21 + m22 * m22 + m23 * m23 );
+        out[ 2 ] = Math.sqrt( m31 * m31 + m32 * m32 + m33 * m33 );
+        return out;
+
+    },
+
+    getRotation( out, mat ) {
+
+        // Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+        const trace = mat[ 0 ] + mat[ 5 ] + mat[ 10 ];
+        let S = 0;
+        if ( trace > 0 ) {
+
+            S = Math.sqrt( trace + 1.0 ) * 2;
+            out[ 3 ] = 0.25 * S;
+            out[ 0 ] = ( mat[ 6 ] - mat[ 9 ] ) / S;
+            out[ 1 ] = ( mat[ 8 ] - mat[ 2 ] ) / S;
+            out[ 2 ] = ( mat[ 1 ] - mat[ 4 ] ) / S;
+
+        } else if ( ( mat[ 0 ] > mat[ 5 ] ) && ( mat[ 0 ] > mat[ 10 ] ) ) {
+
+            S = Math.sqrt( 1.0 + mat[ 0 ] - mat[ 5 ] - mat[ 10 ] ) * 2;
+            out[ 3 ] = ( mat[ 6 ] - mat[ 9 ] ) / S;
+            out[ 0 ] = 0.25 * S;
+            out[ 1 ] = ( mat[ 1 ] + mat[ 4 ] ) / S;
+            out[ 2 ] = ( mat[ 8 ] + mat[ 2 ] ) / S;
+
+        } else if ( mat[ 5 ] > mat[ 10 ] ) {
+
+            S = Math.sqrt( 1.0 + mat[ 5 ] - mat[ 0 ] - mat[ 10 ] ) * 2;
+            out[ 3 ] = ( mat[ 8 ] - mat[ 2 ] ) / S;
+            out[ 0 ] = ( mat[ 1 ] + mat[ 4 ] ) / S;
+            out[ 1 ] = 0.25 * S;
+            out[ 2 ] = ( mat[ 6 ] + mat[ 9 ] ) / S;
+
+        } else {
+
+            S = Math.sqrt( 1.0 + mat[ 10 ] - mat[ 0 ] - mat[ 5 ] ) * 2;
+            out[ 3 ] = ( mat[ 1 ] - mat[ 4 ] ) / S;
+            out[ 0 ] = ( mat[ 8 ] + mat[ 2 ] ) / S;
+            out[ 1 ] = ( mat[ 6 ] + mat[ 9 ] ) / S;
+            out[ 2 ] = 0.25 * S;
+
+        }
+        return out;
+
+    },
+
+
 } );
 
 export { Matrix4 };

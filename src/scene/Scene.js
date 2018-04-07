@@ -64,6 +64,9 @@ Object.assign( Scene.prototype, {
             model.forEach( m => this.addModelToShader( shader, m ) );
         else {
 
+            if ( model instanceof Node )
+                return this.addNodeToShader( shader, model );
+
             const shaderIdx = this.shadersMap.indexOf( shader );
             let modelIdx = - 1;
             if ( shaderIdx > - 1 ) {
@@ -91,6 +94,52 @@ Object.assign( Scene.prototype, {
             }
 
         }
+
+        return this;
+
+    },
+
+    addNodeToShader( shader, node ) {
+
+        const models = [];
+        function getModels( nodep ) {
+
+            if ( nodep.model )
+                models.push( nodep.model );
+
+        }
+        node.traverse( getModels );
+
+        let shaderIdx = this.shadersMap.indexOf( shader );
+        if ( shaderIdx < 0 ) {
+
+            const shaderObj = { shader: this.enablePick ? shader.setDefines( 'ColorPick' ) : shader, models: [] };
+            this.shaders.push( shaderObj );
+            this.shadersMap.push( shader );
+            shaderIdx = this.shaders.length - 1;
+
+        }
+
+        const shaderModels = this.shaders[ shaderIdx ].models;
+        for ( let i = 0; i < models.length; i ++ ) {
+
+            const model = models[ i ];
+            let modelIdx = shaderModels.indexOf( model );
+            if ( modelIdx < 0 )
+                shaderModels.push( model );
+
+            modelIdx = this.models.indexOf( model );
+            if ( modelIdx < 0 ) {
+
+                this.models.push( model );
+                if ( this.enablePick )
+                    model.setUniformObj( { u_colorId: this.bufferPicker.id2Color( this.models.length ) } );
+
+            }
+
+        }
+
+        this.root.addChild( node );
 
         return this;
 

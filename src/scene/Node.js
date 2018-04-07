@@ -122,7 +122,7 @@ Object.assign( Node, {
 
     updateMatrixMarker( node, parent ) {
 
-        if ( parent && parent.needUpdateWorldMatrix )
+        if ( node.transform._needUpdateMatrix || ( parent && parent.needUpdateWorldMatrix ) )
             node.needUpdateWorldMatrix = true; // eslint-disable-line
 
     },

@@ -93,6 +93,7 @@
     </script>
     <script>
 
+        var sceneNode;
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
@@ -116,94 +117,160 @@
             });
 
             const gltfJson = {
-                "scenes" : [
+                "asset": {
+                    "generator": "COLLADA2GLTF",
+                    "version": "2.0"
+                },
+                "scene": 0,
+                "scenes": [
                     {
-                    "nodes" : [ 0 ]
+                        "nodes": [
+                            0
+                        ]
                     }
                 ],
-
-                "nodes" : [
+                "nodes": [
                     {
-                    "mesh" : 0
+                        "children": [
+                            1
+                        ],
+                        "matrix": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            -1.0,
+                            0.0,
+                            0.0,
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "mesh": 0
                     }
                 ],
-
-                "meshes" : [
+                "meshes": [
                     {
-                    "primitives" : [ {
-                        "attributes" : {
-                        "POSITION" : 1
+                        "primitives": [
+                            {
+                                "attributes": {
+                                    "NORMAL": 1,
+                                    "POSITION": 2
+                                },
+                                "indices": 0,
+                                "mode": 4,
+                                "material": 0
+                            }
+                        ],
+                        "name": "Mesh"
+                    }
+                ],
+                "accessors": [
+                    {
+                        "bufferView": 0,
+                        "byteOffset": 0,
+                        "componentType": 5123,
+                        "count": 36,
+                        "max": [
+                            23
+                        ],
+                        "min": [
+                            0
+                        ],
+                        "type": "SCALAR"
+                    },
+                    {
+                        "bufferView": 1,
+                        "byteOffset": 0,
+                        "componentType": 5126,
+                        "count": 24,
+                        "max": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "min": [
+                            -1.0,
+                            -1.0,
+                            -1.0
+                        ],
+                        "type": "VEC3"
+                    },
+                    {
+                        "bufferView": 1,
+                        "byteOffset": 288,
+                        "componentType": 5126,
+                        "count": 24,
+                        "max": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ],
+                        "min": [
+                            -0.5,
+                            -0.5,
+                            -0.5
+                        ],
+                        "type": "VEC3"
+                    }
+                ],
+                "materials": [
+                    {
+                        "pbrMetallicRoughness": {
+                            "baseColorFactor": [
+                                0.800000011920929,
+                                0.0,
+                                0.0,
+                                1.0
+                            ],
+                            "metallicFactor": 0.0
                         },
-                        "indices" : 0
-                    } ]
+                        "name": "Red"
                     }
                 ],
-
-                "buffers" : [
+                "bufferViews": [
                     {
-                    "uri" : "data:application/octet-stream;base64,AAABAAIAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAACAPwAAAAA=",
-                    "byteLength" : 44
-                    }
-                ],
-                "bufferViews" : [
-                    {
-                    "buffer" : 0,
-                    "byteOffset" : 0,
-                    "byteLength" : 6,
-                    "target" : 34963
+                        "buffer": 0,
+                        "byteOffset": 576,
+                        "byteLength": 72,
+                        "target": 34963
                     },
                     {
-                    "buffer" : 0,
-                    "byteOffset" : 8,
-                    "byteLength" : 36,
-                    "target" : 34962
+                        "buffer": 0,
+                        "byteOffset": 0,
+                        "byteLength": 576,
+                        "byteStride": 12,
+                        "target": 34962
                     }
                 ],
-                "accessors" : [
+                "buffers": [
                     {
-                    "bufferView" : 0,
-                    "byteOffset" : 0,
-                    "componentType" : 5123,
-                    "count" : 3,
-                    "type" : "SCALAR",
-                    "max" : [ 2 ],
-                    "min" : [ 0 ]
-                    },
-                    {
-                    "bufferView" : 1,
-                    "byteOffset" : 0,
-                    "componentType" : 5126,
-                    "count" : 3,
-                    "type" : "VEC3",
-                    "max" : [ 1.0, 1.0, 0.0 ],
-                    "min" : [ 0.0, 0.0, 0.0 ]
+                        "byteLength": 648,
+                        "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAvwAAAL8AAAA/AAAAPwAAAL8AAAA/AAAAvwAAAD8AAAA/AAAAPwAAAD8AAAA/AAAAPwAAAL8AAAA/AAAAvwAAAL8AAAA/AAAAPwAAAL8AAAC/AAAAvwAAAL8AAAC/AAAAPwAAAD8AAAA/AAAAPwAAAL8AAAA/AAAAPwAAAD8AAAC/AAAAPwAAAL8AAAC/AAAAvwAAAD8AAAA/AAAAPwAAAD8AAAA/AAAAvwAAAD8AAAC/AAAAPwAAAD8AAAC/AAAAvwAAAL8AAAA/AAAAvwAAAD8AAAA/AAAAvwAAAL8AAAC/AAAAvwAAAD8AAAC/AAAAvwAAAL8AAAC/AAAAvwAAAD8AAAC/AAAAPwAAAL8AAAC/AAAAPwAAAD8AAAC/AAABAAIAAwACAAEABAAFAAYABwAGAAUACAAJAAoACwAKAAkADAANAA4ADwAOAA0AEAARABIAEwASABEAFAAVABYAFwAWABUA"
                     }
-                ],
-
-                "asset" : {
-                    "version" : "2.0"
-                }
+                ]
             };
+
+
 
             let flatShader = new CZPG.FlatTextureShader(context, camera, textures.scalar);
             let gltfLoader = new CZPG.GLTFLoader();
-            var meshes = gltfLoader.load(gltfJson).meshes;
-            const models = [];
-            for(let i = 0; i < meshes.length; i++) {
-                const model = new CZPG.Model(meshes[i]);
-                // model.setQuaternion(0.3696438106143861, 0.23911761839433449, 0.09904576054128762, 0.8923991008325228);
-                model.rotation = [Math.PI / 4, 0, 0];
-                model.scale = [2, 1, 1];
-                model.position = [1, 1, 1];
-                models.push(model);
-            }
+            sceneNode = gltfLoader.load(gltfJson);
 
             let gridShader = new CZPG.GridAxisShader(context, camera);
             let gridModal = CZPG.GridAxis.createModel()
 
             scene.add([
                 {shader: gridShader, model: gridModal},
-                {shader: flatShader, model: models},
+                {shader: flatShader, model: sceneNode},
             ]);
 
             let resized = false;

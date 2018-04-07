@@ -1,6 +1,9 @@
 import { getTypedArrayTypeFromGLType } from '../renderer/typedArray';
-import { Mesh } from '../model/Primatives';
 import * as Constant from '../renderer/constant';
+import { Model } from '../model/Model';
+import { Mesh } from '../model/Primatives';
+import { Node } from '../scene/Node';
+import { Matrix4 } from '../math/Matrix4';
 
 function GLTFLoader() {
 
@@ -72,23 +75,81 @@ Object.assign( GLTFLoader.prototype, {
         if ( typeof scene === 'undefined' )
             return errorMiss( 'scene', loadScene );
 
-        this.currentSceneName = scene.name || 'No Name';
+        this.currentSceneName = scene.name || 'No Name Scene';
 
         const nodes = scene.nodes;
         const result = {
-            meshes: [],
+            nodes: [],
         };
         result.name = this.currentSceneName;
 
         for ( let i = 0; i < nodes.length; i ++ ) {
 
-            const mesh = this.parseNode( nodes[ i ] );
-            if ( mesh )
-                result.meshes.push( mesh );
+            const node = this.parseNode( nodes[ i ] );
+            if ( node )
+                result.nodes.push( node );
 
         }
 
-        return result;
+        return this.convertToNode( result );
+
+    },
+
+    convertToNode( infos ) {
+
+        const root = new Node( infos.name );
+        const nodes = infos.nodes;
+
+        function parseNode( nodeInfo, parentNode ) {
+
+            const node = new Node( nodeInfo.name );
+
+            if ( nodeInfo.matrix ) {
+
+                nodeInfo.translation = Matrix4.getTranslation( [ 0, 0, 0 ], nodeInfo.matrix ); // eslint-disable-line
+                nodeInfo.rotation = Matrix4.getRotation( [ 0, 0, 0, 1 ], nodeInfo.matrix ); // eslint-disable-line
+                nodeInfo.scale = Matrix4.getScaling( [ 1, 1, 1 ], nodeInfo.matrix ); // eslint-disable-line
+
+            }
+
+            if ( nodeInfo.translation )
+                node.position = nodeInfo.translation;
+            if ( nodeInfo.rotation )
+                node.quaternion = nodeInfo.rotation;
+            if ( nodeInfo.scale )
+                node.scale = nodeInfo.scale;
+
+            parentNode.addChild( node );
+
+            if ( nodeInfo.primitives )
+                for ( let i = 0; i < nodeInfo.primitives.length; i ++ ) {
+
+                    const primitive = nodeInfo.primitives[ i ];
+                    const mesh = new Mesh( primitive.name, primitive.attribArrays, { drawMode: primitive.drawMode } );
+                    const model = new Model( mesh );
+
+                    node.addChild( model );
+
+                }
+
+            return node;
+
+        }
+
+        function trivarse( trivarseFun, parentNode, nodeInfos ) {
+
+            for ( let i = 0; i < nodeInfos.length; i ++ ) {
+
+                const node = trivarseFun( nodeInfos[ i ], parentNode );
+                trivarse( trivarseFun, node, nodeInfos[ i ].children );
+
+            }
+
+        }
+
+        trivarse( parseNode, root, nodes );
+
+        return root;
 
     },
 
@@ -100,37 +161,28 @@ Object.assign( GLTFLoader.prototype, {
             return errorMiss( 'node', nodeId );
 
         if ( node.isParsed )
-            return node.dmesh;
+            return node.dnode;
 
-        if ( node.mesh !== undefined ) {
+        const {
+            name, matrix, translation, rotation, scale,
+        } = node;
 
-            const primitives = this.parseMesh( node.mesh );
-            if ( primitives )
+        const dnode = {
+            name, matrix, translation, rotation, scale,
+        };
 
-                for ( let i = 0; i < primitives.length; i ++ ) {
+        if ( node.mesh !== undefined )
+            dnode.primitives = this.parseMesh( node.mesh );
 
-                    const primitive = primitives[ i ];
-                    const dmesh = new Mesh( primitive.name, primitive.attribArrays, { drawMode: primitive.drawMode } );
-                    node.dmesh = dmesh;
-
-                }
-
-
-        }
-
-        if ( node.children ) {
-
-            if ( ! node.dmesh.dchildren )
-                node.dmesh.dchildren = [];
-
+        dnode.children = [];
+        if ( node.children )
             for ( let i = 0; i < node.children.length; i ++ )
-                node.dmesh.dchildren.push( this.parseNode( node.children( i ) ) );
+                dnode.children.push( this.parseNode( node.children[ i ] ) );
 
-        }
-
+        node.dnode = dnode;
         node.isParsed = true;
 
-        return node.dmesh;
+        return node.dnode;
 
     },
 
@@ -167,6 +219,10 @@ Object.assign( GLTFLoader.prototype, {
 
                     case 'POSITION':
                         attribName = Constant.ATTRIB_POSITION_NAME;
+                        break;
+
+                    case 'NORMAL':
+                        attribName = Constant.ATTRIB_NORMAL_NAME;
                         break;
 
                     default:
@@ -273,7 +329,7 @@ Object.assign( GLTFLoader.prototype, {
 
         }
         if ( byteLength !== bufferView.byteLength )
-            console.error( `glTF has different byteLength at accessor ${accessorId}, compute byteLength: ${byteLength}, accessor byteLength: ${accessor.byteLength}` );
+            console.error( `glTF has different byteLength at accessor ${accessorId}, compute byteLength: ${byteLength}, accessor byteLength: ${bufferView.byteLength}` );
 
         const arrayLength = byteLength / bytesPerElement;
         const typedArray = new arrayType( buffer.dbuffer, offset, arrayLength ); // eslint-disable-line
