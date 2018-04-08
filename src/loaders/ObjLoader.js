@@ -43,9 +43,9 @@ Object.assign( ObjLoader, {
 
     load( filePath ) {
 
-        return FileLoader.load( filePath )
-            .then( ObjLoader.parse )
-            .catch( err => console.error( 'Load obj error: ', err ) );
+        const loader = new FileLoader( filePath );
+        return loader.load()
+            .then( res => ObjLoader.parse( res[ 0 ] ) );
 
     },
 

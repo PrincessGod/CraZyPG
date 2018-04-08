@@ -4,6 +4,7 @@ import { Model } from '../model/Model';
 import { Mesh } from '../model/Primatives';
 import { Node } from '../scene/Node';
 import { Matrix4 } from '../math/Matrix4';
+import { FileLoader } from './Fileloader';
 
 function GLTFLoader() {
 
@@ -52,7 +53,15 @@ Object.defineProperties( GLTFLoader, {
 
 Object.assign( GLTFLoader.prototype, {
 
-    load( json, sceneId ) {
+    load( file, sceneId ) {
+
+        const loader = new FileLoader( file );
+        return loader.load()
+            .then( res => this.parse( res[ 0 ], sceneId ) );
+
+    },
+
+    parse( json, sceneId ) {
 
         this.gltf = json;
 
@@ -248,7 +257,7 @@ Object.assign( GLTFLoader.prototype, {
             dprimitive.material = material;
 
             dprimitive.drawMode = mode === undefined ? 4 : mode;
-            dprimitive.name = name || 'no name mesh';
+            dprimitive.name = name || mesh.name || 'no name mesh';
 
             mesh.dprimitives.push( dprimitive );
 
@@ -280,7 +289,6 @@ Object.assign( GLTFLoader.prototype, {
         const offset = ( accessor.byteOffset || 0 ) + ( bufferView.byteOffset || 0 );
         const glType = accessor.componentType;
         const arrayType = getTypedArrayTypeFromGLType( glType );
-        const bytesPerElement = arrayType.BYTES_PER_ELEMENT;
         let numComponents = 1;
         switch ( accessor.type ) {
 
@@ -316,27 +324,11 @@ Object.assign( GLTFLoader.prototype, {
 
         }
 
-        let byteLength = - 1;
-        if ( bufferView.byteStride )
-            byteLength = bufferView.byteStride * accessor.count;
-        else
-            byteLength = accessor.count * numComponents * bytesPerElement;
-
-        if ( byteLength < 0 ) {
-
-            console.error( ` glTF parse error when compute byteLength on accessor ${accessorId}, error value: ${byteLength}` );
-            return false;
-
-        }
-        if ( byteLength !== bufferView.byteLength )
-            console.error( `glTF has different byteLength at accessor ${accessorId}, compute byteLength: ${byteLength}, accessor byteLength: ${bufferView.byteLength}` );
-
-        const arrayLength = byteLength / bytesPerElement;
-        const typedArray = new arrayType( buffer.dbuffer, offset, arrayLength ); // eslint-disable-line
+        const typedArray = new arrayType( buffer.dbuffer, offset, accessor.count * numComponents ); // eslint-disable-line
 
         accessor.isParsed = true;
         accessor.computeResult = {
-            typedArray, offset, glType, arrayType, numComponents, byteLength,
+            typedArray, offset, glType, arrayType, numComponents,
         };
         accessor.daccessor = {
             data: typedArray, numComponents,

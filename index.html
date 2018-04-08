@@ -54,43 +54,6 @@
         <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
     </div>
     <script src="./build/czpg.js"></script>
-    <script src="./sample/js/audiostreamsource.min.js"></script>
-    <script type='shader' id="v-shader">
-        #version 300 es
-        // https://twgljs.org/examples/dynamic-buffers.html
-
-        in vec3 a_position;
-
-        uniform mat4 u_mvpMat;
-
-        out vec4 v_color;
-
-        vec3 hsv2rgb(vec3 c) {
-            c = vec3(c.x, clamp(c.yz, 0.0, 1.0));
-            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-        }
-
-        void main() {
-            gl_Position = u_mvpMat * vec4(a_position, 1.0);
-            gl_PointSize = 1.0;
-            v_color = vec4(1.0, 1.0, 1.0, 0.005);
-        }
-    </script>
-    <script type="shader" id="f-shader">
-        #version 300 es
-
-        precision mediump float;
-
-        in vec4 v_color;
-
-        out vec4 finalColor;
-
-        void main() {
-            finalColor = v_color;
-        }
-    </script>
     <script>
 
         var sceneNode;
@@ -116,161 +79,21 @@
                 }
             });
 
-            const gltfJson = {
-                "asset": {
-                    "generator": "COLLADA2GLTF",
-                    "version": "2.0"
-                },
-                "scene": 0,
-                "scenes": [
-                    {
-                        "nodes": [
-                            0
-                        ]
-                    }
-                ],
-                "nodes": [
-                    {
-                        "children": [
-                            1
-                        ],
-                        "matrix": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            -1.0,
-                            0.0,
-                            0.0,
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            1.0
-                        ]
-                    },
-                    {
-                        "mesh": 0
-                    }
-                ],
-                "meshes": [
-                    {
-                        "primitives": [
-                            {
-                                "attributes": {
-                                    "NORMAL": 1,
-                                    "POSITION": 2
-                                },
-                                "indices": 0,
-                                "mode": 4,
-                                "material": 0
-                            }
-                        ],
-                        "name": "Mesh"
-                    }
-                ],
-                "accessors": [
-                    {
-                        "bufferView": 0,
-                        "byteOffset": 0,
-                        "componentType": 5123,
-                        "count": 36,
-                        "max": [
-                            23
-                        ],
-                        "min": [
-                            0
-                        ],
-                        "type": "SCALAR"
-                    },
-                    {
-                        "bufferView": 1,
-                        "byteOffset": 0,
-                        "componentType": 5126,
-                        "count": 24,
-                        "max": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ],
-                        "min": [
-                            -1.0,
-                            -1.0,
-                            -1.0
-                        ],
-                        "type": "VEC3"
-                    },
-                    {
-                        "bufferView": 1,
-                        "byteOffset": 288,
-                        "componentType": 5126,
-                        "count": 24,
-                        "max": [
-                            0.5,
-                            0.5,
-                            0.5
-                        ],
-                        "min": [
-                            -0.5,
-                            -0.5,
-                            -0.5
-                        ],
-                        "type": "VEC3"
-                    }
-                ],
-                "materials": [
-                    {
-                        "pbrMetallicRoughness": {
-                            "baseColorFactor": [
-                                0.800000011920929,
-                                0.0,
-                                0.0,
-                                1.0
-                            ],
-                            "metallicFactor": 0.0
-                        },
-                        "name": "Red"
-                    }
-                ],
-                "bufferViews": [
-                    {
-                        "buffer": 0,
-                        "byteOffset": 576,
-                        "byteLength": 72,
-                        "target": 34963
-                    },
-                    {
-                        "buffer": 0,
-                        "byteOffset": 0,
-                        "byteLength": 576,
-                        "byteStride": 12,
-                        "target": 34962
-                    }
-                ],
-                "buffers": [
-                    {
-                        "byteLength": 648,
-                        "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAvwAAAL8AAAA/AAAAPwAAAL8AAAA/AAAAvwAAAD8AAAA/AAAAPwAAAD8AAAA/AAAAPwAAAL8AAAA/AAAAvwAAAL8AAAA/AAAAPwAAAL8AAAC/AAAAvwAAAL8AAAC/AAAAPwAAAD8AAAA/AAAAPwAAAL8AAAA/AAAAPwAAAD8AAAC/AAAAPwAAAL8AAAC/AAAAvwAAAD8AAAA/AAAAPwAAAD8AAAA/AAAAvwAAAD8AAAC/AAAAPwAAAD8AAAC/AAAAvwAAAL8AAAA/AAAAvwAAAD8AAAA/AAAAvwAAAL8AAAC/AAAAvwAAAD8AAAC/AAAAvwAAAL8AAAC/AAAAvwAAAD8AAAC/AAAAPwAAAL8AAAC/AAAAPwAAAD8AAAC/AAABAAIAAwACAAEABAAFAAYABwAGAAUACAAJAAoACwAKAAkADAANAA4ADwAOAA0AEAARABIAEwASABEAFAAVABYAFwAWABUA"
-                    }
-                ]
-            };
-
-
-
+            let file = './resource/BoxTextured.gltf';
             let flatShader = new CZPG.FlatTextureShader(context, camera, textures.scalar);
             let gltfLoader = new CZPG.GLTFLoader();
-            sceneNode = gltfLoader.load(gltfJson);
+            gltfLoader.load(file)
+                .then(sceneNode => {
+                    scene.add([
+                        {shader: flatShader, model: sceneNode},
+                    ]);
+                });
 
             let gridShader = new CZPG.GridAxisShader(context, camera);
             let gridModal = CZPG.GridAxis.createModel()
 
             scene.add([
                 {shader: gridShader, model: gridModal},
-                {shader: flatShader, model: sceneNode},
             ]);
 
             let resized = false;
