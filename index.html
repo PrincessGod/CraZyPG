@@ -79,11 +79,19 @@
                 }
             });
 
-            let file = './resource/BoxTextured.gltf';
+            let file = './resource/gltf/BoxTexturedNonPowerOfTwo.gltf';
             let flatShader = new CZPG.FlatTextureShader(context, camera, textures.scalar);
             let gltfLoader = new CZPG.GLTFLoader();
             gltfLoader.load(file)
-                .then(sceneNode => {
+                .then( res => {
+                    const {rootNode, textures} = res;
+                    sceneNode = rootNode;
+                    const gltfTextures = CZPG.createTextures(context, textures);
+                    sceneNode.traverse((node)=> {
+                        if(node.model && node.model.texture !== undefined)
+                            node.model.setUniformObj({texture: gltfTextures[node.model.texture]});
+                    });
+                    // flatShader.cullFace = false;
                     scene.add([
                         {shader: flatShader, model: sceneNode},
                     ]);

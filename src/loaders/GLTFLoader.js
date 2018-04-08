@@ -108,6 +108,7 @@ Object.assign( GLTFLoader.prototype, {
 
         const root = new Node( infos.name );
         const nodes = infos.nodes;
+        const textures = [];
 
         function parseNode( nodeInfo, parentNode ) {
 
@@ -137,6 +138,38 @@ Object.assign( GLTFLoader.prototype, {
                     const mesh = new Mesh( primitive.name, primitive.attribArrays, { drawMode: primitive.drawMode } );
                     const model = new Model( mesh );
 
+                    // parse material
+                    if ( primitive.material ) {
+
+                        const { baseColorTexture, texture } = primitive.material;
+
+                        // find default texture
+                        let defaultTexture;
+                        if ( baseColorTexture && baseColorTexture.texture )
+                            defaultTexture = baseColorTexture.texture;
+                        else if ( texture )
+                            defaultTexture = texture;
+
+                        if ( defaultTexture ) {
+
+                            const idx = textures.indexOf( defaultTexture );
+                            if ( idx < 0 ) {
+
+                                textures.push( defaultTexture );
+                                defaultTexture = textures.length - 1;
+                                model.texture = textures.length - 1;
+
+                            } else {
+
+                                defaultTexture = idx;
+                                model.texture = idx;
+
+                            }
+
+                        }
+
+                    }
+
                     node.addChild( model );
 
                 }
@@ -158,7 +191,7 @@ Object.assign( GLTFLoader.prototype, {
 
         trivarse( parseNode, root, nodes );
 
-        return root;
+        return { rootNode: root, textures };
 
     },
 
@@ -234,6 +267,10 @@ Object.assign( GLTFLoader.prototype, {
                         attribName = Constant.ATTRIB_NORMAL_NAME;
                         break;
 
+                    case 'TEXCOORD_0':
+                        attribName = Constant.ATTRIB_UV_NAME;
+                        break;
+
                     default:
                         attribName = attribute;
 
@@ -254,7 +291,13 @@ Object.assign( GLTFLoader.prototype, {
             }
 
             // TODO parse material
-            dprimitive.material = material;
+            if ( material !== undefined ) {
+
+                const dmaterial = this.parseMaterial( material );
+                if ( dmaterial )
+                    dprimitive.material = dmaterial;
+
+            }
 
             dprimitive.drawMode = mode === undefined ? 4 : mode;
             dprimitive.name = name || mesh.name || 'no name mesh';
@@ -324,7 +367,31 @@ Object.assign( GLTFLoader.prototype, {
 
         }
 
-        const typedArray = new arrayType( buffer.dbuffer, offset, accessor.count * numComponents ); // eslint-disable-line
+        let typedArray;
+
+        const byteStride = bufferView.byteStride;
+        const componentsBytes = numComponents * arrayType.BYTES_PER_ELEMENT;
+
+        if ( byteStride && componentsBytes !== byteStride ) {
+
+            if ( componentsBytes > byteStride ) {
+
+                console.error( `glTF accessor ${accessorId} have components bytelength ${componentsBytes} greater than byteStride ${byteStride}` );
+                return false;
+
+            }
+            const arrayLength = numComponents * accessor.count;
+            typedArray = new arrayType( arrayLength ); // eslint-disable-line
+            for ( let i = 0; i < accessor.count; i ++ ) {
+
+                const componentVals = new arrayType( buffer.dbuffer, offset + i * byteStride, numComponents ); // eslint-disable-line
+                for ( let j = 0; j < numComponents; j ++ )
+                    typedArray[ i * numComponents + j ] = componentVals[ j ];
+
+            }
+
+        } else
+            typedArray = new arrayType( buffer.dbuffer, offset, accessor.count * numComponents ); // eslint-disable-line
 
         accessor.isParsed = true;
         accessor.computeResult = {
@@ -350,7 +417,7 @@ Object.assign( GLTFLoader.prototype, {
             return buffer;
 
         if ( buffer.uri.substr( 0, 5 ) !== 'data:' )
-            // TODO out side bin file
+        // TODO out side bin file
             return false;
 
         const base64Idx = buffer.uri.indexOf( this.BASE64_MARKER ) + this.BASE64_MARKER.length;
@@ -362,6 +429,127 @@ Object.assign( GLTFLoader.prototype, {
         buffer.dbuffer = bytes.buffer;
         buffer.isParsed = true;
         return buffer;
+
+    },
+
+    parseMaterial( materialId ) {
+
+        const material = this.gltf.materials[ materialId ];
+        if ( ! material )
+            return errorMiss( 'material', materialId );
+
+        if ( material.isParsed )
+            return material.dmaterial;
+
+        const { name, pbrMetallicRoughness } = material;
+        const dmaterial = { name };
+
+        if ( pbrMetallicRoughness ) {
+
+            const {
+                baseColorFactor, metallicFactor, roughnessFactor, baseColorTexture, metallicRoughnessTexture,
+            } = pbrMetallicRoughness;
+
+            Object.assign( dmaterial, { baseColorFactor, metallicFactor, roughnessFactor } );
+
+            if ( baseColorTexture ) {
+
+                const texture = this.parseTexture( baseColorTexture.index );
+                if ( texture )
+                    dmaterial.baseColorTexture = { texture, texCoord: baseColorTexture.texCoord || 0 };
+
+            }
+
+            if ( ! dmaterial.baseColorTexture && baseColorFactor )
+                dmaterial.texture = { src: baseColorFactor.map( v => v * 255 ), minMag: 9728 };
+
+
+            if ( metallicRoughnessTexture )
+            // TODO
+                dmaterial.metallicRoughnessTexture = metallicRoughnessTexture;
+
+
+        }
+
+        material.isParsed = true;
+        material.dmaterial = dmaterial;
+        return dmaterial;
+
+    },
+
+    parseTexture( textureId ) {
+
+        const texture = this.gltf.textures[ textureId ];
+        if ( ! texture )
+            errorMiss( 'texture', textureId );
+
+        if ( texture.isParsed )
+            return texture.dtexture;
+
+        const { source, sampler } = texture;
+        let dtexture = {};
+        const image = this.parseImage( source );
+        const imgsampler = this.parseSampler( sampler );
+        if ( ! image || ! imgsampler ) {
+
+            dtexture = false;
+            return false;
+
+        }
+        Object.assign( dtexture, { src: image }, imgsampler );
+
+        texture.isParsed = true;
+        texture.dtexture = dtexture;
+        return dtexture;
+
+    },
+
+    parseImage( imageId ) {
+
+        const image = this.gltf.images[ imageId ];
+        if ( ! image )
+            errorMiss( 'image', imageId );
+
+        if ( image.isParsed )
+            return image.dimage;
+
+        if ( ! image.uri )
+        // TODO bufferview image
+            return false;
+
+        if ( image.uri.substr( 0, 5 ) !== 'data:' )
+        // TODO out side bin file
+            return false;
+
+        const img = new window.Image();
+        img.src = image.uri;
+
+        image.dimage = img;
+        image.isParsed = true;
+        return img;
+
+    },
+
+    parseSampler( samplerId ) {
+
+        const sampler = this.gltf.samplers[ samplerId ];
+        if ( ! sampler )
+            errorMiss( 'sampler', samplerId );
+
+        if ( sampler.isParsed )
+            return sampler.dsampler;
+
+        const {
+            magFilter, minFilter, wrapS, wrapT,
+        } = sampler;
+
+        const dsampler = {
+            min: minFilter, mag: magFilter, wrapS, wrapT,
+        };
+
+        sampler.dsampler = dsampler;
+        sampler.isParsed = true;
+        return dsampler;
 
     },
 
