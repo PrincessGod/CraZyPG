@@ -421,9 +421,26 @@ Object.assign( GLTFLoader.prototype, {
         if ( buffer.isParsed )
             return buffer;
 
-        if ( buffer.uri.substr( 0, 5 ) !== 'data:' )
-        // TODO out side bin file
-            return false;
+        if ( buffer.uri.substr( 0, 5 ) !== 'data:' ) {
+
+            const uri = buffer.uri;
+            buffer.isParsed = true;
+            buffer.dbuffer = false;
+
+            const arrayBuffer = this.gltf.resources[ uri ];
+            if ( arrayBuffer )
+                if ( arrayBuffer.byteLength === buffer.byteLength ) {
+
+                    buffer.dbuffer = this.gltf.resources[ uri ];
+
+                } else
+                    console.error( `load gltf resource "${uri}" at buffers[${bufferId} failed, ArrayBuffer.byteLength not equals buffer's byteLength]` );
+            else
+                console.error( `load gltf resource "${uri}" at buffers[${bufferId}] failed` );
+
+            return buffer.dbuffer;
+
+        }
 
         const base64Idx = buffer.uri.indexOf( this.BASE64_MARKER ) + this.BASE64_MARKER.length;
         const blob = window.atob( buffer.uri.substr( base64Idx ) );

@@ -138,29 +138,7 @@ Object.assign( FileLoader, {
 
                     return loader.load().then( ( files ) => {
 
-                        for ( let i = 0; i < buffers.length; i ++ ) {
-
-                            const uri = buffers[ i ].uri;
-                            if ( uri.startsWith( 'data:' ) ) continue;
-
-                            buffers[ i ].isParsed = true;
-                            buffers[ i ].dbuffer = false;
-
-                            const arrayBuffer = files[ uri ];
-                            if ( arrayBuffer )
-
-                                if ( arrayBuffer.byteLength === buffers[ i ].byteLength ) {
-
-                                    buffers[ i ].dbuffer = files[ uri ];
-
-                                } else
-                                    console.error( `load gltf resource "${uri}" at buffers[${i} failed, ArrayBuffer.byteLength not equals buffer's byteLength]` );
-
-                            else
-                                console.error( `load gltf resource "${uri}" at buffers[${i}] failed` );
-
-                        }
-
+                        json.resources = files; // eslint-disable-line
                         return json;
 
                     } );
