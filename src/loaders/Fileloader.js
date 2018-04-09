@@ -1,40 +1,106 @@
 
-function FileLoader( ...files ) {
+function FileLoader( files ) {
 
     this.files = [];
-    this.addFile( ...files );
+    this.items = [];
+    this.addFiles( files );
 
 }
 
+Object.assign( FileLoader, {
+
+    getFilename( url ) {
+
+        if ( url ) {
+
+            const m = url.toString().match( /.*\/(.+?)\./ );
+            if ( m && m.length > 1 )
+                return m[ 1 ];
+
+        }
+        return '';
+
+    },
+
+    getExtension( url ) {
+
+        return url.split( '.' ).pop().toLowerCase();
+
+    },
+
+    getBasename( url ) {
+
+        return url.split( /[\\/]/ ).pop();
+
+    },
+
+    getBasepath( url ) {
+
+        const basename = FileLoader.getBasename( url );
+        return url.slice( 0, url.length - basename.length );
+
+    },
+
+} );
+
 Object.assign( FileLoader.prototype, {
 
-    addFile( ...files ) {
+    addFiles( files ) {
 
-        files.forEach( ( ele ) => { // eslint-disable-line
+        if ( files && ! Array.isArray( files ) )
+            return this.addFile( files );
 
-            if ( Array.isArray( ele ) )
-                return this.addFile( ...ele );
+        return files && files.forEach( ( file ) => {
+
+            if ( Array.isArray( file ) )
+                return this.addFiles( file );
+            return this.addFile( file );
 
         } );
 
-        if ( this.files.indexOf( files[ 0 ] ) < 0 )
-            this.files.push( ...files );
+    },
+
+    addFile( filepath ) {
+
+        const file = filepath.file || filepath;
+        const type = filepath.type || FileLoader.getExtension( file );
+        const name = filepath.name || FileLoader.getFilename( file );
+        if ( this.files.indexOf( file ) < 0 ) {
+
+            this.files.push( file );
+            this.items.push( { file, type, name } );
+
+        }
 
     },
 
     load() {
 
         const promises = [];
+        const names = [];
 
-        this.files.forEach( ( file ) => {
+        this.items.forEach( ( item ) => {
 
-            const type = file.split( '.' ).pop().toLowerCase();
+            const { name, file, type } = item;
             const promise = FileLoader.types[ type ]( file );
             promises.push( promise );
+            names.push( name );
 
         } );
 
-        return Promise.all( promises );
+        return Promise.all( promises )
+            .then( ( files ) => {
+
+                const result = {};
+                files.forEach( ( file, idx ) => {
+
+                    result[ names[ idx ] ] = file;
+
+                } );
+
+                return Promise.resolve( result );
+
+            } );
 
     },
 
@@ -53,7 +119,60 @@ Object.assign( FileLoader, {
         gltf( file ) {
 
             return fetch( file )
-                .then( response => response.json() );
+                .then( response => response.json() )
+                .then( ( json ) => {
+
+                    const buffers = json.buffers;
+                    const loader = new FileLoader();
+                    const basepath = FileLoader.getBasepath( file );
+
+                    for ( let i = 0; i < buffers.length; i ++ ) {
+
+                        const uri = buffers[ i ].uri;
+                        if ( uri.startsWith( 'data:' ) ) continue;
+
+                        const filepath = basepath + uri;
+                        loader.addFile( { file: filepath, type: 'gltf_bin', name: uri } );
+
+                    }
+
+                    return loader.load().then( ( files ) => {
+
+                        for ( let i = 0; i < buffers.length; i ++ ) {
+
+                            const uri = buffers[ i ].uri;
+                            if ( uri.startsWith( 'data:' ) ) continue;
+
+                            buffers[ i ].isParsed = true;
+                            buffers[ i ].dbuffer = false;
+
+                            const arrayBuffer = files[ uri ];
+                            if ( arrayBuffer )
+
+                                if ( arrayBuffer.byteLength === buffers[ i ].byteLength ) {
+
+                                    buffers[ i ].dbuffer = files[ uri ];
+
+                                } else
+                                    console.error( `load gltf resource "${uri}" at buffers[${i} failed, ArrayBuffer.byteLength not equals buffer's byteLength]` );
+
+                            else
+                                console.error( `load gltf resource "${uri}" at buffers[${i}] failed` );
+
+                        }
+
+                        return json;
+
+                    } );
+
+                } );
+
+        },
+
+        gltf_bin( file ) {
+
+            return fetch( file )
+                .then( response => response.arrayBuffer() );
 
         },
 

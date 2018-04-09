@@ -55,9 +55,10 @@ Object.assign( GLTFLoader.prototype, {
 
     load( file, sceneId ) {
 
-        const loader = new FileLoader( file );
+        const name = 'GLTFLOADER';
+        const loader = new FileLoader( { file, name } );
         return loader.load()
-            .then( res => this.parse( res[ 0 ], sceneId ) );
+            .then( res => this.parse( res[ name ], sceneId ) );
 
     },
 

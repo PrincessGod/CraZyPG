@@ -43,9 +43,10 @@ Object.assign( ObjLoader, {
 
     load( filePath ) {
 
-        const loader = new FileLoader( filePath );
+        const name = 'OBJLOADER';
+        const loader = new FileLoader( { file: filePath, name } );
         return loader.load()
-            .then( res => ObjLoader.parse( res[ 0 ] ) );
+            .then( res => ObjLoader.parse( res[ name ] ) );
 
     },
 
