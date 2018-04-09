@@ -170,7 +170,10 @@ Object.assign( GLTFLoader.prototype, {
 
                     }
 
-                    node.addChild( model );
+                    if ( nodeInfo.primitives.length < 2 )
+                        node.setModel( model );
+                    else
+                        node.addChild( model );
 
                 }
 
@@ -236,10 +239,10 @@ Object.assign( GLTFLoader.prototype, {
             return errorMiss( 'mesh', meshId );
 
         if ( mesh.isParsed )
-            return mesh.dprimatives;
+            return mesh.dprimitives;
 
         const primitives = mesh.primitives;
-        mesh.dprimitives = [];
+        const dprimitives = [];
         for ( let i = 0; i < primitives.length; i ++ ) {
 
             const primitive = primitives[ i ];
@@ -302,10 +305,11 @@ Object.assign( GLTFLoader.prototype, {
             dprimitive.drawMode = mode === undefined ? 4 : mode;
             dprimitive.name = name || mesh.name || 'no name mesh';
 
-            mesh.dprimitives.push( dprimitive );
+            dprimitives.push( dprimitive );
 
         }
 
+        mesh.dprimitives = dprimitives;
         mesh.isParsed = true;
 
         return mesh.dprimitives;

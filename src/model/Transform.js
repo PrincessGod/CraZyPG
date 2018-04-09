@@ -269,6 +269,16 @@ Object.assign( Transform.prototype, {
 
     },
 
+    clone() {
+
+        const transform = new Transform();
+        transform.position = this.position;
+        transform.quaternion = this.quaternion;
+        transform.scale = this.scale;
+        return transform;
+
+    },
+
 } );
 
 export { Transform };

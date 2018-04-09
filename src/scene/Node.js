@@ -7,13 +7,9 @@ function Node( nameModel ) {
 
     if ( typeof nameModel === 'string' )
         this.name = nameModel;
-    else if ( !! nameModel && nameModel.isModel ) {
-
-        this.model = nameModel;
-        this.name = this.model.name;
-        nameModel.node = this; // eslint-disable-line
-
-    } else
+    else if ( !! nameModel && nameModel.isModel )
+        this.setModel( nameModel );
+    else
         this.name = `NODE_${nodeCount ++}`;
 
     this.children = [];
@@ -225,6 +221,22 @@ Object.assign( Node.prototype, {
 
         this.traverse( Node.updateMatrixMarker );
         this.traverseTwoExeFun( Node.updateWorldMatrix, Node.updateNormalAndDirection );
+        return this;
+
+    },
+
+    setModel( model ) {
+
+        if ( this.transform )
+            model.setTransform( this.transform.clone() );
+
+        this.model = model;
+        this.name = this.model.name;
+        this.transform = this.model.transform;
+        this.matrix = this.transform.matrix;
+        this.worldMatrix = this.transform.worldMatrix;
+        this.needUpdateWorldMatrix = this.transform.needUpdateWorldMatrix;
+
         return this;
 
     },

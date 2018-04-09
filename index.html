@@ -79,7 +79,7 @@
                 }
             });
 
-            let file = './resource/gltf/BoxTexturedNonPowerOfTwo.gltf';
+            let file = './resource/gltf/BrainStem.gltf';
             let flatShader = new CZPG.FlatTextureShader(context, camera, textures.scalar);
             let gltfLoader = new CZPG.GLTFLoader();
             gltfLoader.load(file)
@@ -89,7 +89,7 @@
                     const gltfTextures = CZPG.createTextures(context, textures);
                     sceneNode.traverse((node)=> {
                         if(node.model && node.model.texture !== undefined)
-                            node.model.setUniformObj({texture: gltfTextures[node.model.texture]});
+                            node.model.setUniformObj({u_texture: gltfTextures[node.model.texture]});
                     });
                     // flatShader.cullFace = false;
                     scene.add([
