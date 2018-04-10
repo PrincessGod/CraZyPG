@@ -75,10 +75,6 @@ class OrbitControls {
         this._zoomEnd = new Vector2();
         this._zoomDelta = new Vector2();
 
-        this.onMouseDownBindself = this.onMouseDown.bind( this );
-        this.onMouseMoveBindself = this.onMouseMove.bind( this );
-        this.onMouseUpBindself = this.onMouseUp.bind( this );
-
         this.STATE = {
             NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5,
         };
@@ -124,7 +120,7 @@ class OrbitControls {
         this._spherical.phi += this._sphericalDelta.phi;
 
         this._spherical.theta = Math.max( this.minAzimuthAngle, Math.min( this.maxAzimuthAngle, this._spherical.theta ) );
-        this._spherical.phi = Math.max( this.minPolarAngle, Math.max( this.minPolarAngle, this._spherical.phi ) );
+        this._spherical.phi = Math.max( this.minPolarAngle, Math.min( this.maxPolarAngle, this._spherical.phi ) );
         this._spherical.makeSafe();
 
         if ( this._scale !== 1 )
@@ -469,9 +465,8 @@ class OrbitControls {
 
         }
 
-        if ( this._state !== this._state.NONE )
+        if ( this._state !== this.STATE.NONE )
             this.controler.addListeners( this.mouseMoveUpListeners );
-
 
     }
 
@@ -538,7 +533,7 @@ class OrbitControls {
 
     onTouchStart( event ) {
 
-        if ( this.enabled === false ) return;
+        if ( this.enable === false ) return;
 
         this._isMouseUp = false;
 
@@ -584,7 +579,7 @@ class OrbitControls {
 
     onTouchMove( event ) {
 
-        if ( this.enabled === false ) return;
+        if ( this.enable === false ) return;
 
         event.preventDefault();
         event.stopPropagation();
@@ -627,7 +622,7 @@ class OrbitControls {
 
     onTouchEnd() {
 
-        if ( this.enabled === false ) return;
+        if ( this.enable === false ) return;
 
         this._isMouseUp = true;
 
