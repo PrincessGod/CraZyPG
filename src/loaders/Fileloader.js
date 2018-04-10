@@ -136,8 +136,21 @@ Object.assign( FileLoader, {
 
                     }
 
+                    const images = json.images || [];
+                    const imageRes = {};
+                    for ( let i = 0; i < images.length; i ++ ) {
+
+                        const uri = images[ i ].uri;
+                        if ( ! uri || uri.startsWith( 'data:' ) ) continue;
+
+                        const filepath = basepath + uri;
+                        imageRes[ uri ] = filepath;
+
+                    }
+
                     return loader.load().then( ( files ) => {
 
+                        Object.assign( files, imageRes );
                         json.resources = files; // eslint-disable-line
                         return json;
 

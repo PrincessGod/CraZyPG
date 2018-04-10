@@ -410,6 +410,30 @@ Object.assign( GLTFLoader.prototype, {
 
     },
 
+    parseBufferView( bufferViewId ) {
+
+        const bufferView = this.gltf.bufferViews[ bufferViewId ];
+        if ( ! bufferView )
+            errorMiss( 'bufferView', bufferViewId );
+
+        if ( bufferView.isParsed )
+            return bufferView.dbufferView;
+
+        const buffer = this.parseBuffer( bufferView.buffer );
+        if ( buffer ) {
+
+            const bufferArray = new Uint8Array( buffer, bufferView.byteOffset, bufferView.byteLength );
+            bufferView.dbufferView = bufferArray.buffer;
+            bufferView.isParsed = true;
+
+            return bufferView.dbufferView;
+
+        }
+
+        return false;
+
+    },
+
     BASE64_MARKER: ';base64,',
 
     parseBuffer( bufferId ) {
@@ -535,19 +559,44 @@ Object.assign( GLTFLoader.prototype, {
         if ( image.isParsed )
             return image.dimage;
 
-        if ( ! image.uri )
-        // TODO bufferview image
-            return false;
+        image.isParsed = true;
+        image.dimage = false;
 
-        if ( image.uri.substr( 0, 5 ) !== 'data:' )
-        // TODO out side bin file
-            return false;
+        if ( ! image.uri ) {
+
+            const arrayBuffer = this.parseBufferView( image.bufferView );
+            if ( arrayBuffer ) {
+
+                const arrayBufferView = new Uint8Array( arrayBuffer );
+                const blob = new Blob( [ arrayBufferView ], { type: 'image/jpeg' } );
+                const urlCreator = window.URL || window.webkitURL;
+                const imageUrl = urlCreator.createObjectURL( blob );
+                const img = new window.Image();
+                img.src = imageUrl;
+
+                image.dimage = img;
+
+            }
+
+            return image.dimage;
+
+        }
+
+        if ( image.uri.substr( 0, 5 ) !== 'data:' ) {
+
+            const uri = image.uri;
+            const imageres = this.gltf.resources[ uri ];
+            if ( imageres )
+                image.dimage = imageres;
+
+            return image.dimage;
+
+        }
 
         const img = new window.Image();
         img.src = image.uri;
 
         image.dimage = img;
-        image.isParsed = true;
         return img;
 
     },
