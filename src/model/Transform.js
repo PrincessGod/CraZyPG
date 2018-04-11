@@ -1,6 +1,7 @@
 import { Vector3 } from '../math/Vector3';
 import { Quaternion } from '../math/Quaternion';
 import { Matrix4 } from '../math/Matrix4';
+import { isArrayBuffer } from '../renderer/typedArray';
 
 function Transform() {
 
@@ -180,7 +181,7 @@ Object.assign( Transform.prototype, {
             if ( args[ 0 ] instanceof Vector3 )
                 return this.setScale( ...args[ 0 ].getArray() );
 
-            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 3 )
+            if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
                 return this.setScale( ...args[ 0 ] );
 
         } else if ( args.length === 3 ) {
@@ -202,7 +203,7 @@ Object.assign( Transform.prototype, {
             if ( args[ 0 ] instanceof Vector3 )
                 return this.setPosition( ...args[ 0 ].getArray() );
 
-            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 3 )
+            if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
                 return this.setPosition( ...args[ 0 ] );
 
         } else if ( args.length === 3 ) {
@@ -224,7 +225,7 @@ Object.assign( Transform.prototype, {
             if ( args[ 0 ] instanceof Vector3 )
                 return this.setRotation( ...args[ 0 ].getArray() );
 
-            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 3 )
+            if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
                 return this.setRotation( ...args[ 0 ] );
 
         } else if ( args.length === 3 ) {
@@ -247,7 +248,7 @@ Object.assign( Transform.prototype, {
             if ( args[ 0 ] instanceof Quaternion )
                 return this.setQuaternion( ...( args[ 0 ].getArray() ) );
 
-            if ( Array.isArray( args[ 0 ] ) && args[ 0 ].length === 4 )
+            if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 4 )
                 return this.setQuaternion( ...args[ 0 ] );
 
         } else if ( args.length === 4 ) {

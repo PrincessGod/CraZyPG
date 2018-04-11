@@ -73,7 +73,96 @@ Object.assign( GLTFLoader.prototype, {
 
         }
 
-        return this.parseScene( sceneId );
+        const result = {
+            nodes: this.parseScene( sceneId ),
+            animations: this.parseAnimations(),
+            currentSceneName: this.currentSceneName,
+        };
+
+        return this.convertToNode( result );
+
+    },
+
+    parseAnimations() {
+
+        const result = [];
+        const animations = this.gltf.animations;
+        if ( animations )
+            for ( let i = 0; i < animations.length; i ++ ) {
+
+                const animation = animations[ i ];
+                const { name, channels, samplers } = animation;
+                const clips = [];
+                if ( channels && samplers )
+                    for ( let j = 0; j < channels.length; j ++ ) {
+
+                        const channel = channels[ j ];
+                        const sampler = samplers[ channel.sampler ];
+                        if ( ! sampler ) {
+
+                            errorMiss( `animations[${i}].channels[${j}].sampler`, channel.sampler );
+                            continue;
+
+                        }
+
+                        const input = this.parseAccessor( sampler.input ).data;
+                        const outputData = this.parseAccessor( sampler.output );
+                        const output = outputData.data;
+                        const numComponents = outputData.numComponents;
+                        const interpolation = sampler.interpolation;
+                        const gltfNodeIdx = channel.target.node;
+                        const path = channel.target.path;
+
+                        let combinedOutput = output;
+                        if ( numComponents !== 1 ) {
+
+                            combinedOutput = [];
+                            for ( let k = 0; k < input.length; k ++ )
+                                combinedOutput.push( output.slice( numComponents * k, numComponents * ( k + 1 ) ) );
+
+                        }
+
+                        let nodeProperty = path;
+                        switch ( path ) {
+
+                        case 'translation':
+                            nodeProperty = 'position';
+                            break;
+                        case 'rotation':
+                            nodeProperty = 'quaternion';
+                            break;
+                        case 'scale':
+                            nodeProperty = 'scale';
+                            break;
+                        default:
+                            console.error( `unsupported animation sampler path ${path}` );
+                            nodeProperty = false;
+
+                        }
+
+                        if ( ! nodeProperty ) continue;
+
+                        const clip = {
+                            times: input,
+                            values: combinedOutput,
+                            findFlag: 'gltfNodeIdx',
+                            findValue: gltfNodeIdx,
+                            targetProp: nodeProperty,
+                            method: interpolation,
+                        };
+
+                        clips.push( clip );
+
+                    }
+
+                result.push( {
+                    name: name || String( i ),
+                    clips,
+                } );
+
+            }
+
+        return result;
 
     },
 
@@ -87,33 +176,32 @@ Object.assign( GLTFLoader.prototype, {
 
         this.currentSceneName = scene.name || 'No Name Scene';
 
+        const result = [];
         const nodes = scene.nodes;
-        const result = {
-            nodes: [],
-        };
-        result.name = this.currentSceneName;
-
         for ( let i = 0; i < nodes.length; i ++ ) {
 
             const node = this.parseNode( nodes[ i ] );
             if ( node )
-                result.nodes.push( node );
+                result.push( node );
 
         }
 
-        return this.convertToNode( result );
+        return result;
 
     },
 
     convertToNode( infos ) {
 
-        const root = new Node( infos.name );
+        const rootNode = new Node( infos.name );
         const nodes = infos.nodes;
+        const animations = infos.animations;
         const textures = [];
 
         function parseNode( nodeInfo, parentNode ) {
 
             const node = new Node( nodeInfo.name );
+
+            node.gltfNodeIdx = nodeInfo.nodeId;
 
             if ( nodeInfo.matrix ) {
 
@@ -193,9 +281,10 @@ Object.assign( GLTFLoader.prototype, {
 
         }
 
-        trivarse( parseNode, root, nodes );
+        trivarse( parseNode, rootNode, nodes );
 
-        return { rootNode: root, textures };
+        const animas = { animations, rootNode, type: 'gltf' };
+        return { rootNode, textures, animations: animas };
 
     },
 
@@ -214,7 +303,12 @@ Object.assign( GLTFLoader.prototype, {
         } = node;
 
         const dnode = {
-            name, matrix, translation, rotation, scale,
+            name,
+            matrix,
+            translation,
+            rotation,
+            scale,
+            nodeId,
         };
 
         if ( node.mesh !== undefined )
@@ -414,7 +508,7 @@ Object.assign( GLTFLoader.prototype, {
 
         const bufferView = this.gltf.bufferViews[ bufferViewId ];
         if ( ! bufferView )
-            errorMiss( 'bufferView', bufferViewId );
+            return errorMiss( 'bufferView', bufferViewId );
 
         if ( bufferView.isParsed )
             return bufferView.dbufferView;
@@ -527,7 +621,7 @@ Object.assign( GLTFLoader.prototype, {
 
         const texture = this.gltf.textures[ textureId ];
         if ( ! texture )
-            errorMiss( 'texture', textureId );
+            return errorMiss( 'texture', textureId );
 
         if ( texture.isParsed )
             return texture.dtexture;
@@ -554,7 +648,7 @@ Object.assign( GLTFLoader.prototype, {
 
         const image = this.gltf.images[ imageId ];
         if ( ! image )
-            errorMiss( 'image', imageId );
+            return errorMiss( 'image', imageId );
 
         if ( image.isParsed )
             return image.dimage;
@@ -605,7 +699,7 @@ Object.assign( GLTFLoader.prototype, {
 
         const sampler = this.gltf.samplers[ samplerId ];
         if ( ! sampler )
-            errorMiss( 'sampler', samplerId );
+            return errorMiss( 'sampler', samplerId );
 
         if ( sampler.isParsed )
             return sampler.dsampler;

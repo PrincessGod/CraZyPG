@@ -241,6 +241,25 @@ Object.assign( Node.prototype, {
 
     },
 
+    findInChildren( property, value ) {
+
+        let finded = false;
+
+        function find( node ) {
+
+            if ( ! finded )
+                if ( node[ property ] !== undefined && node[ property ] === value )
+                    finded = node;
+
+
+        }
+
+        this.traverse( find );
+
+        return finded;
+
+    },
+
 } );
 
 export { Node };

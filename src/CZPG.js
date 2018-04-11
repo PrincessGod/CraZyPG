@@ -35,3 +35,4 @@ export * from './renderer/framebuffer.js';
 export * from './controls/FramebufferPicker.js';
 export * from './scene/Scene.js';
 export * from './controls/Controler.js';
+export * from './scene/Animator.js';
