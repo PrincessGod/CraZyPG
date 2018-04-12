@@ -101,7 +101,7 @@ Object.assign( Animator, {
                     switch ( targetProp ) {
 
                     case 'quaternion':
-                        lerpFun = Quaternion.lerp;
+                        lerpFun = Quaternion.slerp;
                         break;
                     default:
                         break;
