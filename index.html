@@ -79,8 +79,8 @@
                 }
             });
 
-            let file = './resource/gltf/AnimatedTriangle.gltf';
-            let flatShader = new CZPG.FlatTextureShader(context, camera, textures.scalar);
+            let file = './resource/gltf/CesiumMilkTruck.gltf';
+            let gltfShader = new CZPG.GLTFShader(context, camera);
             let gltfLoader = new CZPG.GLTFLoader();
             let animator;
             gltfLoader.load(file)
@@ -95,9 +95,9 @@
 
                     animator = new CZPG.Animator(animations);
                     animator.playAnimation('0');
-                    // flatShader.cullFace = false;
+                    // gltfShader.cullFace = false;
                     scene.add([
-                        {shader: flatShader, model: sceneNode},
+                        {shader: gltfShader, model: sceneNode},
                     ]);
                 });
 
@@ -110,7 +110,7 @@
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {
-                resized = renderer.clear(0,0,0,1).fixCanvasToDisplay(window.devicePixelRatio);
+                resized = renderer.clear(0.05,0.05,0.05,1).fixCanvasToDisplay(window.devicePixelRatio);
                 if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
                 if(animator) animator.update(timespan);

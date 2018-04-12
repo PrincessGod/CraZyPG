@@ -14,6 +14,7 @@ export * from './shader/ColorpickShader.js';
 export * from './shader/WireframeShader.js';
 export * from './shader/MeshLineShader.js';
 export * from './shader/TransformShader.js';
+export * from './shader/GLTFShader.js';
 export * from './model/MeshLineModel.js';
 export * from './renderer/attributes.js';
 export * from './renderer/texture.js';

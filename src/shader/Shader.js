@@ -267,9 +267,6 @@ Object.assign( Shader.prototype, {
 
     setDefines( ...defines ) {
 
-        if ( defines && defines.length === 1 && ( defines[ 0 ] === undefined || defines[ 0 ] === null ) )
-            defines = []; // eslint-disable-line
-
         if ( defines.length > 0 ) {
 
             let index = - 1;
@@ -303,7 +300,8 @@ Object.assign( Shader.prototype, {
 
             if ( index < 0 ) {
 
-                this.programs[ currentProgNum ] = createProgram( this.gl, ...Shader.injectDefines( this.shaders, ...defines ), this.opts );
+                this.currentShaders = Shader.injectDefines( this.shaders, ...defines );
+                this.programs[ currentProgNum ] = createProgram( this.gl, ...this.currentShaders, this.opts );
                 this.program = this.programs[ currentProgNum ];
                 this.programMap[ currentProgNum ] = defines;
                 this.updateProgram( currentProgNum );
@@ -320,7 +318,6 @@ Object.assign( Shader.prototype, {
 
         }
 
-
         if ( this.programMap.length > 0 ) {
 
             if ( this.program === this.programs[ 0 ] )
@@ -332,6 +329,7 @@ Object.assign( Shader.prototype, {
 
         }
 
+        this.currentShaders = this.shaders;
         this.programs[ 0 ] = createProgram( this.gl, ...this.shaders, this.opts );
         this.program = this.programs[ 0 ];
         this.programMap[ 0 ] = [];
@@ -348,6 +346,7 @@ Object.assign( Shader.prototype, {
             this.uniformSetters = this.programInfos[ index ].uniformSetters;
             this.uniformBlockSpec = this.programInfos[ index ].uniformBlockSpec;
             this.uniformBlockInfos = this.programInfos[ index ].uniformBlockInfos;
+            this.currentShaders = this.programInfos[ index ].shaders;
             this._needMVPMat = this.programInfos[ index ]._needMVPMat;
             this._needCamPos = this.programInfos[ index ]._needCamPos;
             this._needNormMat = this.programInfos[ index ]._needNormMat;
@@ -369,6 +368,7 @@ Object.assign( Shader.prototype, {
                 uniformSetters: this.uniformSetters,
                 uniformBlockSpec: this.uniformBlockSpec,
                 uniformBlockInfos: this.uniformBlockInfos,
+                shaders: this.currentShaders,
                 _needMVPMat: this._needMVPMat,
                 _needCamPos: this._needCamPos,
                 _needNormMat: this._needNormMat,

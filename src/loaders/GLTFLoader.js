@@ -226,34 +226,28 @@ Object.assign( GLTFLoader.prototype, {
                     const primitive = nodeInfo.primitives[ i ];
                     const mesh = new Mesh( primitive.name, primitive.attribArrays, { drawMode: primitive.drawMode } );
                     const model = new Model( mesh );
+                    model.defines = primitive.defines;
 
                     // parse material
                     if ( primitive.material ) {
 
-                        const { baseColorTexture, texture } = primitive.material;
+                        const { baseColorTexture, baseColorFactor } = primitive.material;
 
-                        // find default texture
-                        let defaultTexture;
-                        if ( baseColorTexture && baseColorTexture.texture )
-                            defaultTexture = baseColorTexture.texture;
-                        else if ( texture )
-                            defaultTexture = texture;
+                        if ( baseColorFactor )
+                            model.setUniformObj( { baseColorFactor } );
 
-                        if ( defaultTexture ) {
+                        if ( baseColorTexture && baseColorTexture.texture ) {
 
-                            const idx = textures.indexOf( defaultTexture );
+                            baseColorTexture.isConverted = true;
+                            const idx = textures.indexOf( baseColorTexture.texture );
                             if ( idx < 0 ) {
 
-                                textures.push( defaultTexture );
-                                defaultTexture = textures.length - 1;
+                                textures.push( baseColorTexture.texture );
+                                baseColorTexture.textureIdx = textures.length - 1;
                                 model.texture = textures.length - 1;
 
-                            } else {
-
-                                defaultTexture = idx;
+                            } else
                                 model.texture = idx;
-
-                            }
 
                         }
 
@@ -347,7 +341,9 @@ Object.assign( GLTFLoader.prototype, {
 
             const dprimitive = {
                 attribArrays: {},
+                defines: [],
             };
+            let texCoordNum = 0;
             Object.keys( attributes ).forEach( ( attribute ) => {
 
                 const accessor = this.parseAccessor( attributes[ attribute ] );
@@ -367,6 +363,7 @@ Object.assign( GLTFLoader.prototype, {
 
                     case 'TEXCOORD_0':
                         attribName = Constant.ATTRIB_UV_NAME;
+                        texCoordNum = 1;
                         break;
 
                     default:
@@ -380,6 +377,8 @@ Object.assign( GLTFLoader.prototype, {
 
             } );
 
+            if ( texCoordNum ) dprimitive.defines.push( GLTFLoader.getTexCoordDefine( texCoordNum ) );
+
             if ( indices !== undefined ) {
 
                 const accessor = this.parseAccessor( indices );
@@ -388,12 +387,11 @@ Object.assign( GLTFLoader.prototype, {
 
             }
 
-            // TODO parse material
-            if ( material !== undefined ) {
+            const dmaterial = this.parseMaterial( material );
+            if ( dmaterial ) {
 
-                const dmaterial = this.parseMaterial( material );
-                if ( dmaterial )
-                    dprimitive.material = dmaterial;
+                dprimitive.material = dmaterial;
+                dprimitive.defines = dprimitive.defines.concat( dmaterial.defines );
 
             }
 
@@ -574,7 +572,12 @@ Object.assign( GLTFLoader.prototype, {
 
     parseMaterial( materialId ) {
 
-        const material = this.gltf.materials[ materialId ];
+        let material;
+        if ( materialId === undefined )
+            material = GLTFLoader.defaultMaterial;
+        else
+            material = this.gltf.materials[ materialId ];
+
         if ( ! material )
             return errorMiss( 'material', materialId );
 
@@ -582,13 +585,15 @@ Object.assign( GLTFLoader.prototype, {
             return material.dmaterial;
 
         const { name, pbrMetallicRoughness } = material;
-        const dmaterial = { name };
+        const dmaterial = { name, defines: [] };
 
         if ( pbrMetallicRoughness ) {
 
             const {
                 baseColorFactor, metallicFactor, roughnessFactor, baseColorTexture, metallicRoughnessTexture,
             } = pbrMetallicRoughness;
+
+            if ( baseColorFactor ) dmaterial.defines.push( GLTFLoader.getBaseColorFactorDefine() );
 
             Object.assign( dmaterial, { baseColorFactor, metallicFactor, roughnessFactor } );
 
@@ -599,10 +604,6 @@ Object.assign( GLTFLoader.prototype, {
                     dmaterial.baseColorTexture = { texture, texCoord: baseColorTexture.texCoord || 0 };
 
             }
-
-            if ( ! dmaterial.baseColorTexture && baseColorFactor )
-                dmaterial.texture = { src: baseColorFactor.map( v => v * 255 ), minMag: 9728 };
-
 
             if ( metallicRoughnessTexture )
             // TODO
@@ -715,6 +716,34 @@ Object.assign( GLTFLoader.prototype, {
         sampler.dsampler = dsampler;
         sampler.isParsed = true;
         return dsampler;
+
+    },
+
+} );
+
+Object.assign( GLTFLoader, {
+
+    getTexCoordDefine( texNum ) {
+
+        return `UV_NUM ${texNum}`;
+
+    },
+
+    getBaseColorFactorDefine() {
+
+        return 'BASE_COLOR_FACTOR';
+
+    },
+
+    defaultMaterial: {
+
+        name: 'GLTF_DEFAULT_MATERIAL',
+        emissiveFactor: [ 0, 0, 0, 0 ],
+        alphaMode: 'OPAQUE',
+        alphaCutoff: 0.5,
+        doubleSided: false,
+        isParsed: true,
+        dmaterial: { name: 'GLTF_DEFAULT_MATERIAL', defines: [] },
 
     },
 
