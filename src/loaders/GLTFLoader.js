@@ -1,3 +1,4 @@
+/* eslint no-loop-func: 0 */
 import { getTypedArrayTypeFromGLType } from '../renderer/typedArray';
 import * as Constant from '../renderer/constant';
 import { Model } from '../model/Model';
@@ -109,20 +110,22 @@ Object.assign( GLTFLoader.prototype, {
                         const outputData = this.parseAccessor( sampler.output );
                         const output = outputData.data;
                         const numComponents = outputData.numComponents;
-                        const interpolation = sampler.interpolation;
+                        const interpolation = sampler.interpolation || 'LINEAR';
                         const gltfNodeIdx = channel.target.node;
                         const path = channel.target.path;
 
                         let combinedOutput = output;
-                        if ( numComponents !== 1 ) {
+                        if ( numComponents !== 1 || input.length !== output.length ) {
 
+                            const numComp = output.length / input.length;
                             combinedOutput = [];
                             for ( let k = 0; k < input.length; k ++ )
-                                combinedOutput.push( output.slice( numComponents * k, numComponents * ( k + 1 ) ) );
+                                combinedOutput.push( output.slice( numComp * k, numComp * ( k + 1 ) ) );
 
                         }
 
                         let nodeProperty = path;
+                        const extras = {};
                         switch ( path ) {
 
                         case 'translation':
@@ -133,6 +136,10 @@ Object.assign( GLTFLoader.prototype, {
                             break;
                         case 'scale':
                             nodeProperty = 'scale';
+                            break;
+                        case 'weights':
+                            nodeProperty = 'weights';
+                            extras.uniformName = GLTFLoader.MORPH_WEIGHT_UNIFORM;
                             break;
                         default:
                             console.error( `unsupported animation sampler path ${path}` );
@@ -149,6 +156,7 @@ Object.assign( GLTFLoader.prototype, {
                             findValue: gltfNodeIdx,
                             targetProp: nodeProperty,
                             method: interpolation,
+                            extras,
                         };
 
                         clips.push( clip );
@@ -231,7 +239,9 @@ Object.assign( GLTFLoader.prototype, {
                     // parse material
                     if ( primitive.material ) {
 
-                        const { baseColorTexture, baseColorFactor } = primitive.material;
+                        const { baseColorTexture, baseColorFactor, doubleSided } = primitive.material;
+
+                        model.mesh.cullFace = doubleSided;
 
                         if ( baseColorFactor )
                             model.setUniformObj( { baseColorFactor } );
@@ -250,6 +260,15 @@ Object.assign( GLTFLoader.prototype, {
                                 model.texture = idx;
 
                         }
+
+                    }
+
+                    // morph targets
+                    if ( primitive.weights ) {
+
+                        const uniforobj = {};
+                        uniforobj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ] = primitive.weights;
+                        model.setUniformObj( uniforobj );
 
                     }
 
@@ -336,7 +355,7 @@ Object.assign( GLTFLoader.prototype, {
 
             const primitive = primitives[ i ];
             const {
-                attributes, indices, material, mode, name,
+                attributes, indices, material, mode, name, targets,
             } = primitive;
 
             const dprimitive = {
@@ -397,6 +416,58 @@ Object.assign( GLTFLoader.prototype, {
 
             dprimitive.drawMode = mode === undefined ? 4 : mode;
             dprimitive.name = name || mesh.name || 'no name mesh';
+
+            if ( targets ) {
+
+                dprimitive.defines.push( GLTFLoader.getMorphTargetsDefine( targets.length ) );
+                let hasPositions = false;
+                let hasNormals = false;
+                let hasTangents = false;
+                for ( let j = 0; j < targets.length; j ++ ) {
+
+                    const target = targets[ j ];
+                    Object.keys( target ).forEach( ( attribute ) => {
+
+                        const accessor = this.parseAccessor( target[ attribute ] );
+                        if ( accessor ) {
+
+                            let attribName;
+                            switch ( attribute ) {
+
+                            case 'POSITION':
+                                attribName = GLTFLoader.MORPH_POSITION_PREFIX + j;
+                                hasPositions = true;
+                                break;
+                            case 'NORMAL':
+                                attribName = GLTFLoader.MORPH_NORMAL_PREFIX + j;
+                                hasNormals = true;
+                                break;
+                            case 'TANGENT':
+                                attribName = GLTFLoader.MORPH_TANGENT_PREFIX + j;
+                                hasTangents = true;
+                                break;
+                            default:
+                                attribName = false;
+
+                            }
+
+                            if ( ! attribName )
+                                console.error( `glTF has unsupported morph target attribute ${attribute}` );
+                            else
+                                dprimitive.attribArrays[ attribName ] = accessor;
+
+                        }
+
+                    } );
+
+                }
+
+                if ( hasPositions ) dprimitive.defines.push( GLTFLoader.getMorphtargetPositionDefine() );
+                if ( hasNormals ) dprimitive.defines.push( GLTFLoader.getMorphtargetNormalDefine() );
+                if ( hasTangents ) dprimitive.defines.push( GLTFLoader.getMorphtargetTangentDefine() );
+                dprimitive.weights = mesh.weights || new Array( targets.length ).fill( 0 );
+
+            }
 
             dprimitives.push( dprimitive );
 
@@ -490,12 +561,14 @@ Object.assign( GLTFLoader.prototype, {
         } else
             typedArray = new arrayType( buffer.dbuffer, offset, accessor.count * numComponents ); // eslint-disable-line
 
+        const normalize = !! accessor.normalized;
+
         accessor.isParsed = true;
         accessor.computeResult = {
             typedArray, offset, glType, arrayType, numComponents,
         };
         accessor.daccessor = {
-            data: typedArray, numComponents,
+            data: typedArray, numComponents, normalize,
         };
 
         return accessor.daccessor;
@@ -584,8 +657,8 @@ Object.assign( GLTFLoader.prototype, {
         if ( material.isParsed )
             return material.dmaterial;
 
-        const { name, pbrMetallicRoughness } = material;
-        const dmaterial = { name, defines: [] };
+        const { name, pbrMetallicRoughness, doubleSided } = material;
+        const dmaterial = { name, defines: [], doubleSided: !! doubleSided };
 
         if ( pbrMetallicRoughness ) {
 
@@ -657,13 +730,14 @@ Object.assign( GLTFLoader.prototype, {
         image.isParsed = true;
         image.dimage = false;
 
-        if ( ! image.uri ) {
+        if ( ! image.uri && image.bufferView ) {
 
             const arrayBuffer = this.parseBufferView( image.bufferView );
             if ( arrayBuffer ) {
 
+                const type = image.mimeType || 'image/jpeg';
                 const arrayBufferView = new Uint8Array( arrayBuffer );
-                const blob = new Blob( [ arrayBufferView ], { type: 'image/jpeg' } );
+                const blob = new Blob( [ arrayBufferView ], { type } );
                 const urlCreator = window.URL || window.webkitURL;
                 const imageUrl = urlCreator.createObjectURL( blob );
                 const img = new window.Image();
@@ -673,26 +747,26 @@ Object.assign( GLTFLoader.prototype, {
 
             }
 
-            return image.dimage;
-
         }
 
-        if ( image.uri.substr( 0, 5 ) !== 'data:' ) {
+        if ( image.uri )
+            if ( image.uri.substr( 0, 5 ) !== 'data:' ) {
 
-            const uri = image.uri;
-            const imageres = this.gltf.resources[ uri ];
-            if ( imageres )
-                image.dimage = imageres;
+                const uri = image.uri;
+                const imageres = this.gltf.resources[ uri ];
+                if ( imageres )
+                    image.dimage = imageres;
 
-            return image.dimage;
+            } else {
 
-        }
+                const img = new window.Image();
+                img.src = image.uri;
 
-        const img = new window.Image();
-        img.src = image.uri;
+                image.dimage = img;
 
-        image.dimage = img;
-        return img;
+            }
+
+        return image.dimage;
 
     },
 
@@ -735,6 +809,40 @@ Object.assign( GLTFLoader, {
 
     },
 
+    MAX_MORPH_TARGETS: 8,
+
+    MORPH_POSITION_PREFIX: 'a_morphPositions_',
+
+    MORPH_NORMAL_PREFIX: 'a_morphNromals_',
+
+    MORPH_TANGENT_PREFIX: 'a_morphTangents_',
+
+    MORPH_WEIGHT_UNIFORM: 'u_morphWeights',
+
+    getMorphTargetsDefine( targetNum ) {
+
+        return `MORPH_TARGET_NUM ${targetNum}`;
+
+    },
+
+    getMorphtargetPositionDefine() {
+
+        return 'HAS_MORPH_POSITION ';
+
+    },
+
+    getMorphtargetNormalDefine() {
+
+        return 'HAS_MORPH_NORMAL';
+
+    },
+
+    getMorphtargetTangentDefine() {
+
+        return 'HAS_MORPH_TANGENT';
+
+    },
+
     defaultMaterial: {
 
         name: 'GLTF_DEFAULT_MATERIAL',
@@ -743,7 +851,7 @@ Object.assign( GLTFLoader, {
         alphaCutoff: 0.5,
         doubleSided: false,
         isParsed: true,
-        dmaterial: { name: 'GLTF_DEFAULT_MATERIAL', defines: [] },
+        dmaterial: { name: 'GLTF_DEFAULT_MATERIAL', defines: [], doubleSided: false },
 
     },
 

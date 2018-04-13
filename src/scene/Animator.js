@@ -1,5 +1,20 @@
 import { Quaternion } from '../math/Quaternion';
 
+function weightLinearLerp( out, v1, v2, t ) {
+
+    for ( let i = 0; i < v1.length; i ++ )
+        out[ i ] = v1[ i ] + t * ( v2[ i ] - v1[ i ] ); // eslint-disable-line
+    return out;
+
+}
+
+function quaternionLinearSlerp( out, v1, v2, t ) {
+
+    Quaternion.slerp( out, v1, v2, t );
+    Quaternion.normalize( out, out );
+
+}
+
 function Animator( rawData ) {
 
     this.raw = rawData;
@@ -23,8 +38,18 @@ Object.assign( Animator.prototype, {
             if ( animation.name === name )
                 this._playList = [ animation ];
 
-
         } );
+
+        return this;
+
+    },
+
+    playAll() {
+
+        this._playList = [];
+        this.animations.forEach( animation => this._playList.push( animation ) );
+
+        return this;
 
     },
 
@@ -63,7 +88,6 @@ Object.assign( Animator.prototype, {
 
                 const timePercent = ( currentTime - times[ currentIdx ] ) / ( times[ currentIdx + 1 ] - times[ currentIdx ] );
                 lerpFun( clip.currentValue, values[ currentIdx ], values[ currentIdx + 1 ], timePercent );
-                Quaternion.normalize( clip.currentValue, clip.currentValue );
                 setTarget( clip.currentValue );
 
             }
@@ -90,18 +114,31 @@ Object.assign( Animator, {
 
                     const clip = clips[ j ];
                     const {
-                        findFlag, findValue, targetProp, times, values, // method,
+                        findFlag, findValue, targetProp, times, values, extras, // method,
                     } = clip;
 
                     const node = rootNode.findInChildren( findFlag, findValue );
-                    if ( ! node || ! node[ targetProp ] ) continue;
 
                     let lerpFun;
+                    let setTarget = function ( v ) {
 
+                        node[ targetProp ] = v;
+
+                    };
                     switch ( targetProp ) {
 
                     case 'quaternion':
-                        lerpFun = Quaternion.slerp;
+                        lerpFun = quaternionLinearSlerp;
+                        break;
+                    case 'weights':
+                        lerpFun = weightLinearLerp;
+                        setTarget = function ( v ) {
+
+                            const uniformobj = {};
+                            uniformobj[ extras.uniformName ] = v;
+                            node.model.setUniformObj( uniformobj );
+
+                        };
                         break;
                     default:
                         break;
@@ -111,11 +148,7 @@ Object.assign( Animator, {
                     if ( ! lerpFun ) continue;
 
                     const clipRes = {
-                        setTarget( v ) {
-
-                            node[ targetProp ] = v;
-
-                        },
+                        setTarget,
                         times,
                         values,
                         lerpFun,

@@ -413,7 +413,7 @@ Object.assign( Shader, {
 
             define = `#define ${defines[ i ]}\n`;
             if ( shader.indexOf( define ) < 0 )
-                newShader = insertToString( shader, index, define );
+                newShader = insertToString( newShader, index, define );
 
         }
 
