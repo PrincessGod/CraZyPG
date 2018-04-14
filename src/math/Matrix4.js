@@ -70,7 +70,7 @@ Object.assign( Matrix4.prototype, {
 
     invert() {
 
-        Matrix4.invert( this.raw );
+        Matrix4.invert( this.raw, this.raw );
         return this;
 
     },

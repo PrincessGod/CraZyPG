@@ -14,6 +14,8 @@ export const UNIFORM_NORMAL_MAT_NAME = 'u_normMat';
 export const UNIFORM_MAIN_TEXTURE_NAME = 'u_texture';
 export const UNIFORM_PREFIX = 'u_';
 export const UNIFORM_CAMPOS = 'u_camPos';
+export const ATTRIB_JOINT_0_NAME = 'a_joint';
+export const ATTRIB_WEIGHT_0_NAME = 'a_weight';
 
 // WebGLContext
 export const LINES = 1;

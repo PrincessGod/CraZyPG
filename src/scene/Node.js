@@ -123,6 +123,13 @@ Object.assign( Node, {
 
     },
 
+    afterUpdateMatrix( node, parent ) {
+
+        if ( typeof node.afterUpdateMatrix === 'function' )
+            node.afterUpdateMatrix( node, parent );
+
+    },
+
 } );
 
 Object.assign( Node.prototype, {
@@ -221,6 +228,7 @@ Object.assign( Node.prototype, {
 
         this.traverse( Node.updateMatrixMarker );
         this.traverseTwoExeFun( Node.updateWorldMatrix, Node.updateNormalAndDirection );
+        this.traverse( Node.afterUpdateMatrix );
         return this;
 
     },

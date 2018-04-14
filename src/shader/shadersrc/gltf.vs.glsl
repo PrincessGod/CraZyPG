@@ -6,6 +6,13 @@ in vec2 a_uv;
 out highp vec2 v_uv;
 #endif
 
+#ifdef JOINTS_NUM
+in vec4 a_joint;
+in vec4 a_weight;
+
+uniform mat4 u_jointMatrix[JOINTS_NUM];
+#endif
+
 // max targets num is 8
 #ifdef MORPH_TARGET_NUM
     uniform float u_morphWeights[MORPH_TARGET_NUM];
@@ -121,7 +128,18 @@ void main() {
         // TODO normals and tangents
     #endif
 
-    gl_Position = u_mvpMat * vec4(position, 1.0);
+    mat4 finalMat = u_mvpMat;
+
+    #ifdef JOINTS_NUM
+    mat4 skinMatrix =
+        a_weight.x * u_jointMatrix[int(a_joint.x)] +
+        a_weight.y * u_jointMatrix[int(a_joint.y)] +
+        a_weight.z * u_jointMatrix[int(a_joint.z)] +
+        a_weight.w * u_jointMatrix[int(a_joint.w)];
+    finalMat = finalMat * skinMatrix;
+    #endif
+
+    gl_Position = finalMat * vec4(position, 1.0);
 
     #ifdef UV_NUM
     v_uv = a_uv;

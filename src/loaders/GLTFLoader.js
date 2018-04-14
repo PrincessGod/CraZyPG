@@ -152,7 +152,7 @@ Object.assign( GLTFLoader.prototype, {
                         const clip = {
                             times: input,
                             values: combinedOutput,
-                            findFlag: 'gltfNodeIdx',
+                            findFlag: GLTFLoader.GLTF_NODE_INDEX_PROPERTY,
                             findValue: gltfNodeIdx,
                             targetProp: nodeProperty,
                             method: interpolation,
@@ -204,12 +204,13 @@ Object.assign( GLTFLoader.prototype, {
         const nodes = infos.nodes;
         const animations = infos.animations;
         const textures = [];
+        const skins = [];
 
         function parseNode( nodeInfo, parentNode ) {
 
             const node = new Node( nodeInfo.name );
 
-            node.gltfNodeIdx = nodeInfo.nodeId;
+            node[ GLTFLoader.GLTF_NODE_INDEX_PROPERTY ] = nodeInfo.nodeId;
 
             if ( nodeInfo.matrix ) {
 
@@ -228,14 +229,17 @@ Object.assign( GLTFLoader.prototype, {
 
             parentNode.addChild( node );
 
-            if ( nodeInfo.primitives )
+            if ( nodeInfo.primitives ) {
+
+                const models = [];
                 for ( let i = 0; i < nodeInfo.primitives.length; i ++ ) {
 
                     const primitive = nodeInfo.primitives[ i ];
                     const mesh = new Mesh( primitive.name, primitive.attribArrays, { drawMode: primitive.drawMode } );
                     const model = new Model( mesh );
                     const uniformobj = {};
-                    model.defines = primitive.defines;
+                    const skinDefines = ( nodeInfo.skin && nodeInfo.skin.defines ) || [];
+                    model.defines = primitive.defines.concat( skinDefines );
                     // parse material
                     if ( primitive.material ) {
 
@@ -274,8 +278,18 @@ Object.assign( GLTFLoader.prototype, {
                     else
                         node.addChild( model );
 
+                    models.push( model );
+
                 }
 
+                if ( nodeInfo.skin ) {
+
+                    node.skin = Object.assign( nodeInfo.skin, { models } );
+                    skins.push( node.skin );
+
+                }
+
+            }
             return node;
 
         }
@@ -293,6 +307,59 @@ Object.assign( GLTFLoader.prototype, {
 
         trivarse( parseNode, rootNode, nodes );
 
+        // apply skins
+        if ( skins.length ) {
+
+            const skinsNum = skins.length;
+            const updateJointUniformFuncs = [];
+            for ( let i = 0; i < skins.length; i ++ ) {
+
+                const {
+                    joints, skeleton, inverseBindMatrices, models,
+                } = skins[ i ];
+
+                const jointNum = joints.length;
+                const globalJointTransformNodes = [];
+                for ( let j = 0; j < jointNum; j ++ )
+                    globalJointTransformNodes[ j ] = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, joints[ j ] );
+
+                let globalTransformNode = false;
+                if ( skeleton !== GLTFLoader.SCENE_ROOT_SKELETON )
+                    globalTransformNode = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, skeleton );
+                else
+                    globalTransformNode = rootNode;
+
+                const frag = new Array( 16 );
+                updateJointUniformFuncs[ i ] = function updateJointUniformFunc() {
+
+                    let jointMats = [];
+                    for ( let n = 0; n < jointNum; n ++ ) {
+
+                        Matrix4.invert( frag, globalTransformNode.transform.getWorldMatrix() );
+                        Matrix4.mult( frag, frag, globalJointTransformNodes[ n ].transform.getWorldMatrix() );
+                        if ( inverseBindMatrices !== GLTFLoader.IDENTITY_INVERSE_BIND_MATRICES )
+                            Matrix4.mult( frag, frag, inverseBindMatrices[ n ] );
+                        jointMats = jointMats.concat( frag );
+
+                    }
+
+                    const uniformObj = {};
+                    uniformObj[ GLTFLoader.JOINT_MATRICES_UNIFORM ] = jointMats;
+                    models.forEach( model => model.setUniformObj( uniformObj ) );
+
+                };
+
+            }
+
+            rootNode.afterUpdateMatrix = function () {
+
+                for ( let i = 0; i < skinsNum; i ++ )
+                    updateJointUniformFuncs[ i ]();
+
+            };
+
+        }
+
         const animas = { animations, rootNode, type: 'gltf' };
         return { rootNode, textures, animations: animas };
 
@@ -300,7 +367,7 @@ Object.assign( GLTFLoader.prototype, {
 
     parseNode( nodeId ) {
 
-        // TODO camera skin
+        // TODO camera
         const node = this.gltf.nodes[ nodeId ];
         if ( ! node )
             return errorMiss( 'node', nodeId );
@@ -329,10 +396,63 @@ Object.assign( GLTFLoader.prototype, {
             for ( let i = 0; i < node.children.length; i ++ )
                 dnode.children.push( this.parseNode( node.children[ i ] ) );
 
+        if ( node.skin !== undefined ) {
+
+            const skin = this.parseSkin( node.skin );
+            if ( skin )
+                dnode.skin = skin;
+
+        }
+
         node.dnode = dnode;
         node.isParsed = true;
 
         return node.dnode;
+
+    },
+
+    parseSkin( skinId ) {
+
+        const skin = this.gltf.skins[ skinId ];
+
+        if ( ! skin )
+            return errorMiss( 'skin', skinId );
+
+        if ( skin.isParsed )
+            return skin.dskin;
+
+        const {
+            name, joints, inverseBindMatrices, skeleton,
+        } = skin;
+
+        if ( ! joints )
+            return errorMiss( 'skin.joints', skinId );
+
+        skin.isParsed = true;
+        skin.dskin = false;
+        let dskin = { name, joints, defines: [ GLTFLoader.getJointsNumDefine( joints.length ) ] };
+        dskin.skeleton = skeleton === undefined ? GLTFLoader.SCENE_ROOT_SKELETON : skeleton;
+        dskin.inverseBindMatrices = GLTFLoader.IDENTITY_INVERSE_BIND_MATRICES;
+
+        if ( inverseBindMatrices !== undefined ) {
+
+            const accessor = this.parseAccessor( inverseBindMatrices );
+            if ( accessor ) {
+
+                const array = accessor.data;
+                const matrices = [];
+                for ( let i = 0; i < array.length / 16; i ++ )
+                    matrices.push( new Float32Array( array.buffer, 16 * i * Float32Array.BYTES_PER_ELEMENT, 16 ) );
+
+                dskin.inverseBindMatrices = matrices;
+
+            } else
+                dskin = false;
+
+        }
+
+        skin.dskin = dskin;
+        return skin.dskin;
 
     },
 
@@ -366,7 +486,7 @@ Object.assign( GLTFLoader.prototype, {
 
                 if ( accessor ) {
 
-                    let attribName = attribute;
+                    let attribName;
                     switch ( attribute ) {
 
                     case 'POSITION':
@@ -380,6 +500,14 @@ Object.assign( GLTFLoader.prototype, {
                     case 'TEXCOORD_0':
                         attribName = Constant.ATTRIB_UV_NAME;
                         texCoordNum = 1;
+                        break;
+
+                    case 'JOINTS_0':
+                        attribName = Constant.ATTRIB_JOINT_0_NAME;
+                        break;
+
+                    case 'WEIGHTS_0':
+                        attribName = Constant.ATTRIB_WEIGHT_0_NAME;
                         break;
 
                     default:
@@ -797,6 +925,8 @@ Object.assign( GLTFLoader.prototype, {
 
 Object.assign( GLTFLoader, {
 
+    GLTF_NODE_INDEX_PROPERTY: 'GLTF_NODE_INDEX',
+
     getTexCoordDefine( texNum ) {
 
         return `UV_NUM ${texNum}`;
@@ -850,6 +980,18 @@ Object.assign( GLTFLoader, {
         return 'HAS_MORPH_TANGENT';
 
     },
+
+    SCENE_ROOT_SKELETON: 'SCENE_ROOT',
+
+    IDENTITY_INVERSE_BIND_MATRICES: 'IDENTITY_IBM',
+
+    getJointsNumDefine( num ) {
+
+        return `JOINTS_NUM ${num}`;
+
+    },
+
+    JOINT_MATRICES_UNIFORM: 'u_jointMatrix',
 
     defaultMaterial: {
 
