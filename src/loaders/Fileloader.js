@@ -82,6 +82,12 @@ Object.assign( FileLoader.prototype, {
         this.items.forEach( ( item ) => {
 
             const { name, file, type } = item;
+            if ( ! FileLoader[ type ] ) {
+
+                console.error( `unsupport file format ".${type}"` );
+                return;
+
+            }
             const promise = FileLoader.types[ type ]( file );
             promises.push( promise );
             names.push( name );
