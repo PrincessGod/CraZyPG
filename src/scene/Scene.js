@@ -284,7 +284,7 @@ Object.assign( Scene.prototype, {
             for ( let j = 0; j < curShaderObj.models.length; j ++ ) {
 
                 curModel = curShaderObj.models[ j ];
-                curShader.setUniformObj( curModel.uniformObj ).renderModel( curModel );
+                curShader.renderModel( curModel );
 
             }
 
