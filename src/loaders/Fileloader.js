@@ -82,9 +82,9 @@ Object.assign( FileLoader.prototype, {
         this.items.forEach( ( item ) => {
 
             const { name, file, type } = item;
-            if ( ! FileLoader[ type ] ) {
+            if ( ! FileLoader.types[ type ] ) {
 
-                console.error( `unsupport file format ".${type}"` );
+                console.error( `unsupport file format ".${type}", file path: ${file}` );
                 return;
 
             }
