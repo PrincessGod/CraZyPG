@@ -253,6 +253,7 @@ Object.assign( Transform.prototype, {
 
         } else if ( args.length === 4 ) {
 
+            Quaternion.normalize( args, args );
             this._quaternion.set( ...args );
             this.updateEuler();
             this._needUpdateMatrix = true;

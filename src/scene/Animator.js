@@ -4,6 +4,9 @@ function weightLinearLerp( out, v1, v2, t ) {
 
     for ( let i = 0; i < v1.length; i ++ )
         out[ i ] = v1[ i ] + t * ( v2[ i ] - v1[ i ] ); // eslint-disable-line
+    if ( out[ 0 ] > 1 )
+        console.log( out );
+
     return out;
 
 }
@@ -11,7 +14,6 @@ function weightLinearLerp( out, v1, v2, t ) {
 function quaternionLinearSlerp( out, v1, v2, t ) {
 
     Quaternion.slerp( out, v1, v2, t );
-    Quaternion.normalize( out, out );
 
 }
 
@@ -70,8 +72,12 @@ Object.assign( Animator.prototype, {
 
                 sumTime += dtime;
                 currentTime += dtime;
-                while ( currentTime > maxTime )
-                    currentTime -= maxTime;
+                if ( currentTime > maxTime ) {
+
+                    currentTime %= maxTime;
+                    currentIdx = 0;
+
+                }
 
                 clip.sumTime = sumTime;
                 clip.currentTime = currentTime;
