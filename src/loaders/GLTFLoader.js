@@ -234,17 +234,17 @@ Object.assign( GLTFLoader.prototype, {
                     const primitive = nodeInfo.primitives[ i ];
                     const mesh = new Mesh( primitive.name, primitive.attribArrays, { drawMode: primitive.drawMode } );
                     const model = new Model( mesh );
+                    const uniformobj = {};
                     model.defines = primitive.defines;
-
                     // parse material
                     if ( primitive.material ) {
 
                         const { baseColorTexture, baseColorFactor, doubleSided } = primitive.material;
 
-                        model.mesh.cullFace = doubleSided;
+                        model.mesh.cullFace = ! doubleSided;
 
                         if ( baseColorFactor )
-                            model.setUniformObj( { baseColorFactor } );
+                            uniformobj[ GLTFLoader.BASE_COLOR_UNIFORM ] = baseColorFactor;
 
                         if ( baseColorTexture && baseColorTexture.texture ) {
 
@@ -264,13 +264,10 @@ Object.assign( GLTFLoader.prototype, {
                     }
 
                     // morph targets
-                    if ( primitive.weights ) {
+                    if ( primitive.weights )
+                        uniformobj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ] = primitive.weights;
 
-                        const uniforobj = {};
-                        uniforobj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ] = primitive.weights;
-                        model.setUniformObj( uniforobj );
-
-                    }
+                    model.setUniformObj( uniformobj );
 
                     if ( nodeInfo.primitives.length < 2 )
                         node.setModel( model );
@@ -552,14 +549,14 @@ Object.assign( GLTFLoader.prototype, {
             typedArray = new arrayType( arrayLength ); // eslint-disable-line
             for ( let i = 0; i < accessor.count; i ++ ) {
 
-                const componentVals = new arrayType( buffer.dbuffer, offset + i * byteStride, numComponents ); // eslint-disable-line
+                const componentVals = new arrayType( buffer, offset + i * byteStride, numComponents ); // eslint-disable-line
                 for ( let j = 0; j < numComponents; j ++ )
                     typedArray[ i * numComponents + j ] = componentVals[ j ];
 
             }
 
         } else
-            typedArray = new arrayType( buffer.dbuffer, offset, accessor.count * numComponents ); // eslint-disable-line
+            typedArray = new arrayType( buffer, offset, accessor.count * numComponents ); // eslint-disable-line
 
         const normalize = !! accessor.normalized;
 
@@ -608,14 +605,14 @@ Object.assign( GLTFLoader.prototype, {
             return errorMiss( 'buffer', bufferId );
 
         if ( buffer.isParsed )
-            return buffer;
+            return buffer.dbuffer;
+
+        buffer.isParsed = true;
+        buffer.dbuffer = false;
 
         if ( buffer.uri.substr( 0, 5 ) !== 'data:' ) {
 
             const uri = buffer.uri;
-            buffer.isParsed = true;
-            buffer.dbuffer = false;
-
             const arrayBuffer = this.gltf.resources[ uri ];
             if ( arrayBuffer )
                 if ( arrayBuffer.byteLength === buffer.byteLength ) {
@@ -627,19 +624,18 @@ Object.assign( GLTFLoader.prototype, {
             else
                 console.error( `load gltf resource "${uri}" at buffers[${bufferId}] failed` );
 
-            return buffer.dbuffer;
+        } else {
+
+            const base64Idx = buffer.uri.indexOf( this.BASE64_MARKER ) + this.BASE64_MARKER.length;
+            const blob = window.atob( buffer.uri.substr( base64Idx ) );
+            const bytes = new Uint8Array( blob.length );
+            for ( let i = 0; i < blob.length; i ++ )
+                bytes[ i ] = blob.charCodeAt( i );
+            buffer.dbuffer = bytes.buffer;
 
         }
 
-        const base64Idx = buffer.uri.indexOf( this.BASE64_MARKER ) + this.BASE64_MARKER.length;
-        const blob = window.atob( buffer.uri.substr( base64Idx ) );
-        const bytes = new Uint8Array( blob.length );
-        for ( let i = 0; i < blob.length; i ++ )
-            bytes[ i ] = blob.charCodeAt( i );
-
-        buffer.dbuffer = bytes.buffer;
-        buffer.isParsed = true;
-        return buffer;
+        return buffer.dbuffer;
 
     },
 
@@ -666,15 +662,19 @@ Object.assign( GLTFLoader.prototype, {
                 baseColorFactor, metallicFactor, roughnessFactor, baseColorTexture, metallicRoughnessTexture,
             } = pbrMetallicRoughness;
 
-            if ( baseColorFactor ) dmaterial.defines.push( GLTFLoader.getBaseColorFactorDefine() );
+            dmaterial.defines.push( GLTFLoader.getBaseColorFactorDefine() );
 
-            Object.assign( dmaterial, { baseColorFactor, metallicFactor, roughnessFactor } );
+            Object.assign( dmaterial, { baseColorFactor: baseColorFactor || [ 1, 1, 1, 1 ], metallicFactor, roughnessFactor } );
 
             if ( baseColorTexture ) {
 
                 const texture = this.parseTexture( baseColorTexture.index );
-                if ( texture )
+                if ( texture ) {
+
                     dmaterial.baseColorTexture = { texture, texCoord: baseColorTexture.texCoord || 0 };
+                    dmaterial.defines.push( GLTFLoader.getBaseColorTextureDefine() );
+
+                }
 
             }
 
@@ -803,9 +803,17 @@ Object.assign( GLTFLoader, {
 
     },
 
+    BASE_COLOR_UNIFORM: 'u_baseColorFactor',
+
     getBaseColorFactorDefine() {
 
         return 'BASE_COLOR_FACTOR';
+
+    },
+
+    getBaseColorTextureDefine() {
+
+        return 'BASE_COLOR_SAMPLER';
 
     },
 

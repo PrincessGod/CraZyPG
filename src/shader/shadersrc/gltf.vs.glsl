@@ -6,7 +6,7 @@ in vec2 a_uv;
 out highp vec2 v_uv;
 #endif
 
-// max targets num is 4
+// max targets num is 8
 #ifdef MORPH_TARGET_NUM
     uniform float u_morphWeights[MORPH_TARGET_NUM];
     #ifdef HAS_MORPH_POSITION
@@ -93,7 +93,7 @@ void main() {
 
     vec3 position = a_position;
 
-    #ifdef HAS_MORPH_NORMAL
+    #ifdef MORPH_TARGET_NUM
         #ifdef HAS_MORPH_POSITION
         position += u_morphWeights[0] * a_morphPositions_0;
             #if MORPH_TARGET_NUM > 1

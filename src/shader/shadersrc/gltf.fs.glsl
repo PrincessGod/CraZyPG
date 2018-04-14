@@ -3,11 +3,14 @@ precision mediump float;
 
 #ifdef UV_NUM
 in highp vec2 v_uv;
-uniform sampler2D u_texture;
 #endif
 
 #ifdef BASE_COLOR_FACTOR
 uniform mediump vec4 u_baseColorFactor;
+#endif
+
+#ifdef BASE_COLOR_SAMPLER
+uniform sampler2D u_texture;
 #endif
 
 layout(location = 0) out vec4 finalColor;
@@ -24,14 +27,13 @@ void main() {
     // base color
     #ifdef BASE_COLOR_FACTOR
     outColor = u_baseColorFactor;
-    #endif
-
-    #ifdef UV_NUM
-    outColor = texture(u_texture, vec2(v_uv.s, v_uv.t));
-        #ifdef BASE_COLOR_FACTOR
-        outColor *= u_baseColorFactor;
+        #ifdef UV_NUM
+            #ifdef BASE_COLOR_SAMPLER
+            outColor *= texture(u_texture, v_uv);
+            #endif
         #endif
     #endif
+
 
     finalColor = outColor;
 

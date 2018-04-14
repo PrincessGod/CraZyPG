@@ -4,8 +4,6 @@ function weightLinearLerp( out, v1, v2, t ) {
 
     for ( let i = 0; i < v1.length; i ++ )
         out[ i ] = v1[ i ] + t * ( v2[ i ] - v1[ i ] ); // eslint-disable-line
-    if ( out[ 0 ] > 1 )
-        console.log( out );
 
     return out;
 
@@ -145,6 +143,10 @@ Object.assign( Animator, {
                             node.model.setUniformObj( uniformobj );
 
                         };
+                        break;
+                    case 'position':
+                    case 'scale':
+                        lerpFun = weightLinearLerp;
                         break;
                     default:
                         break;

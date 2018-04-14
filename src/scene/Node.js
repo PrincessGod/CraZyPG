@@ -230,6 +230,7 @@ Object.assign( Node.prototype, {
         if ( this.transform )
             model.setTransform( this.transform.clone() );
 
+        model.node = this; // eslint-disable-line
         this.model = model;
         this.name = this.model.name;
         this.transform = this.model.transform;
