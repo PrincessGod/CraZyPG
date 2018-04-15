@@ -46,13 +46,13 @@ Object.defineProperties( Model.prototype, {
 
         get() {
 
-            return this.mesh.name;
+            return this._name || this.mesh.name;
 
         },
 
         set( value ) {
 
-            this.mesh.name = value;
+            this._name = value;
 
         },
 
@@ -176,6 +176,131 @@ Object.defineProperties( Model.prototype, {
         set( arrayQuat ) {
 
             this.setQuaternion( arrayQuat );
+
+        },
+
+    },
+
+    drawMode: {
+
+        get() {
+
+            if ( this._drawMode !== undefined )
+                return this._drawMode;
+            return this.mesh.drawMode;
+
+        },
+
+        set( v ) {
+
+            this._drawMode = v;
+
+        },
+
+    },
+
+    cullFace: {
+
+        get() {
+
+            if ( this._cullFace !== undefined )
+                return this._cullFace;
+            return this.mesh.cullFace;
+
+        },
+
+        set( v ) {
+
+            this._cullFace = v;
+
+        },
+
+    },
+
+    blend: {
+
+        get() {
+
+            if ( this._blend !== undefined )
+                return this._blend;
+            return this.mesh.blend;
+
+        },
+
+        set( v ) {
+
+            this._blend = v;
+
+        },
+
+    },
+
+    depth: {
+
+        get() {
+
+            if ( this._depth !== undefined )
+                return this._depth;
+            return this.mesh.depth;
+
+        },
+        set( v ) {
+
+            this._depth = v;
+
+        },
+
+    },
+
+    sampleBlend: {
+
+        get() {
+
+            if ( this._sampleBlend !== undefined )
+                return this._sampleBlend;
+            return this.mesh.sampleBlend;
+
+        },
+
+        set( v ) {
+
+            this._sampleBlend = v;
+
+        },
+
+    },
+
+    instanceCount: {
+
+        get() {
+
+            if ( this._instanceCount !== undefined )
+                return this._instanceCount;
+            return this.mesh.instanceCount;
+
+        },
+
+        set( v ) {
+
+            this._instanceCount = v;
+
+        },
+
+    },
+
+    offset: {
+
+        get() {
+
+            if ( this._offset !== undefined )
+                return this._offset;
+            return this.mesh.offset;
+
+        },
+
+        set( v ) {
+
+            this._offset = v;
 
         },
 

@@ -209,31 +209,31 @@ Object.assign( Shader.prototype, {
         if ( ! model.mesh.vao )
             model.createVAO( this.gl, this._customAttrib ? this : undefined );
 
-        if ( Shader.cullFace !== ( this.cullFace && model.mesh.cullFace ) ) {
+        if ( Shader.cullFace !== ( this.cullFace && model.cullFace ) ) {
 
-            this.gl[( ( this.cullFace && model.mesh.cullFace ) ? 'enable' : 'disable' )]( this.gl.CULL_FACE );
-            Shader.cullFace = ( this.cullFace && model.mesh.cullFace );
-
-        }
-
-        if ( Shader.blend !== ( this.blend || model.mesh.blend ) ) {
-
-            this.gl[( ( this.blend || model.mesh.blend ) ? 'enable' : 'disable' )]( this.gl.BLEND );
-            Shader.blend = ( this.blend || model.mesh.blend );
+            this.gl[( ( this.cullFace && model.cullFace ) ? 'enable' : 'disable' )]( this.gl.CULL_FACE );
+            Shader.cullFace = ( this.cullFace && model.cullFace );
 
         }
 
-        if ( Shader.depth !== ( this.depth && model.mesh.depth ) ) {
+        if ( Shader.blend !== ( this.blend || model.blend ) ) {
 
-            this.gl.depthMask( ( this.depth && model.mesh.depth ) );
-            Shader.depth = ( this.depth && model.mesh.depth );
+            this.gl[( ( this.blend || model.blend ) ? 'enable' : 'disable' )]( this.gl.BLEND );
+            Shader.blend = ( this.blend || model.blend );
 
         }
 
-        if ( Shader.sampleBlend !== ( this.sampleBlend || model.mesh.sampleBlend ) ) {
+        if ( Shader.depth !== ( this.depth && model.depth ) ) {
 
-            this.gl[( ( this.sampleBlend || model.mesh.sampleBlend ) ? 'enable' : 'disable' )]( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
-            Shader.sampleBlend = ( this.sampleBlend || model.mesh.sampleBlend );
+            this.gl.depthMask( ( this.depth && model.depth ) );
+            Shader.depth = ( this.depth && model.depth );
+
+        }
+
+        if ( Shader.sampleBlend !== ( this.sampleBlend || model.sampleBlend ) ) {
+
+            this.gl[( ( this.sampleBlend || model.sampleBlend ) ? 'enable' : 'disable' )]( this.gl.SAMPLE_ALPHA_TO_COVERAGE );
+            Shader.sampleBlend = ( this.sampleBlend || model.sampleBlend );
 
         }
 
@@ -247,18 +247,18 @@ Object.assign( Shader.prototype, {
         this.gl.bindVertexArray( model.mesh.vao );
 
         const bufferInfo = model.mesh.bufferInfo;
-        const instanceCount = model.mesh.instanceCount;
+        const instanceCount = model.instanceCount;
         if ( bufferInfo.indices || bufferInfo.elementType )
             if ( typeof instanceCount === 'number' )
-                this.gl.drawElementsInstanced( model.mesh.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.mesh.offset, instanceCount );
+                this.gl.drawElementsInstanced( model.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.offset, instanceCount );
             else
-                this.gl.drawElements( model.mesh.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.mesh.offset ); // eslint-disable-line
+                this.gl.drawElements( model.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.offset ); // eslint-disable-line
         else
         /* eslint-disable */ // eslint bug
             if ( typeof instanceCount === 'number' )
-                this.gl.drawArraysInstanced( model.mesh.drawMode, model.mesh.offset, bufferInfo.numElements, instanceCount );
+                this.gl.drawArraysInstanced( model.drawMode, model.offset, bufferInfo.numElements, instanceCount );
             else
-                this.gl.drawArrays( model.mesh.drawMode, model.mesh.offset, bufferInfo.numElements );
+                this.gl.drawArrays( model.drawMode, model.offset, bufferInfo.numElements );
         /* eslint-enable */
         this.gl.bindVertexArray( null );
 
