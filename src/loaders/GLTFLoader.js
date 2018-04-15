@@ -50,6 +50,16 @@ Object.defineProperties( GLTFLoader, {
         },
     },
 
+    generator: {
+
+        get() {
+
+            return this._generator;
+
+        },
+
+    },
+
 } );
 
 Object.assign( GLTFLoader.prototype, {
@@ -67,7 +77,9 @@ Object.assign( GLTFLoader.prototype, {
 
         this.gltf = json;
 
-        if ( this.gltf.asset.version !== '2.0' ) {
+        const { version, generator } = this.gltf.asset;
+        this._generator = generator;
+        if ( version !== '2.0' ) {
 
             console.error( `GlTFLoader only support glTF 2.0 for now! Received glTF version: ${this.version}` );
             return false;
@@ -403,11 +415,6 @@ Object.assign( GLTFLoader.prototype, {
         if ( node.mesh !== undefined )
             dnode.primitives = this.parseMesh( node.mesh );
 
-        dnode.children = [];
-        if ( node.children )
-            for ( let i = 0; i < node.children.length; i ++ )
-                dnode.children.push( this.parseNode( node.children[ i ] ) );
-
         if ( node.skin !== undefined ) {
 
             const skin = this.parseSkin( node.skin );
@@ -415,6 +422,11 @@ Object.assign( GLTFLoader.prototype, {
                 dnode.skin = skin;
 
         }
+
+        dnode.children = [];
+        if ( node.children )
+            for ( let i = 0; i < node.children.length; i ++ )
+                dnode.children.push( this.parseNode( node.children[ i ] ) );
 
         node.dnode = dnode;
         node.isParsed = true;
@@ -492,6 +504,7 @@ Object.assign( GLTFLoader.prototype, {
                 defines: [],
             };
             let texCoordNum = 0;
+            let jointVec8 = false;
             Object.keys( attributes ).forEach( ( attribute ) => {
 
                 const accessor = this.parseAccessor( attributes[ attribute ] );
@@ -511,11 +524,21 @@ Object.assign( GLTFLoader.prototype, {
 
                     case 'TEXCOORD_0':
                         attribName = Constant.ATTRIB_UV_NAME;
-                        texCoordNum = 1;
+                        texCoordNum ++;
+                        break;
+
+                    case 'TEXCOORD_1':
+                        attribName = Constant.ATTRIB_UV_1_NAME;
+                        texCoordNum ++;
                         break;
 
                     case 'JOINTS_0':
                         attribName = Constant.ATTRIB_JOINT_0_NAME;
+                        break;
+
+                    case 'JOINTS_1':
+                        attribName = Constant.ATTRIB_JOINT_1_NAME;
+                        jointVec8 = true;
                         break;
 
                     case 'WEIGHTS_0':
@@ -534,6 +557,7 @@ Object.assign( GLTFLoader.prototype, {
             } );
 
             if ( texCoordNum ) dprimitive.defines.push( GLTFLoader.getTexCoordDefine( texCoordNum ) );
+            if ( jointVec8 ) dprimitive.defines.push( GLTFLoader.getJointVec8Define() );
 
             if ( indices !== undefined ) {
 
@@ -1050,6 +1074,12 @@ Object.assign( GLTFLoader, {
     getJointsNumDefine( num ) {
 
         return `JOINTS_NUM ${num}`;
+
+    },
+
+    getJointVec8Define() {
+
+        return 'JOINT_VEC8';
 
     },
 

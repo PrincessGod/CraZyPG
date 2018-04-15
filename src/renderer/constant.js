@@ -16,6 +16,10 @@ export const UNIFORM_PREFIX = 'u_';
 export const UNIFORM_CAMPOS = 'u_camPos';
 export const ATTRIB_JOINT_0_NAME = 'a_joint';
 export const ATTRIB_WEIGHT_0_NAME = 'a_weight';
+export const ATTRIB_UV_1_NAME = 'a_uv1';
+export const ATTRIB_JOINT_1_NAME = 'a_joint1';
+export const ATTRIB_WEIGHT_1_NAME = 'a_weight1';
+
 
 // WebGLContext
 export const LINES = 1;

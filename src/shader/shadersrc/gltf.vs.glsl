@@ -10,6 +10,11 @@ out highp vec2 v_uv;
 in vec4 a_joint;
 in vec4 a_weight;
 
+    #ifdef JOINT_VEC8
+    in vec4 a_joint1;
+    in vec4 a_weight1;
+    #endif
+
 uniform mat4 u_jointMatrix[JOINTS_NUM];
 #endif
 
@@ -136,6 +141,15 @@ void main() {
         a_weight.y * u_jointMatrix[int(a_joint.y)] +
         a_weight.z * u_jointMatrix[int(a_joint.z)] +
         a_weight.w * u_jointMatrix[int(a_joint.w)];
+
+        #ifdef JOINT_VEC8
+        skinMatrix +=
+            a_weight1.x * u_jointMatrix[int(a_joint1.x)] +
+            a_weight1.y * u_jointMatrix[int(a_joint1.y)] +
+            a_weight1.z * u_jointMatrix[int(a_joint1.z)] +
+            a_weight1.w * u_jointMatrix[int(a_joint1.w)];
+        #endif
+
     finalMat = finalMat * skinMatrix;
     #endif
 
