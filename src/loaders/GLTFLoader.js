@@ -182,7 +182,7 @@ Object.assign( GLTFLoader.prototype, {
         if ( typeof scene === 'undefined' )
             return errorMiss( 'scene', loadScene );
 
-        this.currentSceneName = scene.name || 'No Name Scene';
+        this.currentSceneName = scene.name || 'GLTF_NO_NAME_SCENE';
 
         const result = [];
         const nodes = scene.nodes;
@@ -235,8 +235,18 @@ Object.assign( GLTFLoader.prototype, {
                 for ( let i = 0; i < nodeInfo.primitives.length; i ++ ) {
 
                     const primitive = nodeInfo.primitives[ i ];
-                    const mesh = new Mesh( primitive.name, primitive.attribArrays, { drawMode: primitive.drawMode } );
-                    const model = new Model( mesh );
+                    const { attribArrays, modelName, drawMode } = primitive;
+                    if ( ! primitive.attribArrays.mesh ) {
+
+                        const mesh = new Mesh( primitive.meshName, attribArrays );
+                        primitive.attribArrays = { attribArrays, mesh };
+
+                    }
+
+                    const model = new Model( primitive.attribArrays.mesh );
+                    model.name = modelName;
+                    model.drawMode = drawMode;
+
                     const uniformobj = {};
                     const skinDefines = ( nodeInfo.skin && nodeInfo.skin.defines ) || [];
                     model.defines = primitive.defines.concat( skinDefines );
@@ -540,7 +550,8 @@ Object.assign( GLTFLoader.prototype, {
             }
 
             dprimitive.drawMode = mode === undefined ? 4 : mode;
-            dprimitive.name = name || mesh.name || 'no name mesh';
+            dprimitive.meshName = name || GLTFLoader.getMeshNameCounter();
+            dprimitive.modelName = mesh.name || GLTFLoader.getModelNameCounter();
 
             if ( targets ) {
 
@@ -924,6 +935,31 @@ Object.assign( GLTFLoader.prototype, {
 } );
 
 Object.assign( GLTFLoader, {
+
+    getMeshNameCounter: ( function () {
+
+        let counter = 0;
+
+        return function getMeshNameCounter() {
+
+            return `GLTF_NO_NAME_PRIMITIVE_${counter ++}`;
+
+        };
+
+    }() ),
+
+    getModelNameCounter: ( function () {
+
+        let counter = 0;
+
+        return function getModelNameCounter() {
+
+            return `GLTF_NO_NAME_MESH_${counter ++}`;
+
+        };
+
+    }() ),
+
 
     GLTF_NODE_INDEX_PROPERTY: 'GLTF_NODE_INDEX',
 
