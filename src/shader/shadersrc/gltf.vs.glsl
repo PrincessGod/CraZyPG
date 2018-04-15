@@ -6,6 +6,25 @@ in vec2 a_uv;
 out highp vec2 v_uv;
 #endif
 
+#ifdef HAS_NORMAL
+in vec3 a_normal;
+    #ifdef HAS_TANGENT
+    in vec a_tangent;
+    #endif
+
+uniform mat4 u_normMat;
+uniform mat4 u_worldMat;
+
+out vec3 v_pos;
+#endif
+#ifdef HAS_NORMAL
+    #ifdef HAS_TANGENT
+    out mat3 v_TBN;
+    #else
+    out vec3 v_normal;
+    #endif
+#endif
+
 #ifdef JOINTS_NUM
 in vec4 a_joint;
 in vec4 a_weight;
@@ -133,8 +152,6 @@ void main() {
         // TODO normals and tangents
     #endif
 
-    mat4 finalMat = u_mvpMat;
-
     #ifdef JOINTS_NUM
     mat4 skinMatrix =
         a_weight.x * u_jointMatrix[int(a_joint.x)] +
@@ -149,11 +166,30 @@ void main() {
             a_weight1.z * u_jointMatrix[int(a_joint1.z)] +
             a_weight1.w * u_jointMatrix[int(a_joint1.w)];
         #endif
-
-    finalMat = finalMat * skinMatrix;
     #endif
 
-    gl_Position = finalMat * vec4(position, 1.0);
+    #ifdef HAS_NORMAL
+        #ifdef HAS_TANGENT
+            #ifdef JOINTS_NUM
+            vec4 skinInf = transpose(inverse(skinMatrix));
+            vec3 normalW = normalize(vec3(u_normMat * skinInf * vec4(a_normal, 0.0)));
+            vec3 tangentW = normalize(vec3(u_normMat * skinInf * vec4(a_tangent, 0.0)));
+            #else
+            vec3 normalW = normalize(vec3(u_normMat * vec4(a_normal, 0.0)));
+            vec3 tangentW = normalize(vec3(u_normMat * vec4(a_tangent, 0.0)));
+            #endif
+        vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
+        v_TBN = mat3(tangentW, bitangentW, normalW);
+        #else
+        v_normal = normalize(vec3(u_worldMat * vec4(a_normal, 0.0)));
+        #endif
+    #endif
+
+    #ifdef JOINTS_NUM
+    gl_Position = u_mvpMat * skinMatrix * vec4(a_position, 1.0);
+    #else
+    gl_Position = u_mvpMat * vec4(position, 1.0);
+    #endif
 
     #ifdef UV_NUM
     v_uv = a_uv;

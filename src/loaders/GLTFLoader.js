@@ -503,6 +503,8 @@ Object.assign( GLTFLoader.prototype, {
                 attribArrays: {},
                 defines: [],
             };
+            let hasNormal = false;
+            let hasTangent = false;
             let texCoordNum = 0;
             let jointVec8 = false;
             Object.keys( attributes ).forEach( ( attribute ) => {
@@ -520,6 +522,12 @@ Object.assign( GLTFLoader.prototype, {
 
                     case 'NORMAL':
                         attribName = Constant.ATTRIB_NORMAL_NAME;
+                        hasNormal = true;
+                        break;
+
+                    case 'TANGENT':
+                        attribName = Constant.ATTRIB_TANGENT_NAME;
+                        hasTangent = true;
                         break;
 
                     case 'TEXCOORD_0':
@@ -556,6 +564,8 @@ Object.assign( GLTFLoader.prototype, {
 
             } );
 
+            if ( hasNormal ) dprimitive.defines.push( GLTFLoader.getHasNormalDefine() );
+            if ( hasTangent ) dprimitive.defines.push( GLTFLoader.getHasTangentDefine() );
             if ( texCoordNum ) dprimitive.defines.push( GLTFLoader.getTexCoordDefine( texCoordNum ) );
             if ( jointVec8 ) dprimitive.defines.push( GLTFLoader.getJointVec8Define() );
 
@@ -1084,6 +1094,24 @@ Object.assign( GLTFLoader, {
     },
 
     JOINT_MATRICES_UNIFORM: 'u_jointMatrix',
+
+    getHasNormalDefine() {
+
+        return 'HAS_NORMAL';
+
+    },
+
+    getHasTangentDefine() {
+
+        return 'HAS_TANGENT';
+
+    },
+
+    getHasNormalMapDefine() {
+
+        return 'HAS_NORMAL_MAP';
+
+    },
 
     defaultMaterial: {
 
