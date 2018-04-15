@@ -114,6 +114,8 @@ Object.assign( GLTFLoader.prototype, {
                         const gltfNodeIdx = channel.target.node;
                         const path = channel.target.path;
 
+                        if ( ! input || ! output ) continue;
+
                         let combinedOutput = output;
                         if ( numComponents !== 1 || input.length !== output.length ) {
 
@@ -625,17 +627,13 @@ Object.assign( GLTFLoader.prototype, {
         if ( accessor.isParsed )
             return accessor.daccessor;
 
+        accessor.isParsed = true;
+        accessor.daccessor = false;
+
+        const normalize = !! accessor.normalized;
         const bufferView = this.gltf.bufferViews[ accessor.bufferView ];
-        if ( ! bufferView )
-            return errorMiss( 'bufferView', accessor.bufferView );
-
-        const buffer = this.parseBuffer( bufferView.buffer );
-        if ( ! buffer )
-            return errorMiss( 'buffer', accessor.buffer );
-
-        const offset = ( accessor.byteOffset || 0 ) + ( bufferView.byteOffset || 0 );
-        const glType = accessor.componentType;
-        const arrayType = getTypedArrayTypeFromGLType( glType );
+        const byteStride = bufferView && bufferView.byteStride;
+        const arrayType = getTypedArrayTypeFromGLType( accessor.componentType );
         let numComponents = 1;
         switch ( accessor.type ) {
 
@@ -663,51 +661,78 @@ Object.assign( GLTFLoader.prototype, {
             break;
 
         }
-
         if ( numComponents === 0 ) {
 
             console.error( `glTF has unknown data type in accessor: ${accessor.type}` );
             return false;
 
         }
-
-        let typedArray;
-
-        const byteStride = bufferView.byteStride;
         const componentsBytes = numComponents * arrayType.BYTES_PER_ELEMENT;
 
-        if ( byteStride && componentsBytes !== byteStride ) {
+        let buffer;
+        if ( bufferView !== undefined ) {
 
-            if ( componentsBytes > byteStride ) {
-
-                console.error( `glTF accessor ${accessorId} have components bytelength ${componentsBytes} greater than byteStride ${byteStride}` );
-                return false;
-
-            }
-            const arrayLength = numComponents * accessor.count;
-            typedArray = new arrayType( arrayLength ); // eslint-disable-line
-            for ( let i = 0; i < accessor.count; i ++ ) {
-
-                const componentVals = new arrayType( buffer, offset + i * byteStride, numComponents ); // eslint-disable-line
-                for ( let j = 0; j < numComponents; j ++ )
-                    typedArray[ i * numComponents + j ] = componentVals[ j ];
-
-            }
+            buffer = this.parseBufferView( accessor.bufferView );
+            if ( ! buffer )
+                return accessor.daccessor;
 
         } else
-            typedArray = new arrayType( buffer, offset, accessor.count * numComponents ); // eslint-disable-line
+            buffer = ( new Uint8Array( componentsBytes * accessor.count ) ).buffer;
 
-        const normalize = !! accessor.normalized;
+        let typedArray = this.getTypedArrayFromArrayBuffer( buffer, byteStride, accessor.byteOffset || 0, arrayType, numComponents, accessor.count );
 
-        accessor.isParsed = true;
+        if ( accessor.sparse ) {
+
+            const { count, indices, values } = accessor.sparse;
+            typedArray = new arrayType( typedArray ); // eslint-disable-line
+
+            const indicesByteOffset = indices.byteOffset || 0;
+            const indicesBufferView = this.gltf.bufferViews[ indices.bufferView ];
+            const indicesArrayType = getTypedArrayTypeFromGLType( indices.componentType );
+            const indicesBuffer = this.parseBufferView( indices.bufferView );
+            const indicesArray = this.getTypedArrayFromArrayBuffer( indicesBuffer, indicesBufferView.byteStride, indicesByteOffset, indicesArrayType, 1, count );
+
+            const valuesByteOffset = values.byteOffset || 0;
+            const valuesBufferView = this.gltf.bufferViews[ values.bufferView ];
+            const valuesBuffer = this.parseBufferView( values.bufferView );
+            const valuesArray = this.getTypedArrayFromArrayBuffer( valuesBuffer, valuesBufferView.byteStride, valuesByteOffset, arrayType, numComponents, count );
+
+            for ( let i = 0; i < indicesArray.length; i ++ )
+                typedArray.set( valuesArray.slice( i * numComponents, i * numComponents + numComponents ), indicesArray[ i ] * numComponents );
+
+        }
+
         accessor.computeResult = {
-            typedArray, offset, glType, arrayType, numComponents,
+            typedArray, arrayType, numComponents,
         };
         accessor.daccessor = {
             data: typedArray, numComponents, normalize,
         };
 
         return accessor.daccessor;
+
+    },
+
+    getTypedArrayFromArrayBuffer( buffer, byteStride, byteOffset, arrayType, numComponents, count ) {
+
+        let typedArray;
+        const componentsBytes = numComponents * arrayType.BYTES_PER_ELEMENT;
+        if ( byteStride && componentsBytes !== byteStride ) {
+
+            const arrayLength = numComponents * count;
+            typedArray = new arrayType( arrayLength ); // eslint-disable-line
+            for ( let i = 0; i < count; i ++ ) {
+
+                const componentVals = new arrayType( buffer, byteOffset + i * byteStride, numComponents ); // eslint-disable-line
+                for ( let j = 0; j < numComponents; j ++ )
+                    typedArray[ i * numComponents + j ] = componentVals[ j ];
+
+            }
+
+        } else
+            typedArray = new arrayType( buffer, byteOffset, count * numComponents ); // eslint-disable-line
+
+        return typedArray;
 
     },
 
@@ -720,18 +745,19 @@ Object.assign( GLTFLoader.prototype, {
         if ( bufferView.isParsed )
             return bufferView.dbufferView;
 
+        bufferView.isParsed = true;
+        bufferView.dbufferVie = false;
+
         const buffer = this.parseBuffer( bufferView.buffer );
         if ( buffer ) {
 
-            const bufferArray = new Uint8Array( buffer, bufferView.byteOffset, bufferView.byteLength );
-            bufferView.dbufferView = bufferArray.buffer;
-            bufferView.isParsed = true;
-
-            return bufferView.dbufferView;
+            const { byteOffset, byteLength } = bufferView;
+            const bufferArray = new Uint8Array( buffer, byteOffset || 0, byteLength );
+            bufferView.dbufferView = ( new Uint8Array( bufferArray ) ).buffer;
 
         }
 
-        return false;
+        return bufferView.dbufferView;
 
     },
 
