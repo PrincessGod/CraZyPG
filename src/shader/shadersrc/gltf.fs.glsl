@@ -11,7 +11,7 @@ uniform sampler2D u_brdfLUT;
 #endif
 
 #ifdef HAS_BASECOLORMAP
-uniform sampler2D u_texture;
+uniform sampler2D u_baseColorSampler;
 #endif
 #ifdef HAS_METALROUGHNESSMAP
 uniform sampler2D u_metallicRoughnessSampler;
@@ -180,7 +180,7 @@ void main() {
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
     #ifdef HAS_BASECOLORMAP
-    vec4 baseColor = SRGBtoLINEAR(texture(u_texture, v_uv)) * u_baseColorFactor;
+    vec4 baseColor = SRGBtoLINEAR(texture(u_baseColorSampler, v_uv)) * u_baseColorFactor;
     #else
     vec4 baseColor = u_baseColorFactor;
     #endif
@@ -251,7 +251,7 @@ void main() {
     vec4 outColor = u_baseColorFactor;
     #ifdef UV_NUM
         #ifdef HAS_BASECOLORMAP
-        outColor *= texture(u_texture, v_uv);
+        outColor *= texture(u_baseColorSampler, v_uv);
         #endif
     #endif
 

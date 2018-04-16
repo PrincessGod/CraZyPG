@@ -79,9 +79,9 @@
                 }
             });
 
-            let file = './resource/gltf/CesiumMan.gltf';
+            let file = './resource/gltf/DamagedHelmet.gltf';
             let gltfShader = new CZPG.GLTFShader(context, camera).setUniformObj({
-                u_lightDirection: [0, 0, 1],
+                u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
             });
             let gltfLoader = new CZPG.GLTFLoader();
@@ -92,8 +92,10 @@
                     sceneNode = rootNode;
                     const gltfTextures = CZPG.createTextures(context, textures);
                     sceneNode.traverse((node)=> {
-                        if(node.model && node.model.texture !== undefined)
-                            node.model.setUniformObj({u_texture: gltfTextures[node.model.texture]});
+                        if(node.model && node.model.textures !== undefined) {
+                            Object.keys(node.model.textures).forEach(uniformName => node.model.textures[uniformName] = gltfTextures[node.model.textures[uniformName]])
+                            node.model.setUniformObj(node.model.textures);
+                        }
                     });
 
                     animator = new CZPG.Animator(animations);

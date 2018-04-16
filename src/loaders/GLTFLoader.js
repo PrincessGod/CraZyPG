@@ -269,6 +269,7 @@ Object.assign( GLTFLoader.prototype, {
 
                         const {
                             baseColorTexture, baseColorFactor, metallicFactor, roughnessFactor, doubleSided,
+                            metallicRoughnessTexture, normalTexture, occlusionTexture, emissiveTexture,
                         } = primitive.material;
 
                         model.mesh.cullFace = ! doubleSided;
@@ -278,18 +279,77 @@ Object.assign( GLTFLoader.prototype, {
 
                         if ( baseColorTexture && baseColorTexture.texture ) {
 
-                            baseColorTexture.isConverted = true;
                             const idx = textures.indexOf( baseColorTexture.texture );
                             if ( idx < 0 ) {
 
                                 textures.push( baseColorTexture.texture );
                                 baseColorTexture.textureIdx = textures.length - 1;
-                                model.texture = textures.length - 1;
 
-                            } else
-                                model.texture = idx;
+                            }
+                            if ( ! model.textures ) model.textures = {};
+                            model.textures[ GLTFLoader.BASE_COLOR_TEXTURE_UNIFORM ] = baseColorTexture.textureIdx;
 
                         }
+
+                        if ( metallicRoughnessTexture && metallicRoughnessTexture.texture ) {
+
+                            const idx = textures.indexOf( metallicRoughnessTexture.texture );
+                            if ( idx < 0 ) {
+
+                                textures.push( metallicRoughnessTexture.texture );
+                                metallicRoughnessTexture.textureIdx = textures.length - 1;
+
+                            }
+                            if ( ! model.textures ) model.textures = {};
+                            model.textures[ GLTFLoader.METALROUGHNESS_TEXTURE_UNIFORM ] = metallicRoughnessTexture.textureIdx;
+
+                        }
+
+                        if ( normalTexture && normalTexture.texture ) {
+
+                            const idx = textures.indexOf( normalTexture.texture );
+                            if ( idx < 0 ) {
+
+                                textures.push( normalTexture.texture );
+                                normalTexture.textureIdx = textures.length - 1;
+
+                            }
+                            if ( ! model.textures ) model.textures = {};
+                            model.textures[ GLTFLoader.NORMAL_TEXTURE_UNIFORM ] = normalTexture.textureIdx;
+                            uniformobj[ GLTFLoader.NORMAL_SCALE_UNIFORM ] = normalTexture.scale;
+
+                        }
+
+                        if ( occlusionTexture && occlusionTexture.texture ) {
+
+                            const idx = textures.indexOf( occlusionTexture.texture );
+                            if ( idx < 0 ) {
+
+                                textures.push( occlusionTexture.texture );
+                                occlusionTexture.textureIdx = textures.length - 1;
+
+                            }
+                            if ( ! model.textures ) model.textures = {};
+                            model.textures[ GLTFLoader.OCCLUSION_TEXTURE_UNIFORM ] = occlusionTexture.textureIdx;
+                            uniformobj[ GLTFLoader.OCCLUSION_FACTOR_UNIFORM ] = occlusionTexture.strength;
+
+                        }
+
+                        if ( emissiveTexture && emissiveTexture.texture ) {
+
+                            const idx = textures.indexOf( emissiveTexture.texture );
+                            if ( idx < 0 ) {
+
+                                textures.push( emissiveTexture.texture );
+                                emissiveTexture.textureIdx = textures.length - 1;
+
+                            }
+                            if ( ! model.textures ) model.textures = {};
+                            model.textures[ GLTFLoader.EMISSIVE_TEXTURE_UNIFORM ] = emissiveTexture.textureIdx;
+                            uniformobj[ GLTFLoader.EMISSIVE_FACTOR_UNIFORM ] = emissiveTexture.emissiveFactor;
+
+                        }
+
 
                     }
 
@@ -854,7 +914,9 @@ Object.assign( GLTFLoader.prototype, {
         if ( material.isParsed )
             return material.dmaterial;
 
-        const { name, pbrMetallicRoughness, doubleSided } = material;
+        const {
+            name, pbrMetallicRoughness, doubleSided, normalTexture, occlusionTexture, emissiveTexture, emissiveFactor,
+        } = material;
         const dmaterial = { name, defines: [], doubleSided: !! doubleSided };
 
         if ( pbrMetallicRoughness ) {
@@ -863,7 +925,7 @@ Object.assign( GLTFLoader.prototype, {
                 baseColorFactor, metallicFactor, roughnessFactor, baseColorTexture, metallicRoughnessTexture,
             } = pbrMetallicRoughness;
 
-            Object.assign( dmaterial, { baseColorFactor: baseColorFactor || [ 1, 1, 1, 1 ], metallicFactor, roughnessFactor } );
+            Object.assign( dmaterial, { baseColorFactor: baseColorFactor || [ 1, 1, 1, 1 ], metallicFactor: metallicFactor || 1, roughnessFactor: roughnessFactor || 1 } );
 
             if ( baseColorTexture ) {
 
@@ -877,9 +939,14 @@ Object.assign( GLTFLoader.prototype, {
 
             }
 
-            if ( metallicRoughnessTexture )
-            // TODO
-                dmaterial.metallicRoughnessTexture = metallicRoughnessTexture;
+            if ( metallicRoughnessTexture ) {
+
+                const texture = this.parseTexture( metallicRoughnessTexture.index );
+                if ( texture )
+                    dmaterial.metallicRoughnessTexture = { texture, texCoord: metallicRoughnessTexture.texCoord || 0 };
+                dmaterial.defines.push( GLTFLoader.getMetalRoughnessDefine() );
+
+            }
 
         } else
             Object.assign( dmaterial, {
@@ -888,6 +955,41 @@ Object.assign( GLTFLoader.prototype, {
                 roughnessFactor: 1,
             } );
 
+        if ( normalTexture ) {
+
+            const texture = this.parseTexture( normalTexture.index );
+            if ( texture ) {
+
+                dmaterial.normalTexture = { texture, texCoord: normalTexture.texCoord || 0, scale: normalTexture.scale || 1 };
+                dmaterial.defines.push( GLTFLoader.getNormalMapDefine() );
+
+            }
+
+        }
+
+        if ( occlusionTexture ) {
+
+            const texture = this.parseTexture( occlusionTexture.index );
+            if ( texture ) {
+
+                dmaterial.occlusionTexture = { texture, texCoord: occlusionTexture.texCoord || 0, strength: occlusionTexture.strength || 1 };
+                dmaterial.defines.push( GLTFLoader.getOcclusionMapDefine() );
+
+            }
+
+        }
+
+        if ( emissiveTexture && emissiveFactor ) {
+
+            const texture = this.parseTexture( emissiveTexture.index );
+            if ( texture ) {
+
+                dmaterial.emissiveTexture = { texture, texCoord: emissiveTexture.texCoord || 0, emissiveFactor };
+                dmaterial.defines.push( GLTFLoader.getEmissiveMapDefine() );
+
+            }
+
+        }
 
         material.isParsed = true;
         material.dmaterial = dmaterial;
@@ -976,6 +1078,7 @@ Object.assign( GLTFLoader.prototype, {
 
     parseSampler( samplerId ) {
 
+        if ( samplerId === undefined ) return { minMag: 9729, wrap: 33071 };
         const sampler = this.gltf.samplers[ samplerId ];
         if ( ! sampler )
             return errorMiss( 'sampler', samplerId );
@@ -988,7 +1091,7 @@ Object.assign( GLTFLoader.prototype, {
         } = sampler;
 
         const dsampler = {
-            min: minFilter, mag: magFilter, wrapS, wrapT,
+            min: minFilter || 9729, mag: magFilter || 9729, wrapS: wrapS || 33071, wrapT: wrapT || 33071,
         };
 
         sampler.dsampler = dsampler;
@@ -1036,11 +1139,51 @@ Object.assign( GLTFLoader, {
 
     BASE_COLOR_UNIFORM: 'u_baseColorFactor',
 
+    BASE_COLOR_TEXTURE_UNIFORM: 'u_baseColorSampler',
+
     METALROUGHNESS_UNIFORM: 'u_metallicRoughnessValues',
+
+    METALROUGHNESS_TEXTURE_UNIFORM: 'u_metallicRoughnessSampler',
+
+    NORMAL_TEXTURE_UNIFORM: 'u_normalSampler',
+
+    NORMAL_SCALE_UNIFORM: 'u_normalScale',
+
+    EMISSIVE_TEXTURE_UNIFORM: 'u_emissiveSampler',
+
+    EMISSIVE_FACTOR_UNIFORM: 'u_emissiveFactor',
+
+    OCCLUSION_TEXTURE_UNIFORM: 'u_occlusionSampler',
+
+    OCCLUSION_FACTOR_UNIFORM: 'u_occlusionFactor',
 
     getBaseColorTextureDefine() {
 
         return 'HAS_BASECOLORMAP';
+
+    },
+
+    getMetalRoughnessDefine() {
+
+        return 'HAS_METALROUGHNESSMAP';
+
+    },
+
+    getNormalMapDefine() {
+
+        return 'HAS_NORMALMAP';
+
+    },
+
+    getEmissiveMapDefine() {
+
+        return 'HAS_EMISSIVEMAP';
+
+    },
+
+    getOcclusionMapDefine() {
+
+        return 'HAS_OCCLUSIONMAP';
 
     },
 
