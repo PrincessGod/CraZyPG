@@ -14,7 +14,7 @@ out vec3 v_pos;
 #ifdef HAS_NORMAL
 in vec3 a_normal;
     #ifdef HAS_TANGENT
-    in vec a_tangent;
+    in vec4 a_tangent;
     #endif
 uniform mat3 u_normMat;
 #endif
@@ -173,7 +173,7 @@ void main() {
             vec3 tangentW = normalize(u_normMat * skinInf * a_tangent.xyz);
             #else
             vec3 normalW = normalize(u_normMat * a_normal);
-            vec3 tangentW = normalize(u_normMat * a_tangent.xyz));
+            vec3 tangentW = normalize(u_normMat * a_tangent.xyz);
             #endif
         vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
         v_TBN = mat3(tangentW, bitangentW, normalW);
