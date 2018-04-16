@@ -80,7 +80,10 @@
             });
 
             let file = './resource/gltf/CesiumMan.gltf';
-            let gltfShader = new CZPG.GLTFShader(context, camera);
+            let gltfShader = new CZPG.GLTFShader(context, camera).setUniformObj({
+                u_lightDirection: [0, 0, 1],
+                u_lightColor: [1, 1, 1],
+            });
             let gltfLoader = new CZPG.GLTFLoader();
             let animator;
             gltfLoader.load(file)

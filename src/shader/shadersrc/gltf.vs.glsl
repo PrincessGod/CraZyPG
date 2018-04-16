@@ -3,19 +3,20 @@ in vec3 a_position;
 
 #ifdef UV_NUM
 in vec2 a_uv;
-out highp vec2 v_uv;
 #endif
+
+uniform mat4 u_mvpMat;
+uniform mat4 u_worldMat;
+
+out vec2 v_uv;
+out vec3 v_pos;
 
 #ifdef HAS_NORMAL
 in vec3 a_normal;
     #ifdef HAS_TANGENT
     in vec a_tangent;
     #endif
-
-uniform mat4 u_normMat;
-uniform mat4 u_worldMat;
-
-out vec3 v_pos;
+uniform mat3 u_normMat;
 #endif
 #ifdef HAS_NORMAL
     #ifdef HAS_TANGENT
@@ -115,10 +116,6 @@ uniform mat4 u_jointMatrix[JOINTS_NUM];
     #endif
 #endif
 
-uniform mat4 u_mvpMat;
-
-#ifdef UV_NUM
-#endif
 
 void main() {
 
@@ -172,26 +169,34 @@ void main() {
         #ifdef HAS_TANGENT
             #ifdef JOINTS_NUM
             vec4 skinInf = transpose(inverse(skinMatrix));
-            vec3 normalW = normalize(vec3(u_normMat * skinInf * vec4(a_normal, 0.0)));
-            vec3 tangentW = normalize(vec3(u_normMat * skinInf * vec4(a_tangent, 0.0)));
+            vec3 normalW = normalize(u_normMat * skinInf * a_normal);
+            vec3 tangentW = normalize(u_normMat * skinInf * a_tangent.xyz);
             #else
-            vec3 normalW = normalize(vec3(u_normMat * vec4(a_normal, 0.0)));
-            vec3 tangentW = normalize(vec3(u_normMat * vec4(a_tangent, 0.0)));
+            vec3 normalW = normalize(u_normMat * a_normal);
+            vec3 tangentW = normalize(u_normMat * a_tangent.xyz));
             #endif
         vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
         v_TBN = mat3(tangentW, bitangentW, normalW);
         #else
-        v_normal = normalize(vec3(u_worldMat * vec4(a_normal, 0.0)));
+            #ifdef JOINTS_NUM
+            v_normal = u_normMat * transpose(inverse(mat3(skinMatrix))) * a_normal;
+            #else
+            v_normal = u_normMat * a_normal;
+            #endif
         #endif
     #endif
 
     #ifdef JOINTS_NUM
-    gl_Position = u_mvpMat * skinMatrix * vec4(a_position, 1.0);
+    vec4 worldPos = u_worldMat * skinMatrix * vec4(position, 1.0);
+    gl_Position = u_mvpMat * skinMatrix * vec4(position, 1.0);
     #else
+    vec4 worldPos = u_worldMat * vec4(position, 1.0);
     gl_Position = u_mvpMat * vec4(position, 1.0);
     #endif
-
+    v_pos = worldPos.xyz / worldPos.w;
     #ifdef UV_NUM
     v_uv = a_uv;
+    #else
+    v_uv = vec2(0.0);
     #endif
 }

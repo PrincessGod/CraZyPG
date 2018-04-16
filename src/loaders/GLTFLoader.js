@@ -267,12 +267,14 @@ Object.assign( GLTFLoader.prototype, {
                     // parse material
                     if ( primitive.material ) {
 
-                        const { baseColorTexture, baseColorFactor, doubleSided } = primitive.material;
+                        const {
+                            baseColorTexture, baseColorFactor, metallicFactor, roughnessFactor, doubleSided,
+                        } = primitive.material;
 
                         model.mesh.cullFace = ! doubleSided;
 
-                        if ( baseColorFactor )
-                            uniformobj[ GLTFLoader.BASE_COLOR_UNIFORM ] = baseColorFactor;
+                        uniformobj[ GLTFLoader.BASE_COLOR_UNIFORM ] = baseColorFactor;
+                        uniformobj[ GLTFLoader.METALROUGHNESS_UNIFORM ] = [ metallicFactor, roughnessFactor ];
 
                         if ( baseColorTexture && baseColorTexture.texture ) {
 
@@ -861,8 +863,6 @@ Object.assign( GLTFLoader.prototype, {
                 baseColorFactor, metallicFactor, roughnessFactor, baseColorTexture, metallicRoughnessTexture,
             } = pbrMetallicRoughness;
 
-            dmaterial.defines.push( GLTFLoader.getBaseColorFactorDefine() );
-
             Object.assign( dmaterial, { baseColorFactor: baseColorFactor || [ 1, 1, 1, 1 ], metallicFactor, roughnessFactor } );
 
             if ( baseColorTexture ) {
@@ -881,8 +881,13 @@ Object.assign( GLTFLoader.prototype, {
             // TODO
                 dmaterial.metallicRoughnessTexture = metallicRoughnessTexture;
 
+        } else
+            Object.assign( dmaterial, {
+                baseColorFactor: [ 1, 1, 1, 1 ],
+                metallicFactor: 1,
+                roughnessFactor: 1,
+            } );
 
-        }
 
         material.isParsed = true;
         material.dmaterial = dmaterial;
@@ -1031,15 +1036,11 @@ Object.assign( GLTFLoader, {
 
     BASE_COLOR_UNIFORM: 'u_baseColorFactor',
 
-    getBaseColorFactorDefine() {
-
-        return 'BASE_COLOR_FACTOR';
-
-    },
+    METALROUGHNESS_UNIFORM: 'u_metallicRoughnessValues',
 
     getBaseColorTextureDefine() {
 
-        return 'BASE_COLOR_SAMPLER';
+        return 'HAS_BASECOLORMAP';
 
     },
 
@@ -1121,7 +1122,14 @@ Object.assign( GLTFLoader, {
         alphaCutoff: 0.5,
         doubleSided: false,
         isParsed: true,
-        dmaterial: { name: 'GLTF_DEFAULT_MATERIAL', defines: [], doubleSided: false },
+        dmaterial: {
+            name: 'GLTF_DEFAULT_MATERIAL',
+            defines: [],
+            doubleSided: false,
+            baseColorFactor: [ 1, 1, 1, 1 ],
+            metallicFactor: 1,
+            roughnessFactor: 1,
+        },
 
     },
 
