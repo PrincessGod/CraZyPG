@@ -32,3 +32,15 @@ export const DYNAMIC_DRAW = 35048;
 
 // Shader Defines
 export const DEFINE_FLAT = 'FLAT';
+
+// texture filter
+export const NEAREST = 9728;
+export const LINEAR = 9729;
+export const NEAREST_MIPMAP_NEAREST = 9984;
+export const NEAREST_MIPMAP_LINEAR = 9986;
+export const LINEAR_MIPMAP_NEAREST = 9985;
+export const LINEAR_MIPMAP_LINEAR = 9987;
+
+export const CLAMP_TO_EDGE = 33071;
+export const MIRRORED_REPEAT = 33648;
+export const REPEAT = 10497;

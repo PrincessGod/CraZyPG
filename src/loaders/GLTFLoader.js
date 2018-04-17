@@ -1078,7 +1078,7 @@ Object.assign( GLTFLoader.prototype, {
 
     parseSampler( samplerId ) {
 
-        if ( samplerId === undefined ) return { minMag: 9729, wrap: 33071 };
+        if ( samplerId === undefined ) return { minMag: Constant.NEAREST, wrap: Constant.REPEAT };
         const sampler = this.gltf.samplers[ samplerId ];
         if ( ! sampler )
             return errorMiss( 'sampler', samplerId );
@@ -1091,7 +1091,10 @@ Object.assign( GLTFLoader.prototype, {
         } = sampler;
 
         const dsampler = {
-            min: minFilter || 9729, mag: magFilter || 9729, wrapS: wrapS || 33071, wrapT: wrapT || 33071,
+            min: minFilter || Constant.LINEAR,
+            max: magFilter || Constant.LINEAR,
+            wrapS: wrapS || Constant.REPEAT,
+            wrapT: wrapT || Constant.REPEAT,
         };
 
         sampler.dsampler = dsampler;
@@ -1260,7 +1263,7 @@ Object.assign( GLTFLoader, {
     defaultMaterial: {
 
         name: 'GLTF_DEFAULT_MATERIAL',
-        emissiveFactor: [ 0, 0, 0, 0 ],
+        emissiveFactor: [ 0, 0, 0 ],
         alphaMode: 'OPAQUE',
         alphaCutoff: 0.5,
         doubleSided: false,
@@ -1272,6 +1275,7 @@ Object.assign( GLTFLoader, {
             baseColorFactor: [ 1, 1, 1, 1 ],
             metallicFactor: 1,
             roughnessFactor: 1,
+            emissiveFactor: [ 0, 0, 0 ],
         },
 
     },

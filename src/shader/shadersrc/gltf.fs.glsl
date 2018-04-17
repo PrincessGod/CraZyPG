@@ -22,7 +22,7 @@ uniform sampler2D u_normalSampler;
 #endif
 #ifdef HAS_EMISSIVEMAP
 uniform sampler2D u_emissiveSampler;
-uniform float u_emissiveFactor;
+uniform vec3 u_emissiveFactor;
 #endif
 #ifdef HAS_OCCLUSIONMAP
 uniform sampler2D u_occlusionSampler;
@@ -246,16 +246,6 @@ void main() {
     #endif
 
     finalColor = vec4(color, baseColor.a);
-
-    // base color
-    vec4 outColor = u_baseColorFactor;
-    #ifdef UV_NUM
-        #ifdef HAS_BASECOLORMAP
-        outColor *= texture(u_baseColorSampler, v_uv);
-        #endif
-    #endif
-
-    //finalColor = outColor;
 
     #ifdef ColorPick
     pickColor = vec4(u_colorId, 1.0);
