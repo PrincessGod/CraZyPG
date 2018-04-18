@@ -84,8 +84,8 @@
                         './resource/gltf/ENVTextures/papermill/diffuse_left_0.jpg',
                         './resource/gltf/ENVTextures/papermill/diffuse_top_0.jpg',
                         './resource/gltf/ENVTextures/papermill/diffuse_bottom_0.jpg',
+                        './resource/gltf/ENVTextures/papermill/diffuse_front_0.jpg',
                         './resource/gltf/ENVTextures/papermill/diffuse_back_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/diffuse_right_0.jpg',
                     ]
                 },
                 env: {
@@ -95,8 +95,8 @@
                         './resource/gltf/ENVTextures/papermill/environment_left_0.jpg',
                         './resource/gltf/ENVTextures/papermill/environment_top_0.jpg',
                         './resource/gltf/ENVTextures/papermill/environment_bottom_0.jpg',
+                        './resource/gltf/ENVTextures/papermill/environment_front_0.jpg',
                         './resource/gltf/ENVTextures/papermill/environment_back_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/environment_right_0.jpg',
                     ]
                 },
                 lut: {
@@ -106,7 +106,7 @@
                 }
             });
 
-            let file = './resource/gltf/DamagedHelmet.gltf';
+            let file = './resource/gltf/buster_drone/scene.gltf';
             let gltfShader = new CZPG.GLTFShader(context, camera).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
