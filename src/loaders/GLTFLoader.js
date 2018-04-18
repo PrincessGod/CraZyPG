@@ -287,6 +287,7 @@ Object.assign( GLTFLoader.prototype, {
 
                             }
                             if ( ! model.textures ) model.textures = {};
+                            if ( baseColorFactor.textureIdx === undefined ) baseColorFactor.textureIdx = idx;
                             model.textures[ GLTFLoader.BASE_COLOR_TEXTURE_UNIFORM ] = baseColorTexture.textureIdx;
 
                         }
@@ -301,6 +302,7 @@ Object.assign( GLTFLoader.prototype, {
 
                             }
                             if ( ! model.textures ) model.textures = {};
+                            if ( metallicRoughnessTexture.textureIdx === undefined ) metallicRoughnessTexture.textureIdx = idx;
                             model.textures[ GLTFLoader.METALROUGHNESS_TEXTURE_UNIFORM ] = metallicRoughnessTexture.textureIdx;
 
                         }
@@ -315,6 +317,7 @@ Object.assign( GLTFLoader.prototype, {
 
                             }
                             if ( ! model.textures ) model.textures = {};
+                            if ( normalTexture.textureIdx === undefined ) normalTexture.textureIdx = idx;
                             model.textures[ GLTFLoader.NORMAL_TEXTURE_UNIFORM ] = normalTexture.textureIdx;
                             uniformobj[ GLTFLoader.NORMAL_SCALE_UNIFORM ] = normalTexture.scale;
 
@@ -330,6 +333,7 @@ Object.assign( GLTFLoader.prototype, {
 
                             }
                             if ( ! model.textures ) model.textures = {};
+                            if ( occlusionTexture.textureIdx === undefined ) occlusionTexture.textureIdx = idx;
                             model.textures[ GLTFLoader.OCCLUSION_TEXTURE_UNIFORM ] = occlusionTexture.textureIdx;
                             uniformobj[ GLTFLoader.OCCLUSION_FACTOR_UNIFORM ] = occlusionTexture.strength;
 
@@ -345,6 +349,7 @@ Object.assign( GLTFLoader.prototype, {
 
                             }
                             if ( ! model.textures ) model.textures = {};
+                            if ( emissiveTexture.textureIdx === undefined ) emissiveTexture.textureIdx = idx;
                             model.textures[ GLTFLoader.EMISSIVE_TEXTURE_UNIFORM ] = emissiveTexture.textureIdx;
                             uniformobj[ GLTFLoader.EMISSIVE_FACTOR_UNIFORM ] = emissiveTexture.emissiveFactor;
 
