@@ -90,11 +90,13 @@ function createProgram( gl, vs, fs, opts = {} ) {
     if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS ) )
         throw new Error( `Error createing shader program.\n\n${gl.getProgramInfoLog( prog )}` );
 
+    if ( opts.validateProgram === undefined || opts.validateProgram ) {
 
-    gl.validateProgram( prog );
-    if ( ! gl.getProgramParameter( prog, gl.VALIDATE_STATUS ) )
-        throw new Error( `Error validating shader program.\n\n${gl.getProgramInfoLog( prog )}` );
+        gl.validateProgram( prog );
+        if ( ! gl.getProgramParameter( prog, gl.VALIDATE_STATUS ) )
+            throw new Error( `Error validating shader program.\n\n${gl.getProgramInfoLog( prog )}` );
 
+    }
 
     gl.detachShader( prog, vShader );
     gl.detachShader( prog, fShader );

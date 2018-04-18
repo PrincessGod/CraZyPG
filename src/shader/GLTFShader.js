@@ -4,7 +4,7 @@ import fs from './shadersrc/gltf.fs.glsl';
 
 function GLTFShader( gl, camera ) {
 
-    Shader.call( this, gl, GLTFShader.vs, GLTFShader.fs );
+    Shader.call( this, gl, GLTFShader.vs, GLTFShader.fs, { validateProgram: false } );
 
     this.setCamera( camera );
     this.deactivate();

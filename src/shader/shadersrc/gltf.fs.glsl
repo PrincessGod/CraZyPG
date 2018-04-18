@@ -1,6 +1,6 @@
 #version 300 es
 precision mediump float;
-
+#define USE_IBL
 uniform vec3 u_lightDirection;
 uniform vec3 u_lightColor;
 
