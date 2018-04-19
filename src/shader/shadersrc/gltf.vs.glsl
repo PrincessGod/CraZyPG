@@ -121,6 +121,13 @@ void main() {
 
     vec3 position = a_position;
 
+    #ifdef HAS_NORMAL
+    vec3 normal = a_normal;
+        #ifdef HAS_TANGENT
+        vec3 tangent3 = a_tangent.xyz;
+        #endif
+    #endif
+
     #ifdef MORPH_TARGET_NUM
         #ifdef HAS_MORPH_POSITION
         position += u_morphWeights[0] * a_morphPositions_0;
@@ -146,6 +153,61 @@ void main() {
             position += u_morphWeights[7] * a_morphPositions_7;
             #endif
         #endif
+
+        #ifdef HAS_NORMAL
+            #ifdef HAS_MORPH_NORMAL
+            normal += u_morphWeights[0] * a_morphNromals_0;
+                #if MORPH_TARGET_NUM > 1
+                normal += u_morphWeights[1] * a_morphNromals_1;
+                #endif
+                #if MORPH_TARGET_NUM > 2
+                normal += u_morphWeights[2] * a_morphNromals_2;
+                #endif
+                #if MORPH_TARGET_NUM > 3
+                normal += u_morphWeights[3] * a_morphNromals_3;
+                #endif
+                #if MORPH_TARGET_NUM > 4
+                normal += u_morphWeights[4] * a_morphNromals_4;
+                #endif
+                #if MORPH_TARGET_NUM > 5
+                normal += u_morphWeights[5] * a_morphNromals_5;
+                #endif
+                #if MORPH_TARGET_NUM > 6
+                normal += u_morphWeights[6] * a_morphNromals_6;
+                #endif
+                #if MORPH_TARGET_NUM > 7
+                normal += u_morphWeights[7] * a_morphNromals_7;
+                #endif
+            #endif
+
+            #ifdef HAS_TANGENT
+                #ifdef HAS_MORPH_TANGENT
+                tangent3 += u_morphWeights[0] * a_morphTangents_0;
+                    #if MORPH_TARGET_NUM > 1
+                    tangent3 += u_morphWeights[1] * a_morphTangents_1;
+                    #endif
+                    #if MORPH_TARGET_NUM > 2
+                    tangent3 += u_morphWeights[2] * a_morphTangents_2;
+                    #endif
+                    #if MORPH_TARGET_NUM > 3
+                    tangent3 += u_morphWeights[3] * a_morphTangents_3;
+                    #endif
+                    #if MORPH_TARGET_NUM > 4
+                    tangent3 += u_morphWeights[4] * a_morphTangents_4;
+                    #endif
+                    #if MORPH_TARGET_NUM > 5
+                    tangent3 += u_morphWeights[5] * a_morphTangents_5;
+                    #endif
+                    #if MORPH_TARGET_NUM > 6
+                    tangent3 += u_morphWeights[6] * a_morphTangents_6;
+                    #endif
+                    #if MORPH_TARGET_NUM > 7
+                    tangent3 += u_morphWeights[7] * a_morphTangents_7;
+                    #endif
+                #endif
+            #endif
+
+        #endif
         // TODO normals and tangents
     #endif
 
@@ -169,19 +231,19 @@ void main() {
         #ifdef HAS_TANGENT
             #ifdef JOINTS_NUM
             vec4 skinInf = transpose(inverse(skinMatrix));
-            vec3 normalW = normalize(u_normMat * skinInf * a_normal);
-            vec3 tangentW = normalize(u_normMat * skinInf * a_tangent.xyz);
+            vec3 normalW = normalize(u_normMat * skinInf * normal);
+            vec3 tangentW = normalize(u_normMat * skinInf * tangent3);
             #else
-            vec3 normalW = normalize(u_normMat * a_normal);
-            vec3 tangentW = normalize(u_normMat * a_tangent.xyz);
+            vec3 normalW = normalize(u_normMat * normal);
+            vec3 tangentW = normalize(u_normMat * tangent3);
             #endif
         vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
         v_TBN = mat3(tangentW, bitangentW, normalW);
         #else
             #ifdef JOINTS_NUM
-            v_normal = u_normMat * transpose(inverse(mat3(skinMatrix))) * a_normal;
+            v_normal = u_normMat * transpose(inverse(mat3(skinMatrix))) * normal;
             #else
-            v_normal = u_normMat * a_normal;
+            v_normal = u_normMat * normal;
             #endif
         #endif
     #endif
