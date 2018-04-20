@@ -922,7 +922,9 @@ Object.assign( GLTFLoader.prototype, {
         const {
             name, pbrMetallicRoughness, doubleSided, normalTexture, occlusionTexture, emissiveTexture, emissiveFactor,
         } = material;
-        const dmaterial = { name, defines: [], doubleSided: !! doubleSided };
+        const dmaterial = {
+            name, defines: [], doubleSided: !! doubleSided,
+        };
 
         if ( pbrMetallicRoughness ) {
 
@@ -930,7 +932,11 @@ Object.assign( GLTFLoader.prototype, {
                 baseColorFactor, metallicFactor, roughnessFactor, baseColorTexture, metallicRoughnessTexture,
             } = pbrMetallicRoughness;
 
-            Object.assign( dmaterial, { baseColorFactor: baseColorFactor || [ 1, 1, 1, 1 ], metallicFactor: metallicFactor || 1, roughnessFactor: roughnessFactor || 1 } );
+            Object.assign( dmaterial, {
+                baseColorFactor: baseColorFactor || [ 1, 1, 1, 1 ],
+                metallicFactor: metallicFactor === undefined ? 1 : metallicFactor,
+                roughnessFactor: roughnessFactor === undefined ? 1 : roughnessFactor,
+            } );
 
             if ( baseColorTexture ) {
 
@@ -947,9 +953,12 @@ Object.assign( GLTFLoader.prototype, {
             if ( metallicRoughnessTexture ) {
 
                 const texture = this.parseTexture( metallicRoughnessTexture.index );
-                if ( texture )
+                if ( texture ) {
+
                     dmaterial.metallicRoughnessTexture = { texture, texCoord: metallicRoughnessTexture.texCoord || 0 };
-                dmaterial.defines.push( GLTFLoader.getMetalRoughnessDefine() );
+                    dmaterial.defines.push( GLTFLoader.getMetalRoughnessDefine() );
+
+                }
 
             }
 

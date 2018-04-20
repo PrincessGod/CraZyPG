@@ -96,7 +96,7 @@ Object.assign( Transform.prototype, {
 
         if ( this._needUpdateMatrix ) {
 
-            this.matrix.fromTRS( this.position, this.quaternion, this.scale );
+            this.matrix.fromTRS( this._position.raw, this._quaternion.raw, this._scale.raw );
             this._needUpdateMatrix = false;
 
         }
@@ -253,7 +253,6 @@ Object.assign( Transform.prototype, {
 
         } else if ( args.length === 4 ) {
 
-            Quaternion.normalize( args, args );
             this._quaternion.set( ...args );
             this.updateEuler();
             this._needUpdateMatrix = true;

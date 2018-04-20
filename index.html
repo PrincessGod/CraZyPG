@@ -99,6 +99,28 @@
                         './resource/gltf/ENVTextures/papermill/environment_back_0.jpg',
                     ]
                 },
+                env1: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/gltf/ENVTextures/environment/px.jpg',
+                        './resource/gltf/ENVTextures/environment/nx.jpg',
+                        './resource/gltf/ENVTextures/environment/py.jpg',
+                        './resource/gltf/ENVTextures/environment/ny.jpg',
+                        './resource/gltf/ENVTextures/environment/pz.jpg',
+                        './resource/gltf/ENVTextures/environment/nz.jpg',
+                    ]
+                },
+                diffuse1: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/gltf/ENVTextures/environment/bakedDiffuse_01.jpg',
+                        './resource/gltf/ENVTextures/environment/bakedDiffuse_02.jpg',
+                        './resource/gltf/ENVTextures/environment/bakedDiffuse_03.jpg',
+                        './resource/gltf/ENVTextures/environment/bakedDiffuse_04.jpg',
+                        './resource/gltf/ENVTextures/environment/bakedDiffuse_05.jpg',
+                        './resource/gltf/ENVTextures/environment/bakedDiffuse_06.jpg',
+                    ]
+                },
                 lut: {
                     mag: context.NEAREST,
                     min: context.NEAREST,
@@ -106,12 +128,12 @@
                 }
             });
 
-            let file = './resource/gltf/buster_drone/scene.gltf';
+            let file = './resource/gltf/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf';
             let gltfShader = new CZPG.GLTFShader(context, camera).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
-                u_diffuseEnvMap: textures.diffuse,
-                u_specularEnvMap: textures.env,
+                u_diffuseEnvMap: textures.diffuse1,
+                u_specularEnvMap: textures.env1,
                 u_brdfLUT: textures.lut,
             });
             let gltfLoader = new CZPG.GLTFLoader();
@@ -139,11 +161,11 @@
             let gridShader = new CZPG.GridAxisShader(context, camera);
             let gridModal = CZPG.GridAxis.createModel()
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.env);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.env1);
             let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 200, 200, 200, 0, 0, 0));
 
             scene.add([
-                // {shader: gridShader, model: gridModal},
+                {shader: gridShader, model: gridModal},
                 {shader: skymapShader, model: skyCubeModal},
             ]);
 
