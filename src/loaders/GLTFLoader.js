@@ -236,8 +236,12 @@ Object.assign( GLTFLoader.prototype, {
 
             if ( nodeInfo.translation )
                 node.position = nodeInfo.translation;
-            if ( nodeInfo.rotation )
+            if ( nodeInfo.rotation ) {
+
                 node.quaternion = nodeInfo.rotation;
+                node.transform.rotation = node.transform.rotation;
+
+            }
             if ( nodeInfo.scale )
                 node.scale = nodeInfo.scale;
 
@@ -415,9 +419,13 @@ Object.assign( GLTFLoader.prototype, {
                     globalJointTransformNodes[ j ] = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, joints[ j ] );
 
                 let globalTransformNode = false;
-                if ( skeleton !== GLTFLoader.SCENE_ROOT_SKELETON )
+                if ( skeleton !== GLTFLoader.SCENE_ROOT_SKELETON ) {
+
                     globalTransformNode = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, skeleton );
-                else
+                    if ( globalTransformNode !== rootNode )
+                        globalTransformNode = globalTransformNode.parent;
+
+                } else
                     globalTransformNode = rootNode;
 
                 const frag = new Array( 16 );
