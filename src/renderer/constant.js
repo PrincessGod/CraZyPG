@@ -20,6 +20,7 @@ export const ATTRIB_UV_1_NAME = 'a_uv1';
 export const ATTRIB_JOINT_1_NAME = 'a_joint1';
 export const ATTRIB_WEIGHT_1_NAME = 'a_weight1';
 export const ATTRIB_TANGENT_NAME = 'a_tangent';
+export const ATTRIB_VERTEX_COLOR_NAME = 'a_color';
 
 
 // WebGLContext

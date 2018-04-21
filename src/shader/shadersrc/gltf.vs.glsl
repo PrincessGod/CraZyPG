@@ -5,6 +5,11 @@ in vec3 a_position;
 in vec2 a_uv;
 #endif
 
+#ifdef HAS_VERTEXCOLOR
+in vec4 a_color;
+out vec4 v_color;
+#endif
+
 uniform mat4 u_mvpMat;
 uniform mat4 u_worldMat;
 
@@ -260,5 +265,9 @@ void main() {
     v_uv = a_uv;
     #else
     v_uv = vec2(0.0);
+    #endif
+
+    #ifdef HAS_VERTEXCOLOR
+    v_color = a_color;
     #endif
 }

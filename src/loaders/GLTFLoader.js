@@ -583,6 +583,7 @@ Object.assign( GLTFLoader.prototype, {
             let hasTangent = false;
             let texCoordNum = 0;
             let jointVec8 = false;
+            let vertexColor = 0;
             Object.keys( attributes ).forEach( ( attribute ) => {
 
                 const accessor = this.parseAccessor( attributes[ attribute ] );
@@ -629,6 +630,15 @@ Object.assign( GLTFLoader.prototype, {
                         attribName = Constant.ATTRIB_WEIGHT_0_NAME;
                         break;
 
+                    case 'WEIGHTS_1':
+                        attribName = Constant.ATTRIB_WEIGHT_1_NAME;
+                        break;
+
+                    case 'COLOR_0':
+                        attribName = Constant.ATTRIB_VERTEX_COLOR_NAME;
+                        vertexColor = accessor.numComponents;
+                        break;
+
                     default:
                         attribName = attribute;
 
@@ -644,6 +654,7 @@ Object.assign( GLTFLoader.prototype, {
             if ( hasTangent ) dprimitive.defines.push( GLTFLoader.getHasTangentDefine() );
             if ( texCoordNum ) dprimitive.defines.push( GLTFLoader.getTexCoordDefine( texCoordNum ) );
             if ( jointVec8 ) dprimitive.defines.push( GLTFLoader.getJointVec8Define() );
+            if ( vertexColor ) dprimitive.defines.push( GLTFLoader.getVertexColorDefine( vertexColor ) );
 
             if ( indices !== undefined ) {
 
@@ -1101,7 +1112,7 @@ Object.assign( GLTFLoader.prototype, {
 
     parseSampler( samplerId ) {
 
-        if ( samplerId === undefined ) return { minMag: Constant.NEAREST, wrap: Constant.REPEAT };
+        if ( samplerId === undefined ) return { wrap: Constant.REPEAT };
         const sampler = this.gltf.samplers[ samplerId ];
         if ( ! sampler )
             return errorMiss( 'sampler', samplerId );
@@ -1113,12 +1124,11 @@ Object.assign( GLTFLoader.prototype, {
             magFilter, minFilter, wrapS, wrapT,
         } = sampler;
 
-        const dsampler = {
-            min: minFilter || Constant.LINEAR,
-            max: magFilter || Constant.LINEAR,
-            wrapS: wrapS || Constant.REPEAT,
-            wrapT: wrapT || Constant.REPEAT,
-        };
+        const dsampler = { wrapS: wrapS || Constant.REPEAT, wrapT: wrapT || Constant.REPEAT };
+        if ( minFilter )
+            dsampler.min = minFilter;
+        if ( magFilter )
+            dsampler.mag = magFilter;
 
         sampler.dsampler = dsampler;
         sampler.isParsed = true;
@@ -1182,6 +1192,12 @@ Object.assign( GLTFLoader, {
     OCCLUSION_TEXTURE_UNIFORM: 'u_occlusionSampler',
 
     OCCLUSION_FACTOR_UNIFORM: 'u_occlusionFactor',
+
+    getVertexColorDefine( num ) {
+
+        return `HAS_VERTEXCOLOR ${num}`;
+
+    },
 
     getBaseColorTextureDefine() {
 

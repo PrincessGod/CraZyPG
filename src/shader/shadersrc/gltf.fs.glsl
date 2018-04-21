@@ -4,6 +4,10 @@ precision mediump float;
 uniform vec3 u_lightDirection;
 uniform vec3 u_lightColor;
 
+#ifdef HAS_VERTEXCOLOR
+in vec4 v_color;
+#endif
+
 #ifdef USE_IBL
 uniform samplerCube u_diffuseEnvMap;
 uniform samplerCube u_specularEnvMap;
@@ -184,6 +188,9 @@ void main() {
     #else
     vec4 baseColor = u_baseColorFactor;
     #endif
+    #ifdef HAS_VERTEXCOLOR
+    baseColor.rgb *= v_color.rgb;
+    #endif
 
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
@@ -246,7 +253,6 @@ void main() {
     #endif
 
     finalColor = vec4(color, baseColor.a);
-
     #ifdef ColorPick
     pickColor = vec4(u_colorId, 1.0);
     #endif
