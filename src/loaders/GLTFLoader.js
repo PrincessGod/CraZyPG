@@ -89,7 +89,7 @@ Object.assign( GLTFLoader.prototype, {
         const result = {
             nodes: this.parseScene( sceneId ),
             animations: this.parseAnimations(),
-            currentSceneName: this.currentSceneName,
+            name: this.currentSceneName,
         };
 
         return this.convertToNode( result );
@@ -421,13 +421,14 @@ Object.assign( GLTFLoader.prototype, {
                     globalTransformNode = rootNode;
 
                 const frag = new Array( 16 );
+                const fragWorld = new Array( 16 );
                 updateJointUniformFuncs[ i ] = function updateJointUniformFunc() {
 
                     let jointMats = [];
+                    Matrix4.invert( fragWorld, globalTransformNode.transform.getWorldMatrix() );
                     for ( let n = 0; n < jointNum; n ++ ) {
 
-                        Matrix4.invert( frag, globalTransformNode.transform.getWorldMatrix() );
-                        Matrix4.mult( frag, frag, globalJointTransformNodes[ n ].transform.getWorldMatrix() );
+                        Matrix4.mult( frag, fragWorld, globalJointTransformNodes[ n ].transform.getWorldMatrix() );
                         if ( inverseBindMatrices !== GLTFLoader.IDENTITY_INVERSE_BIND_MATRICES )
                             Matrix4.mult( frag, frag, inverseBindMatrices[ n ] );
                         jointMats = jointMats.concat( frag );
