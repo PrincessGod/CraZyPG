@@ -65,21 +65,21 @@ Object.assign( Animator.prototype, {
                     sumTime, currentIdx, currentTime,
                 } = clip;
                 const {
-                    minTime, maxTime, times, values, lerpFun, setTarget,
+                    minTime, maxTime, times, values, lerpFun, setTarget, animateMaxTime, animateMinTime,
                 } = clip;
 
                 sumTime += dtime;
                 currentTime += dtime;
-                if ( currentTime > maxTime ) {
+                if ( currentTime > animateMaxTime ) {
 
-                    currentTime %= maxTime;
+                    currentTime %= animateMaxTime;
                     currentIdx = 0;
 
                 }
 
                 clip.sumTime = sumTime;
                 clip.currentTime = currentTime;
-                if ( currentTime < minTime ) continue;
+                if ( currentTime < animateMinTime || currentTime < minTime || currentTime > maxTime ) continue;
 
                 for ( let t = currentIdx; t < times.length; t ++ )
                     if ( currentTime < times[ t ] ) {
@@ -113,6 +113,8 @@ Object.assign( Animator, {
 
                 const animation = animations[ i ];
                 const { name, clips } = animation;
+                let animateMaxTime = Number.NEGATIVE_INFINITY;
+                let animateMinTime = Number.POSITIVE_INFINITY;
                 const clipsRes = [];
                 for ( let j = 0; j < clips.length; j ++ ) {
 
@@ -155,14 +157,16 @@ Object.assign( Animator, {
 
                     if ( ! lerpFun ) continue;
 
+                    animateMinTime = animateMinTime < times[ 0 ] ? animateMinTime : times[ 0 ];
+                    animateMaxTime = animateMaxTime > times[ times.length - 1 ] ? animateMaxTime : times[ times.length - 1 ];
                     const clipRes = {
                         setTarget,
                         times,
                         values,
                         lerpFun,
+                        sumTime: 0,
                         minTime: times[ 0 ],
                         maxTime: times[ times.length - 1 ],
-                        sumTime: 0,
                         currentIdx: 0,
                         currentTime: 0,
                         currentValue: values[ 0 ].slice ? values[ 0 ].slice() : values[ 0 ],
@@ -171,6 +175,13 @@ Object.assign( Animator, {
                     clipsRes.push( clipRes );
 
                 }
+
+                clipsRes.forEach( ( clip ) => {
+
+                    clip.animateMaxTime = animateMaxTime; // eslint-disable-line
+                    clip.animateMinTime = animateMinTime; // eslint-disable-line
+
+                } );
 
                 result.push( { name, clips: clipsRes } );
 

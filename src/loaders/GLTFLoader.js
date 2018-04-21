@@ -291,7 +291,7 @@ Object.assign( GLTFLoader.prototype, {
 
                             }
                             if ( ! model.textures ) model.textures = {};
-                            if ( baseColorFactor.textureIdx === undefined ) baseColorFactor.textureIdx = idx;
+                            if ( baseColorTexture.textureIdx === undefined ) baseColorTexture.textureIdx = idx;
                             model.textures[ GLTFLoader.BASE_COLOR_TEXTURE_UNIFORM ] = baseColorTexture.textureIdx;
 
                         }
