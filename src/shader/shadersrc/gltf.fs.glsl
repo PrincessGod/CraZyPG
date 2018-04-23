@@ -8,6 +8,10 @@ uniform vec3 u_lightColor;
 in vec4 v_color;
 #endif
 
+#ifdef ALPHA_MASK
+uniform float u_alphaCutoff;
+#endif
+
 #ifdef USE_IBL
 uniform samplerCube u_diffuseEnvMap;
 uniform samplerCube u_specularEnvMap;
@@ -192,6 +196,16 @@ void main() {
     baseColor.rgb *= v_color.rgb;
     #endif
 
+    float alpha = baseColor.a;
+    #ifdef ALPHA_MASK
+    if(alpha < u_alphaCutoff){
+        discard;
+    }
+    #endif
+    #ifndef ALPHA_BLEND
+    alpha = 1.0;
+    #endif
+
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
     diffuseColor *= 1.0 - metallic;
@@ -252,7 +266,7 @@ void main() {
     color += emissive;
     #endif
 
-    finalColor = vec4(color, baseColor.a);
+    finalColor = vec4(color, alpha);
     #ifdef ColorPick
     pickColor = vec4(u_colorId, 1.0);
     #endif

@@ -273,11 +273,14 @@ Object.assign( GLTFLoader.prototype, {
 
                         const {
                             baseColorTexture, baseColorFactor, metallicFactor, roughnessFactor, doubleSided,
-                            metallicRoughnessTexture, normalTexture, occlusionTexture, emissiveTexture,
+                            metallicRoughnessTexture, normalTexture, occlusionTexture, emissiveTexture, enableBlend, alphaCutoff,
                         } = primitive.material;
 
                         model.mesh.cullFace = ! doubleSided;
+                        model.mesh.sampleBlend = !! enableBlend;
 
+                        if ( alphaCutoff !== undefined )
+                            uniformobj[ GLTFLoader.ALPHA_CUTOFF_UNIFORM ] = alphaCutoff;
                         uniformobj[ GLTFLoader.BASE_COLOR_UNIFORM ] = baseColorFactor;
                         uniformobj[ GLTFLoader.METALROUGHNESS_UNIFORM ] = [ metallicFactor, roughnessFactor ];
 
@@ -940,11 +943,30 @@ Object.assign( GLTFLoader.prototype, {
             return material.dmaterial;
 
         const {
-            name, pbrMetallicRoughness, doubleSided, normalTexture, occlusionTexture, emissiveTexture, emissiveFactor,
+            name, pbrMetallicRoughness, normalTexture, occlusionTexture, emissiveTexture, emissiveFactor,
+            alphaMode, alphaCutoff, doubleSided,
         } = material;
         const dmaterial = {
             name, defines: [], doubleSided: !! doubleSided,
         };
+
+        if ( alphaMode && alphaMode !== 'OPAQUE' ) {
+
+            if ( alphaMode === 'MASK' ) {
+
+                dmaterial.defines.push( GLTFLoader.getAlphaMaskDefine() );
+                dmaterial.alphaCutoff = alphaCutoff === undefined ? 0.5 : alphaCutoff;
+
+            }
+
+            if ( alphaMode === 'BLEND' ) {
+
+                dmaterial.defines.push( GLTFLoader.getAlphaBlendDdefine() );
+                dmaterial.enableBlend = true;
+
+            }
+
+        }
 
         if ( pbrMetallicRoughness ) {
 
@@ -1296,6 +1318,20 @@ Object.assign( GLTFLoader, {
     getHasNormalMapDefine() {
 
         return 'HAS_NORMAL_MAP';
+
+    },
+
+    ALPHA_CUTOFF_UNIFORM: 'u_alphaCutoff',
+
+    getAlphaMaskDefine() {
+
+        return 'ALPHA_MASK';
+
+    },
+
+    getAlphaBlendDdefine() {
+
+        return 'ALPHA_BLEND';
 
     },
 
