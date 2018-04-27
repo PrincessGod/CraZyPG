@@ -110,6 +110,20 @@ Object.assign( FileLoader.prototype, {
 } );
 
 Object.assign( FileLoader, {
+
+    decodeText( array ) {
+
+        if ( typeof TextDecoder !== 'undefined' )
+            return new TextDecoder().decode( array );
+
+        let s = '';
+        for ( let i = 0, il = array.length; i < il; i ++ )
+            s += String.fromCharCode( array[ i ] );
+
+        return decodeURIComponent( escape( s ) );
+
+    },
+
     types: {
 
         obj( file ) {
@@ -167,6 +181,119 @@ Object.assign( FileLoader, {
 
             return fetch( file )
                 .then( response => response.arrayBuffer() );
+
+        },
+
+        glb( file ) {
+
+            return fetch( file )
+                .then( response => response.arrayBuffer() )
+                .then( ( arrayBuffer ) => {
+
+                    const BINARY_EXTENSION_HEADER_MAGIC = 'glTF';
+                    const BINARY_EXTENSION_HEADER_LENGTH = 12;
+                    const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4E4F534A, BIN: 0x004E4942 };
+
+                    let content = null;
+                    let body = null;
+
+                    const headerView = new DataView( arrayBuffer, 0, BINARY_EXTENSION_HEADER_LENGTH );
+
+                    this.header = {
+                        magic: FileLoader.decodeText( new Uint8Array( arrayBuffer.slice( 0, 4 ) ) ),
+                        version: headerView.getUint32( 4, true ),
+                        length: headerView.getUint32( 8, true ),
+                    };
+
+                    if ( this.header.magic !== BINARY_EXTENSION_HEADER_MAGIC )
+                        throw new Error( 'GLTFLoader: Unsupported glTF-Binary header.' );
+                    else if ( this.header.version < 2.0 )
+                        throw new Error( 'GLTFLoader: Legacy binary file detected. Use LegacyGLTFLoader instead.' );
+
+                    const chunkView = new DataView( arrayBuffer, BINARY_EXTENSION_HEADER_LENGTH );
+                    let chunkIndex = 0;
+
+                    while ( chunkIndex < chunkView.byteLength ) {
+
+                        const chunkLength = chunkView.getUint32( chunkIndex, true );
+                        chunkIndex += 4;
+
+                        const chunkType = chunkView.getUint32( chunkIndex, true );
+                        chunkIndex += 4;
+
+                        if ( chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON ) {
+
+                            const contentArray = new Uint8Array( arrayBuffer, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength );
+                            content = FileLoader.decodeText( contentArray );
+
+                        } else if ( chunkType === BINARY_EXTENSION_CHUNK_TYPES.BIN ) {
+
+                            const byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex;
+                            body = arrayBuffer.slice( byteOffset, byteOffset + chunkLength );
+
+                        }
+
+                        chunkIndex += chunkLength;
+
+                    }
+
+                    if ( content ) {
+
+                        const json = JSON.parse( content );
+                        if ( json.buffers && body )
+                            for ( let i = 0; i < json.buffers.length; i ++ ) {
+
+                                const buffer = json.buffers[ i ];
+                                if ( typeof buffer.uri === 'undefined' ) {
+
+                                    buffer.isParsed = true;
+                                    buffer.dbuffer = body;
+
+                                }
+
+                            }
+
+                        // load outer resource
+                        const buffers = json.buffers;
+                        const loader = new FileLoader();
+                        const basepath = FileLoader.getBasepath( file );
+
+                        for ( let i = 0; i < buffers.length; i ++ ) {
+
+                            if ( buffers[ i ].isParsed ) continue;
+                            const uri = buffers[ i ].uri;
+                            if ( uri.startsWith( 'data:' ) ) continue;
+
+                            const filepath = basepath + uri;
+                            loader.addFile( { file: filepath, type: 'gltf_bin', name: uri } );
+
+                        }
+
+                        const images = json.images || [];
+                        const imageRes = {};
+                        for ( let i = 0; i < images.length; i ++ ) {
+
+                            const uri = images[ i ].uri;
+                            if ( ! uri || uri.startsWith( 'data:' ) ) continue;
+
+                            const filepath = basepath + uri;
+                            imageRes[ uri ] = filepath;
+
+                        }
+
+                        return loader.load().then( ( files ) => {
+
+                            Object.assign( files, imageRes );
+                                    json.resources = files; // eslint-disable-line
+                            return json;
+
+                        } );
+
+                    }
+
+                    throw new Error( 'GLTFLoader: bin file do not have gltf json.' );
+
+                } );
 
         },
 

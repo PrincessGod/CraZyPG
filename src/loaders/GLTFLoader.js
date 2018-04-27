@@ -1092,7 +1092,7 @@ Object.assign( GLTFLoader.prototype, {
         image.isParsed = true;
         image.dimage = false;
 
-        if ( ! image.uri && image.bufferView ) {
+        if ( ! image.uri && typeof image.bufferView !== 'undefined' ) {
 
             const arrayBuffer = this.parseBufferView( image.bufferView );
             if ( arrayBuffer ) {
@@ -1102,10 +1102,8 @@ Object.assign( GLTFLoader.prototype, {
                 const blob = new Blob( [ arrayBufferView ], { type } );
                 const urlCreator = window.URL || window.webkitURL;
                 const imageUrl = urlCreator.createObjectURL( blob );
-                const img = new window.Image();
-                img.src = imageUrl;
 
-                image.dimage = img;
+                image.dimage = imageUrl;
 
             }
 
