@@ -228,9 +228,10 @@ Object.assign( GLTFLoader.prototype, {
 
             if ( nodeInfo.matrix ) {
 
-                nodeInfo.translation = Matrix4.getTranslation( [ 0, 0, 0 ], nodeInfo.matrix ); // eslint-disable-line
-                nodeInfo.rotation = Matrix4.getRotation( [ 0, 0, 0, 1 ], nodeInfo.matrix ); // eslint-disable-line
-                nodeInfo.scale = Matrix4.getScaling( [ 1, 1, 1 ], nodeInfo.matrix ); // eslint-disable-line
+                nodeInfo.translation = [ 0, 0, 0 ]; // eslint-disable-line
+                nodeInfo.rotation = [ 0, 0, 0, 1 ]; // eslint-disable-line
+                nodeInfo.scale = [ 1, 1, 1 ]; // eslint-disable-line
+                Matrix4.decompose( nodeInfo.matrix, nodeInfo.translation, nodeInfo.rotation, nodeInfo.scale );
 
             }
 

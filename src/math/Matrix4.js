@@ -1,4 +1,6 @@
 /* eslint no-param-reassign: 0 */
+import { Quaternion } from './Quaternion';
+
 function Matrix4() {
 
     this.raw = Matrix4.identity();
@@ -940,6 +942,107 @@ Object.assign( Matrix4, {
 
     },
 
+    determinant( m ) {
+
+
+        const n11 = m[ 0 ];
+        const n12 = m[ 4 ];
+        const n13 = m[ 8 ];
+        const n14 = m[ 12 ];
+        const n21 = m[ 1 ];
+        const n22 = m[ 5 ];
+        const n23 = m[ 9 ];
+        const n24 = m[ 13 ];
+        const n31 = m[ 2 ];
+        const n32 = m[ 6 ];
+        const n33 = m[ 10 ];
+        const n34 = m[ 14 ];
+        const n41 = m[ 3 ];
+        const n42 = m[ 7 ];
+        const n43 = m[ 11 ];
+        const n44 = m[ 15 ];
+
+        // TODO: make this more efficient
+        // ( based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm )
+
+        return (
+            n41 * (
+                + n14 * n23 * n32
+                - n13 * n24 * n32
+                - n14 * n22 * n33
+                + n12 * n24 * n33
+                + n13 * n22 * n34
+                - n12 * n23 * n34
+            ) +
+            n42 * (
+                + n11 * n23 * n34
+                - n11 * n24 * n33
+                + n14 * n21 * n33
+                - n13 * n21 * n34
+                + n13 * n24 * n31
+                - n14 * n23 * n31
+            ) +
+            n43 * (
+                + n11 * n24 * n32
+                - n11 * n22 * n34
+                - n14 * n21 * n32
+                + n12 * n21 * n34
+                + n14 * n22 * n31
+                - n12 * n24 * n31
+            ) +
+            n44 * (
+                - n13 * n22 * n31
+                - n11 * n23 * n32
+                + n11 * n22 * n33
+                + n13 * n21 * n32
+                - n12 * n21 * n33
+                + n12 * n23 * n31
+            )
+        );
+
+    },
+
+    decompose( m, position, quaternion, scale ) {
+
+        const te = Matrix4.clone( m );
+
+        let sx = Math.sqrt( ( te[ 0 ] * te[ 0 ] ) + ( te[ 1 ] * te[ 1 ] ) + ( te[ 2 ] * te[ 2 ] ) );
+        const sy = Math.sqrt( ( te[ 4 ] * te[ 4 ] ) + ( te[ 5 ] * te[ 5 ] ) + ( te[ 6 ] * te[ 6 ] ) );
+        const sz = Math.sqrt( ( te[ 8 ] * te[ 8 ] ) + ( te[ 9 ] * te[ 9 ] ) + ( te[ 10 ] * te[ 10 ] ) );
+
+        // if determine is negative, we need to invert one scale
+        const det = Matrix4.determinant( te );
+        if ( det < 0 ) sx = - sx;
+
+        position[ 0 ] = te[ 12 ];
+        position[ 1 ] = te[ 13 ];
+        position[ 2 ] = te[ 14 ];
+
+        // scale the rotation part
+
+        const invSX = 1 / sx;
+        const invSY = 1 / sy;
+        const invSZ = 1 / sz;
+
+        te[ 0 ] *= invSX;
+        te[ 1 ] *= invSX;
+        te[ 2 ] *= invSX;
+
+        te[ 4 ] *= invSY;
+        te[ 5 ] *= invSY;
+        te[ 6 ] *= invSY;
+
+        te[ 8 ] *= invSZ;
+        te[ 9 ] *= invSZ;
+        te[ 10 ] *= invSZ;
+
+        Quaternion.fromMatrix4( quaternion, te );
+
+        scale[ 0 ] = sx;
+        scale[ 1 ] = sy;
+        scale[ 2 ] = sz;
+
+    },
 
 } );
 
