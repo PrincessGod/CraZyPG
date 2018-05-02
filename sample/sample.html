@@ -162,7 +162,7 @@
             });
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
-            let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 200, 200, 200, 0, 0, 0));
+            let skyCubeModal = CZPG.Cube.createModel('sky');
 
             let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
             let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);

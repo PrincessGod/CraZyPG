@@ -205,7 +205,7 @@
             let gridModal = CZPG.GridAxis.createModel("Grid", 100);
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
-            let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 1000, 1000, 1000, 0, 0, 0));
+            let skyCubeModal = CZPG.Cube.createModel('sky');
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
