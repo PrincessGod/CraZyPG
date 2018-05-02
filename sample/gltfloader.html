@@ -57,9 +57,8 @@
     <script src="./js/dat.gui.min.js"></script>
     <script>
 
-        var sceneNode;
         window.addEventListener('load', function() {
-            const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('100%', '100%').clear();
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('80%', '80%').clear();
             const context = renderer.context;
             const scene = new CZPG.Scene(renderer);
             const controler = scene.controler;
@@ -71,35 +70,6 @@
             cameraControler.autoRotate = true;
 
             const textures = CZPG.createTextures(context, {
-                scalar: {
-                    mag: context.NEAREST,
-                    min: context.NEAREST,
-                    src: [
-                        200, 100, 100, 255,
-                    ],
-                },
-                // diffuse: {
-                //     target: context.TEXTURE_CUBE_MAP,
-                //     src: [
-                //         './resource/gltf/ENVTextures/papermill/diffuse_right_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_left_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_top_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_bottom_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_front_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_back_0.jpg',
-                //     ]
-                // },
-                // env: {
-                //     target: context.TEXTURE_CUBE_MAP,
-                //     src: [
-                //         './resource/gltf/ENVTextures/papermill/environment_right_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_left_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_top_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_bottom_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_front_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_back_0.jpg',
-                //     ]
-                // },
                 env1: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
@@ -142,9 +112,8 @@
             gltfLoader.load(file)
                 .then( res => {
                     const {rootNode, textures, animations} = res;
-                    sceneNode = rootNode;
                     const gltfTextures = CZPG.createTextures(context, textures);
-                    sceneNode.traverse((node)=> {
+                    rootNode.traverse((node)=> {
                         if(node.model && node.model.textures !== undefined) {
                             Object.keys(node.model.textures).forEach(uniformName => node.model.textures[uniformName] = gltfTextures[node.model.textures[uniformName]])
                             node.model.setUniformObj(node.model.textures);
@@ -152,9 +121,18 @@
                     });
 
                     animator = new CZPG.Animator(animations);
-                    animator.playAll();
+                    let animates = animator.animations;
+                    if(animates.length > 0) {
+                        let animateMap = animates.map(ani => ani.name);
+                        animateMap = ['None'].concat(animateMap);
+                        datgui.add(controlObj, 'animate', animateMap)
+                            .onFinishChange(value => {
+                                animator.resetAll().playAnimation(value);
+                            });
+                    }
+
                     scene.add([
-                        {shader: gltfShader, model: sceneNode},
+                        {shader: gltfShader, model: rootNode},
                     ]);
                 });
 
@@ -162,10 +140,9 @@
             let gridModal = CZPG.GridAxis.createModel()
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.env1);
-            let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 200, 200, 200, 0, 0, 0));
+            let skyCubeModal = new CZPG.Model(CZPG.Cube.createMesh('sky', 1000, 1000, 1000, 0, 0, 0));
 
             scene.add([
-                // {shader: gridShader, model: gridModal},
                 {shader: skymapShader, model: skyCubeModal},
             ]);
 
@@ -181,7 +158,8 @@
             let controlObj = {
                 showgrid: false,
                 autoRotate: true,
-            }
+                animate: 'None',
+            };
             let datgui = new dat.GUI();
             datgui.add(controlObj, 'showgrid')
                 .onFinishChange(value => {
@@ -192,7 +170,7 @@
                 });
             datgui.add(controlObj, 'autoRotate')
                 .onFinishChange(value => {
-                    cameraControler.autoRotate = value;
+                        cameraControler.autoRotate = value;
                 });
         });
 

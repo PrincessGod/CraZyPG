@@ -31,8 +31,27 @@ Object.assign( Animator.prototype, {
 
     },
 
+    resetAll() {
+
+        this.animations.forEach( ( animate ) => {
+
+            animate.clips.forEach( ( clip ) => {
+
+                clip.currentTime = 0; // eslint-disable-line
+                clip.currentIdx = 0; // eslint-disable-line
+                clip.sumTime = 0; // eslint-disable-line
+
+            } );
+
+        } );
+
+        return this;
+
+    },
+
     playAnimation( name ) {
 
+        this._playList = [];
         this.animations.forEach( ( animation ) => {
 
             if ( animation.name === name )

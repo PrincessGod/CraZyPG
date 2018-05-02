@@ -71,13 +71,6 @@
             cameraControler.autoRotate = true;
 
             const textures = CZPG.createTextures(context, {
-                scalar: {
-                    mag: context.NEAREST,
-                    min: context.NEAREST,
-                    src: [
-                        200, 100, 100, 255,
-                    ],
-                },
                 // diffuse: {
                 //     target: context.TEXTURE_CUBE_MAP,
                 //     src: [
@@ -129,7 +122,7 @@
                 }
             });
 
-            let file = './resource/gltf/GearboxAssy/glTF/GearboxAssy.gltf';
+            let file = './resource/gltf/buster_drone/scene.gltf';
             let gltfShader = new CZPG.GLTFShader(context, camera).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
@@ -152,8 +145,16 @@
                     });
 
                     animator = new CZPG.Animator(animations);
-                    animator.playAll();
-                    // gltfShader.cullFace = false;
+                    let animates = animator.animations;
+                    if(animates.length > 0) {
+                        let animateMap = animates.map(ani => ani.name);
+                        animateMap = ['None'].concat(animateMap);
+                        datgui.add(controlObj, 'animate', animateMap)
+                            .onFinishChange(value => {
+                                animator.resetAll().playAnimation(value);
+                            });
+                    }
+                    // animator.playAll();
                     scene.add([
                         {shader: gltfShader, model: sceneNode},
                     ]);
@@ -182,7 +183,8 @@
             let controlObj = {
                 showgrid: false,
                 autoRotate: true,
-            }
+                animate: 'None',
+            };
             let datgui = new dat.GUI();
             datgui.add(controlObj, 'showgrid')
                 .onFinishChange(value => {
