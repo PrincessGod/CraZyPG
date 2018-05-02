@@ -78,28 +78,28 @@
                         200, 100, 100, 255,
                     ],
                 },
-                diffuse: {
-                    target: context.TEXTURE_CUBE_MAP,
-                    src: [
-                        './resource/gltf/ENVTextures/papermill/diffuse_right_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/diffuse_left_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/diffuse_top_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/diffuse_bottom_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/diffuse_front_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/diffuse_back_0.jpg',
-                    ]
-                },
-                env: {
-                    target: context.TEXTURE_CUBE_MAP,
-                    src: [
-                        './resource/gltf/ENVTextures/papermill/environment_right_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/environment_left_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/environment_top_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/environment_bottom_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/environment_front_0.jpg',
-                        './resource/gltf/ENVTextures/papermill/environment_back_0.jpg',
-                    ]
-                },
+                // diffuse: {
+                //     target: context.TEXTURE_CUBE_MAP,
+                //     src: [
+                //         './resource/gltf/ENVTextures/papermill/diffuse_right_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/diffuse_left_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/diffuse_top_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/diffuse_bottom_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/diffuse_front_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/diffuse_back_0.jpg',
+                //     ]
+                // },
+                // env: {
+                //     target: context.TEXTURE_CUBE_MAP,
+                //     src: [
+                //         './resource/gltf/ENVTextures/papermill/environment_right_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/environment_left_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/environment_top_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/environment_bottom_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/environment_front_0.jpg',
+                //         './resource/gltf/ENVTextures/papermill/environment_back_0.jpg',
+                //     ]
+                // },
                 env1: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
@@ -192,7 +192,7 @@
                 });
             datgui.add(controlObj, 'autoRotate')
                 .onFinishChange(value => {
-                        controler.autoRotate = value;
+                    cameraControler.autoRotate = value;
                 });
         });
 

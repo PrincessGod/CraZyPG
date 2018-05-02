@@ -236,12 +236,9 @@ Object.assign( GLTFLoader.prototype, {
 
             if ( nodeInfo.translation )
                 node.position = nodeInfo.translation;
-            if ( nodeInfo.rotation ) {
-
+            if ( nodeInfo.rotation )
                 node.quaternion = nodeInfo.rotation;
-                node.transform.rotation = node.transform.rotation;
 
-            }
             if ( nodeInfo.scale )
                 node.scale = nodeInfo.scale;
 
