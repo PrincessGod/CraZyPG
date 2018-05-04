@@ -235,7 +235,7 @@ void main() {
     #ifdef HAS_NORMAL
         #ifdef HAS_TANGENT
             #ifdef JOINTS_NUM
-            vec4 skinInf = transpose(inverse(skinMatrix));
+            mat3 skinInf = mat3(transpose(inverse(skinMatrix)));
             vec3 normalW = normalize(u_normMat * skinInf * normal);
             vec3 tangentW = normalize(u_normMat * skinInf * tangent3);
             #else
