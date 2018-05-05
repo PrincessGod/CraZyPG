@@ -377,6 +377,9 @@ Object.assign( GLTFLoader.prototype, {
 
                 }
 
+                if ( node.children.length > 0 )
+                    node.gltfPrimitives = node.children;
+
                 if ( nodeInfo.skin )
 
                     if ( skins.indexOf( nodeInfo.skin ) > - 1 )
@@ -1269,7 +1272,7 @@ Object.assign( GLTFLoader, {
 
     getMorphtargetPositionDefine() {
 
-        return 'HAS_MORPH_POSITION ';
+        return 'HAS_MORPH_POSITION';
 
     },
 

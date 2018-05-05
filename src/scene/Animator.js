@@ -143,11 +143,18 @@ Object.assign( Animator, {
                     } = clip;
 
                     const node = rootNode.findInChildren( findFlag, findValue );
+                    let nodes = [ node ];
+                    if ( ! node.model && node.gltfPrimitives )
+                        nodes = node.gltfPrimitives;
 
                     let lerpFun;
                     let setTarget = function ( v ) {
 
-                        node[ targetProp ] = v;
+                        nodes.forEach( ( n ) => {
+
+                            n[ targetProp ] = v; // eslint-disable-line
+
+                        } );
 
                     };
                     switch ( targetProp ) {
@@ -161,7 +168,12 @@ Object.assign( Animator, {
 
                             const uniformobj = {};
                             uniformobj[ extras.uniformName ] = v;
-                            node.model.setUniformObj( uniformobj );
+
+                            nodes.forEach( ( n ) => {
+
+                                n.model.setUniformObj( uniformobj );
+
+                            } );
 
                         };
                         break;

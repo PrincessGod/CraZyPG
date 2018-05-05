@@ -211,9 +211,7 @@ void main() {
                     #endif
                 #endif
             #endif
-
         #endif
-        // TODO normals and tangents
     #endif
 
     #ifdef JOINTS_NUM
