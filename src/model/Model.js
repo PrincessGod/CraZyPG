@@ -345,7 +345,7 @@ Object.assign( Model.prototype, {
         if ( args[ 0 ] instanceof Transform )
             return this.setQuaternion( ...( args[ 0 ].quaternion.getArray() ) );
 
-        this.setQuaternion( ...args );
+        this.transform.setQuaternion( ...args );
         return this;
 
     },
