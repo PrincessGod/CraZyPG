@@ -239,7 +239,6 @@ Object.assign( GLTFLoader.prototype, {
                 node.position = nodeInfo.translation;
             if ( nodeInfo.rotation )
                 node.quaternion = nodeInfo.rotation;
-
             if ( nodeInfo.scale )
                 node.scale = nodeInfo.scale;
 
@@ -432,7 +431,7 @@ Object.assign( GLTFLoader.prototype, {
                         globalTransformNode = globalTransformNode.parent;
 
                 } else
-                    globalTransformNode = rootNode.children[ 0 ];
+                    globalTransformNode = rootNode;
 
                 const frag = new Array( 16 );
                 const fragWorld = new Array( 16 );
@@ -547,8 +546,8 @@ Object.assign( GLTFLoader.prototype, {
 
                 const array = accessor.data;
                 const matrices = [];
-                for ( let i = 0; i < array.length / 16; i ++ )
-                    matrices.push( new Float32Array( array.buffer, 16 * i * Float32Array.BYTES_PER_ELEMENT, 16 ) );
+                for ( let i = 0; i < array.length; i += 16 )
+                    matrices.push( array.slice( i, i + 16 ) );
 
                 dskin.inverseBindMatrices = matrices;
 
@@ -873,7 +872,7 @@ Object.assign( GLTFLoader.prototype, {
             return bufferView.dbufferView;
 
         bufferView.isParsed = true;
-        bufferView.dbufferVie = false;
+        bufferView.dbufferView = false;
 
         const buffer = this.parseBuffer( bufferView.buffer );
         if ( buffer ) {
