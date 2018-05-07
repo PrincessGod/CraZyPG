@@ -21,6 +21,7 @@ function Mesh( name, attribArrays = {}, options ) {
     Object.assign( this, {
         name,
         attribArrays,
+        _bufferInfo: null,
         drawMode: Constant.TRIANGLES,
         cullFace: true,
         blend: false,
@@ -35,11 +36,69 @@ function Mesh( name, attribArrays = {}, options ) {
 Object.defineProperties( Mesh.prototype, {
 
     isMesh: {
+
         get() {
 
             return true;
 
         },
+
+    },
+
+    bufferInfo: {
+
+        get() {
+
+            return this._bufferInfo;
+
+        },
+
+        set( v ) {
+
+            this._bufferInfo = v;
+            this._updateVao = true;
+
+        },
+
+    },
+
+} );
+
+Object.assign( Mesh.prototype, {
+
+    updateBufferInfo( obj ) {
+
+        if ( this._bufferInfo ) {
+
+            let updated = false;
+            Object.keys( this._bufferInfo ).forEach( ( key ) => {
+
+                if ( obj[ key ] ) {
+
+                    this._bufferInfo[ key ] = obj[ key ];
+                    updated = true;
+
+                }
+
+                if ( key === 'attribs' )
+                    Object.keys( this._bufferInfo.attribs ).forEach( ( attrib ) => {
+
+                        if ( obj[ attrib ] ) {
+
+                            this._bufferInfo.attribs[ attrib ] = obj[ attrib ];
+                            updated = true;
+
+                        }
+
+                    } );
+
+
+            } );
+
+            if ( updated ) this._updateVao = true;
+
+        }
+
     },
 
 } );

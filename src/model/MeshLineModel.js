@@ -177,13 +177,18 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
 
     createBufferInfo( gl ) {
 
-        const positionBuffer = createBufferFromArray( gl, this.positionArray, 'position' );
-        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].buffer = positionBuffer;
-        this.mesh.attribArrays.a_previous.buffer = positionBuffer;
-        this.mesh.attribArrays.a_next.buffer = positionBuffer;
-        this.mesh.attribArrays.a_side.buffer = positionBuffer;
+        if ( ! this.mesh.bufferInfo ) {
+
+            const positionBuffer = createBufferFromArray( gl, this.positionArray, 'position' );
+            this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].buffer = positionBuffer;
+            this.mesh.attribArrays.a_previous.buffer = positionBuffer;
+            this.mesh.attribArrays.a_next.buffer = positionBuffer;
+            this.mesh.attribArrays.a_side.buffer = positionBuffer;
+
+        }
 
         Model.prototype.createBufferInfo.call( this, gl );
+        return this;
 
     },
 

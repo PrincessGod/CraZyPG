@@ -19,7 +19,6 @@ const getDefaultShader = ( function () {
 
 }() );
 
-
 function Model( mesh ) {
 
     this.mesh = mesh;
@@ -306,6 +305,22 @@ Object.defineProperties( Model.prototype, {
 
     },
 
+    updateVao: {
+
+        get() {
+
+            return this.mesh._updateVao;
+
+        },
+
+        set( v ) {
+
+            this.mesh._updateVao = !! v;
+
+        },
+
+    },
+
 } );
 
 Object.assign( Model.prototype, {
@@ -357,23 +372,38 @@ Object.assign( Model.prototype, {
 
     },
 
-    preRender() {
+    preRender( gl, shader = getDefaultShader( gl ) ) {
 
+        this.createBufferInfo( gl ).createVAO( gl, shader );
         return this;
 
     },
 
     createVAO( gl, shader = getDefaultShader( gl ) ) {
 
-        this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, shader.program, shader.attribSetters );
+        if ( this.mesh._updateVao && this.mesh.vao ) {
+
+            gl.deleteVertexArray( this.mesh.vao );
+            this.mesh._updateVao = false;
+            this.mesh.vao = null;
+
+        }
+
+        if ( ! this.mesh.vao )
+            this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, shader.program, shader.attribSetters );
+
         return this;
 
     },
 
     createBufferInfo( gl ) {
 
-        this.mesh.bufferInfo = createBufferInfoFromArrays( gl, this.mesh.attribArrays );
-        this.bufferInfo = this.mesh.bufferInfo;
+        if ( ! this.mesh.bufferInfo ) {
+
+            this.mesh.bufferInfo = createBufferInfoFromArrays( gl, this.mesh.attribArrays );
+            this.bufferInfo = this.mesh.bufferInfo;
+
+        }
         return this;
 
     },

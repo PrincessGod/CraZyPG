@@ -153,7 +153,7 @@ GLTFShader.prototype = Object.assign( Object.create( Shader.prototype ), {
             if ( model.morphInfo ) {
 
                 const morphInfo = model.morphInfo;
-                const bufferInfo = model.mesh.bufferInfo.attribs;
+                const bufferInfo = {};
                 const {
                     lastWeight, morphTargetNum, originPositionBufferInfo, originNormalBufferInfo, originTangentBufferInfo,
                 } = morphInfo;
@@ -182,9 +182,7 @@ GLTFShader.prototype = Object.assign( Object.create( Shader.prototype ), {
                             bufferInfo[ MORPH_TANGENT_PREFIX + i ] = originTangentBufferInfo[ origin[ i ] ];
 
                     }
-
-                    // TODO: update vao and delete gl resource
-                    model.mesh.vao = false; // eslint-disable-line
+                    model.mesh.updateBufferInfo( bufferInfo );
 
                 }
 

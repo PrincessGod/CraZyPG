@@ -206,12 +206,6 @@ Object.assign( Shader.prototype, {
 
     renderModel( model ) {
 
-        if ( ! model.mesh.bufferInfo )
-            model.createBufferInfo( this.gl );
-
-        if ( ! model.mesh.vao )
-            model.createVAO( this.gl, this._customAttrib ? this : undefined );
-
         if ( Shader.cullFace !== ( this.cullFace && model.cullFace ) ) {
 
             this.gl[( ( this.cullFace && model.cullFace ) ? 'enable' : 'disable' )]( this.gl.CULL_FACE );
@@ -240,6 +234,7 @@ Object.assign( Shader.prototype, {
 
         }
 
+        model.preRender( this.gl, this._customAttrib ? this : undefined );
         this.setUniformObj( model.uniformObj );
         this.setWorldMatrix( model.transform.getWorldMatrix() );
         if ( this._needNormMat )
