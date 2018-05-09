@@ -86,7 +86,7 @@ PerspectiveCamera.prototype = Object.assign( Object.create( Camera.prototype ), 
         if ( aspect && aspect !== this.aspect )
             this.aspect = aspect;
 
-        Matrix4.perspective( this.projMat, this.fov, this.aspect, this.near, this.far );
+        Matrix4.perspective( this.projMat, this.fovRadian, this.aspect, this.near, this.far );
 
     },
 
