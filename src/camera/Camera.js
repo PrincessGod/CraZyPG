@@ -63,7 +63,7 @@ Object.assign( Camera.prototype, {
 
 } );
 
-function PerspectiveCamera( fov = 45, aspect, near = 0.01, far = 1000 ) {
+function PerspectiveCamera( fov = 45, aspect = 1.5, near = 0.01, far = 1000 ) {
 
     Camera.call( this );
 

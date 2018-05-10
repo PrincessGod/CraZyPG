@@ -219,6 +219,7 @@ Object.assign( GLTFLoader.prototype, {
         const animations = infos.animations;
         const textures = [];
         const skins = [];
+        const cameras = [];
 
         function parseNode( nodeInfo, parentNode ) {
 
@@ -243,6 +244,9 @@ Object.assign( GLTFLoader.prototype, {
                 node.scale = nodeInfo.scale;
 
             parentNode.addChild( node );
+
+            if ( nodeInfo.camera )
+                cameras.push( Object.assign( {}, nodeInfo.camera, { node } ) );
 
             if ( nodeInfo.primitives ) {
 
@@ -469,13 +473,14 @@ Object.assign( GLTFLoader.prototype, {
         }
 
         const animas = { animations, rootNode, type: 'gltf' };
-        return { rootNode, textures, animations: animas };
+        return {
+            rootNode, textures, animations: animas, cameras,
+        };
 
     },
 
     parseNode( nodeId ) {
 
-        // TODO camera
         const node = this.gltf.nodes[ nodeId ];
         if ( ! node )
             return errorMiss( 'node', nodeId );
@@ -495,6 +500,9 @@ Object.assign( GLTFLoader.prototype, {
             scale,
             nodeId,
         };
+
+        if ( node.camera !== undefined )
+            dnode.camera = this.parseCamera( node.camera );
 
         if ( node.mesh !== undefined )
             dnode.primitives = this.parseMesh( node.mesh );
@@ -516,6 +524,57 @@ Object.assign( GLTFLoader.prototype, {
         node.isParsed = true;
 
         return node.dnode;
+
+    },
+
+    parseCamera( cameraId ) {
+
+        const camera = this.gltf.cameras[ cameraId ];
+
+        if ( ! camera )
+            return errorMiss( 'camera', cameraId );
+
+        if ( camera.isParsed )
+            return camera.dcamera;
+
+        camera.isParsed = true;
+        camera.dcamera = false;
+
+        const {
+            name, type, perspective, orthographic,
+        } = camera;
+
+        if ( type === 'perspective' && perspective ) {
+
+            const {
+                aspectRatio, yfov, zfar, znear,
+            } = perspective;
+            camera.dcamera = Object.assign( {}, {
+                name,
+                type,
+                yfov,
+                znear,
+                aspectRatio,
+                zfar,
+            } );
+
+        } else if ( type === 'orthographic' && orthographic ) {
+
+            const {
+                xmag, ymag, zfar, znear,
+            } = orthographic;
+            camera.dcamera = Object.assign( {}, {
+                name,
+                type,
+                xmag,
+                ymag,
+                zfar,
+                znear,
+            } );
+
+        }
+
+        return camera.dcamera;
 
     },
 
