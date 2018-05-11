@@ -197,7 +197,7 @@
 
                 if(currentModel.model === 'patten') {
                     curentModels = models[currentModel.model][currentModel.customWidth === true ? 0 : 1].slice(0, currentModel.lineNumber);
-                    curentModels.forEach(m => m.depth = camera.getVec3Position().squareLength(m.position));
+                    curentModels.forEach(m => m.depth = camera.vec3Position.squareLength(m.position));
                     curentModels = curentModels.sort((a, b) => b.depth - a.depth);
                     scene.removeAll().add([
                         {shader: meshlineShader, model: curentModels},

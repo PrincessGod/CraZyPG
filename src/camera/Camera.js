@@ -9,8 +9,7 @@ function Camera() {
     this.projMat = Matrix4.identity();
     this.viewMat = Matrix4.identity();
     this.target = new Vector3();
-    this.up = [ 0, 1, 0 ];
-    this.matrix = this.transform.matrix.raw;
+    this.up = new Vector3( 0, 1, 0 );
 
 }
 
@@ -32,6 +31,26 @@ Object.defineProperties( Camera.prototype, {
 
     },
 
+    matrix: {
+
+        get() {
+
+            return this.transform.matrix.raw;
+
+        },
+
+    },
+
+    vec3Position: {
+
+        get() {
+
+            return this.transform.vec3Position;
+
+        },
+
+    },
+
 } );
 
 Object.assign( Camera.prototype, {
@@ -44,20 +63,17 @@ Object.assign( Camera.prototype, {
 
     },
 
-    getVec3Position() {
-
-        return this.transform.getVec3Position();
-
-    },
-
-    updateViewMatrix( target ) {
+    lookAt( target ) {
 
         if ( target )
             this.target = target;
 
-        Matrix4.lookAt( this.viewMat, this.transform.position, this.target.getArray(), this.up );
+        Matrix4.lookAt( this.viewMat, this.transform.position, this.target.getArray(), this.up.getArray() );
         Matrix4.invert( this.matrix, this.viewMat );
-        this.getVec3Position().set( this.matrix[ 12 ], this.matrix[ 13 ], this.matrix[ 14 ] );
+        Matrix4.decompose( this.matrix, this.transform.vec3Position.raw, this.transform.quatQuaternion.raw, this.transform.vec3Scale.raw );
+        this.transform.quaternion = this.transform.quaternion; // update rotation
+
+        return this;
 
     },
 

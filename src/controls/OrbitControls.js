@@ -108,7 +108,7 @@ class OrbitControls {
 
     update() {
 
-        const position = this.camera.getVec3Position();
+        const position = this.camera.vec3Position;
 
         this._offset.copy( position ).sub( this.target );
         this._spherical.setFromVecor3( this._offset );
@@ -134,7 +134,7 @@ class OrbitControls {
         this._offset.setFromSpherical( this._spherical );
         position.copy( this.target ).add( this._offset );
 
-        this.camera.updateViewMatrix( this.target );
+        this.camera.lookAt( this.target );
 
         if ( this.enableDamping === true ) {
 
@@ -214,7 +214,7 @@ class OrbitControls {
 
         if ( this.camera.isPerspectiveCamera ) {
 
-            const position = this.camera.getVec3Position();
+            const position = this.camera.vec3Position;
             this._vPan.copy( position ).sub( this.target );
             let targetDisitance = this._vPan.length();
 

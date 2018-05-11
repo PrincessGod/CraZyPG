@@ -40,6 +40,16 @@ Object.defineProperties( Transform.prototype, {
 
     },
 
+    vec3Position: {
+
+        get() {
+
+            return this._position;
+
+        },
+
+    },
+
     scale: {
 
         get() {
@@ -51,6 +61,16 @@ Object.defineProperties( Transform.prototype, {
         set( v ) {
 
             this.setScale( v );
+
+        },
+
+    },
+
+    vec3Scale: {
+
+        get() {
+
+            return this._scale;
 
         },
 
@@ -72,6 +92,16 @@ Object.defineProperties( Transform.prototype, {
 
     },
 
+    vec3Rotation: {
+
+        get() {
+
+            return this._rotation;
+
+        },
+
+    },
+
     quaternion: {
 
         get() {
@@ -83,6 +113,16 @@ Object.defineProperties( Transform.prototype, {
         set( v ) {
 
             this.setQuaternion( v );
+
+        },
+
+    },
+
+    quatQuaternion: {
+
+        get() {
+
+            return this._quaternion;
 
         },
 
@@ -261,12 +301,6 @@ Object.assign( Transform.prototype, {
         }
 
         return this;
-
-    },
-
-    getVec3Position() {
-
-        return this._position;
 
     },
 
