@@ -9,19 +9,53 @@ function Node( nameModel ) {
         this.name = nameModel;
     else if ( !! nameModel && nameModel.isModel )
         this.setModel( nameModel );
-    else
-        this.name = `NODE_${nodeCount ++}`;
+    else if ( !! nameModel && nameModel.isCamera )
+        this.setCamera( nameModel );
 
+    this.name = this.name || `NODE_${nodeCount ++}`;
     this.children = [];
     this.parent = null;
-    this.transform = this.model ? this.model.transform : new Transform();
-    this.matrix = this.transform.matrix;
-    this.worldMatrix = this.transform.worldMatrix;
-    this.needUpdateWorldMatrix = this.transform.needUpdateWorldMatrix;
+    this.transform = this.transform ? this.transform : new Transform();
 
 }
 
 Object.defineProperties( Node.prototype, {
+
+    matrix: {
+
+        get() {
+
+            return this.transform.matrix;
+
+        },
+
+    },
+
+    worldMatrix: {
+
+        get() {
+
+            return this.transform.worldMatrix;
+
+        },
+
+    },
+
+    needUpdateWorldMatrix: {
+
+        get() {
+
+            return this.transform.needUpdateWorldMatrix;
+
+        },
+
+        set( v ) {
+
+            this.transform.needUpdateWorldMatrix = !! v;
+
+        },
+
+    },
 
     position: {
 
@@ -181,7 +215,7 @@ Object.assign( Node.prototype, {
     addChild( nodelike ) {
 
         let node = nodelike;
-        if ( typeof nodelike === 'string' || nodelike.isModel )
+        if ( typeof nodelike === 'string' || nodelike.isModel || nodelike.isCamera )
             node = new Node( nodelike );
 
         if ( node.parent )
@@ -240,11 +274,22 @@ Object.assign( Node.prototype, {
 
         model.node = this; // eslint-disable-line
         this.model = model;
-        this.name = this.model.name;
+        this.name = this.model.name || `NODE_${nodeCount ++}_MODEL`;
         this.transform = this.model.transform;
-        this.matrix = this.transform.matrix;
-        this.worldMatrix = this.transform.worldMatrix;
-        this.needUpdateWorldMatrix = this.transform.needUpdateWorldMatrix;
+
+        return this;
+
+    },
+
+    setCamera( camera ) {
+
+        if ( this.transform )
+            camera.setTransform( this.transform.clone() );
+
+        camera.node = this; // eslint-disable-line
+        this.camera = camera;
+        this.name = this.camera.name || `NODE_${nodeCount ++}_CAMERA`;
+        this.transform = this.camera.transform;
 
         return this;
 

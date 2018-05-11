@@ -51,6 +51,16 @@ Object.defineProperties( Camera.prototype, {
 
     },
 
+    isCamera: {
+
+        get() {
+
+            return true;
+
+        },
+
+    },
+
 } );
 
 Object.assign( Camera.prototype, {
@@ -73,6 +83,13 @@ Object.assign( Camera.prototype, {
         Matrix4.decompose( this.matrix, this.transform.vec3Position.raw, this.transform.quatQuaternion.raw, this.transform.vec3Scale.raw );
         this.transform.quaternion = this.transform.quaternion; // update rotation
 
+        return this;
+
+    },
+
+    setTransform( transform ) {
+
+        this.transform = transform;
         return this;
 
     },

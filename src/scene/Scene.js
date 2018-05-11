@@ -12,6 +12,8 @@ function Scene( renderer, controler ) {
     this.shadersMap = [];
     this.helpers = [];
     this.helpersMap = [];
+    this.currentCamera = null;
+    this.cameras = [];
 
     this.root = new Node( 'root_node' );
     this.renderer = renderer;
@@ -51,6 +53,8 @@ Object.assign( Scene.prototype, {
                     this.addModelToShader( objs[ i ].shader, objs[ i ].model );
                 if ( objs[ i ].helper )
                     this.addDataToHelper( objs[ i ].helper, objs[ i ].data );
+                if ( objs[ i ].camera )
+                    this.addCamera( objs[ i ].camera );
 
             }
 
@@ -164,6 +168,42 @@ Object.assign( Scene.prototype, {
 
         }
 
+        return this;
+
+    },
+
+    addCamera( camera ) {
+
+        if ( Array.isArray( camera ) )
+            camera.forEach( c => this.addCamera( c ) );
+        else {
+
+            if ( ! camera.isCamera ) return this;
+            const idx = this.cameras.indexOf( camera );
+            if ( idx < 0 ) {
+
+                this.cameras.push( camera );
+                const cameraNode = this.root.findInChildren( 'camera', camera );
+                if ( ! cameraNode )
+                    this.root.addChild( camera );
+
+            }
+
+            if ( ! this.currentCamera )
+                this.currentCamera = camera;
+
+        }
+
+        return this;
+
+    },
+
+    setCamera( camera ) {
+
+        if ( camera.isCamera )
+            this.addCamera( camera );
+
+        this.currentCamera = camera;
         return this;
 
     },
@@ -284,7 +324,7 @@ Object.assign( Scene.prototype, {
             for ( let j = 0; j < curShaderObj.models.length; j ++ ) {
 
                 curModel = curShaderObj.models[ j ];
-                curShader.renderModel( curModel );
+                curShader.setCamera( this.currentCamera ).renderModel( curModel );
 
             }
 
@@ -315,7 +355,7 @@ Object.assign( Scene.prototype, {
                     if ( curModel.scale )
                         curShader.model.setScale( curModel.scale );
 
-                    curShader.render();
+                    curShader.setCamera( this.currentCamera ).render();
 
                 }
 
