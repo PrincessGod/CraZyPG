@@ -100,7 +100,7 @@
             });
 
             let file = 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/buster_drone/scene.gltf';
-            let gltfShader = new CZPG.GLTFShader(context, camera).setUniformObj({
+            let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
                 u_diffuseEnvMap: textures.diffuse,
@@ -136,15 +136,15 @@
                     ]);
                 });
 
-            let gridShader = new CZPG.GridAxisShader(context, camera);
+            let gridShader = new CZPG.GridAxisShader(context);
             let gridModal = CZPG.GridAxis.createModel()
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.env);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.env);
             let skyCubeModal = CZPG.Cube.createModel('sky');
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
-            ]);
+            ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {

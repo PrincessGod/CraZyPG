@@ -125,18 +125,18 @@
             cameraControler.enableDamping = true;
             // cameraControler.autoRotate = true;
 
-            let gridShader = new CZPG.GridAxisShader(context, camera);
+            let gridShader = new CZPG.GridAxisShader(context);
             let gridModal = CZPG.GridAxis.createModel()
 
-            let quadShader = new CZPG.FlatTextureShader(context, camera, textures.pic);
+            let quadShader = new CZPG.FlatTextureShader(context, textures.pic);
             let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
             let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
             let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0, Math.PI * 0.5, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
             sphereOctModel.mesh.cullFace = false;
 
-            let lightShader = new CZPG.PointlightShader(context, camera);
-            let phongShader = new CZPG.PhongLightShader(context, camera);
+            let lightShader = new CZPG.PointlightShader(context);
+            let phongShader = new CZPG.PhongLightShader(context);
             let objModels = [];
             CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
                 for (let i = 0; i < meshs.length; i++) {
@@ -161,15 +161,15 @@
 
             });
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
             let skyCubeModal = CZPG.Cube.createModel('sky');
 
-            let pointHelper = new CZPG.PointHelper(context, camera, [0, 0, 0], 8.0);
-            let lineHelper = new CZPG.LineHelper(context, camera, cubeModal);
+            let pointHelper = new CZPG.PointHelper(context, [0, 0, 0], 8.0);
+            let lineHelper = new CZPG.LineHelper(context, cubeModal);
 
             let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
 
-            let colorPicker = new CZPG.FramebufferPicker(context, camera, controler).activate();
+            let colorPicker = new CZPG.FramebufferPicker(context, controler).setCamera(camera).activate();
             colorPicker.models = scene.models;
 
             let lightPos = [0, 0, 0];
@@ -194,8 +194,8 @@
                     data: [
                         {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
                     ]
-                }
-            ]);
+                },
+            ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {

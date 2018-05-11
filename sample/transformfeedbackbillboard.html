@@ -309,17 +309,17 @@
             }
 
 
-            let gridShader = new CZPG.GridAxisShader(context, camera);
+            let gridShader = new CZPG.GridAxisShader(context);
             let gridModal = CZPG.GridAxis.createModel("Grid", 100);
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
             let skyCubeModal = CZPG.Cube.createModel('sky');
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
                 {shader: gridShader, model: gridModal},
                 {shader: instanceShader, model: quadsModel},
-            ]);
+            ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {

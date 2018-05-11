@@ -133,10 +133,10 @@
                 secondThickness: 0.1,
             }
 
-            let wireframeShader = new CZPG.WireframeShader(context, camera);
+            let wireframeShader = new CZPG.WireframeShader(context);
             scene.add([
                 {shader: wireframeShader, model: [sphereModelNormal]},
-            ]);
+            ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {

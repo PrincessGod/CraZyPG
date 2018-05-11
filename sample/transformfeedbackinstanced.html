@@ -270,7 +270,7 @@
                 u_specular: [1, 1, 1, 1],
                 u_shininess: 50,
                 u_specularFactor: 1,
-            }).setCamera(camera);
+            });
 
             // transform
             var particleVelocities = new Float32Array(INSTANCECOUNT * 3);
@@ -305,7 +305,7 @@
                 v_velocity: {data: particleVelocities, numComponents: 3},
                 v_spawntime: {data: particleSpawntime, numComponents: 1},
                 v_lifetime: {data: particleLifetime, numComponents: 1},
-            })
+            });
 
             const bufferInfo2 = Object.assign({}, bufferInfo1, {
                 attribs: {
@@ -343,17 +343,17 @@
             }
 
 
-            let gridShader = new CZPG.GridAxisShader(context, camera);
+            let gridShader = new CZPG.GridAxisShader(context);
             let gridModal = CZPG.GridAxis.createModel("Grid", 100);
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.day, textures.night);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
             let skyCubeModal = CZPG.Cube.createModel('sky');
 
             scene.add([
                 {shader: skymapShader, model: skyCubeModal},
                 {shader: gridShader, model: gridModal},
                 {shader: instanceShader, model: cubesModel},
-            ]);
+            ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {

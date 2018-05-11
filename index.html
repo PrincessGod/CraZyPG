@@ -122,8 +122,8 @@
                 }
             });
 
-            let file = './resource/gltf/quadruped_fox.gltf';
-            let gltfShader = new CZPG.GLTFShader(context, camera).setUniformObj({
+            let file = './resource/gltf/Cameras/glTF/Cameras.gltf';
+            let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
                 u_diffuseEnvMap: textures.diffuse1,
@@ -134,7 +134,7 @@
             let animator;
             gltfLoader.load(file)
                 .then( res => {
-                    const {rootNode, textures, animations} = res;
+                    const {rootNode, textures, animations, cameras} = res;
                     sceneNode = rootNode;
                     const gltfTextures = CZPG.createTextures(context, textures);
                     sceneNode.traverse((node)=> {
@@ -160,16 +160,16 @@
                     ]);
                 });
 
-            let gridShader = new CZPG.GridAxisShader(context, camera);
+            let gridShader = new CZPG.GridAxisShader(context);
             let gridModal = CZPG.GridAxis.createModel()
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, camera, textures.env1);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.env1);
             let skyCubeModal = CZPG.Cube.createModel('sky');
 
             scene.add([
                 // {shader: gridShader, model: gridModal},
                 {shader: skymapShader, model: skyCubeModal},
-            ]);
+            ]).setCamera(camera);;
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {

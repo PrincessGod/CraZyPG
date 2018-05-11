@@ -179,11 +179,11 @@
                 tile: 0.2,
             }
 
-            let meshlineShader = new CZPG.MeshLineShader(context, camera).setUniformObj(uniformObj);
+            let meshlineShader = new CZPG.MeshLineShader(context).setUniformObj(uniformObj);
 
             scene.add([
                 {shader: meshlineShader, model: models.spline[0]},
-            ]);
+            ]).setCamera(camera);
 
             let animate = {animate: false, length: undefined};
 

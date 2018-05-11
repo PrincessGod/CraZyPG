@@ -185,11 +185,11 @@
                 u_specular: [1, 1, 1, 1],
                 u_shininess: 50,
                 u_specularFactor: 1,
-            }).setCamera(camera);
+            });
 
             scene.add([
                 {shader: instanceShader, model: cubesModel},
-            ]);
+            ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {
