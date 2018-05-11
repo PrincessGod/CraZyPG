@@ -2,11 +2,10 @@ import { Shader } from './Shader';
 import vs from './shadersrc/singleTexture.vs.glsl';
 import fs from './shadersrc/singleTexture.fs.glsl';
 
-function FlatTextureShader( gl, camera, texture ) {
+function FlatTextureShader( gl, texture ) {
 
     Shader.call( this, gl, FlatTextureShader.vs, FlatTextureShader.fs );
 
-    this.setCamera( camera );
     this.setUniformObj( { u_texture: texture } );
 
     this.deactivate();

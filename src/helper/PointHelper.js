@@ -5,9 +5,9 @@ import * as Constant from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
 import { getTypedArray } from '../renderer/typedArray';
 
-function PointHelper( gl, camera, data = [], pointSize, pointColor ) {
+function PointHelper( gl, data = [], pointSize, pointColor ) {
 
-    this.shader = new ColorPointShader( gl, camera, pointSize, pointColor );
+    this.shader = new ColorPointShader( gl, pointSize, pointColor );
 
     const attribArrays = {};
     attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data, drawType: gl.DYNAMIC_DRAW };
@@ -23,6 +23,13 @@ Object.assign( PointHelper.prototype, {
 
         this.model.transform.updateMatrix().copyToWorldMatrix();
         this.shader.renderModel( this.model );
+        return this;
+
+    },
+
+    setCamera( camera ) {
+
+        this.shader.setCamera( camera );
         return this;
 
     },
@@ -68,7 +75,6 @@ Object.assign( PointHelper.prototype, {
         return this;
 
     },
-
 } );
 
 export { PointHelper };

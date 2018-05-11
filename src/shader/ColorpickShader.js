@@ -2,11 +2,10 @@ import { Shader } from './Shader';
 import vs from './shadersrc/colorpick.vs.glsl';
 import fs from './shadersrc/colorpick.fs.glsl';
 
-function ColorpickShader( gl, camera ) {
+function ColorpickShader( gl ) {
 
     Shader.call( this, gl, ColorpickShader.vs, ColorpickShader.fs );
 
-    this.setCamera( camera );
     this.setColor( [ 0.0, 0.0, 0.0 ] );
 
     this.deactivate();

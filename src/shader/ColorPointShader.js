@@ -2,11 +2,10 @@ import { Shader } from './Shader';
 import vs from './shadersrc/colorPoint.vs.glsl';
 import fs from './shadersrc/colorPoint.fs.glsl';
 
-function ColorPointShader( gl, camera, pointSize = 5.0, color = [ 255 / 255, 105 / 255, 180 / 255, 125 / 255 ] ) {
+function ColorPointShader( gl, pointSize = 5.0, color = [ 255 / 255, 105 / 255, 180 / 255, 125 / 255 ] ) {
 
     Shader.call( this, gl, ColorPointShader.vs, ColorPointShader.fs );
 
-    this.setCamera( camera );
     this.setPointSize( pointSize );
 
     this.setColor( color );

@@ -2,11 +2,9 @@ import { Shader } from './Shader';
 import vs from './shadersrc/phongLight.vs.glsl';
 import fs from './shadersrc/phongLight.fs.glsl';
 
-function PhongLightShader( gl, camera ) {
+function PhongLightShader( gl ) {
 
     Shader.call( this, gl, PhongLightShader.vs, PhongLightShader.fs );
-
-    this.setCamera( camera );
 
     this.setUniformObj( {
         position: [ 10, 10, 10 ],

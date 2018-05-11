@@ -2,11 +2,10 @@ import { Shader } from './Shader';
 import vs from './shadersrc/wireframe.vs.glsl';
 import fs from './shadersrc/wireframe.fs.glsl';
 
-function WireframeShader( gl, camera ) {
+function WireframeShader( gl ) {
 
     Shader.call( this, gl, WireframeShader.vs, WireframeShader.fs );
     this.sampleBlend = true;
-    this.setCamera( camera );
     this.setUniformObj( {
         thickness: 0.5,
         screenWidth: true,

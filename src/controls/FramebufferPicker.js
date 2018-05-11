@@ -25,12 +25,12 @@ function color2Id( colorArray ) {
 
 }
 
-function FramebufferPicker( gl, camera, controler ) {
+function FramebufferPicker( gl, controler ) {
 
     this.gl = gl;
     this.canvas = gl.canvas;
     this.controler = controler;
-    this.shader = new ColorpickShader( gl, camera );
+    this.shader = new ColorpickShader( gl );
     this.models = [];
     this.blankColor = this.id2Color( this.blankId );
     this.framebufferInfo = createFramebufferInfo( gl );
@@ -95,6 +95,13 @@ Object.assign( FramebufferPicker.prototype, {
         clear( this.gl );
         bindFramebufferInfo( this.gl, null );
 
+        return this;
+
+    },
+
+    setCamera( camera ) {
+
+        this.shader.setCamera( camera );
         return this;
 
     },

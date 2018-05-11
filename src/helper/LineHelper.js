@@ -5,9 +5,9 @@ import * as Constant from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
 import { getTypedArray } from '../renderer/typedArray';
 
-function LineHelper( gl, camera, points, colors, normalLength = 0.1 ) {
+function LineHelper( gl, points, colors, normalLength = 0.1 ) {
 
-    this.shader = new ColorLineShader( gl, camera, colors );
+    this.shader = new ColorLineShader( gl, colors );
     this.normalLength = normalLength;
 
     const vertices = points && this._getdata( points );
@@ -100,6 +100,13 @@ Object.assign( LineHelper.prototype, {
             this.model.transform.copyToWorldMatrix();
 
         this.shader.renderModel( this.model );
+        return this;
+
+    },
+
+    setCamera( camera ) {
+
+        this.shader.setCamera( camera );
         return this;
 
     },

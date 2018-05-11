@@ -2,11 +2,9 @@ import { Shader } from './Shader';
 import vs from './shadersrc/meshline.vs.glsl';
 import fs from './shadersrc/meshline.fs.glsl';
 
-function MeshLineShader( gl, camera ) {
+function MeshLineShader( gl ) {
 
     Shader.call( this, gl, MeshLineShader.vs, MeshLineShader.fs );
-
-    this.setCamera( camera );
 
     this.setUniformObj( {
         linewidth: 1.0,

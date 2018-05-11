@@ -3,11 +3,10 @@ import vs from './shadersrc/gltf.vs.glsl';
 import fs from './shadersrc/gltf.fs.glsl';
 import { PMath } from '../math/Math';
 
-function GLTFShader( gl, camera ) {
+function GLTFShader( gl ) {
 
     Shader.call( this, gl, GLTFShader.vs, GLTFShader.fs, { validateProgram: false } );
 
-    this.setCamera( camera );
     this.deactivate();
     this._maxVertexAttribs = gl.getParameter( gl.MAX_VERTEX_ATTRIBS );
 

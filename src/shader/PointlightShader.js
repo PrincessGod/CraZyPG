@@ -2,11 +2,9 @@ import { Shader } from './Shader';
 import vs from './shadersrc/phongLightSimple.vs.glsl';
 import fs from './shadersrc/phongLightSimple.fs.glsl';
 
-function PointlightShader( gl, camera ) {
+function PointlightShader( gl ) {
 
     Shader.call( this, gl, PointlightShader.vs, PointlightShader.fs );
-
-    this.setCamera( camera );
 
     this.setUniformObj( {
         position: [ 10, 10, 10 ],
