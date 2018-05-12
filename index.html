@@ -57,7 +57,7 @@
     <script src="./sample/js/dat.gui.min.js"></script>
     <script>
 
-        var sceneNode;
+        var sceneNode, ca, sc, or;
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('100%', '100%').clear();
             const context = renderer.context;
@@ -65,10 +65,11 @@
             const controler = scene.controler;
 
             let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            // let camera = new CZPG.OrthographicCamera(10, context.canvas.width/context.canvas.height);
             camera.transform.position = [0, 0, 7];
             let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
             cameraControler.enableDamping = true;
-            cameraControler.autoRotate = true;
+            // cameraControler.autoRotate = true;
 
             const textures = CZPG.createTextures(context, {
                 // diffuse: {
@@ -96,48 +97,48 @@
                 env1: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
-                        './resource/gltf/ENVTextures/environment/px.jpg',
-                        './resource/gltf/ENVTextures/environment/nx.jpg',
-                        './resource/gltf/ENVTextures/environment/py.jpg',
-                        './resource/gltf/ENVTextures/environment/ny.jpg',
-                        './resource/gltf/ENVTextures/environment/pz.jpg',
-                        './resource/gltf/ENVTextures/environment/nz.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/px.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/nx.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/py.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/ny.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/pz.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/nz.jpg',
                     ]
                 },
                 diffuse1: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
-                        './resource/gltf/ENVTextures/environment/bakedDiffuse_01.jpg',
-                        './resource/gltf/ENVTextures/environment/bakedDiffuse_02.jpg',
-                        './resource/gltf/ENVTextures/environment/bakedDiffuse_03.jpg',
-                        './resource/gltf/ENVTextures/environment/bakedDiffuse_04.jpg',
-                        './resource/gltf/ENVTextures/environment/bakedDiffuse_05.jpg',
-                        './resource/gltf/ENVTextures/environment/bakedDiffuse_06.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.px.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.nx.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.py.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.ny.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.pz.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.nz.jpg',
                     ]
                 },
                 lut: {
                     mag: context.NEAREST,
                     min: context.NEAREST,
-                    src: './resource/gltf/ENVTextures/brdfLUT.png',
+                    src: 'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/brdfLUT.png',
                 }
             });
 
-            let file = './resource/gltf/Cameras/glTF/Cameras.gltf';
+            let file = 'https://rawgit.com/KhronosGroup/glTF-Sample-Models/master/2.0/Cameras/glTF/Cameras.gltf';
             let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
                 u_diffuseEnvMap: textures.diffuse1,
                 u_specularEnvMap: textures.env1,
                 u_brdfLUT: textures.lut,
-            });gltfShader.cullFace = false;
+            });
             let gltfLoader = new CZPG.GLTFLoader();
             let animator;
             gltfLoader.load(file)
                 .then( res => {
                     const {rootNode, textures, animations, cameras} = res;
-                    sceneNode = rootNode;
+                    sceneNode = rootNode; ca = cameras; sc = scene; or = cameraControler;
                     const gltfTextures = CZPG.createTextures(context, textures);
-                    sceneNode.traverse((node)=> {
+                    rootNode.traverse((node)=> {
                         if(node.model && node.model.textures !== undefined) {
                             Object.keys(node.model.textures).forEach(uniformName => node.model.textures[uniformName] = gltfTextures[node.model.textures[uniformName]])
                             node.model.setUniformObj(node.model.textures);
@@ -156,7 +157,7 @@
                     }
                     // animator.playAll();
                     scene.add([
-                        {shader: gltfShader, model: sceneNode},
+                        {shader: gltfShader, model: rootNode},
                     ]);
                 });
 
@@ -169,7 +170,7 @@
             scene.add([
                 // {shader: gridShader, model: gridModal},
                 {shader: skymapShader, model: skyCubeModal},
-            ]).setCamera(camera);;
+            ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {

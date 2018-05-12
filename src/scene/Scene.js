@@ -18,6 +18,7 @@ function Scene( renderer, controler ) {
     this.root = new Node( 'root_node' );
     this.renderer = renderer;
     this.gl = this.renderer.context;
+    this.canvas = this.gl.canvas;
     this.controler = controler || new Controler( this.gl.canvas );
     this.quad2UnitModel = Quad.createModel( 'screenQuad', 2 );
     this.ScreenQuadShader = new ScreenQuadShader( this.gl ).setDefines( 'FXAA' ).setUniformObj( { u_resolution: [ this.gl.canvas.width, this.gl.canvas.height ] } );
@@ -106,13 +107,17 @@ Object.assign( Scene.prototype, {
     addNodeToShader( shader, node ) {
 
         const models = [];
-        function getModels( nodep ) {
+        const cameras = [];
+        function getTargets( nodep ) {
 
             if ( nodep.model )
                 models.push( nodep.model );
 
+            if ( nodep.camera )
+                cameras.push( nodep.camera );
+
         }
-        node.traverse( getModels );
+        node.traverse( getTargets );
 
         let shaderIdx = this.shadersMap.indexOf( shader );
         if ( shaderIdx < 0 ) {
@@ -144,6 +149,7 @@ Object.assign( Scene.prototype, {
         }
 
         this.root.addChild( node );
+        this.addCamera( cameras );
 
         return this;
 
@@ -186,11 +192,15 @@ Object.assign( Scene.prototype, {
                 const cameraNode = this.root.findInChildren( 'camera', camera );
                 if ( ! cameraNode )
                     this.root.addChild( camera );
+                const node = camera.node;
+                if ( node.afterUpdateMatrix )
+                    console.warn( 'remove a node\'s afterUpdateMatrix function by addCamera' );
+                node.afterUpdateMatrix = camera.updateViewMatFromModelMat.bind( camera );
 
             }
 
             if ( ! this.currentCamera )
-                this.currentCamera = camera;
+                this.currentCamera = camera.updateProjMatrix( this.canvas.width / this.canvas.height );
 
         }
 
@@ -200,10 +210,20 @@ Object.assign( Scene.prototype, {
 
     setCamera( camera ) {
 
-        if ( camera.isCamera )
-            this.addCamera( camera );
+        let cameraObj;
+        if ( camera.isCamera ) {
 
-        this.currentCamera = camera;
+            this.addCamera( camera );
+            cameraObj = camera;
+
+        } else if ( camera instanceof Node && camera.camera ) {
+
+            this.addCamera( camera.camera );
+            cameraObj = camera.camera;
+
+        }
+        if ( cameraObj )
+            this.currentCamera = cameraObj.updateProjMatrix( this.canvas.width / this.canvas.height );
         return this;
 
     },
