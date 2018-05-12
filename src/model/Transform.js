@@ -227,12 +227,18 @@ Object.assign( Transform.prototype, {
         } else if ( args.length === 3 ) {
 
             this._scale.set( ...args );
-            this._needUpdateMatrix = true;
-            this.needUpdateWorldMatrix = true;
+            this.markNeedUpdate( true );
 
         }
 
         return this;
+
+    },
+
+    markNeedUpdate( state ) {
+
+        this._needUpdateMatrix = !! state;
+        this.needUpdateWorldMatrix = !! state;
 
     },
 
@@ -249,8 +255,7 @@ Object.assign( Transform.prototype, {
         } else if ( args.length === 3 ) {
 
             this._position.set( ...args );
-            this._needUpdateMatrix = true;
-            this.needUpdateWorldMatrix = true;
+            this.markNeedUpdate( true );
 
         }
 
@@ -272,8 +277,7 @@ Object.assign( Transform.prototype, {
 
             this._rotation.set( ...args );
             this.updateQuaternion();
-            this._needUpdateMatrix = true;
-            this.needUpdateWorldMatrix = true;
+            this.markNeedUpdate( true );
 
         }
 
@@ -295,8 +299,7 @@ Object.assign( Transform.prototype, {
 
             this._quaternion.set( ...args );
             this.updateEuler();
-            this._needUpdateMatrix = true;
-            this.needUpdateWorldMatrix = true;
+            this.markNeedUpdate( true );
 
         }
 

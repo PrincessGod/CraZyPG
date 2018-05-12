@@ -82,6 +82,7 @@ Object.assign( Camera.prototype, {
         Matrix4.invert( this.matrix, this.viewMat );
         Matrix4.decompose( this.matrix, this.transform.vec3Position.raw, this.transform.quatQuaternion.raw, this.transform.vec3Scale.raw );
         this.transform.quaternion = this.transform.quaternion; // update rotation
+        this.transform.markNeedUpdate( false );
 
         return this;
 
@@ -94,19 +95,25 @@ Object.assign( Camera.prototype, {
 
     },
 
+    updateViewMatFromModelMat() {
+
+        Matrix4.invert( this.viewMat, this.matrix );
+
+    },
+
 } );
 
-function PerspectiveCamera( fov = 45, aspect = 1.5, near = 0.01, far = 1000 ) {
+function PerspectiveCamera( fov = 45, aspectRatio = 1.5, near = 0.01, far = 1000, fixAspectRatio = false ) {
 
     Camera.call( this );
 
-    this._fov = fov;
-    this.fovRadian = PMath.degree2Radian( this._fov );
-    this.aspect = aspect;
+    this.fov = fov;
+    this.aspectRatio = aspectRatio;
     this.near = near;
     this.far = far;
+    this.fixAspectRatio = fixAspectRatio;
 
-    Matrix4.perspective( this.projMat, this.fovRadian, aspect, near, far );
+    Matrix4.perspective( this.projMat, this.fovRadian, aspectRatio, near, far );
 
 }
 
@@ -114,15 +121,16 @@ PerspectiveCamera.prototype = Object.assign( Object.create( Camera.prototype ), 
 
     isPerspectiveCamera: true,
 
-    updateProjMatrix( aspect ) {
+    updateProjMatrix( aspectRatio ) {
 
-        if ( aspect && aspect !== this.aspect )
-            this.aspect = aspect;
+        if ( ! this.fixAspectRatio && aspectRatio )
+            this.aspectRatio = aspectRatio;
 
-        Matrix4.perspective( this.projMat, this.fovRadian, this.aspect, this.near, this.far );
+        Matrix4.perspective( this.projMat, this.fovRadian, this.aspectRatio, this.near, this.far );
+
+        return this;
 
     },
-
 
 } );
 
@@ -144,18 +152,19 @@ Object.defineProperties( PerspectiveCamera.prototype, {
 
 } );
 
-function OrthographicCamera( size, aspect, near = 1, far = size * 2 ) {
+function OrthographicCamera( size, aspectRatio, near = 1, far = size * 2, fixAspectRatio = false ) {
 
     Camera.call( this );
 
     this.size = size;
-    this.aspect = aspect;
+    this.aspectRatio = aspectRatio;
     this.near = near;
     this.far = far;
     this.zoom = 1;
+    this.fixAspectRatio = fixAspectRatio;
 
-    this.left = this.size * this.aspect / - 2;
-    this.right = this.size * this.aspect / 2;
+    this.left = this.size * this.aspectRatio / - 2;
+    this.right = this.size * this.aspectRatio / 2;
     this.bottom = this.size / - 2;
     this.top = this.size / 2;
 
@@ -167,14 +176,16 @@ OrthographicCamera.prototype = Object.assign( Object.create( Camera.prototype ),
 
     isOrthographicCamera: true,
 
-    updateProjMatrix( aspect ) {
+    updateProjMatrix( aspectRatio ) {
 
-        if ( aspect && aspect !== this.aspect )
-            this.aspect = aspect;
+        if ( ! this.fixAspectRatio && aspectRatio )
+            this.aspectRatio = aspectRatio;
 
-        this.left = this.size * this.aspect / - 2;
-        this.right = this.size * this.aspect / 2;
+        this.left = this.size * this.aspectRatio / - 2;
+        this.right = this.size * this.aspectRatio / 2;
         Matrix4.ortho( this.projMat, this.left / this.zoom, this.right / this.zoom, this.bottom / this.zoom, this.top / this.zoom, this.near / this.zoom, this.far / this.zoom );
+
+        return this;
 
     },
 

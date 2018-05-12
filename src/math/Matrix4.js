@@ -151,6 +151,14 @@ Object.assign( Matrix4, {
         out[ 14 ] = 2 * far * near * nf;
         out[ 15 ] = 0;
 
+        if ( far === Number.POSITIVE_INFINITY ) {
+
+            out[ 10 ] = - 1;
+            out[ 11 ] = - 2 * near;
+            out[ 14 ] = - 1;
+
+        }
+
         return out;
 
     },
