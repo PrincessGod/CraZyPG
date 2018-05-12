@@ -152,15 +152,21 @@ Object.assign( Node, {
 
     updateMatrixMarker( node, parent ) {
 
-        if ( node.transform._needUpdateMatrix || ( parent && parent.needUpdateWorldMatrix ) )
+        if ( node.transform._needUpdateMatrix || ( parent && parent.needUpdateWorldMatrix ) ) {
+
             node.needUpdateWorldMatrix = true; // eslint-disable-line
+            node._needCallAdterUpdate = true; // eslint-disable-line
+
+        }
 
     },
 
     afterUpdateMatrix( node, parent ) {
 
-        if ( typeof node.afterUpdateMatrix === 'function' )
+        if ( typeof node.afterUpdateMatrix === 'function' && ( node._needCallAdterUpdate || node.alwaysCallUpdate ) )
             node.afterUpdateMatrix( node, parent );
+
+        node._needCallAdterUpdate = false; // eslint-disable-line
 
     },
 
@@ -222,7 +228,7 @@ Object.assign( Node.prototype, {
             Node.remove( node );
 
         this.children.push( node );
-        node.parent = this; // eslint-disable-line
+        node.parent = this;
 
         return this;
 
@@ -276,6 +282,7 @@ Object.assign( Node.prototype, {
         this.model = model;
         this.name = this.model.name || `NODE_${nodeCount ++}_MODEL`;
         this.transform = this.model.transform;
+        this.needUpdateWorldMatrix = true;
 
         return this;
 
@@ -290,6 +297,7 @@ Object.assign( Node.prototype, {
         this.camera = camera;
         this.name = this.camera.name || `NODE_${nodeCount ++}_CAMERA`;
         this.transform = this.camera.transform;
+        this.needUpdateWorldMatrix = true;
 
         return this;
 
@@ -302,9 +310,8 @@ Object.assign( Node.prototype, {
         function find( node ) {
 
             if ( ! finded )
-                if ( node[ property ] !== undefined && node[ property ] === value )
+                if ( node[ property ] === value )
                     finded = node;
-
 
         }
 
