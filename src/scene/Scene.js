@@ -12,7 +12,7 @@ function Scene( renderer, controler ) {
     this.shadersMap = [];
     this.helpers = [];
     this.helpersMap = [];
-    this.currentCamera = null;
+    this._currentCamera = null;
     this.cameras = [];
 
     this.root = new Node( 'root_node' );
@@ -40,6 +40,26 @@ function Scene( renderer, controler ) {
     this.setPick( false );
 
 }
+
+Object.defineProperties( Scene.prototype, {
+
+    currentCamera: {
+
+        get() {
+
+            return this._currentCamera;
+
+        },
+
+        set( camera ) {
+
+            this.setCamera( camera );
+
+        },
+
+    },
+
+} );
 
 Object.assign( Scene.prototype, {
 
@@ -199,8 +219,8 @@ Object.assign( Scene.prototype, {
 
             }
 
-            if ( ! this.currentCamera )
-                this.currentCamera = camera.updateProjMatrix( this.canvas.width / this.canvas.height );
+            if ( ! this._currentCamera )
+                this._currentCamera = camera.updateProjMatrix( this.canvas.width / this.canvas.height );
 
         }
 
@@ -223,7 +243,7 @@ Object.assign( Scene.prototype, {
 
         }
         if ( cameraObj )
-            this.currentCamera = cameraObj.updateProjMatrix( this.canvas.width / this.canvas.height );
+            this._currentCamera = cameraObj.updateProjMatrix( this.canvas.width / this.canvas.height );
         return this;
 
     },
