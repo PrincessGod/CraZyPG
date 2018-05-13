@@ -111,7 +111,7 @@
             let animator;
             gltfLoader.load(file)
                 .then( res => {
-                    const {rootNode, textures, animations} = res;
+                    const {rootNode, textures, animations, cameras} = res;
                     const gltfTextures = CZPG.createTextures(context, textures);
                     rootNode.traverse((node)=> {
                         if(node.model && node.model.textures !== undefined) {
@@ -119,6 +119,21 @@
                             node.model.setUniformObj(node.model.textures);
                         }
                     });
+
+                    if(cameras.length > 0) {
+                        allCamera = [camera, ...cameras];
+                        allCameraName = ['Default', ...cameras.map(c => c.name)];
+                        datgui.add(controlObj, 'camera', allCameraName)
+                            .onFinishChange(value => {
+                                let target = allCamera.filter(c => c.name === value);
+                                scene.setCamera(allCamera[allCameraName.indexOf(value)]);
+                                if(scene.currentCamera === camera) {
+                                    cameraControler.enable = true;
+                                } else {
+                                    cameraControler.enable = false;
+                                }
+                            });
+                    }
 
                     animator = new CZPG.Animator(animations);
                     let animates = animator.animations;
@@ -159,6 +174,7 @@
                 showgrid: false,
                 autoRotate: true,
                 animate: 'None',
+                camera: 'Default'
             };
             let datgui = new dat.GUI();
             datgui.add(controlObj, 'showgrid')

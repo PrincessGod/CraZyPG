@@ -108,6 +108,8 @@ class OrbitControls {
 
     update() {
 
+        if ( ! this.enable ) return;
+
         const position = this.camera.vec3Position;
 
         this._offset.copy( position ).sub( this.target );
