@@ -154,8 +154,8 @@ Object.assign( Matrix4, {
         if ( far === Number.POSITIVE_INFINITY ) {
 
             out[ 10 ] = - 1;
-            out[ 11 ] = - 2 * near;
-            out[ 14 ] = - 1;
+            out[ 11 ] = - 1;
+            out[ 14 ] = - 2 * near;
 
         }
 
@@ -179,8 +179,10 @@ Object.assign( Matrix4, {
         out[ 9 ] = 0;
         out[ 10 ] = 2 * nf;
         out[ 11 ] = 0;
-        out[ 12 ] = ( left + right ) * lr;
-        out[ 13 ] = ( top + bottom ) * bt;
+        // out[ 12 ] = ( left + right ) * lr;
+        // out[ 13 ] = ( top + bottom ) * bt;
+        out[ 12 ] = 0;
+        out[ 13 ] = 0;
         out[ 14 ] = ( far + near ) * nf;
         out[ 15 ] = 1;
 

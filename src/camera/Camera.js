@@ -35,7 +35,7 @@ Object.defineProperties( Camera.prototype, {
 
         get() {
 
-            return this.transform.matrix.raw;
+            return this.transform.worldMatrix.raw;
 
         },
 

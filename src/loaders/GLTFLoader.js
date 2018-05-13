@@ -7,6 +7,7 @@ import { Node } from '../scene/Node';
 import { Matrix4 } from '../math/Matrix4';
 import { FileLoader } from './Fileloader';
 import { PerspectiveCamera } from '../camera/Camera';
+import { PMath } from '../math/Math';
 
 function GLTFLoader() {
 
@@ -254,15 +255,16 @@ Object.assign( GLTFLoader.prototype, {
                     const {
                         yfov, znear, aspectRatio, zfar, name,
                     } = camera;
+                    const fov = PMath.radian2Degree( yfov );
                     const fixAspectRatio = typeof aspectRatio !== 'undefined';
                     const far = zfar === undefined ? Number.POSITIVE_INFINITY : zfar;
-                    const perspectiveCamera = new PerspectiveCamera( yfov, aspectRatio, znear, far, fixAspectRatio );
+                    const perspectiveCamera = new PerspectiveCamera( fov, aspectRatio, znear, far, fixAspectRatio );
                     perspectiveCamera.name = name;
                     node.setCamera( perspectiveCamera );
+                    perspectiveCamera.rawData = nodeInfo.camera;
+                    cameras.push( perspectiveCamera );
 
                 }
-
-                cameras.push( Object.assign( {}, nodeInfo.camera, { node } ) );
 
             }
             if ( nodeInfo.primitives ) {

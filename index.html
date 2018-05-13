@@ -72,29 +72,7 @@
             // cameraControler.autoRotate = true;
 
             const textures = CZPG.createTextures(context, {
-                // diffuse: {
-                //     target: context.TEXTURE_CUBE_MAP,
-                //     src: [
-                //         './resource/gltf/ENVTextures/papermill/diffuse_right_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_left_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_top_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_bottom_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_front_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/diffuse_back_0.jpg',
-                //     ]
-                // },
-                // env: {
-                //     target: context.TEXTURE_CUBE_MAP,
-                //     src: [
-                //         './resource/gltf/ENVTextures/papermill/environment_right_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_left_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_top_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_bottom_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_front_0.jpg',
-                //         './resource/gltf/ENVTextures/papermill/environment_back_0.jpg',
-                //     ]
-                // },
-                env1: {
+                env: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
                         'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/px.jpg',
@@ -105,7 +83,7 @@
                         'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/nz.jpg',
                     ]
                 },
-                diffuse1: {
+                diffuse: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
                         'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.px.jpg',
@@ -123,12 +101,13 @@
                 }
             });
 
-            let file = 'https://rawgit.com/KhronosGroup/glTF-Sample-Models/master/2.0/Cameras/glTF/Cameras.gltf';
+            // let file = 'https://rawgit.com/KhronosGroup/glTF-Sample-Models/master/2.0/Cameras/glTF/Cameras.gltf';
+            let file = 'https://cdn.rawgit.com/KhronosGroup/glTF-Blender-Exporter/0e23c773bf27dad67d2c25f060370d6fa012d87d/polly/project_polly.gltf';
             let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
-                u_diffuseEnvMap: textures.diffuse1,
-                u_specularEnvMap: textures.env1,
+                u_diffuseEnvMap: textures.diffuse,
+                u_specularEnvMap: textures.env,
                 u_brdfLUT: textures.lut,
             });
             let gltfLoader = new CZPG.GLTFLoader();
@@ -144,6 +123,21 @@
                             node.model.setUniformObj(node.model.textures);
                         }
                     });
+
+                    if(cameras.length > 0) {
+                        allCamera = [camera, ...cameras];
+                        allCameraName = ['Default', ...cameras.map(c => c.name)];
+                        datgui.add(controlObj, 'camera', allCameraName)
+                            .onFinishChange(value => {
+                                let target = allCamera.filter(c => c.name === value);
+                                scene.setCamera(allCamera[allCameraName.indexOf(value)]);
+                                if(scene.currentCamera === camera) {
+                                    cameraControler.enable = true;
+                                } else {
+                                    cameraControler.enable = false;
+                                }
+                            });
+                    }
 
                     animator = new CZPG.Animator(animations);
                     let animates = animator.animations;
@@ -164,7 +158,7 @@
             let gridShader = new CZPG.GridAxisShader(context);
             let gridModal = CZPG.GridAxis.createModel()
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.env1);
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.env);
             let skyCubeModal = CZPG.Cube.createModel('sky');
 
             scene.add([
@@ -185,6 +179,7 @@
                 showgrid: false,
                 autoRotate: true,
                 animate: 'None',
+                camera: 'Default',
             };
             let datgui = new dat.GUI();
             datgui.add(controlObj, 'showgrid')

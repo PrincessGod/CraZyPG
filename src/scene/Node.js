@@ -296,6 +296,7 @@ Object.assign( Node.prototype, {
         camera.node = this; // eslint-disable-line
         this.camera = camera;
         this.name = this.camera.name || `NODE_${nodeCount ++}_CAMERA`;
+        this.camera.name = this.name;
         this.transform = this.camera.transform;
         this.needUpdateWorldMatrix = true;
 

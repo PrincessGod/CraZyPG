@@ -1,4 +1,5 @@
 const RADIAN_PER_DEGREE = Math.PI / 180;
+const DEGREE_PER_RADIAN = 180 / Math.PI;
 const EPS = 0.000001;
 
 const PMath = {
@@ -8,6 +9,12 @@ const PMath = {
     degree2Radian( degree ) {
 
         return degree * RADIAN_PER_DEGREE;
+
+    },
+
+    radian2Degree( radian ) {
+
+        return radian * DEGREE_PER_RADIAN;
 
     },
 
