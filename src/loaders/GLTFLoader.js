@@ -6,7 +6,7 @@ import { Mesh } from '../model/Primatives';
 import { Node } from '../scene/Node';
 import { Matrix4 } from '../math/Matrix4';
 import { FileLoader } from './Fileloader';
-import { PerspectiveCamera } from '../camera/Camera';
+import { PerspectiveCamera, OrthographicCamera } from '../camera/Camera';
 import { PMath } from '../math/Math';
 
 function GLTFLoader() {
@@ -261,8 +261,21 @@ Object.assign( GLTFLoader.prototype, {
                     const perspectiveCamera = new PerspectiveCamera( fov, aspectRatio, znear, far, fixAspectRatio );
                     perspectiveCamera.name = name;
                     node.setCamera( perspectiveCamera );
-                    perspectiveCamera.rawData = nodeInfo.camera;
+                    perspectiveCamera.rawData = camera;
                     cameras.push( perspectiveCamera );
+
+                }
+
+                if ( camera.type === 'orthographic' ) {
+
+                    const {
+                        name, xmag, ymag, zfar, znear,
+                    } = camera;
+                    const orthographicCamera = new OrthographicCamera( ymag, xmag / ymag, znear, zfar, true );
+                    orthographicCamera.name = name;
+                    node.setCamera( orthographicCamera );
+                    orthographicCamera.rawData = camera;
+                    cameras.push( orthographicCamera );
 
                 }
 

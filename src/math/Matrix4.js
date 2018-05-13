@@ -179,10 +179,8 @@ Object.assign( Matrix4, {
         out[ 9 ] = 0;
         out[ 10 ] = 2 * nf;
         out[ 11 ] = 0;
-        // out[ 12 ] = ( left + right ) * lr;
-        // out[ 13 ] = ( top + bottom ) * bt;
-        out[ 12 ] = 0;
-        out[ 13 ] = 0;
+        out[ 12 ] = ( left + right ) * lr;
+        out[ 13 ] = ( top + bottom ) * bt;
         out[ 14 ] = ( far + near ) * nf;
         out[ 15 ] = 1;
 
