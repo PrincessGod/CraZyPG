@@ -506,7 +506,89 @@ Object.assign( GLTFLoader.prototype, {
 
         }
 
-        const animas = { animations, rootNode, type: 'gltf' };
+        // animations
+        for ( let i = 0; i < animations.length; i ++ ) {
+
+            const { clips } = animations[ i ];
+            let animateMaxTime = Number.NEGATIVE_INFINITY;
+            let animateMinTime = Number.POSITIVE_INFINITY;
+            for ( let j = 0; j < clips.length; j ++ ) {
+
+                const {
+                    findFlag, findValue, targetProp, times, extras, // method,
+                } = clips[ j ];
+
+                const node = rootNode.findInChildren( findFlag, findValue );
+                let targetNodes = [ node ];
+                if ( ! node.model && node.gltfPrimitives )
+                    targetNodes = node.gltfPrimitives;
+
+                let setTarget;
+                let resetTarget;
+                if ( targetProp === 'weights' ) {
+
+                    const resetObj = {};
+                    resetObj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ] = targetNodes[ 0 ].model.uniformObj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ];
+                    resetTarget = function () {
+
+                        targetNodes.forEach( ( n ) => {
+
+                            n.model.setUniformObj( resetObj );
+
+                        } );
+
+                    };
+
+                    setTarget = function ( v ) {
+
+                        const uniformobj = {};
+                        uniformobj[ extras.uniformName ] = v;
+
+                        targetNodes.forEach( ( n ) => {
+
+                            n.model.setUniformObj( uniformobj );
+
+                        } );
+
+                    };
+
+                } else {
+
+                    const defaultValues = [];
+                    for ( let m = 0; m < targetNodes.length; m ++ )
+                        defaultValues[ m ] = targetNodes[ m ][ targetProp ];
+
+                    resetTarget = function () {
+
+                        for ( let m = 0; m < targetNodes.length; m ++ )
+                            targetNodes[ m ][ targetProp ] = defaultValues[ m ];
+
+                    };
+
+                    setTarget = function ( v ) {
+
+                        targetNodes.forEach( ( n ) => {
+
+                            n[ targetProp ] = v; // eslint-disable-line
+
+                        } );
+
+                    };
+
+                }
+
+                animateMinTime = animateMinTime < times[ 0 ] ? animateMinTime : times[ 0 ];
+                animateMaxTime = animateMaxTime > times[ times.length - 1 ] ? animateMaxTime : times[ times.length - 1 ];
+
+                Object.assign( clips[ j ], { setTarget, resetTarget } );
+
+            }
+
+            Object.assign( animations[ i ], { animateMinTime, animateMaxTime } );
+
+        }
+
+        const animas = { animations, type: 'gltf' };
         return {
             rootNode, textures, animations: animas, cameras,
         };

@@ -40,6 +40,7 @@ Object.assign( Animator.prototype, {
                 clip.currentTime = 0; // eslint-disable-line
                 clip.currentIdx = 0; // eslint-disable-line
                 clip.sumTime = 0; // eslint-disable-line
+                clip.resetTarget();
 
             } );
 
@@ -126,57 +127,27 @@ Object.assign( Animator, {
 
         gltf( raw ) {
 
-            const { animations, rootNode } = raw;
+            const { animations } = raw;
             const result = [];
             for ( let i = 0; i < animations.length; i ++ ) {
 
-                const animation = animations[ i ];
-                const { name, clips } = animation;
-                let animateMaxTime = Number.NEGATIVE_INFINITY;
-                let animateMinTime = Number.POSITIVE_INFINITY;
+                const {
+                    name, clips, animateMinTime, animateMaxTime,
+                } = animations[ i ];
                 const clipsRes = [];
                 for ( let j = 0; j < clips.length; j ++ ) {
 
-                    const clip = clips[ j ];
                     const {
-                        findFlag, findValue, targetProp, times, values, extras, // method,
-                    } = clip;
-
-                    const node = rootNode.findInChildren( findFlag, findValue );
-                    let nodes = [ node ];
-                    if ( ! node.model && node.gltfPrimitives )
-                        nodes = node.gltfPrimitives;
+                        targetProp, times, values, setTarget, resetTarget, // method,
+                    } = clips[ j ];
 
                     let lerpFun;
-                    let setTarget = function ( v ) {
-
-                        nodes.forEach( ( n ) => {
-
-                            n[ targetProp ] = v; // eslint-disable-line
-
-                        } );
-
-                    };
                     switch ( targetProp ) {
 
                     case 'quaternion':
                         lerpFun = quaternionLinearSlerp;
                         break;
                     case 'weights':
-                        lerpFun = weightLinearLerp;
-                        setTarget = function ( v ) {
-
-                            const uniformobj = {};
-                            uniformobj[ extras.uniformName ] = v;
-
-                            nodes.forEach( ( n ) => {
-
-                                n.model.setUniformObj( uniformobj );
-
-                            } );
-
-                        };
-                        break;
                     case 'position':
                     case 'scale':
                         lerpFun = weightLinearLerp;
@@ -188,16 +159,17 @@ Object.assign( Animator, {
 
                     if ( ! lerpFun ) continue;
 
-                    animateMinTime = animateMinTime < times[ 0 ] ? animateMinTime : times[ 0 ];
-                    animateMaxTime = animateMaxTime > times[ times.length - 1 ] ? animateMaxTime : times[ times.length - 1 ];
                     const clipRes = {
-                        setTarget,
                         times,
                         values,
                         lerpFun,
-                        sumTime: 0,
+                        setTarget,
+                        resetTarget,
                         minTime: times[ 0 ],
                         maxTime: times[ times.length - 1 ],
+                        animateMinTime,
+                        animateMaxTime,
+                        sumTime: 0,
                         currentIdx: 0,
                         currentTime: 0,
                         currentValue: values[ 0 ].slice ? values[ 0 ].slice() : values[ 0 ],
@@ -206,13 +178,6 @@ Object.assign( Animator, {
                     clipsRes.push( clipRes );
 
                 }
-
-                clipsRes.forEach( ( clip ) => {
-
-                    clip.animateMaxTime = animateMaxTime; // eslint-disable-line
-                    clip.animateMinTime = animateMinTime; // eslint-disable-line
-
-                } );
 
                 result.push( { name, clips: clipsRes } );
 
