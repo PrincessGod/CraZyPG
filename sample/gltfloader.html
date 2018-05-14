@@ -57,6 +57,12 @@
     <script src="./js/dat.gui.min.js"></script>
     <script>
 
+        const modelList = [
+            {name: 'Buster Drone', url: 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/buster_drone/scene.gltf'},
+            // {name: 'Fox', url : 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/fox/quadruped_fox.gltf'},
+            {name: 'Bear', url: 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/BearOnBalloons/scene.gltf'},
+        ];
+
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('100%', '100%').clear();
             const context = renderer.context;
@@ -99,6 +105,7 @@
                 }
             });
 
+            let currentGltf;
             let file = 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/buster_drone/scene.gltf';
             let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
                 u_lightDirection: [0, 1, 1],
@@ -108,6 +115,7 @@
                 u_brdfLUT: textures.lut,
             });
             let gltfLoader = new CZPG.GLTFLoader();
+            let items = [];
             let animator;
             gltfLoader.load(file)
                 .then( res => {
@@ -123,7 +131,7 @@
                     if(cameras.length > 0) {
                         allCamera = [camera, ...cameras];
                         allCameraName = ['Default', ...cameras.map(c => c.name)];
-                        datgui.add(controlObj, 'camera', allCameraName)
+                        let item = datgui.add(controlObj, 'camera', allCameraName)
                             .onFinishChange(value => {
                                 let target = allCamera.filter(c => c.name === value);
                                 scene.setCamera(allCamera[allCameraName.indexOf(value)]);
@@ -133,6 +141,7 @@
                                     cameraControler.enable = false;
                                 }
                             });
+                        items.push(item);
                     }
 
                     animator = new CZPG.Animator(animations);
@@ -140,15 +149,15 @@
                     if(animates.length > 0) {
                         let animateMap = animates.map(ani => ani.name);
                         animateMap = ['None'].concat(animateMap);
-                        datgui.add(controlObj, 'animate', animateMap)
+                        let item = datgui.add(controlObj, 'animate', animateMap)
                             .onFinishChange(value => {
                                 animator.resetAll().playAnimation(value);
-                            });
+                            }).listen();
+                        items.push(item);
                     }
 
-                    scene.add([
-                        {shader: gltfShader, model: rootNode},
-                    ]);
+                    currentGltf = {shader: gltfShader, model: rootNode};
+                    scene.add(currentGltf);
                 });
 
             let gridShader = new CZPG.GridAxisShader(context);
@@ -174,8 +183,10 @@
                 showgrid: false,
                 autoRotate: true,
                 animate: 'None',
-                camera: 'Default'
+                camera: 'Default',
+                model: 'Buster Drone',
             };
+            let modelMap = modelList.map(m => m.name);
             let datgui = new dat.GUI();
             datgui.add(controlObj, 'showgrid')
                 .onFinishChange(value => {
@@ -188,6 +199,60 @@
                 .onFinishChange(value => {
                         cameraControler.autoRotate = value;
                 });
+            datgui.add(controlObj, 'model', modelMap)
+                .onFinishChange(value => {
+                    if(!currentGltf) return;
+                    let file = modelList[modelMap.indexOf(value)].url;
+                    scene.remove(currentGltf);
+                    currentGltf = null;
+                    animator = null;
+                    cameraControler.enable = true;
+                    controlObj.animate = 'None';
+                    items.forEach(i => datgui.remove(i));
+                    items = [];
+                    gltfLoader.load(file)
+                    .then( res => {
+                        const {rootNode, textures, animations, cameras} = res;
+                        const gltfTextures = CZPG.createTextures(context, textures);
+                        rootNode.traverse((node)=> {
+                            if(node.model && node.model.textures !== undefined) {
+                                Object.keys(node.model.textures).forEach(uniformName => node.model.textures[uniformName] = gltfTextures[node.model.textures[uniformName]])
+                                node.model.setUniformObj(node.model.textures);
+                            }
+                        });
+
+                        if(cameras.length > 0) {
+                            allCamera = [camera, ...cameras];
+                            allCameraName = ['Default', ...cameras.map(c => c.name)];
+                            let item = datgui.add(controlObj, 'camera', allCameraName)
+                                .onFinishChange(value => {
+                                    let target = allCamera.filter(c => c.name === value);
+                                    scene.setCamera(allCamera[allCameraName.indexOf(value)]);
+                                    if(scene.currentCamera === camera) {
+                                        cameraControler.enable = true;
+                                    } else {
+                                        cameraControler.enable = false;
+                                    }
+                                });
+                            items.push(item);
+                        }
+
+                        animator = new CZPG.Animator(animations);
+                        let animates = animator.animations;
+                        if(animates.length > 0) {
+                            let animateMap = animates.map(ani => ani.name);
+                            animateMap = ['None'].concat(animateMap);
+                            let item = datgui.add(controlObj, 'animate', animateMap)
+                                .onFinishChange(value => {
+                                    animator.resetAll().playAnimation(value);
+                                }).listen();
+                            items.push(item);
+                        }
+
+                        currentGltf = {shader: gltfShader, model: rootNode};
+                        scene.add(currentGltf);
+                    });
+                })
         });
 
     </script>
