@@ -234,7 +234,7 @@ Object.assign( Scene.prototype, {
     setCamera( camera ) {
 
         let cameraObj;
-        if ( camera.isCamera ) {
+        if ( camera && camera.isCamera ) {
 
             this.addCamera( camera );
             cameraObj = camera;
@@ -275,6 +275,9 @@ Object.assign( Scene.prototype, {
             model.forEach( m => this.removeModelFromShader( shader, m ) );
         else {
 
+            if ( model instanceof Node )
+                return this.removeNodeFromShader( shader, model );
+
             const shaderIdx = this.shadersMap.indexOf( shader );
             let modelIdx = - 1;
             if ( shaderIdx > - 1 ) {
@@ -282,6 +285,12 @@ Object.assign( Scene.prototype, {
                 modelIdx = this.shaders[ shaderIdx ].models.indexOf( model );
                 if ( modelIdx > - 1 )
                     this.shaders[ shaderIdx ].models.splice( modelIdx, 1 );
+                if ( this.shaders[ shaderIdx ].models.length < 1 ) {
+
+                    this.shaders.splice( shaderIdx, 1 );
+                    this.shadersMap.splice( shaderIdx, 1 );
+
+                }
 
             }
 
@@ -289,9 +298,60 @@ Object.assign( Scene.prototype, {
             if ( modelIdx > - 1 ) {
 
                 this.models.splice( modelIdx, 1 );
-                this.root.remove( model.node );
+                if ( model.node.parent === this.root )
+                    this.root.remove( model.node );
                 if ( this.enablePick )
                     this.needUpdateColorId = true;
+
+            }
+
+        }
+
+        return this;
+
+    },
+
+    removeNodeFromShader( shader, node ) {
+
+        const models = [];
+        const cameras = [];
+        function getTargets( nodep ) {
+
+            if ( nodep.model )
+                models.push( nodep.model );
+
+            if ( nodep.camera )
+                cameras.push( nodep.camera );
+
+        }
+
+        if ( Array.isArray( node ) )
+            node.forEach( n => this.removeNodeFromShader( shader, n ) );
+        else {
+
+            node.traverse( getTargets );
+            this.removeModelFromShader( shader, models );
+            this.removeCamera( cameras );
+            Node.remove( node );
+
+        }
+
+        return this;
+
+    },
+
+    removeCamera( camera ) {
+
+        if ( Array.isArray( camera ) )
+            camera.forEach( c => this.removeCamera( c ) );
+        else {
+
+            const idx = this.cameras.indexOf( camera );
+            if ( idx > - 1 ) {
+
+                this.cameras.splice( idx, 1 );
+                if ( this.currentCamera === camera )
+                    this.setCamera( this.cameras[ 0 ] );
 
             }
 
@@ -436,6 +496,18 @@ Object.assign( Scene.prototype, {
         this.shadersMap = [];
         this.helpers = [];
         this.helpersMap = [];
+        let camera = null;
+        const removeNodes = [];
+        this.root.children.forEach( ( c ) => {
+
+            if ( ! c.camera )
+                removeNodes.push( c );
+            else
+                camera = c.camera;
+
+        } );
+        removeNodes.forEach( n => Node.remove( n ) );
+        this.setCamera( camera );
         return this;
 
     },
