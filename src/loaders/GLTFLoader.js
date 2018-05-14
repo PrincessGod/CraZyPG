@@ -447,7 +447,9 @@ Object.assign( GLTFLoader.prototype, {
         trivarse( parseNode, rootNode, nodes );
 
         // apply skins
-        if ( skins.length )
+        if ( skins.length ) {
+
+            const handlers = []; // help uglify use different name
             for ( let i = 0; i < skins.length; i ++ ) {
 
                 const {
@@ -472,7 +474,7 @@ Object.assign( GLTFLoader.prototype, {
 
                 const frag = new Array( 16 );
                 const fragWorld = new Array( 16 );
-                const handler = function updateJointUniformFunc() {
+                handlers[ i ] = function updateJointUniformFunc() {
 
                     let jointMats = [];
                     Matrix4.invert( fragWorld, globalTransformNode.transform.getWorldMatrix() );
@@ -492,10 +494,12 @@ Object.assign( GLTFLoader.prototype, {
                 };
 
                 rootNode.afterUpdateMatrix.push( {
-                    type: 'skin', skinName: skins[ i ].name, handler, trigerNodes: [ globalTransformNode, ...globalJointTransformNodes ],
+                    type: 'skin', skinName: skins[ i ].name, handler: handlers[ i ], trigerNodes: [ globalTransformNode, ...globalJointTransformNodes ],
                 } );
 
             }
+
+        }
 
 
         // animations
