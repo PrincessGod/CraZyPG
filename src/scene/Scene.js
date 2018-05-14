@@ -213,9 +213,12 @@ Object.assign( Scene.prototype, {
                 if ( ! cameraNode )
                     this.root.addChild( camera );
                 const node = camera.node;
-                if ( node.afterUpdateMatrix )
-                    console.warn( 'remove a node\'s afterUpdateMatrix function by addCamera' );
-                node.afterUpdateMatrix = camera.updateViewMatFromModelMat.bind( camera );
+                node.afterUpdateMatrix.push( {
+                    type: 'camera',
+                    cameraName: camera.name,
+                    handler: camera.updateViewMatFromModelMat.bind( camera ),
+                    trigerNodes: [ node ],
+                } );
 
             }
 

@@ -79,8 +79,9 @@ Object.assign( Camera.prototype, {
             this.target = target;
 
         Matrix4.lookAt( this.viewMat, this.transform.position, this.target.getArray(), this.up.getArray() );
-        Matrix4.invert( this.matrix, this.viewMat );
-        Matrix4.decompose( this.matrix, this.transform.vec3Position.raw, this.transform.quatQuaternion.raw, this.transform.vec3Scale.raw );
+        Matrix4.invert( this.transform.matrix.raw, this.viewMat );
+        Matrix4.decompose( this.transform.matrix.raw, this.transform.vec3Position.raw, this.transform.quatQuaternion.raw, this.transform.vec3Scale.raw );
+        Matrix4.copy( this.transform.worldMatrix.raw, this.transform.matrix.raw );
         this.transform.quaternion = this.transform.quaternion; // update rotation
         this.transform.markNeedUpdate( false );
 

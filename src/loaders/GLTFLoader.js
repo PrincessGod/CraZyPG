@@ -447,10 +447,7 @@ Object.assign( GLTFLoader.prototype, {
         trivarse( parseNode, rootNode, nodes );
 
         // apply skins
-        if ( skins.length ) {
-
-            const skinsNum = skins.length;
-            const updateJointUniformFuncs = [];
+        if ( skins.length )
             for ( let i = 0; i < skins.length; i ++ ) {
 
                 const {
@@ -472,9 +469,10 @@ Object.assign( GLTFLoader.prototype, {
                 } else
                     globalTransformNode = rootNode;
 
+
                 const frag = new Array( 16 );
                 const fragWorld = new Array( 16 );
-                updateJointUniformFuncs[ i ] = function updateJointUniformFunc() {
+                const handler = function updateJointUniformFunc() {
 
                     let jointMats = [];
                     Matrix4.invert( fragWorld, globalTransformNode.transform.getWorldMatrix() );
@@ -493,18 +491,12 @@ Object.assign( GLTFLoader.prototype, {
 
                 };
 
+                rootNode.afterUpdateMatrix.push( {
+                    type: 'skin', skinName: skins[ i ].name, handler, trigerNodes: [ globalTransformNode, ...globalJointTransformNodes ],
+                } );
+
             }
 
-            rootNode.afterUpdateMatrix = function () {
-
-                for ( let i = 0; i < skinsNum; i ++ )
-                    updateJointUniformFuncs[ i ]();
-
-            };
-
-            rootNode.alwaysCallUpdate = true; // need optimize
-
-        }
 
         // animations
         for ( let i = 0; i < animations.length; i ++ ) {

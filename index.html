@@ -101,8 +101,8 @@
                 }
             });
 
-            let file = 'https://cdn.rawgit.com/KhronosGroup/glTF-Blender-Exporter/0e23c773bf27dad67d2c25f060370d6fa012d87d/polly/project_polly.gltf';
-            // let file = 'https://cdn.rawgit.com/KhronosGroup/glTF-Sample-Models/395358db/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf';
+            // let file = './resource/gltf/VC/glTF/VC.gltf';
+            let file = 'https://cdn.rawgit.com/KhronosGroup/glTF-Sample-Models/395358db/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf';
             let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
                 u_lightDirection: [0, 1, 1],
                 u_lightColor: [1, 1, 1],
@@ -169,7 +169,7 @@
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {
                 resized = renderer.clear(0.05,0.05,0.05,1).fixCanvasToDisplay(window.devicePixelRatio);
-                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                if(resized) scene.cameras.forEach(c => c.updateProjMatrix( context.canvas.width / context.canvas.height ));
                 cameraControler.update();
                 if(animator) animator.update(timespan);
                 scene.render();

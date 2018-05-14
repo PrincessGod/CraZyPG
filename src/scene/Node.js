@@ -16,6 +16,8 @@ function Node( nameModel ) {
     this.children = [];
     this.parent = null;
     this.transform = this.transform ? this.transform : new Transform();
+    this._updatedThisFrame = false;
+    this.afterUpdateMatrix = [];
 
 }
 
@@ -105,6 +107,16 @@ Object.defineProperties( Node.prototype, {
 
     },
 
+    updatedThisFrame: {
+
+        get() {
+
+            return this._updatedThisFrame;
+
+        },
+
+    },
+
 } );
 
 Object.assign( Node, {
@@ -145,28 +157,29 @@ Object.assign( Node, {
 
             node.transform.updateNormalMatrix().updateDirection();
             node.needUpdateWorldMatrix = false; // eslint-disable-line
+            node._updatedThisFrame = true; // eslint-disable-line
 
-        }
+        } else
+            node._updatedThisFrame = false; // eslint-disable-line
 
     },
 
     updateMatrixMarker( node, parent ) {
 
-        if ( node.transform._needUpdateMatrix || ( parent && parent.needUpdateWorldMatrix ) ) {
-
+        if ( node.transform._needUpdateMatrix || ( parent && parent.needUpdateWorldMatrix ) )
             node.needUpdateWorldMatrix = true; // eslint-disable-line
-            node._needCallAdterUpdate = true; // eslint-disable-line
-
-        }
 
     },
 
-    afterUpdateMatrix( node, parent ) {
+    afterUpdateMatrix( node ) {
 
-        if ( typeof node.afterUpdateMatrix === 'function' && ( node._needCallAdterUpdate || node.alwaysCallUpdate ) )
-            node.afterUpdateMatrix( node, parent );
+        for ( let i = 0; i < node.afterUpdateMatrix.length; i ++ ) {
 
-        node._needCallAdterUpdate = false; // eslint-disable-line
+            const { handler, trigerNodes } = node.afterUpdateMatrix[ i ];
+            if ( typeof handler === 'function' && trigerNodes.filter( n => n.updatedThisFrame ).length > 0 )
+                handler( node, trigerNodes );
+
+        }
 
     },
 
