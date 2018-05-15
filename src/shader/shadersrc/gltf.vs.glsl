@@ -244,9 +244,9 @@ void main() {
         v_TBN = mat3(tangentW, bitangentW, normalW);
         #else
             #ifdef JOINTS_NUM
-            v_normal = u_normMat * transpose(inverse(mat3(skinMatrix))) * normal;
+            v_normal = normalize(u_normMat * transpose(inverse(mat3(skinMatrix))) * normal);
             #else
-            v_normal = u_normMat * normal;
+            v_normal = normalize(u_normMat * normal);
             #endif
         #endif
     #endif
