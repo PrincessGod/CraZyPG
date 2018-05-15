@@ -146,7 +146,7 @@ Object.assign( GridAxis, {
 
         }
 
-        vertices.push( - half );
+        vertices.push( 0 );
         vertices.push( 0 );
         vertices.push( 0 );
         color.push( 1 );
@@ -157,7 +157,7 @@ Object.assign( GridAxis, {
         color.push( 1 );
 
         vertices.push( 0 );
-        vertices.push( - half );
+        vertices.push( 0 );
         vertices.push( 0 );
         color.push( 2 );
 
@@ -168,7 +168,7 @@ Object.assign( GridAxis, {
 
         vertices.push( 0 );
         vertices.push( 0 );
-        vertices.push( - half );
+        vertices.push( 0 );
         color.push( 3 );
 
         vertices.push( 0 );
