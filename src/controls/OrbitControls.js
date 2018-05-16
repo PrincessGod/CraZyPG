@@ -3,108 +3,108 @@ import { Vector2 } from '../math/Vector2';
 import { Vector3 } from '../math/Vector3';
 import { Spherical } from '../math/Spherical';
 
-class OrbitControls {
+function OrbitControls( camera, domElement, controler ) {
 
-    constructor( camera, domElement, controler ) {
+    this.controler = controler;
+    this.camera = camera;
+    this.domElement = ( domElement !== undefined ) ? domElement : document;
+    this.enable = true;
+    this.target = new Vector3();
 
-        this.controler = controler;
-        this.camera = camera;
-        this.domElement = ( domElement !== undefined ) ? domElement : document;
-        this.enable = true;
-        this.target = new Vector3();
+    this.minDistance = 0.1;
+    this.maxDistance = Infinity;
 
-        this.minDistance = 0.1;
-        this.maxDistance = Infinity;
+    this.minZoom = 0.01;
+    this.maxZoom = Infinity;
 
-        this.minZoom = 0.01;
-        this.maxZoom = Infinity;
+    this.minPolarAngle = 0;
+    this.maxPolarAngle = Math.PI;
 
-        this.minPolarAngle = 0;
-        this.maxPolarAngle = Math.PI;
+    this.minAzimuthAngle = - Infinity;
+    this.maxAzimuthAngle = Infinity;
 
-        this.minAzimuthAngle = - Infinity;
-        this.maxAzimuthAngle = Infinity;
+    this.enableDamping = false;
+    this.dampingFactor = 0.08;
+    this.zoomFactor = 0.2;
 
-        this.enableDamping = false;
-        this.dampingFactor = 0.08;
-        this.zoomFactor = 0.2;
+    this.enableZoom = true;
+    this.zoomSpeed = 1.0;
 
-        this.enableZoom = true;
-        this.zoomSpeed = 1.0;
+    this.enableRotate = true;
+    this.rotateSpeed = 0.8;
 
-        this.enableRotate = true;
-        this.rotateSpeed = 0.8;
+    this.enablePan = true;
+    this.keyPanSpeed = 7.0;
 
-        this.enablePan = true;
-        this.keyPanSpeed = 7.0;
+    this.autoRotate = false;
+    this.autoRotateSpeed = 2.0;
 
-        this.autoRotate = false;
-        this.autoRotateSpeed = 2.0;
+    this.enableKeys = true;
+    this.keys = {
+        LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40,
+    };
+    this.mouseButtons = {
+        ORBIT: 0, ZOOM: 1, PAN: 2,
+    };
 
-        this.enableKeys = true;
-        this.keys = {
-            LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40,
-        };
-        this.mouseButtons = {
-            ORBIT: 0, ZOOM: 1, PAN: 2,
-        };
+    // update
+    this._offset = new Vector3();
+    this._spherical = new Spherical();
+    this._sphericalDelta = new Spherical();
+    this._sphericalDump = new Spherical();
+    this._zoomFrag = 0;
+    this._scale = 1;
+    this._panOffset = new Vector3();
+    this._isMouseUp = true;
 
-        // update
-        this._offset = new Vector3();
-        this._spherical = new Spherical();
-        this._sphericalDelta = new Spherical();
-        this._sphericalDump = new Spherical();
-        this._zoomFrag = 0;
-        this._scale = 1;
-        this._panOffset = new Vector3();
-        this._isMouseUp = true;
+    // pan
+    this._vPan = new Vector3();
 
-        // pan
-        this._vPan = new Vector3();
+    // state
+    this._rotateStart = new Vector2();
+    this._rotateEnd = new Vector2();
+    this._rotateDelta = new Vector2();
 
-        // state
-        this._rotateStart = new Vector2();
-        this._rotateEnd = new Vector2();
-        this._rotateDelta = new Vector2();
+    this._panStart = new Vector2();
+    this._panEnd = new Vector2();
+    this._panDelta = new Vector2();
 
-        this._panStart = new Vector2();
-        this._panEnd = new Vector2();
-        this._panDelta = new Vector2();
+    this._zoomStart = new Vector2();
+    this._zoomEnd = new Vector2();
+    this._zoomDelta = new Vector2();
 
-        this._zoomStart = new Vector2();
-        this._zoomEnd = new Vector2();
-        this._zoomDelta = new Vector2();
+    this.STATE = {
+        NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5,
+    };
+    this._state = this.STATE.NONE;
 
-        this.STATE = {
-            NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5,
-        };
-        this._state = this.STATE.NONE;
+    this.eventListeners = [
+        { type: 'mousedown', listener: this.onMouseDown.bind( this ) },
+        { type: 'wheel', listener: this.onMouseWheel.bind( this ) },
+        { type: 'keydown', listener: this.onKeyDown.bind( this ) },
+        { type: 'touchstart', listener: this.onTouchStart.bind( this ) },
+        { type: 'touchend', listener: this.onTouchEnd.bind( this ) },
+        { type: 'touchmove', listener: this.onTouchMove.bind( this ) },
+    ];
 
-        this.eventListeners = [
-            { type: 'mousedown', listener: this.onMouseDown.bind( this ) },
-            { type: 'wheel', listener: this.onMouseWheel.bind( this ) },
-            { type: 'keydown', listener: this.onKeyDown.bind( this ) },
-            { type: 'touchstart', listener: this.onTouchStart.bind( this ) },
-            { type: 'touchend', listener: this.onTouchEnd.bind( this ) },
-            { type: 'touchmove', listener: this.onTouchMove.bind( this ) },
-        ];
+    this.mouseMoveUpListeners = [
+        { type: 'mousemove', listener: this.onMouseMove.bind( this ) },
+        { type: 'mouseup', listener: this.onMouseUp.bind( this ) },
+    ];
 
-        this.mouseMoveUpListeners = [
-            { type: 'mousemove', listener: this.onMouseMove.bind( this ) },
-            { type: 'mouseup', listener: this.onMouseUp.bind( this ) },
-        ];
+    this.controler.addListeners( this.eventListeners );
 
-        this.controler.addListeners( this.eventListeners );
+    this.update();
 
-        this.update();
+}
 
-    }
+Object.assign( OrbitControls.prototype, {
 
     dispose() {
 
         this.controler.removeListeners( this.eventListeners, this.mouseMoveUpListeners );
 
-    }
+    },
 
     update() {
 
@@ -162,19 +162,19 @@ class OrbitControls {
         this._scale = 1;
         this._panOffset.set( 0, 0, 0 );
 
-    }
+    },
 
     getAutoRotationAngle() {
 
         return 2 * Math.PI / 60 / 60 / this.autoRotateSpeed;
 
-    }
+    },
 
     getZoomScale() {
 
         return Math.pow( 0.95, this.zoomSpeed ); // eslint-disable-line
 
-    }
+    },
 
     rotateLeft( angle ) {
 
@@ -182,7 +182,7 @@ class OrbitControls {
         if ( this.enableDamping )
             this._sphericalDump.theta = - angle;
 
-    }
+    },
 
     rotateUp( angle ) {
 
@@ -190,7 +190,7 @@ class OrbitControls {
         if ( this.enableDamping )
             this._sphericalDump.phi = - angle;
 
-    }
+    },
 
     panLeft( distance, worldMatrix ) {
 
@@ -199,7 +199,7 @@ class OrbitControls {
 
         this._panOffset.add( this._vPan );
 
-    }
+    },
 
     panUp( distance, worldMatrix ) {
 
@@ -208,7 +208,7 @@ class OrbitControls {
 
         this._panOffset.add( this._vPan );
 
-    }
+    },
 
     pan( deltaX, deltaY ) {
 
@@ -232,7 +232,7 @@ class OrbitControls {
 
         }
 
-    }
+    },
 
     zoomIn( zoomScale ) {
 
@@ -245,7 +245,7 @@ class OrbitControls {
 
         }
 
-    }
+    },
 
     zoomOut( zoomScale ) {
 
@@ -258,25 +258,25 @@ class OrbitControls {
 
         }
 
-    }
+    },
 
     handleMouseDownRotate( event ) {
 
         this._rotateStart.set( event.clientX, event.clientY );
 
-    }
+    },
 
     handleMouseDownZoom( event ) {
 
         this._zoomStart.set( event.clientX, event.clientY );
 
-    }
+    },
 
     handleMouseDownPan( event ) {
 
         this._panStart.set( event.clientX, event.clientY );
 
-    }
+    },
 
     handleMouseMoveRotate( event ) {
 
@@ -292,7 +292,7 @@ class OrbitControls {
 
         this.update();
 
-    }
+    },
 
     handleMouseMoveZoom( event ) {
 
@@ -308,7 +308,7 @@ class OrbitControls {
 
         this.update();
 
-    }
+    },
 
     handleMouseMovePan( event ) {
 
@@ -321,7 +321,7 @@ class OrbitControls {
 
         this.update();
 
-    }
+    },
 
     handleMouseWheel( event ) {
 
@@ -332,7 +332,7 @@ class OrbitControls {
 
         this.update();
 
-    }
+    },
 
     handleKeyDown( event ) {
 
@@ -357,13 +357,13 @@ class OrbitControls {
 
         }
 
-    }
+    },
 
     handleTouchStartRotate( event ) {
 
         this._rotateStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
 
-    }
+    },
 
     handleTouchStartZoom( event ) {
 
@@ -374,13 +374,13 @@ class OrbitControls {
 
         this._zoomStart.set( 0, distance );
 
-    }
+    },
 
     handleTouchStartPan( event ) {
 
         this._panStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
 
-    }
+    },
 
     handleTouchMoveRotate( event ) {
 
@@ -396,7 +396,7 @@ class OrbitControls {
 
         this.update();
 
-    }
+    },
 
     handleTouchMoveZoom( event ) {
 
@@ -418,7 +418,7 @@ class OrbitControls {
 
         this.update();
 
-    }
+    },
 
     handleTouchMovePan( event ) {
 
@@ -432,7 +432,7 @@ class OrbitControls {
 
         this.update();
 
-    }
+    },
 
     onMouseDown( event ) {
 
@@ -470,7 +470,7 @@ class OrbitControls {
         if ( this._state !== this.STATE.NONE )
             this.controler.addListeners( this.mouseMoveUpListeners );
 
-    }
+    },
 
     onMouseMove( event ) {
 
@@ -500,7 +500,7 @@ class OrbitControls {
 
         }
 
-    }
+    },
 
     onMouseUp() {
 
@@ -512,7 +512,7 @@ class OrbitControls {
 
         this._state = this.STATE.NONE;
 
-    }
+    },
 
     onMouseWheel( event ) {
 
@@ -523,7 +523,7 @@ class OrbitControls {
 
         this.handleMouseWheel( event );
 
-    }
+    },
 
     onKeyDown( event ) {
 
@@ -531,7 +531,7 @@ class OrbitControls {
 
         this.handleKeyDown( event );
 
-    }
+    },
 
     onTouchStart( event ) {
 
@@ -577,7 +577,7 @@ class OrbitControls {
 
         }
 
-    }
+    },
 
     onTouchMove( event ) {
 
@@ -620,7 +620,7 @@ class OrbitControls {
 
         }
 
-    }
+    },
 
     onTouchEnd() {
 
@@ -630,15 +630,15 @@ class OrbitControls {
 
         this._state = this.STATE.NONE;
 
-    }
+    },
 
     onContextMenu( event ) {
 
         if ( this.enable === false ) return;
         event.preventDefault();
 
-    }
+    },
 
-}
+} );
 
 export { OrbitControls };
