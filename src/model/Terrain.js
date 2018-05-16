@@ -1,5 +1,5 @@
 import { Mesh } from './Primatives';
-import * as Constant from '../renderer/constant';
+import { ShaderParams, BeginMode, BufferParams } from '../renderer/constant';
 import { Perlin } from '../math/Perlin';
 import { PMath } from '../math/Math';
 import { Model } from '../model/Model';
@@ -150,10 +150,10 @@ Object.assign( Terrain, {
         const attribArrays = {
             indices: { data: indices },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: Constant.DYNAMIC_DRAW };
-        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
-        attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normals };
-        const mesh = new Mesh( name || 'Terrain', attribArrays, { drawMode: Constant.TRIANGLE_STRIP } );
+        attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: BufferParams.DYNAMIC_DRAW };
+        attribArrays[ ShaderParams.ATTRIB_UV_NAME ] = { data: uv };
+        attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ] = { data: normals };
+        const mesh = new Mesh( name || 'Terrain', attribArrays, { drawMode: BeginMode.TRIANGLE_STRIP } );
         return Object.assign( mesh, {
             time,
             minHeight,
@@ -168,7 +168,7 @@ Object.assign( Terrain, {
 
     setTime( gl, mesh, newTime ) {
 
-        let vertices = mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data;
+        let vertices = mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].data;
         const length = vertices.length / 3;
         const {
             minHeight,
@@ -195,16 +195,16 @@ Object.assign( Terrain, {
         normals = getTypedArray( normals );
 
         mesh.time = newTime; // eslint-disable-line
-        mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ].data = normals; // eslint-disable-line
-        mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = vertices; // eslint-disable-line
+        mesh.attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ].data = normals; // eslint-disable-line
+        mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].data = vertices; // eslint-disable-line
 
         const bufferInfo = mesh.bufferInfo;
         if ( bufferInfo ) {
 
-            const vtxBuffer = bufferInfo.attribs[ Constant.ATTRIB_POSITION_NAME ].buffer;
+            const vtxBuffer = bufferInfo.attribs[ ShaderParams.ATTRIB_POSITION_NAME ].buffer;
             setTypedArrayToBuffer( gl, vtxBuffer, vertices );
 
-            const normBuffer = bufferInfo.attribs[ Constant.ATTRIB_NORMAL_NAME ].buffer;
+            const normBuffer = bufferInfo.attribs[ ShaderParams.ATTRIB_NORMAL_NAME ].buffer;
             setTypedArrayToBuffer( gl, normBuffer, normals );
 
         }

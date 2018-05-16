@@ -1,8 +1,9 @@
 import { isArrayBuffer, getGLTypeFromTypedArray, getTypedArrayTypeFromGLType } from './typedArray';
 import { isWebGL2, glEnumToString } from './utils';
+import { DefaultColor } from './constant';
 
 const defaults = {
-    textureColor: new Uint8Array( [ 255, 105, 180, 255 ] ),
+    textureColor: DefaultColor.Foreground,
     textureOptions: {},
 };
 

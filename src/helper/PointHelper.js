@@ -1,7 +1,7 @@
 import { ColorPointShader } from '../shader/ColorPointShader';
 import { Mesh } from '../model/Primatives';
 import { Model } from '../model/Model';
-import * as Constant from '../renderer/constant';
+import { ShaderParams } from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
 import { getTypedArray } from '../renderer/typedArray';
 
@@ -10,7 +10,7 @@ function PointHelper( gl, data = [], pointSize, pointColor ) {
     this.shader = new ColorPointShader( gl, pointSize, pointColor );
 
     const attribArrays = {};
-    attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data, drawType: gl.DYNAMIC_DRAW };
+    attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data, drawType: gl.DYNAMIC_DRAW };
     this.mesh = new Mesh( 'PointHelper', attribArrays, { drawMode: gl.POINTS } );
     this.model = new Model( this.mesh );
     this.gl = gl;
@@ -60,12 +60,12 @@ Object.assign( PointHelper.prototype, {
 
         typedArray = getTypedArray( typedArray );
 
-        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = typedArray;
+        this.mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].data = typedArray;
 
         const bufferInfo = this.mesh.bufferInfo;
         if ( bufferInfo ) {
 
-            const buffer = bufferInfo.attribs[ Constant.ATTRIB_POSITION_NAME ].buffer;
+            const buffer = bufferInfo.attribs[ ShaderParams.ATTRIB_POSITION_NAME ].buffer;
             setTypedArrayToBuffer( this.gl, buffer, typedArray );
 
             bufferInfo.numElements = typedArray.length / 3;

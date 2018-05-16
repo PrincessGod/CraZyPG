@@ -1,5 +1,5 @@
 import { isWebGL2 } from './utils';
-import * as Constant from './constant';
+import { ShaderParams } from './constant';
 
 function getHTMLElementSrc( id ) {
 
@@ -71,10 +71,10 @@ function createProgram( gl, vs, fs, opts = {} ) {
     gl.attachShader( prog, vShader );
     gl.attachShader( prog, fShader );
 
-    gl.bindAttribLocation( prog, Constant.ATTRIB_POSITION_LOC, Constant.ATTRIB_POSITION_NAME );
-    gl.bindAttribLocation( prog, Constant.ATTRIB_NORMAL_LOC, Constant.ATTRIB_NORMAL_NAME );
-    gl.bindAttribLocation( prog, Constant.ATTRIB_UV_LOC, Constant.ATTRIB_UV_NAME );
-    gl.bindAttribLocation( prog, Constant.ATTRIB_BARYCENTRIC_LOC, Constant.ATTRIB_BARYCENTRIC_NAME );
+    gl.bindAttribLocation( prog, ShaderParams.ATTRIB_POSITION_LOC, ShaderParams.ATTRIB_POSITION_NAME );
+    gl.bindAttribLocation( prog, ShaderParams.ATTRIB_NORMAL_LOC, ShaderParams.ATTRIB_NORMAL_NAME );
+    gl.bindAttribLocation( prog, ShaderParams.ATTRIB_UV_LOC, ShaderParams.ATTRIB_UV_NAME );
+    gl.bindAttribLocation( prog, ShaderParams.ATTRIB_BARYCENTRIC_LOC, ShaderParams.ATTRIB_BARYCENTRIC_NAME );
 
     if ( opts.transformFeedbackVaryings ) {
 
@@ -736,8 +736,8 @@ function createUniformSetters( gl, program ) {
     uniformSetters.keyMap = keyMap;
     Object.keys( uniformSetters ).forEach( ( key ) => {
 
-        if ( key.indexOf( Constant.UNIFORM_PREFIX ) === 0 )
-            keyMap[ key.replace( Constant.UNIFORM_PREFIX, '' ) ] = key;
+        if ( key.indexOf( ShaderParams.UNIFORM_PREFIX ) === 0 )
+            keyMap[ key.replace( ShaderParams.UNIFORM_PREFIX, '' ) ] = key;
 
     } );
 

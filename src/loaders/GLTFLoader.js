@@ -1,6 +1,6 @@
 /* eslint no-loop-func: 0 */
 import { getTypedArrayTypeFromGLType } from '../renderer/typedArray';
-import * as Constant from '../renderer/constant';
+import { ShaderParams, TextureFilters } from '../renderer/constant';
 import { Model } from '../model/Model';
 import { Mesh } from '../model/Primatives';
 import { Node } from '../scene/Node';
@@ -773,48 +773,48 @@ Object.assign( GLTFLoader.prototype, {
                     switch ( attribute ) {
 
                     case 'POSITION':
-                        attribName = Constant.ATTRIB_POSITION_NAME;
+                        attribName = ShaderParams.ATTRIB_POSITION_NAME;
                         break;
 
                     case 'NORMAL':
-                        attribName = Constant.ATTRIB_NORMAL_NAME;
+                        attribName = ShaderParams.ATTRIB_NORMAL_NAME;
                         hasNormal = true;
                         break;
 
                     case 'TANGENT':
-                        attribName = Constant.ATTRIB_TANGENT_NAME;
+                        attribName = ShaderParams.ATTRIB_TANGENT_NAME;
                         hasTangent = true;
                         break;
 
                     case 'TEXCOORD_0':
-                        attribName = Constant.ATTRIB_UV_NAME;
+                        attribName = ShaderParams.ATTRIB_UV_NAME;
                         texCoordNum ++;
                         break;
 
                     case 'TEXCOORD_1':
-                        attribName = Constant.ATTRIB_UV_1_NAME;
+                        attribName = ShaderParams.ATTRIB_UV_1_NAME;
                         texCoordNum ++;
                         break;
 
                     case 'JOINTS_0':
-                        attribName = Constant.ATTRIB_JOINT_0_NAME;
+                        attribName = ShaderParams.ATTRIB_JOINT_0_NAME;
                         break;
 
                     case 'JOINTS_1':
-                        attribName = Constant.ATTRIB_JOINT_1_NAME;
+                        attribName = ShaderParams.ATTRIB_JOINT_1_NAME;
                         jointVec8 = true;
                         break;
 
                     case 'WEIGHTS_0':
-                        attribName = Constant.ATTRIB_WEIGHT_0_NAME;
+                        attribName = ShaderParams.ATTRIB_WEIGHT_0_NAME;
                         break;
 
                     case 'WEIGHTS_1':
-                        attribName = Constant.ATTRIB_WEIGHT_1_NAME;
+                        attribName = ShaderParams.ATTRIB_WEIGHT_1_NAME;
                         break;
 
                     case 'COLOR_0':
-                        attribName = Constant.ATTRIB_VERTEX_COLOR_NAME;
+                        attribName = ShaderParams.ATTRIB_VERTEX_COLOR_NAME;
                         vertexColor = accessor.numComponents;
                         break;
 
@@ -1308,7 +1308,7 @@ Object.assign( GLTFLoader.prototype, {
 
     parseSampler( samplerId ) {
 
-        if ( samplerId === undefined ) return { wrap: Constant.REPEAT };
+        if ( samplerId === undefined ) return { wrap: TextureFilters.REPEAT };
         const sampler = this.gltf.samplers[ samplerId ];
         if ( ! sampler )
             return errorMiss( 'sampler', samplerId );
@@ -1320,7 +1320,7 @@ Object.assign( GLTFLoader.prototype, {
             magFilter, minFilter, wrapS, wrapT,
         } = sampler;
 
-        const dsampler = { wrapS: wrapS || Constant.REPEAT, wrapT: wrapT || Constant.REPEAT };
+        const dsampler = { wrapS: wrapS || TextureFilters.REPEAT, wrapT: wrapT || TextureFilters.REPEAT };
         if ( minFilter )
             dsampler.min = minFilter;
         if ( magFilter )

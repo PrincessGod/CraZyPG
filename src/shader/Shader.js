@@ -1,5 +1,5 @@
 import { createProgram, createUniformSetters, setUniforms, createAttributesSetters, createUniformBlockSpec, createUniformBlockInfos, setBlockUniformsForProgram } from '../renderer/program';
-import * as Constant from '../renderer/constant';
+import { ShaderParams } from '../renderer/constant';
 import { PMath } from '../math/Math';
 import { Matrix3 } from '../math/Matrix3';
 import { Matrix4 } from '../math/Matrix4';
@@ -109,21 +109,21 @@ Object.assign( Shader.prototype, {
 
     setProjMatrix( mat4Array ) {
 
-        this.setUniformObjProp( Constant.UNIFORM_PROJ_MAT_NAME, mat4Array, Matrix4.equals );
+        this.setUniformObjProp( ShaderParams.UNIFORM_PROJ_MAT_NAME, mat4Array, Matrix4.equals );
         return this;
 
     },
 
     setViewMatrix( mat4Array ) {
 
-        this.setUniformObjProp( Constant.UNIFORM_VIEW_MAT_NAME, mat4Array, Matrix4.equals );
+        this.setUniformObjProp( ShaderParams.UNIFORM_VIEW_MAT_NAME, mat4Array, Matrix4.equals );
         return this;
 
     },
 
     setWorldMatrix( mat4Array ) {
 
-        this.setUniformObjProp( Constant.UNIFORM_WORLD_MAT_NAME, mat4Array, Matrix4.equals );
+        this.setUniformObjProp( ShaderParams.UNIFORM_WORLD_MAT_NAME, mat4Array, Matrix4.equals );
         return this;
 
     },
@@ -147,7 +147,7 @@ Object.assign( Shader.prototype, {
         if ( ! this.camera ) return this;
 
         if ( this._needCamPos )
-            this.setUniformObjProp( Constant.UNIFORM_CAMPOS, this.camera.position, PMath.arrayEquals );
+            this.setUniformObjProp( ShaderParams.UNIFORM_CAMPOS, this.camera.position, PMath.arrayEquals );
 
         this.setProjMatrix( this.camera.projMat );
         this.setViewMatrix( this.camera.viewMat );
@@ -184,12 +184,12 @@ Object.assign( Shader.prototype, {
 
         if ( this._needMVPMat || this._needVPMat ) {
 
-            this.currentUniformObj.temp = Matrix4.mult( Matrix4.identity(), this.currentUniformObj[ Constant.UNIFORM_PROJ_MAT_NAME ], this.currentUniformObj[ Constant.UNIFORM_VIEW_MAT_NAME ] );
-            if ( this._needVPMat ) this.setUniformObjProp( Constant.UNIFORM_VP_MAT_NAME, this.currentUniformObj.temp, Matrix4.equals );
+            this.currentUniformObj.temp = Matrix4.mult( Matrix4.identity(), this.currentUniformObj[ ShaderParams.UNIFORM_PROJ_MAT_NAME ], this.currentUniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ] );
+            if ( this._needVPMat ) this.setUniformObjProp( ShaderParams.UNIFORM_VP_MAT_NAME, this.currentUniformObj.temp, Matrix4.equals );
             if ( this._needMVPMat ) {
 
-                this.currentUniformObj.temp = Matrix4.mult( this.currentUniformObj.temp, this.currentUniformObj.temp, this.currentUniformObj[ Constant.UNIFORM_WORLD_MAT_NAME ] );
-                this.setUniformObjProp( Constant.UNIFORM_MVP_MAT_NAME, this.currentUniformObj.temp, Matrix4.equals );
+                this.currentUniformObj.temp = Matrix4.mult( this.currentUniformObj.temp, this.currentUniformObj.temp, this.currentUniformObj[ ShaderParams.UNIFORM_WORLD_MAT_NAME ] );
+                this.setUniformObjProp( ShaderParams.UNIFORM_MVP_MAT_NAME, this.currentUniformObj.temp, Matrix4.equals );
 
             }
 
@@ -238,7 +238,7 @@ Object.assign( Shader.prototype, {
         this.setUniformObj( model.uniformObj );
         this.setWorldMatrix( model.transform.getWorldMatrix() );
         if ( this._needNormMat )
-            this.setUniformObjProp( Constant.UNIFORM_NORMAL_MAT_NAME, model.normMat, Matrix3.equals );
+            this.setUniformObjProp( ShaderParams.UNIFORM_NORMAL_MAT_NAME, model.normMat, Matrix3.equals );
 
         this.preRender(); // set uniforms
 
@@ -359,11 +359,11 @@ Object.assign( Shader.prototype, {
             this.uniformSetters = createUniformSetters( this.gl, this.program );
             this.uniformBlockSpec = createUniformBlockSpec( this.gl, this.program );
             this.uniformBlockInfos = createUniformBlockInfos( this.gl, this.program, this.uniformBlockSpec );
-            this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_MVP_MAT_NAME );
-            this._needVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_VP_MAT_NAME );
-            this._needCamPos = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_CAMPOS );
-            this._needNormMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, Constant.UNIFORM_NORMAL_MAT_NAME );
-            this._customAttrib = Object.keys( this.attribSetters ).filter( attrib => [ Constant.ATTRIB_POSITION_NAME, Constant.ATTRIB_UV_NAME, Constant.ATTRIB_NORMAL_NAME, Constant.ATTRIB_BARYCENTRIC_NAME ].indexOf( attrib ) < 0 ).length > 0;
+            this._needMVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, ShaderParams.UNIFORM_MVP_MAT_NAME );
+            this._needVPMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, ShaderParams.UNIFORM_VP_MAT_NAME );
+            this._needCamPos = Object.prototype.hasOwnProperty.call( this.uniformSetters, ShaderParams.UNIFORM_CAMPOS );
+            this._needNormMat = Object.prototype.hasOwnProperty.call( this.uniformSetters, ShaderParams.UNIFORM_NORMAL_MAT_NAME );
+            this._customAttrib = Object.keys( this.attribSetters ).filter( attrib => [ ShaderParams.ATTRIB_POSITION_NAME, ShaderParams.ATTRIB_UV_NAME, ShaderParams.ATTRIB_NORMAL_NAME, ShaderParams.ATTRIB_BARYCENTRIC_NAME ].indexOf( attrib ) < 0 ).length > 0;
             this.programInfos[ index ] = {
                 attribSetters: this.attribSetters,
                 uniformSetters: this.uniformSetters,

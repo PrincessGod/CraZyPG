@@ -1,7 +1,7 @@
 import { ColorLineShader } from '../shader/ColorLineShader';
 import { Mesh } from '../model/Primatives';
 import { Model } from '../model/Model';
-import * as Constant from '../renderer/constant';
+import { ShaderParams } from '../renderer/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
 import { getTypedArray } from '../renderer/typedArray';
 
@@ -12,7 +12,7 @@ function LineHelper( gl, points, colors, normalLength = 0.1 ) {
 
     const vertices = points && this._getdata( points );
     const attribArrays = {};
-    attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: gl.DYNAMIC_DRAW };
+    attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: vertices, drawType: gl.DYNAMIC_DRAW };
     this.mesh = new Mesh( 'LineHelper', attribArrays, { drawMode: gl.LINES } );
     this.model = new Model( this.mesh );
     if ( points.isModel )
@@ -36,7 +36,7 @@ Object.assign( LineHelper.prototype, {
         }
         if ( points.isMesh ) {
 
-            normalPos = [ points.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data, points.attribArrays[ Constant.ATTRIB_NORMAL_NAME ].data ];
+            normalPos = [ points.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].data, points.attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ].data ];
             this.copyToWorldMatrix = false;
 
         }
@@ -130,11 +130,11 @@ Object.assign( LineHelper.prototype, {
 
         const bufferInfo = this.mesh.bufferInfo;
 
-        this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data = typedArray;
+        this.mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].data = typedArray;
 
         if ( bufferInfo ) {
 
-            const buffer = bufferInfo.attribs[ Constant.ATTRIB_POSITION_NAME ].buffer;
+            const buffer = bufferInfo.attribs[ ShaderParams.ATTRIB_POSITION_NAME ].buffer;
             setTypedArrayToBuffer( this.gl, buffer, typedArray );
 
             bufferInfo.numElements = array.length / 3;

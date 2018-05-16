@@ -1,4 +1,4 @@
-import * as Constant from '../renderer/constant';
+import { ShaderParams, BeginMode } from '../renderer/constant';
 import { Model } from '../model/Model';
 import { getTypedArray } from '../renderer/typedArray';
 import { getNumComponents } from '../renderer/attributes';
@@ -22,7 +22,7 @@ function Mesh( name, attribArrays = {}, options ) {
         name,
         attribArrays,
         _bufferInfo: null,
-        drawMode: Constant.TRIANGLES,
+        drawMode: BeginMode.TRIANGLES,
         cullFace: true,
         blend: false,
         depth: true,
@@ -179,9 +179,9 @@ Object.assign( GridAxis, {
         const attribArrays = {
             a_color: { data: color, numComponents: 1 },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
+        attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: vertices };
 
-        return new Mesh( name, attribArrays, { drawMode: Constant.LINES } );
+        return new Mesh( name, attribArrays, { drawMode: BeginMode.LINES } );
 
     },
 
@@ -227,9 +227,9 @@ Object.assign( Quad, {
         const attribArrays = {
             indices: { data: indices },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, numComponents: 2 };
-        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
-        attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
+        attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: vertices, numComponents: 2 };
+        attribArrays[ ShaderParams.ATTRIB_UV_NAME ] = { data: uv };
+        attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ] = { data: normal };
 
         return attribArrays;
 
@@ -319,9 +319,9 @@ Object.assign( Cube, {
         const attribArrays = {
             indices: { data: indices },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices, numComponents: 4 };
-        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uv };
-        attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normal };
+        attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: vertices, numComponents: 4 };
+        attribArrays[ ShaderParams.ATTRIB_UV_NAME ] = { data: uv };
+        attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ] = { data: normal };
 
         return attribArrays;
 
@@ -393,9 +393,9 @@ Object.assign( Sphere, {
         const attribArrays = {
             indices: { data: indices },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: positions };
-        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: uvs };
-        attribArrays[ Constant.ATTRIB_NORMAL_NAME ] = { data: normals };
+        attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: positions };
+        attribArrays[ ShaderParams.ATTRIB_UV_NAME ] = { data: uvs };
+        attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ] = { data: normals };
 
         return attribArrays;
 
@@ -411,7 +411,7 @@ function deIndexAttribs( modelMesh ) {
     const drawMode = mesh.drawMode;
     if ( ! indices ) return;
 
-    if ( drawMode === Constant.TRIANGLES ) {
+    if ( drawMode === BeginMode.TRIANGLES ) {
 
         Object.keys( attribArrays ).forEach( ( name ) => {
 
@@ -442,12 +442,12 @@ function addBarycentricAttrib( modelMesh, removeEdge = false ) {
     const indices = mesh.attribArrays.indices.data;
     const Q = removeEdge ? 1 : 0;
 
-    if ( mesh.drawMode === Constant.TRIANGLES ) {
+    if ( mesh.drawMode === BeginMode.TRIANGLES ) {
 
         if ( mesh.attribArrays.indices )
             deIndexAttribs( modelMesh );
 
-        const numVert = mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data.length / mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].numComponents;
+        const numVert = mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].data.length / mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].numComponents;
         const barycentrics = [];
         let lastVerts = [];
         let curVerts = [];
@@ -479,7 +479,7 @@ function addBarycentricAttrib( modelMesh, removeEdge = false ) {
 
         }
 
-        mesh.attribArrays[ Constant.ATTRIB_BARYCENTRIC_NAME ] = { data: barycentrics, numComponents: 3 };
+        mesh.attribArrays[ ShaderParams.ATTRIB_BARYCENTRIC_NAME ] = { data: barycentrics, numComponents: 3 };
 
         delete mesh.bufferInfo;
         delete mesh.vao;
@@ -509,9 +509,9 @@ const Curve = {
         const vertices = bpoints.reduce( ( a, b ) => a.concat( b ) );
 
         const attribArrays = {};
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: vertices };
+        attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: vertices };
 
-        return new Mesh( name, attribArrays, { drawMode: Constant.LINE_STRIP } );
+        return new Mesh( name, attribArrays, { drawMode: BeginMode.LINE_STRIP } );
 
     },
 

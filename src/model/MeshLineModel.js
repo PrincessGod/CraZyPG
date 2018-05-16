@@ -1,21 +1,21 @@
 import { Model } from './Model';
 import { Mesh } from './Primatives';
-import * as Constant from '../renderer/constant';
+import { ShaderParams } from '../renderer/constant';
 import { createBufferFromArray } from '../renderer/attributes';
 
 function MeshLineModel( meshModel, widthCallback, name ) {
 
     const mesh = meshModel.mesh || meshModel;
     let array;
-    if ( mesh && mesh.attribArrays && mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ] ) {
+    if ( mesh && mesh.attribArrays && mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] ) {
 
-        if ( mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].numComponents !== 3 ) {
+        if ( mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].numComponents !== 3 ) {
 
-            console.error( `MeshLine need 3 dimensions points array, but received ${mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].numComponents} dimensions array.` );
+            console.error( `MeshLine need 3 dimensions points array, but received ${mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].numComponents} dimensions array.` );
             return null;
 
         }
-        array = mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].data;
+        array = mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].data;
 
     } else if ( Array.isArray( mesh ) ) {
 
@@ -168,8 +168,8 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
             a_width: { data: this.width, numComponents: 1 },
             a_counters: { data: this.conters, numComponents: 1 },
         };
-        attribArrays[ Constant.ATTRIB_POSITION_NAME ] = { data: this.positions, offset: 8 * Float32Array.BYTES_PER_ELEMENT, stride: 4 * Float32Array.BYTES_PER_ELEMENT };
-        attribArrays[ Constant.ATTRIB_UV_NAME ] = { data: this.uv };
+        attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: this.positions, offset: 8 * Float32Array.BYTES_PER_ELEMENT, stride: 4 * Float32Array.BYTES_PER_ELEMENT };
+        attribArrays[ ShaderParams.ATTRIB_UV_NAME ] = { data: this.uv };
 
         return new Mesh( name, attribArrays );
 
@@ -180,7 +180,7 @@ MeshLineModel.prototype = Object.assign( Object.create( Model.prototype ), {
         if ( ! this.mesh.bufferInfo ) {
 
             const positionBuffer = createBufferFromArray( gl, this.positionArray, 'position' );
-            this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ].buffer = positionBuffer;
+            this.mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ].buffer = positionBuffer;
             this.mesh.attribArrays.a_previous.buffer = positionBuffer;
             this.mesh.attribArrays.a_next.buffer = positionBuffer;
             this.mesh.attribArrays.a_side.buffer = positionBuffer;

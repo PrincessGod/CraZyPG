@@ -1,3 +1,5 @@
+import { DefaultColor } from './constant';
+
 function getContext( canvasOrId, opts ) {
 
     let canvas;
@@ -44,7 +46,13 @@ function resizeCanvasToDisplaySize( canvas, multiplier ) {
 
 }
 
-function clear( gl, r = 1.0, g = 1.0, b = 1.0, a = 1.0 ) {
+function clear(
+    gl,
+    r = DefaultColor.BackgroundNormalized[ 0 ],
+    g = DefaultColor.BackgroundNormalized[ 1 ],
+    b = DefaultColor.BackgroundNormalized[ 2 ],
+    a = DefaultColor.BackgroundNormalized[ 3 ],
+) {
 
     gl.clearColor( r, g, b, a );
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );

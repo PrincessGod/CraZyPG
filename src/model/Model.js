@@ -2,7 +2,7 @@ import { Transform } from './Transform';
 import { createVertexArray } from '../renderer/vertexArray';
 import { createBufferInfoFromArrays } from '../renderer/attributes';
 import { CommonVAOShader } from '../shader/CommonVAOShader';
-import * as Constant from '../renderer/constant';
+import { ShaderParams } from '../renderer/constant';
 
 const getDefaultShader = ( function () {
 
@@ -81,7 +81,7 @@ Object.defineProperties( Model.prototype, {
 
         get() {
 
-            return this.mesh.attribArrays[ Constant.ATTRIB_POSITION_NAME ];
+            return this.mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ];
 
         },
 
@@ -91,7 +91,7 @@ Object.defineProperties( Model.prototype, {
 
         get() {
 
-            return this.mesh.attribArrays[ Constant.ATTRIB_UV_NAME ];
+            return this.mesh.attribArrays[ ShaderParams.ATTRIB_UV_NAME ];
 
         },
 
@@ -101,7 +101,7 @@ Object.defineProperties( Model.prototype, {
 
         get() {
 
-            return this.mesh.attribArrays[ Constant.ATTRIB_NORMAL_NAME ];
+            return this.mesh.attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ];
 
         },
 

@@ -1,45 +1,32 @@
 import { getContext, clear, resizeCanvasToDisplaySize } from './webgl';
 
-class Renderer {
+function Renderer( canvasOrId, opts ) {
 
-    constructor( canvasOrId, opts ) {
+    this.context = getContext( canvasOrId, opts );
+    this.canvas = this.context.canvas;
+    this.multiplier = 1.0;
 
-        this.context = getContext( canvasOrId, opts );
-        this.canvas = this.context.canvas;
-        this.multiplier = 1.0;
+    this.context.cullFace( this.context.BACK );
+    this.context.frontFace( this.context.CCW );
+    this.context.enable( this.context.CULL_FACE );
+    this.context.enable( this.context.DEPTH_TEST );
+    this.context.depthFunc( this.context.LEQUAL );
+    this.context.blendFunc( this.context.SRC_ALPHA, this.context.ONE_MINUS_SRC_ALPHA );
 
-        this.context.cullFace( this.context.BACK );
-        this.context.frontFace( this.context.CCW );
-        this.context.enable( this.context.CULL_FACE );
-        this.context.enable( this.context.DEPTH_TEST );
-        this.context.depthFunc( this.context.LEQUAL );
-        this.context.blendFunc( this.context.SRC_ALPHA, this.context.ONE_MINUS_SRC_ALPHA );
+}
 
-    }
+Object.assign( Renderer.prototype, {
 
-    clear( r, g, b, a ) {
+    clear( ...args ) {
 
-        if ( Array.isArray( r ) ) {
+        if ( Array.isArray( args[ 0 ] ) )
+            clear( this.context, ...args[ 0 ] );
+        else
+            clear( this.context, ...args );
 
-            if ( r.length === 3 ) {
-
-                clear( this.context, r[ 0 ], r[ 1 ], r[ 2 ], 1.0 );
-                return this;
-
-            }
-            if ( r.length === 4 ) {
-
-                clear( this.context, r[ 0 ], r[ 1 ], r[ 2 ], r[ 3 ] );
-                return this;
-
-            }
-
-        }
-
-        clear( this.context, r, g, b, a );
         return this;
 
-    }
+    },
 
     setSize( width, height ) {
 
@@ -50,7 +37,7 @@ class Renderer {
         this.context.viewport( 0, 0, this.canvas.width, this.canvas.height );
         return this;
 
-    }
+    },
 
     fixCanvasToDisplay( multiplier, updateViewport = true ) {
 
@@ -67,8 +54,8 @@ class Renderer {
 
         return false;
 
-    }
+    },
 
-}
+} );
 
 export { Renderer };
