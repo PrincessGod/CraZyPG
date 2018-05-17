@@ -461,40 +461,43 @@ Object.assign( GLTFLoader.prototype, {
                 for ( let j = 0; j < jointNum; j ++ )
                     globalJointTransformNodes[ j ] = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, joints[ j ] );
 
-                let globalTransformNode = false;
-                if ( skeleton !== GLTFLoader.SCENE_ROOT_SKELETON ) {
-
-                    globalTransformNode = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, skeleton );
-                    if ( globalTransformNode.parent !== rootNode )
-                        globalTransformNode = globalTransformNode.parent;
-
-                } else
-                    globalTransformNode = rootNode;
-
+                let skeletonNode;
+                if ( skeleton !== GLTFLoader.SCENE_ROOT_SKELETON )
+                    skeletonNode = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, skeleton );
+                else
+                    skeletonNode = rootNode;
+                skins[ i ].skeletonNode = skeletonNode; // do not know how to use it
 
                 const frag = new Array( 16 );
                 const fragWorld = new Array( 16 );
                 handlers[ i ] = function updateJointUniformFunc() {
 
-                    let jointMats = [];
-                    Matrix4.invert( fragWorld, globalTransformNode.transform.getWorldMatrix() );
-                    for ( let n = 0; n < jointNum; n ++ ) {
+                    for ( let k = 0; k < models.length; k ++ ) {
 
-                        Matrix4.mult( frag, fragWorld, globalJointTransformNodes[ n ].transform.getWorldMatrix() );
-                        if ( inverseBindMatrices[ n ] !== GLTFLoader.IDENTITY_INVERSE_BIND_MATRICES )
-                            Matrix4.mult( frag, frag, inverseBindMatrices[ n ] );
-                        jointMats = jointMats.concat( frag );
+                        const model = models[ k ];
+                        const globalTransformNode = model.node;
+                        let jointMats = [];
+                        Matrix4.invert( fragWorld, globalTransformNode.transform.getWorldMatrix() );
+
+                        for ( let n = 0; n < jointNum; n ++ ) {
+
+                            Matrix4.mult( frag, fragWorld, globalJointTransformNodes[ n ].transform.getWorldMatrix() );
+                            if ( inverseBindMatrices[ n ] !== GLTFLoader.IDENTITY_INVERSE_BIND_MATRICES )
+                                Matrix4.mult( frag, frag, inverseBindMatrices[ n ] );
+                            jointMats = jointMats.concat( frag );
+
+                        }
+
+                        const uniformObj = {};
+                        uniformObj[ GLTFLoader.JOINT_MATRICES_UNIFORM ] = jointMats;
+                        model.setUniformObj( uniformObj );
 
                     }
-
-                    const uniformObj = {};
-                    uniformObj[ GLTFLoader.JOINT_MATRICES_UNIFORM ] = jointMats;
-                    models.forEach( model => model.setUniformObj( uniformObj ) );
 
                 };
 
                 rootNode.afterUpdateMatrix.push( {
-                    type: 'skin', skinName: skins[ i ].name, handler: handlers[ i ], trigerNodes: [ globalTransformNode, ...globalJointTransformNodes ],
+                    type: 'skin', skinName: skins[ i ].name, handler: handlers[ i ], trigerNodes: [ skeletonNode, ...globalJointTransformNodes ],
                 } );
 
             }
