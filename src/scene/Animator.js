@@ -1,6 +1,6 @@
 import { Quaternion } from '../math/Quaternion';
 
-function weightLinearLerp( out, v1, v2, t ) {
+function linearLerp( out, v1, v2, t ) {
 
     for ( let i = 0; i < v1.length; i ++ )
         out[ i ] = v1[ i ] + t * ( v2[ i ] - v1[ i ] ); // eslint-disable-line
@@ -12,6 +12,28 @@ function weightLinearLerp( out, v1, v2, t ) {
 function quaternionLinearSlerp( out, v1, v2, t ) {
 
     Quaternion.slerp( out, v1, v2, t );
+    return out;
+
+}
+
+function setpLerp( out, v1 ) {
+
+    out = v1; // eslint-disable-line
+    return out;
+
+}
+
+function splineLerp( out, v1, v2, t, ts ) {
+
+    const p0 = v1[ 1 ];
+    const m0 = ts * v1[ 2 ];
+    const p1 = v2[ 1 ];
+    const m1 = ts * v2[ 0 ];
+    const t2 = t * t;
+    const t3 = t2 * t;
+    out = ( 2 * t3 - 3 * t2 + 1 ) * p0 + ( t3 - 2 * t2 + t ) * m0 + ( - 2 * t3 + 3 * t2 ) * p1 + ( t3 - t2 ) * m1; // eslint-disable-line
+
+    return out;
 
 }
 
@@ -38,7 +60,6 @@ Object.assign( Animator.prototype, {
             animate.clips.forEach( ( clip ) => {
 
                 clip.currentTime = 0; // eslint-disable-line
-                clip.currentIdx = 0; // eslint-disable-line
                 clip.sumTime = 0; // eslint-disable-line
                 clip.resetTarget();
 
@@ -82,7 +103,7 @@ Object.assign( Animator.prototype, {
 
                 const clip = clips[ j ];
                 let {
-                    sumTime, currentIdx, currentTime,
+                    sumTime, currentTime,
                 } = clip;
                 const {
                     minTime, maxTime, times, values, lerpFun, setTarget, animateMaxTime, animateMinTime,
@@ -90,29 +111,26 @@ Object.assign( Animator.prototype, {
 
                 sumTime += dtime;
                 currentTime += dtime;
-                if ( currentTime > animateMaxTime ) {
-
+                if ( currentTime >= animateMaxTime )
                     currentTime %= animateMaxTime;
-                    currentIdx = 0;
-
-                }
 
                 clip.sumTime = sumTime;
                 clip.currentTime = currentTime;
                 if ( currentTime < animateMinTime || currentTime < minTime || currentTime > maxTime ) continue;
 
-                for ( let t = currentIdx; t < times.length; t ++ )
+                let currentIdx;
+                for ( let t = 0; t < times.length; t ++ )
                     if ( currentTime < times[ t ] ) {
 
                         currentIdx = t - 1;
                         break;
 
                     }
-                clip.currentIdx = currentIdx;
 
-                const timePercent = ( currentTime - times[ currentIdx ] ) / ( times[ currentIdx + 1 ] - times[ currentIdx ] );
-                lerpFun( clip.currentValue, values[ currentIdx ], values[ currentIdx + 1 ], timePercent );
-                setTarget( clip.currentValue );
+                const timeSpan = times[ currentIdx + 1 ] - times[ currentIdx ];
+                const timePercent = ( currentTime - times[ currentIdx ] ) / timeSpan;
+                const result = lerpFun( clip.currentValue, values[ currentIdx ], values[ currentIdx + 1 ], timePercent, timeSpan );
+                setTarget( result );
 
             }
 
@@ -138,26 +156,35 @@ Object.assign( Animator, {
                 for ( let j = 0; j < clips.length; j ++ ) {
 
                     const {
-                        targetProp, times, values, setTarget, resetTarget, // method,
+                        targetProp, times, values, setTarget, resetTarget, method,
                     } = clips[ j ];
 
                     let lerpFun;
-                    switch ( targetProp ) {
+                    switch ( method ) {
 
-                    case 'quaternion':
-                        lerpFun = quaternionLinearSlerp;
+                    case 'LINEAR':
+                        if ( targetProp === 'quaternion' )
+                            lerpFun = quaternionLinearSlerp;
+                        else
+                            lerpFun = linearLerp;
                         break;
-                    case 'weights':
-                    case 'position':
-                    case 'scale':
-                        lerpFun = weightLinearLerp;
+                    case 'STEP':
+                        lerpFun = setpLerp;
+                        break;
+                    case 'CUBICSPLINE':
+                        lerpFun = splineLerp;
                         break;
                     default:
                         break;
 
                     }
 
-                    if ( ! lerpFun ) continue;
+                    if ( ! lerpFun ) {
+
+                        console.log( `unsupported animation interpolation ${method}` );
+                        continue;
+
+                    }
 
                     const clipRes = {
                         times,
@@ -170,7 +197,6 @@ Object.assign( Animator, {
                         animateMinTime,
                         animateMaxTime,
                         sumTime: 0,
-                        currentIdx: 0,
                         currentTime: 0,
                         currentValue: values[ 0 ].slice ? values[ 0 ].slice() : values[ 0 ],
                     };
