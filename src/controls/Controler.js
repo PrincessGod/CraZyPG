@@ -101,7 +101,7 @@ function Controler( element ) {
     this.onmousedown = createEventListener( this.mouseDownListeners, this );
     this.element.addEventListener( 'mousedown', this.onmousedown, false );
     this.onmousemove = createEventListener( this.mouseMoveListeners, this );
-    document.addEventListener( 'mousemove', this.onmousemove, false );
+    this.element.addEventListener( 'mousemove', this.onmousemove, false );
     this.onmouseup = createEventListener( this.mouseUpListeners, this );
     document.addEventListener( 'mouseup', this.onmouseup, false );
 
