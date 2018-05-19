@@ -9,6 +9,9 @@
 #### engine
 
 * Implement GLContext objects (Texture, Buffer, Sampler, VAO)
+* Unit file loader
+* Object mange center, object ID, name (GPU, big js file)
+* Greater logger?
 * Add GL states manager and stete object
 * Add shader chunck and dynamic combine
 * Add [KHR_materials_common](https://github.com/KhronosGroup/glTF/tree/master/extensions) and lights
