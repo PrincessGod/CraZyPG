@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GLTFLoader</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        div#canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+    </div>
+    <script src="./czpg.js"></script>
+    <script src="./js/dat.gui.min.js"></script>
+    <script>
+
+        const modelList = {
+            'Buster Drone':'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/buster_drone/scene.gltf',
+            // {name: 'Fox', url : 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/fox/quadruped_fox.gltf'},
+            'Bear': 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/BearOnBalloons/scene.gltf',
+            'Suzanne': 'https://raw.githubusercontent.com/cx20/gltf-test/master/tutorialModels/Suzanne/glTF/Suzanne.gltf',
+            'Avocado': 'https://raw.githubusercontent.com/cx20/gltf-test/master/tutorialModels/Avocado/glTF/Avocado.gltf',
+            'DamagedHelmet': 'https://raw.githubusercontent.com/cx20/gltf-test/master/tutorialModels/DamagedHelmet/glTF/DamagedHelmet.gltf',
+            'FlightHelmet': 'https://raw.githubusercontent.com/cx20/gltf-test/master/tutorialModels/FlightHelmet/glTF/FlightHelmet.gltf',
+            'SciFiHelmet': 'https://raw.githubusercontent.com/cx20/gltf-test/master/tutorialModels/SciFiHelmet/glTF/SciFiHelmet.gltf',
+            'Vitual City': 'https://raw.githubusercontent.com/cx20/gltf-test/master/sampleModels/VC/glTF/VC.gltf',
+            'Polly': 'https://raw.githubusercontent.com/PrincessGod/resources/master/Models/polly/project_polly.gltf',
+        }
+
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('100%', '100%').clear();
+            const context = renderer.context;
+            const scene = new CZPG.Scene(renderer);
+            const controler = scene.controler;
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.transform.position = [0, 0, 7];
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            cameraControler.enableDamping = true;
+            cameraControler.autoRotate = true;
+
+            const textures = CZPG.createTextures(context, {
+                env: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/px.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/nx.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/py.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/ny.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/pz.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/nz.jpg',
+                    ]
+                },
+                diffuse: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.px.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.nx.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.py.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.ny.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.pz.jpg',
+                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.nz.jpg',
+                    ]
+                },
+                lut: {
+                    mag: context.NEAREST,
+                    min: context.NEAREST,
+                    src: 'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/brdfLUT.png',
+                }
+            });
+
+            let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
+                u_lightDirection: [0, 1, 1],
+                u_lightColor: [1, 1, 1],
+                u_diffuseEnvMap: textures.diffuse,
+                u_specularEnvMap: textures.env,
+                u_brdfLUT: textures.lut,
+            });
+            let currentGltf;
+            let gltfLoader = new CZPG.GLTFLoader();
+            let items = [];
+            let animator;
+            function loadGLTF(url) {
+                gltfLoader.load(url)
+                .then( res => {
+                    const {rootNode, textures, animations, cameras} = res;
+                    const gltfTextures = CZPG.createTextures(context, textures);
+                    rootNode.traverse((node)=> {
+                        if(node.model && node.model.textures !== undefined) {
+                            Object.keys(node.model.textures).forEach(uniformName => node.model.textures[uniformName] = gltfTextures[node.model.textures[uniformName]])
+                            node.model.setUniformObj(node.model.textures);
+                        }
+                    });
+
+                    if(cameras.length > 0) {
+                        allCamera = [camera, ...cameras];
+                        allCameraName = ['Default', ...cameras.map(c => c.name)];
+                        let item = datgui.add(controlObj, 'camera', allCameraName)
+                            .onFinishChange(value => {
+                                let target = allCamera.filter(c => c.name === value);
+                                scene.setCamera(allCamera[allCameraName.indexOf(value)]);
+                                if(scene.currentCamera === camera) {
+                                    cameraControler.enable = true;
+                                } else {
+                                    cameraControler.enable = false;
+                                }
+                            });
+                        items.push(item);
+                    }
+
+                    animator = new CZPG.Animator(animations);
+                    let animates = animator.animations;
+                    if(animates.length > 0) {
+                        let animateMap = animates.map(ani => ani.name);
+                        animateMap = ['None'].concat(animateMap);
+                        let item = datgui.add(controlObj, 'animate', animateMap)
+                            .onFinishChange(value => {
+                                animator.resetAll().playAnimation(value);
+                            }).listen();
+                        items.push(item);
+                    }
+
+                    currentGltf = {shader: gltfShader, model: rootNode};
+                    scene.add(currentGltf);
+                    modelSlector.domElement.style.pointerEvents = 'auto';
+                    modelSlector.domElement.style.opacity = 1.0;
+                });
+            }
+
+            let gridShader = new CZPG.GridAxisShader(context);
+            let gridModal = CZPG.GridAxis.createModel()
+
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.env);
+            let skyCubeModal = CZPG.Cube.createModel('sky');
+
+            scene.add([
+                {shader: skymapShader, model: skyCubeModal},
+            ]).setCamera(camera);
+
+            let resized = false;
+            let loop = new CZPG.Render(function(timespan) {
+                resized = renderer.clear(0.05,0.05,0.05,1).fixCanvasToDisplay(window.devicePixelRatio);
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+                if(animator) animator.update(timespan);
+                scene.render();
+            }).start();
+
+            let controlObj = {
+                showgrid: false,
+                autoRotate: true,
+                animate: 'None',
+                camera: 'Default',
+                model: 'Buster Drone',
+            };
+            let datgui = new dat.GUI();
+
+            datgui.add(controlObj, 'showgrid')
+                .onFinishChange(value => {
+                    if(value)
+                        scene.add({shader: gridShader, model: gridModal});
+                    else
+                        scene.remove({shader: gridShader, model: gridModal});
+                });
+
+            datgui.add(controlObj, 'autoRotate')
+                .onFinishChange(value => {
+                        cameraControler.autoRotate = value;
+                });
+
+             let modelSlector = datgui.add(controlObj, 'model', Object.keys(modelList))
+                .onFinishChange(key => {
+                    let file = modelList[key];
+                    scene.remove(currentGltf);
+                    currentGltf = null;
+                    animator = null;
+                    cameraControler.enable = true;
+                    controlObj.animate = 'None';
+                    items.forEach(i => datgui.remove(i));
+                    items = [];
+                    modelSlector.domElement.style.pointerEvents = 'none';
+                    modelSlector.domElement.style.opacity = 0.5;
+                    loadGLTF(file);
+                });
+
+            modelSlector.domElement.style.pointerEvents = 'none';
+            modelSlector.domElement.style.opacity = 0.5;
+            loadGLTF(modelList['Buster Drone']);
+        });
+
+    </script>
+</body>
+</html>

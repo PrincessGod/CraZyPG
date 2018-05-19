@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Draw Instance</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        div#canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+    </div>
+    <script src="./czpg.js"></script>
+    <script id="vs-draw" type="x-shader/x-vertex">
+        #version 300 es
+        // https://twgljs.org/examples/instancing.html
+
+        uniform mat4 u_projMat;
+        uniform mat4 u_viewMat;
+        uniform vec3 u_camPos;
+        uniform vec3 u_lightWorldPos;
+
+        in vec4 instanceColor;
+        in mat4 instanceWorld;
+        in vec3 a_position;
+        in vec3 a_normal;
+
+        out vec4 v_position;
+        out vec3 v_normal;
+        out vec3 v_surfaceToLight;
+        out vec3 v_surfaceToView;
+        out vec4 v_color;
+
+        void main() {
+            v_color = instanceColor;
+            vec4 worldPosition = instanceWorld * vec4(a_position, 1.0);
+            v_position = u_projMat * u_viewMat * worldPosition;
+            v_normal = (instanceWorld * vec4(a_normal, 0)).xyz;
+            v_surfaceToLight = u_lightWorldPos - worldPosition.xyz;
+            v_surfaceToView = u_camPos - worldPosition.xyz;
+            gl_Position = v_position;
+        }
+    </script>
+
+    <script id="fs-draw" type="x-shader/x-fragment">
+        #version 300 es
+        precision mediump float;
+
+        in vec4 v_position;
+        in vec3 v_normal;
+        in vec3 v_surfaceToLight;
+        in vec3 v_surfaceToView;
+        in vec4 v_color;
+
+        uniform vec4 u_lightColor;
+        uniform vec4 u_ambient;
+        uniform vec4 u_specular;
+        uniform float u_shininess;
+        uniform float u_specularFactor;
+
+        vec4 lit(float l ,float h, float m) {
+            return vec4(1.0,
+                        max(l, 0.0),
+                        (l > 0.0) ? pow(max(0.0, h), m) : 0.0,
+                        1.0);
+        }
+
+        out vec4 finalColor;
+
+        void main() {
+            vec4 diffuseColor = v_color;
+            vec3 a_normal = normalize(v_normal);
+            vec3 surfaceToLight = normalize(v_surfaceToLight);
+            vec3 surfaceToView = normalize(v_surfaceToView);
+            vec3 halfVector = normalize(surfaceToLight + surfaceToView);
+            vec4 litR = lit(dot(a_normal, surfaceToLight),
+                               dot(a_normal, halfVector), u_shininess);
+            vec4 outColor = vec4((
+                u_lightColor * (diffuseColor * litR.y + diffuseColor * u_ambient +
+                            u_specular * litR.z * u_specularFactor)).rgb,
+                            diffuseColor.a);
+            finalColor = outColor;
+        }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
+            const context = renderer.context;
+            const scene = new CZPG.Scene(renderer);
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.position = [15, 10, 15];
+            let controler = scene.controler;
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            // cameraControler.enableDamping = true;
+            cameraControler.autoRotate = true;
+
+            function rand(min, max) {
+                if (max === undefined) {
+                    max = min;
+                    min = 0;
+                }
+                return min + Math.random() * (max - min);
+            }
+
+            const INSTANCECOUNT = 100000;
+            const instanceWorlds = new Float32Array(INSTANCECOUNT * 16);
+            const instanceColors = [];
+            const r = 70;
+            for(let i = 0; i < INSTANCECOUNT; i++) {
+                const mat = new Float32Array(instanceWorlds.buffer, i * 16 * 4, 16);
+
+                CZPG.Matrix4.identity(mat);
+                CZPG.Matrix4.translate(mat, rand(-r, r), rand(-r, r), rand(-r, r));
+                CZPG.Matrix4.rotateZ(mat, rand(0, Math.PI * 2));
+                CZPG.Matrix4.rotateX(mat, rand(0, Math.PI * 2));
+                instanceColors.push(rand(1), rand(1), rand(1));
+            }
+
+            var cubeAttribArrays = CZPG.Cube.createVertices();
+
+            Object.assign(cubeAttribArrays, {
+                instanceWorld: {
+                    numComponents: 16,
+                    data: instanceWorlds,
+                    divisor: 1,
+                },
+                instanceColor: {
+                    numComponents: 3,
+                    data: instanceColors,
+                    divisor: 1,
+                },
+            })
+
+            var cubesMesh = new CZPG.Mesh('instances', cubeAttribArrays, { instanceCount: INSTANCECOUNT });
+            var cubesModel = new CZPG.Model(cubesMesh);
+
+            var instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw").setUniformObj({
+                u_lightWorldPos: [1, 8, -30],
+                u_lightColor: [1, 1, 1, 1],
+                u_ambient: [0, 0, 0, 1],
+                u_specular: [1, 1, 1, 1],
+                u_shininess: 50,
+                u_specularFactor: 1,
+            });
+
+            scene.add([
+                {shader: instanceShader, model: cubesModel},
+            ]).setCamera(camera);
+
+            let resized = false;
+            let loop = new CZPG.Render(function(timespan) {
+                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio)
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+                scene.render();
+            }).start();
+
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Mesh Line</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        div#canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+    </div>
+    <script src="./czpg.js"></script>
+    <script src="./js/dat.gui.min.js"></script>
+    <script src="./js/colorplette.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
+            const context = renderer.context;
+            const scene = new CZPG.Scene(renderer);
+            const controler = scene.controler;
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.position = [0, 0, 3];
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            cameraControler.enableDamping = true;
+            cameraControler.autoRotate = true;
+            cameraControler.autoRotateSpeed = 4.0;
+
+            let widthFun = function( p ) { return Math.abs(Math.sin( Math.PI * p )); }
+
+            let curveMesh = CZPG.Curve.createMesh('cur', [
+                new CZPG.Vector3(-2, 0, 0), new CZPG.Vector3(-1.5, 0.4, 0), new CZPG.Vector3(-0.5, 1, 0), new CZPG.Vector3(0, 0, 0),
+                                            new CZPG.Vector3(0.5, -1, 0), new CZPG.Vector3(1.5, -0.4, 0), new CZPG.Vector3(2, 0, 0),
+            ], 0, 40);
+
+            let background = [255, 0, 0];
+
+            let models = {
+                spline: [[], []],
+                curves: [[], []],
+                patten: [[], []],
+                lines: [[], []],
+            };
+
+            let meshlineModel = new CZPG.MeshLineModel(curveMesh, widthFun);
+            let meshLineModelSqud = new CZPG.MeshLineModel(curveMesh);
+            models.spline[0].push(meshlineModel);
+            models.spline[1].push(meshLineModelSqud);
+
+            const radius = 1;
+            let spherical = new CZPG.Spherical();
+            let vector30 = new CZPG.Vector3();
+            let vector31 = new CZPG.Vector3();
+            let vector32 = new CZPG.Vector3();
+            let down = 0.25;
+
+            let numberLines = 500;
+            for(let i = 0; i < numberLines; i ++) {
+                let r = Math.random() * Math.PI * 0.4;
+                let r1 = Math.random() * Math.PI * 2;
+                let r2 = Math.random() * 0.2 * Math.PI;
+                let r3 = Math.random() * 0.1 * Math.PI;
+                let curve = CZPG.Curve.createMesh('cur' + i, [
+                    new CZPG.Vector3(0, -0.4, 0),
+                    vector30.setFromSpherical(spherical.set(radius * Math.random() * 0.4, r + r2, r1)).set(vector30.x, vector30.y - down, vector30.z),
+                    vector31.setFromSpherical(spherical.set(0.4 + radius * Math.random() * 0.4, r + r2 + r3, r1)).set(vector31.x, vector31.y - down, vector31.z),
+                    vector32.setFromSpherical(spherical.set(radius, r, r1)).set(vector32.x, vector32.y - down, vector32.z),
+                ], undefined, 40);
+
+                let model = new CZPG.MeshLineModel(curve);
+                let modelSqud = new CZPG.MeshLineModel(curve, widthFun);
+                models.curves[1].push(model);
+                models.curves[0].push(modelSqud);
+
+            }
+
+            let maxXZ = 2.0;
+            let maxY = 1;
+            for(let i = 0; i < numberLines; i ++) {
+                let x = Math.sin(i / (numberLines - 1) * Math.PI * 2) * maxXZ;
+                let z = Math.cos(i / (numberLines - 1) * Math.PI * 2) * maxXZ;
+                let curve = CZPG.Curve.createMesh('pattenCurve' + i, [
+                    new CZPG.Vector3(0, 0, 0), new CZPG.Vector3(1 / 6 * x, 0.4 * maxY, 1 / 6 * z), new CZPG.Vector3( 2 / 6 * x, maxY, 2 / 6 * z), new CZPG.Vector3(3 / 6 * x, 0, 3 / 6 * z),
+                    new CZPG.Vector3( 4 / 6 * x, - maxY, 4 / 6 * z), new CZPG.Vector3(5 / 6 * x, -0.4 * maxY, 5 / 6 * z), new CZPG.Vector3( x, 0, z),
+                ], undefined, 40);
+
+                let model = new CZPG.MeshLineModel(curve);
+                let modelSqud = new CZPG.MeshLineModel(curve, widthFun);
+                model.position = modelSqud.position = new CZPG.Vector3(1 * x, 1, 1 * z);
+                models.patten[1].push(model);
+                models.patten[0].push(modelSqud);
+
+            }
+
+            let rangeXYZ = 8;
+            for(let i = 0; i < numberLines; i ++) {
+                let start = [Math.random() * rangeXYZ - rangeXYZ / 2, Math.random() * rangeXYZ - rangeXYZ / 2, Math.random() * rangeXYZ - rangeXYZ / 2];
+                let end = [Math.random() * rangeXYZ - rangeXYZ / 2, Math.random() * rangeXYZ - rangeXYZ / 2, Math.random() * rangeXYZ - rangeXYZ / 2];
+
+                let model = new CZPG.MeshLineModel(start.concat(end));
+                let modelSqud = new CZPG.MeshLineModel(start.concat(end));
+                models.lines[1].push(model);
+                models.lines[0].push(modelSqud);
+            }
+
+            let colors = {
+                background : [255, 0, 0],
+                randomColors() {
+                    let cs = colorPlettes.random();
+                    colors.background = [cs[0][0], cs[0][1], cs[0][2]];
+                    colors[0] = [cs[1][0] / 255, cs[1][1] / 255, cs[1][2] / 255, 1];
+                    colors[1] = [cs[2][0] / 255, cs[2][1] / 255, cs[2][2] / 255, 1];
+                    colors[2] = [cs[3][0] / 255, cs[3][1] / 255, cs[3][2] / 255, 1];
+                    colors[3] = [cs[4][0] / 255, cs[4][1] / 255, cs[4][2] / 255, 1];
+                    background = colors.background.map(v => v / 255);
+
+                    models.curves[0].forEach(m => m.setUniformObj({color: colors[Math.floor(Math.random() * 4)]}))
+                    models.curves[1].forEach((m, i) => m.setUniformObj(models.curves[0][i].uniformObj));
+                    models.spline[0].forEach(m => m.setUniformObj({color: colors[Math.floor(Math.random() * 4)]}))
+                    models.spline[1].forEach((m, i) => m.setUniformObj(models.spline[0][i].uniformObj))
+                    models.patten[0].forEach(m => m.setUniformObj({color: colors[Math.floor(Math.random() * 4)]}))
+                    models.patten[1].forEach((m, i) => m.setUniformObj(models.patten[0][i].uniformObj));
+                    models.lines[0].forEach(m => m.setUniformObj({color: colors[Math.floor(Math.random() * 4)]}))
+                    models.lines[1].forEach((m, i) => m.setUniformObj(models.patten[0][i].uniformObj));
+                },
+            }
+
+            colors.randomColors();
+
+            let uniformObj = {
+                linewidth: 2,
+                screenSize: false,
+                visibilityStart: 0.01,
+                visibilityEnd: 1.0,
+                tile: 0.2,
+            }
+
+            let meshlineShader = new CZPG.MeshLineShader(context).setUniformObj(uniformObj);
+
+            scene.add([
+                {shader: meshlineShader, model: models.spline[0]},
+            ]).setCamera(camera);
+
+            let animate = {animate: false, length: undefined};
+
+            let resized = false;
+            let curentModels;
+            let loop = new CZPG.Render(function(timespan) {
+
+                resized = renderer.clear(background).fixCanvasToDisplay(window.devicePixelRatio)
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+
+                if(currentModel.model === 'patten') {
+                    curentModels = models[currentModel.model][currentModel.customWidth === true ? 0 : 1].slice(0, currentModel.lineNumber);
+                    curentModels.forEach(m => m.depth = camera.vec3Position.squareLength(m.position));
+                    curentModels = curentModels.sort((a, b) => b.depth - a.depth);
+                    scene.removeAll().add([
+                        {shader: meshlineShader, model: curentModels},
+                    ]);
+                }
+
+                meshlineShader.setUniformObj(uniformObj);
+                if(animate.animate) {
+                    animate.length = Math.abs(uniformObj.visibilityStart - uniformObj.visibilityEnd);
+                    animate.length = animate.length > 0.98 ? 0.5 : animate.length;
+                    meshlineShader.setUniformObj({
+                        visibilityStart: Math.abs(Math.sin(performance.now() * 0.0005)) * (1 - animate.length),
+                        visibilityEnd: Math.abs(Math.sin(performance.now() * 0.0005)) * (1 - animate.length) + animate.length,
+                    })
+                }
+
+                scene.render();
+
+            }).start();
+
+            let datgui = new dat.GUI();
+            let basic = datgui.addFolder('Wireframe');
+            basic.add(uniformObj, 'linewidth', 0.1, 3.0);
+            basic.add(uniformObj, 'screenSize');
+            basic.add(uniformObj, 'visibilityStart', 0.0, 1.0);
+            basic.add(uniformObj, 'visibilityEnd', 0.0, 1.0);
+            basic.add(uniformObj, 'tile', 0.0, 0.5);
+            basic.add(animate, 'animate');
+            basic.open();
+
+            let other = datgui.addFolder('Camera');
+            other.add(cameraControler, 'autoRotate');
+            other.add(cameraControler, 'enableDamping');
+
+            basic.add(colors, 'randomColors');
+
+            colors.randomColors();
+
+            let currentModel = {
+                model: 'spline',
+                lineNumber: numberLines,
+                customWidth: true,
+            }
+
+            let numControler;
+
+            let modelSelect = datgui.add(currentModel, 'model', ['spline', 'curves', 'patten', 'lines']);
+            modelSelect.onFinishChange(value => {
+                scene.removeAll().add([
+                    {shader: meshlineShader, model: models[currentModel.model][currentModel.customWidth === true ? 0 : 1].slice(0, currentModel.lineNumber)},
+                ]);
+
+                if(value === 'spline') {
+                    datgui.remove(numControler);
+                    numControler = undefined;
+                } else if(!numControler) {
+                    numControler = datgui.add(currentModel, 'lineNumber', 1, numberLines);
+                    numControler.onChange(num => {
+                        scene.removeAll().add([
+                            {shader: meshlineShader, model: models[currentModel.model][currentModel.customWidth === true ? 0 : 1].slice(0, currentModel.lineNumber)},
+                        ]);
+                    });
+                }
+
+            });
+
+            let linewidth = basic.add(currentModel, 'customWidth');
+            linewidth.onChange(v => {
+                scene.removeAll().add([
+                    {shader: meshlineShader, model: models[currentModel.model][currentModel.customWidth === true ? 0 : 1].slice(0, currentModel.lineNumber)},
+                ]);
+            });
+
+        });
+
+    </script>
+</body>
+</html>

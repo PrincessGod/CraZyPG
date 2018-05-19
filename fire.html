@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Fire</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        div#canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+    </div>
+    <script src="./czpg.js"></script>
+    <script id="vs-draw" type="x-shader/x-vertex">
+        #version 300 es
+        // https://github.com/chinedufn/webgl-particle-effect-tutorial
+
+        uniform mat4 u_mvpMat;
+        uniform mat4 u_viewMat;
+        uniform vec3 u_firePos;
+        uniform bool u_billboard;
+        uniform float u_time;
+
+        in vec3 a_position;
+        in vec2 a_uv;
+
+        in float a_lifetime;
+        in vec3 a_offset;
+        in vec3 a_velocity;
+
+        out vec2 v_uv;
+        out float v_lifetime;
+
+        void main() {
+            float time = mod(u_time, a_lifetime);
+
+            vec4 position = vec4(u_firePos + a_offset + (time * a_velocity), 1.0);
+
+            v_lifetime = 1.3 - (time / a_lifetime);
+            v_lifetime = clamp(v_lifetime, 0.0, 1.0);
+            float size = (v_lifetime * v_lifetime) * 0.05;
+
+            if(u_billboard) {
+                vec3 right = vec3(
+                    u_viewMat[0].x, u_viewMat[1].x, u_viewMat[2].x
+                );
+                vec3 up = vec3(
+                    u_viewMat[0].y, u_viewMat[1].y, u_viewMat[2].y
+                );
+
+                position.xyz += (right * a_position.x * size) + (up * a_position.y * size);
+            } else {
+                position.xy += a_position.xy * size;
+            }
+
+            gl_Position = u_mvpMat * position;
+
+            v_uv = a_uv;
+            v_lifetime = a_lifetime;
+        }
+    </script>
+
+    <script id="fs-draw" type="x-shader/x-fragment">
+        #version 300 es
+        precision mediump float;
+
+        in vec2 v_uv;
+        in float v_lifetime;
+
+        uniform vec4 u_color;
+        uniform highp float u_time;
+        uniform sampler2D u_texture;
+
+        out vec4 finalColor;
+
+        void main() {
+            float time = mod(u_time, v_lifetime);
+            float percentOfLife = time / v_lifetime;
+            percentOfLife = clamp(percentOfLife, 0.0, 1.0);
+
+            float offset = floor(16.0 * percentOfLife);
+            float offsetX = floor(mod(offset, 4.0)) / 4.0;
+            float offsetY = 0.75 - floor(offset / 4.0) / 4.0;
+
+            vec4 texColor = texture(u_texture, vec2(
+                (v_uv.x / 4.0) + offsetX,
+                (v_uv.y / 4.0) + offsetY
+            ));
+
+            finalColor = u_color * texColor;
+            finalColor.a = 1.0;//*= v_lifetime;
+        }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
+            const context = renderer.context;
+            const scene = new CZPG.Scene(renderer);
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.position = [0, 0.1, 1.5];
+            let controler = scene.controler;
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            cameraControler.enableDamping = true;
+            // cameraControler.autoRotate = true;
+
+            var textures = CZPG.createTextures(context, {
+
+                fire: {
+                    src: './resource/fire-texture-atlas.jpg',
+                    min : context.LINEAR,
+                    mag : context.LINEAR,
+                },
+
+                fire1: {
+                    src: './resource/1.jpg',
+                    min : context.LINEAR,
+                    mag : context.LINEAR,
+                },
+
+                fire2: {
+                    src: './resource/9.jpg',
+                    min : context.LINEAR,
+                    mag : context.LINEAR,
+                },
+
+            })
+
+            function rand(min, max) {
+                if (max === undefined) {
+                    max = min;
+                    min = 0;
+                }
+                return min + Math.random() * (max - min);
+            }
+
+            const INSTANCECOUNT = 1000;
+
+            const lifetimes = [];
+            const offsets = [];
+            const velocities = [];
+            const diameterAroundCenter = 0.5;
+            const halfDiameterAroundCenter = diameterAroundCenter / 2;
+            for(let i = 0; i < INSTANCECOUNT; i++) {
+                var lifetime = 8 * Math.random();
+
+                var xStartOffset = diameterAroundCenter * Math.random() - halfDiameterAroundCenter;
+                xStartOffset /=3;
+                var yStartOffset = diameterAroundCenter * Math.random() - halfDiameterAroundCenter;
+                yStartOffset /= 10;
+                var zSatrtOffset = diameterAroundCenter * Math.random() - halfDiameterAroundCenter;
+                zSatrtOffset /= 3;
+
+                var upVelocity = 0.1 * Math.random();
+                var xSideVelocity = 0.02 * Math.random();
+                if(xStartOffset > 0) {
+                    xSideVelocity *= -1;
+                }
+                var zSideVelocity = 0.02 * Math.random();
+                if(zSatrtOffset > 0) {
+                    zSideVelocity *= -1;
+                }
+
+                lifetimes.push(lifetime);
+                offsets.push(xStartOffset);
+                offsets.push(yStartOffset + Math.abs(xStartOffset / 2.0));
+                offsets.push(zSatrtOffset);
+                velocities.push(xSideVelocity);
+                velocities.push(upVelocity);
+                velocities.push(zSideVelocity);
+            }
+
+            var quadAttribArrays = CZPG.Quad.createVertices(2);
+
+            Object.assign(quadAttribArrays, {
+                a_lifetime: {
+                    numComponents: 1,
+                    data: lifetimes,
+                    divisor: 1,
+                },
+                a_offset: {
+                    numComponents: 3,
+                    data: offsets,
+                    divisor: 1,
+                },
+                a_velocity: {
+                    numComponents: 3,
+                    data: velocities,
+                    divisor: 1,
+                },
+            })
+
+            let quadsMesh = new CZPG.Mesh('fire', quadAttribArrays, { instanceCount: INSTANCECOUNT, cullFace: false, blend: true, depth:false });
+            let purpalfireModel = new CZPG.Model(quadsMesh).setUniformObj({ color: [0.25, 0.25, 8.25, 1.0], firePos: [0, -0.3, 0], u_texture: textures.fire });
+            let redfireModel = new CZPG.Model(quadsMesh).setUniformObj({ color: [3.25, 0.25, 0.85, 1.0], firePos: [-0.5, -0.3, 0], u_texture: textures.fire1 });
+            let bluefireModel = new CZPG.Model(quadsMesh).setUniformObj({ color: [0.1, 3.1, 0.85, 1.0], firePos: [0.5, -0.3, 0], u_texture: textures.fire2 });
+            let instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw")
+                .setUniformObj({billboard: true})
+
+            scene.add([
+                {shader: instanceShader, model: [redfireModel, bluefireModel, purpalfireModel]},
+            ]).setCamera(camera);
+
+            context.blendFunc(context.ONE, context.ONE);
+            let resized = false;
+            let loop = new CZPG.Render(function(timespan) {
+                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio)
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+                instanceShader.setUniformObj({time: performance.now() / 1000});
+                scene.render();
+            }).start();
+
+        });
+
+    </script>
+</body>
+</html>

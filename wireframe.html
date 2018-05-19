@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Stylized Wireframes</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        div#canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/mattdesl">@mattdesl</a>'s shader <a href="https://github.com/mattdesl/webgl-wireframes">wireframes</a></p>
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+    </div>
+    <script src="./czpg.js"></script>
+    <script src="./js/dat.gui.min.js"></script>
+    <script src="./js/colorplette.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
+            const context = renderer.context;
+            const scene = new CZPG.Scene(renderer);
+            const controler = scene.controler;
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.position = [0, 0, 2];
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            cameraControler.enableDamping = true;
+            cameraControler.autoRotate = true;
+            cameraControler.autoRotateSpeed = 4.0;
+
+            let quadModal = CZPG.Quad.createModel();
+            let quadModalNormal = CZPG.Quad.createModel();
+            let cubeModal = CZPG.Cube.createModel();
+            let cubeModalNormal = CZPG.Cube.createModel();
+            let sphereModel = CZPG.Sphere.createModel();
+            let sphereModelNormal = CZPG.Sphere.createModel();
+
+            CZPG.addBarycentricAttrib(sphereModel, true);
+            CZPG.addBarycentricAttrib(cubeModal, true);
+            CZPG.addBarycentricAttrib(cubeModalNormal, false);
+            CZPG.addBarycentricAttrib(quadModal, true);
+            CZPG.addBarycentricAttrib(quadModalNormal, false);
+            CZPG.addBarycentricAttrib(sphereModelNormal, false);
+
+            let models = {
+                sphere: [sphereModelNormal, sphereModel],
+                cube: [cubeModalNormal, cubeModal],
+                quad: [quadModalNormal, quadModal],
+            }
+
+            let background = [255, 0, 0];
+
+            let colors = {
+                background : [255, 0, 0],
+                stroke: [ 0, 157, 118, 255 ],
+                fill: [ 255, 0, 0, 100 ],
+                backStroke: [ 255, 88, 83, 255 ],
+                randomColors() {
+                    let cs = colorPlettes.random();
+                    colors.background = [cs[0][0], cs[0][1], cs[0][2]];
+                    colors.stroke = [cs[4][0], cs[4][1], cs[4][2], 255];
+                    colors.backStroke = [cs[3][0], cs[3][1], cs[3][2], 255];
+                    colors.fill = [cs[2][0], cs[2][1], cs[2][2], 100];
+                    background = colors.background.map(v => v / 255);
+                    uniformObj.stroke = colors.stroke.map(v => v / 255);
+                    uniformObj.backStroke = colors.backStroke.map(v => v / 255);
+                    uniformObj.fill = colors.fill.map(v => v / 255);
+                },
+            }
+
+            let uniformObj = {
+                thickness: 0.5,
+                screenWidth: false,
+                stroke: [ 0, 157 / 255, 118 / 255, 255 / 255 ],
+                fill: [ 255 / 255, 0 / 255, 0 / 255, 0.0 ],
+                backStroke: [ 255 / 255, 88 / 255, 83 / 255, 1.0 ],
+                feather: 1.0,
+                colorBack: true,
+                noiseSmall: false,
+                noiseBig: false,
+                squeeze: false,
+                squeezeEndpoint: 0.5,
+                squeezeMiddle: 0.1,
+                dash: false,
+                dashRepeats: 6,
+                dashLength: 0.5,
+                dashOverlap: true,
+                dashAnimate: false,
+                dualStroke: false,
+                secondThickness: 0.1,
+            }
+
+            let wireframeShader = new CZPG.WireframeShader(context);
+            scene.add([
+                {shader: wireframeShader, model: [sphereModelNormal]},
+            ]).setCamera(camera);
+
+            let resized = false;
+            let loop = new CZPG.Render(function(timespan) {
+                resized = renderer.clear(background).fixCanvasToDisplay(window.devicePixelRatio)
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+
+                wireframeShader.setUniformObj(Object.assign(uniformObj, {time: performance.now() * 0.005}));
+                scene.render();
+
+            }).start();
+
+            let datgui = new dat.GUI();
+            let basic = datgui.addFolder('Wireframe');
+            basic.add(uniformObj, 'thickness', 0.01, 1.0);
+            basic.add(uniformObj, 'feather', 0.01, 4.0);
+            basic.add(uniformObj, 'screenWidth');
+            let colorStroke =  basic.addColor(colors, 'stroke').listen();
+            colorStroke.onChange(value => {
+                uniformObj.stroke = value.map(v => v / 255);
+            });
+            let colorFill = basic.addColor(colors, 'fill').listen();
+            colorFill.onChange(value => {
+                uniformObj.fill = value.map(v => v / 255);
+            });
+            basic.add(uniformObj, 'colorBack');
+            let colorBackStroke = basic.addColor(colors, 'backStroke').listen();
+            colorBackStroke.onChange(value => {
+                uniformObj.backStroke = value.map(v => v / 255);
+            });
+            basic.open();
+
+            let noise = datgui.addFolder('Noise');
+            noise.add(uniformObj, 'noiseBig');
+            noise.add(uniformObj, 'noiseSmall');
+
+            let squeeze = datgui.addFolder('Squeeze');
+            squeeze.add(uniformObj, 'squeeze');
+            squeeze.add(uniformObj, 'squeezeEndpoint', 0, 1);
+            squeeze.add(uniformObj, 'squeezeMiddle', 0, 1);
+
+            let dash = datgui.addFolder('Dash');
+            dash.add(uniformObj, 'dash');
+            dash.add(uniformObj, 'dashRepeats', 0, 10);
+            dash.add(uniformObj, 'dashLength', 0, 1);
+            dash.add(uniformObj, 'dashOverlap');
+            dash.add(uniformObj, 'dashAnimate');
+
+            let dual = datgui.addFolder('DualSroke');
+            dual.add(uniformObj, 'dualStroke');
+            dual.add(uniformObj, 'secondThickness', 0, 0.2);
+
+            let other = datgui.addFolder('Camera');
+            other.add(cameraControler, 'autoRotate');
+            other.add(cameraControler, 'enableDamping');
+
+            let colorBack = basic.addColor(colors, 'background').listen();
+            colorBack.onChange(value => {
+                background = value.map(v => v / 255);
+            });
+
+            basic.add(colors, 'randomColors');
+
+            colors.randomColors();
+
+            let currentModel = {
+                model: 'sphere',
+                removeEdge: false,
+            }
+            let modelSelect = datgui.add(currentModel, 'model', ['sphere', 'cube', 'quad']);
+            modelSelect.onFinishChange(value => {
+                scene.removeAll().add([
+                    {shader: wireframeShader, model: models[currentModel.model][currentModel.removeEdge === true ? 1 : 0]},
+                ]);
+            });
+            let removeEdge = datgui.add(currentModel, 'removeEdge');
+            removeEdge.onFinishChange(value => {
+                scene.removeAll().add([
+                    {shader: wireframeShader, model: models[currentModel.model][currentModel.removeEdge === true ? 1 : 0]},
+                ]);
+            });
+
+        });
+
+    </script>
+</body>
+</html>

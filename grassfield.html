@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Grass Field</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        div#canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+    </div>
+    <script src="./czpg.js"></script>
+    <script id="vs-draw" type="x-shader/x-vertex">
+        #version 300 es
+        // https://twgljs.org/examples/instancing.html
+
+        uniform mat4 u_projMat;
+        uniform mat4 u_viewMat;
+        uniform bool u_billboard;
+        uniform bool u_cylindrical;
+        uniform float u_time;
+
+        in mat4 instanceWorld;
+        in vec3 a_position;
+        in vec2 a_uv;
+
+        out vec2 v_uv;
+        flat out int v_id;
+
+        void main() {
+            v_uv = a_uv;
+            v_id = gl_InstanceID;
+
+            vec4 worldPosition;
+            vec3 pos = a_position;
+            if(gl_VertexID < 1 || gl_VertexID > 2) {
+                pos.x += sin(float(gl_InstanceID) + u_time * 0.0006) * 0.2;
+            }
+            vec3 right = vec3(u_viewMat[0].x, u_viewMat[1].x, u_viewMat[2].x);
+            vec3 up = vec3(u_viewMat[0].y, u_viewMat[1].y, u_viewMat[2].y);
+            if(u_cylindrical) {
+                up = vec3(0.0, 1.0, 0.0);
+            }
+            worldPosition = instanceWorld * vec4((right * pos.x) + (up * pos.y), 1.0);
+
+            gl_Position = u_projMat * u_viewMat * worldPosition;
+        }
+    </script>
+
+    <script id="fs-draw" type="x-shader/x-fragment">
+        #version 300 es
+        precision mediump float;
+
+        in vec2 v_uv;
+        flat in int v_id;
+
+        uniform sampler2D u_texture;
+        uniform sampler2D u_flower;
+
+        out vec4 finalColor;
+
+        void main() {
+            if(v_id % 20 < 1) {
+                finalColor = texture(u_flower, v_uv);
+            } else {
+                finalColor = texture(u_texture, v_uv);
+            }
+        }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
+            const context = renderer.context;
+            const scene = new CZPG.Scene(renderer);
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.position = [15, 3, 0];
+            let controler = scene.controler;
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            cameraControler.enableDamping = true;
+            // cameraControler.autoRotate = true;
+
+            var textures = CZPG.createTextures(context, {
+                day: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/miramar_right.png',
+                        './resource/miramar_left.png',
+                        './resource/miramar_top.png',
+                        './resource/miramar_bottom.png',
+                        './resource/miramar_back.png',
+                        './resource/miramar_front.png',
+                    ]
+                },
+
+                night: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/grimmnight_right.png',
+                        './resource/grimmnight_left.png',
+                        './resource/grimmnight_top.png',
+                        './resource/grimmnight_bottom.png',
+                        './resource/grimmnight_back.png',
+                        './resource/grimmnight_front.png',
+                    ]
+                },
+
+                grass: {
+                    src: './resource/grass.png',
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
+                },
+
+                flower: {
+                    src: './resource/billboardblueflowers.png',
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
+                },
+
+            })
+
+            function rand(min, max) {
+                if (max === undefined) {
+                    max = min;
+                    min = 0;
+                }
+                return min + Math.random() * (max - min);
+            }
+
+            const INSTANCECOUNT = 2000;
+
+            const instanceWorlds = new Float32Array(INSTANCECOUNT * 16);
+            const r = 40;
+            for(let i = 0; i < INSTANCECOUNT; i++) {
+                const mat = new Float32Array(instanceWorlds.buffer, i * 16 * 4, 16);
+
+                CZPG.Matrix4.identity(mat);
+                mat[12] = rand(r) - r / 2;
+                mat[13] = 1;
+                mat[14] = rand(r) - r / 2;
+            }
+
+            var quadAttribArrays = CZPG.Quad.createVertices(2);
+
+            Object.assign(quadAttribArrays, {
+                instanceWorld: {
+                    numComponents: 16,
+                    data: instanceWorlds,
+                    divisor: 1,
+                },
+            })
+
+            let quadsMesh = new CZPG.Mesh('instances', quadAttribArrays, { instanceCount: INSTANCECOUNT, cullFace: false, sampleBlend: true });
+            let quadsModel = new CZPG.Model(quadsMesh);
+            let instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw")
+                .setUniformObj({cylindrical: true, flower: textures.flower})
+                .setTexture(textures.grass);
+
+            let gridShader = new CZPG.GridAxisShader(context);
+            let gridModal = CZPG.GridAxis.createModel("Grid", 100);
+
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
+            let skyCubeModal = CZPG.Cube.createModel('sky');
+
+            scene.add([
+                {shader: skymapShader, model: skyCubeModal},
+                //{shader: gridShader, model: gridModal},
+                {shader: instanceShader, model: quadsModel},
+            ]).setCamera(camera);
+
+            let resized = false;
+            let loop = new CZPG.Render(function(timespan) {
+                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio);
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+
+                instanceShader.setUniformObj({time: performance.now()});
+                scene.render();
+            }).start();
+
+        });
+
+    </script>
+</body>
+</html>

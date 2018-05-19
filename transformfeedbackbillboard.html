@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Billboard</title>
+    <style>
+        html, body {
+            background: black;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        div#canvas {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div#container{
+            width: 100%;
+            height: 100%;
+        }
+
+        div#footbar{
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Raleway', 'Helvetica', sans-serif;
+            color: #222222;
+            font-weight: 700;
+        }
+
+        div#footbar a{
+            color: #44ABDA
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas">
+            <canvas id="glpaper"></canvas>
+        </div>
+    </div>
+    <div id="footbar">
+        <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
+    </div>
+    <script src="./czpg.js"></script>
+    <script src="./js/dat.gui.min.js"></script>
+    <script id="vs-transform" type="x-shader/x-vertex">
+        #version 300 es
+        // http://webglsamples.org/WebGL2Samples/#transform_feedback_separated_2
+        precision highp float;
+        precision highp int;
+        precision highp sampler3D;
+
+        uniform float u_time;
+        uniform vec3 u_acceleration;
+
+        in mat4 instanceWorld;
+        in vec3 a_velocity;
+        in float a_spawntime;
+        in float a_lifetime;
+        in float a_ID;
+
+        out mat4 v_instanceWorld;
+        out vec3 v_velocity;
+        out float v_spawntime;
+        out float v_lifetime;
+
+        float rand(vec2 co){
+            return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+        }
+
+        void main()
+        {
+            if (a_spawntime == 0.0 || (u_time - a_spawntime > a_lifetime) || instanceWorld[3].y < -0.5) {
+                // Generate a new particle
+                vec3 position = vec3(0.0, 0.0, 0.0);
+                v_instanceWorld = instanceWorld;
+                v_instanceWorld[3].xyz = position;
+                v_velocity = 70.0 * vec3(rand(vec2(a_ID, 0.0)) - 0.5, rand(vec2(a_ID, a_ID)), rand(vec2(0.0, a_ID)) - 0.5);
+                v_spawntime = u_time;
+                v_lifetime = 5000.0;
+            } else {
+                v_velocity = a_velocity + 0.01 * 70.0 * u_acceleration;
+                //v_position = a_position + 0.01 * v_velocity;
+                vec3 position = instanceWorld[3].xyz + 0.01 * v_velocity;
+                v_instanceWorld = instanceWorld;
+                v_instanceWorld[3].xyz = position;
+                v_spawntime = a_spawntime;
+                v_lifetime = a_lifetime;
+            }
+            gl_Position = vec4(0.0);
+        }
+    </script>
+
+    <script id="fs-transform" type="x-shader/x-fragment">
+        #version 300 es
+        precision highp float;
+
+        out vec4 color;
+        void main()
+        {
+            color = vec4(1.0);
+        }
+    </script>
+
+    <script id="vs-draw" type="x-shader/x-vertex">
+        #version 300 es
+        // https://twgljs.org/examples/instancing.html
+
+        uniform mat4 u_projMat;
+        uniform mat4 u_viewMat;
+        uniform bool u_billboard;
+        uniform bool u_cylindrical;
+
+        in vec4 instanceColor;
+        in mat4 instanceWorld;
+        in vec3 a_position;
+
+        out vec4 v_color;
+
+        void main() {
+            v_color = instanceColor;
+            vec4 worldPosition;
+            if(u_billboard){
+                vec3 right = vec3(u_viewMat[0].x, u_viewMat[1].x, u_viewMat[2].x);
+                vec3 up = vec3(u_viewMat[0].y, u_viewMat[1].y, u_viewMat[2].y);
+                if(u_cylindrical) {
+                    up = vec3(0.0, 1.0, 0.0);
+                }
+                worldPosition = instanceWorld * vec4((right * a_position.x) + (up * a_position.y), 1.0);
+            } else {
+                worldPosition = instanceWorld * vec4(a_position, 1.0);
+            }
+
+            gl_Position = u_projMat * u_viewMat * worldPosition;
+        }
+    </script>
+
+    <script id="fs-draw" type="x-shader/x-fragment">
+        #version 300 es
+        precision mediump float;
+
+        in vec4 v_color;
+
+        out vec4 finalColor;
+
+        void main() {
+            finalColor = v_color;
+        }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
+            const context = renderer.context;
+            const scene = new CZPG.Scene(renderer);
+
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.position = [75, 30, 75];
+            let controler = scene.controler;
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            cameraControler.enableDamping = true;
+            cameraControler.autoRotate = true;
+
+            textures = CZPG.createTextures(context, {
+                day: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/miramar_right.png',
+                        './resource/miramar_left.png',
+                        './resource/miramar_top.png',
+                        './resource/miramar_bottom.png',
+                        './resource/miramar_back.png',
+                        './resource/miramar_front.png',
+                    ]
+                },
+                night: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: [
+                        './resource/grimmnight_right.png',
+                        './resource/grimmnight_left.png',
+                        './resource/grimmnight_top.png',
+                        './resource/grimmnight_bottom.png',
+                        './resource/grimmnight_back.png',
+                        './resource/grimmnight_front.png',
+                    ]
+                },
+            })
+
+            function rand(min, max) {
+                if (max === undefined) {
+                    max = min;
+                    min = 0;
+                }
+                return min + Math.random() * (max - min);
+            }
+
+            const INSTANCECOUNT = 10000;
+            const ACCELERATION = -1.0;
+
+            const instanceWorlds = new Float32Array(INSTANCECOUNT * 16);
+            const instanceColors = [];
+            const r = 70;
+            for(let i = 0; i < INSTANCECOUNT; i++) {
+                const mat = new Float32Array(instanceWorlds.buffer, i * 16 * 4, 16);
+
+                CZPG.Matrix4.identity(mat);
+                instanceColors.push(rand(1), rand(1), rand(1));
+            }
+
+            var quadAttribArrays = CZPG.Quad.createVertices();
+
+            Object.assign(quadAttribArrays, {
+                instanceWorld: {
+                    numComponents: 16,
+                    data: instanceWorlds,
+                    divisor: 1,
+                },
+                instanceColor: {
+                    numComponents: 3,
+                    data: instanceColors,
+                    divisor: 1,
+                },
+            })
+
+            var quadsMesh = new CZPG.Mesh('instances', quadAttribArrays, { instanceCount: INSTANCECOUNT, cullFace: false });
+            var quadsModel = new CZPG.Model(quadsMesh);
+
+            var instanceShader = new CZPG.Shader(context, "vs-draw", "fs-draw").setUniformObj({billboard: true}).setCamera(camera);
+
+            // transform
+            var particleVelocities = new Float32Array(INSTANCECOUNT * 3);
+            var particleSpawntime = new Float32Array(INSTANCECOUNT);
+            var particleLifetime = new Float32Array(INSTANCECOUNT);
+            var particleIDs = new Float32Array(INSTANCECOUNT);
+            for (var p = 0; p < INSTANCECOUNT; ++p) {
+                particleVelocities[p * 3] = 0.0;
+                particleVelocities[p * 3 + 1] = 0.0;
+                particleVelocities[p * 3 + 2] = 0.0;
+                particleSpawntime[p] = 0.0;
+                particleLifetime[p] = 0.0;
+                particleIDs[p] = Math.random() * INSTANCECOUNT;
+            }
+
+            const transformShader = new CZPG.TransformShader(context, "vs-transform", "fs-transform", [
+                'v_instanceWorld',
+                'v_velocity',
+                'v_spawntime',
+                'v_lifetime',
+            ]).setUniformObj({
+                u_acceleration: [0, ACCELERATION, 0],
+            }).setCamera(camera);
+
+            const bufferInfo1 = transformShader.createBufferInfo({
+                instanceWorld: {data: instanceWorlds, numComponents: 16},
+                a_velocity: {data: particleVelocities, numComponents: 3},
+                a_spawntime: {data: particleSpawntime, numComponents: 1},
+                a_lifetime: {data: particleLifetime, numComponents: 1},
+                a_ID: {data: particleIDs, numComponents: 1},
+                v_instanceWorld: {data: instanceWorlds, numComponents: 16},
+                v_velocity: {data: particleVelocities, numComponents: 3},
+                v_spawntime: {data: particleSpawntime, numComponents: 1},
+                v_lifetime: {data: particleLifetime, numComponents: 1},
+            })
+
+            const bufferInfo2 = Object.assign({}, bufferInfo1, {
+                attribs: {
+                    instanceWorld: bufferInfo1.attribs.v_instanceWorld,
+                    a_velocity: bufferInfo1.attribs.v_velocity,
+                    a_spawntime: bufferInfo1.attribs.v_spawntime,
+                    a_lifetime: bufferInfo1.attribs.v_lifetime,
+                    v_instanceWorld: bufferInfo1.attribs.instanceWorld,
+                    v_velocity: bufferInfo1.attribs.a_velocity,
+                    v_spawntime: bufferInfo1.attribs.a_spawntime,
+                    v_lifetime: bufferInfo1.attribs.a_lifetime,
+            }});
+
+            const transformfeedback1 = transformShader.createTransformFeedback(bufferInfo2);
+            const transformfeedback2 = transformShader.createTransformFeedback(bufferInfo1);
+
+            var model1 = new CZPG.Model(new CZPG.Mesh('model1', {}, {drawMode: context.POINTS, bufferInfo: bufferInfo1}));
+            var model2 = new CZPG.Model(new CZPG.Mesh('model2', {}, {drawMode: context.POINTS, bufferInfo: bufferInfo2}));
+
+            var models = [model1, model2];
+            var tfs = [transformfeedback1, transformfeedback2];
+            var cursor = 0;
+
+            function transform() {
+                cursor = cursor % 2;
+
+                transformShader.setUniformObj({u_time: performance.now()})
+                    .transform(tfs[cursor], models[(cursor + 1) % 2]);
+                if(quadsMesh.bufferInfo) {
+                    quadsMesh.bufferInfo.attribs.instanceWorld.buffer = models[(cursor + 1) % 2].mesh.bufferInfo.attribs.v_instanceWorld.buffer;
+                    quadsMesh.vao = undefined;
+                }
+
+                cursor++;
+            }
+
+
+            let gridShader = new CZPG.GridAxisShader(context);
+            let gridModal = CZPG.GridAxis.createModel("Grid", 100);
+
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
+            let skyCubeModal = CZPG.Cube.createModel('sky');
+
+            scene.add([
+                {shader: skymapShader, model: skyCubeModal},
+                {shader: gridShader, model: gridModal},
+                {shader: instanceShader, model: quadsModel},
+            ]).setCamera(camera);
+
+            let resized = false;
+            let loop = new CZPG.Render(function(timespan) {
+                resized = renderer.clear(0.0, 0.0, 0.0, 1.0).fixCanvasToDisplay(window.devicePixelRatio)
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
+                cameraControler.update();
+
+                transform();
+                scene.render();
+            }).start();
+
+            var guiobj = { billboard: true, cylindrical: false };
+            let datgui = new dat.GUI();
+            datgui.add(guiobj, 'billboard').onChange(value => {
+                instanceShader.setUniformObj({billboard: value});
+            })
+            datgui.add(guiobj, 'cylindrical').onChange(value => {
+                instanceShader.setUniformObj({cylindrical: value});
+            });
+        });
+
+    </script>
+</body>
+</html>
