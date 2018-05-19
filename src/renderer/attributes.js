@@ -1,4 +1,4 @@
-import { isArrayBuffer, getGLTypeFromTypedArray, getGLTypeFromTypedArrayType } from './typedArray';
+import { isArrayBuffer, getGLTypeFromTypedArray, getGLTypeFromTypedArrayType } from '../core/typedArray';
 
 function isIndices( name ) {
 

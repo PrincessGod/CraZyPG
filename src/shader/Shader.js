@@ -1,5 +1,5 @@
 import { createProgram, createUniformSetters, setUniforms, createAttributesSetters, createUniformBlockSpec, createUniformBlockInfos, setBlockUniformsForProgram } from '../renderer/program';
-import { ShaderParams } from '../renderer/constant';
+import { ShaderParams } from '../core/constant';
 import { PMath } from '../math/Math';
 import { Matrix3 } from '../math/Matrix3';
 import { Matrix4 } from '../math/Matrix4';

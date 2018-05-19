@@ -1,7 +1,7 @@
 import { Vector3 } from '../math/Vector3';
 import { Quaternion } from '../math/Quaternion';
 import { Matrix4 } from '../math/Matrix4';
-import { isArrayBuffer } from '../renderer/typedArray';
+import { isArrayBuffer } from '../core/typedArray';
 
 function Transform() {
 

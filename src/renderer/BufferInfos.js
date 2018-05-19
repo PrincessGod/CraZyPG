@@ -1,86 +1,93 @@
+import { getGLTypeFromTypedArray } from '../core/typedArray';
+
+// key: attrib.interlace || attrib = {data, bufferUsage, [{ipdateInfo.needUpdate, updateInfo.offset, offsetInfo.count}]}
+const buffersMap = new WeakMap();
+
+function createBufferInfo( gl, info, bufferTarget ) {
+
+    const {
+        data, bufferUsage,
+    } = info;
+
+    const type = getGLTypeFromTypedArray( data );
+    const buffer = gl.createBuffer();
+    gl.bindBuffer( bufferTarget, buffer );
+    if ( data )
+        gl.bufferData( bufferTarget, data, bufferUsage );
+
+    return {
+        type,
+        buffer,
+        bytesPerElement: data.BYTES_PER_ELEMENT,
+    };
+
+}
+
+function updateBufferInfo( gl, info, buffer, bufferTarget ) {
+
+    const { updateInfo, data, bufferUsage } = info;
+
+    if ( ! updateInfo.needUpdate ) return;
+
+    gl.bindBuffer( bufferTarget, buffer );
+    if ( bufferUsage === gl.STATIC_DRAW )
+        gl.bufferData( bufferTarget, data, gl.STATIC_DRAW );
+    else if ( updateInfo.count === 0 )
+        gl.bufferSubData( bufferTarget, 0, data );
+    else {
+
+        gl.bufferSubData(
+            bufferTarget, updateInfo.offset * data.BYTES_PER_ELEMENT,
+            data.subArray( updateInfo.offset, updateInfo.offset + updateInfo.count ),
+        );
+        updateInfo.count = 0;
+
+    }
+
+    updateInfo.needUpdate = false;
+
+}
+
 function BufferInfos( gl ) {
 
-    // key: attrib.interlace || attrib = {data, type, bufferUsage, [{ipdateInfo.needUpdate, updateInfo.offset, offsetInfo.count}]}
-    const buffersMap = new WeakMap();
+    this._gl = gl;
 
-    function createBufferInfo( info, bufferTarget ) {
+}
 
-        const {
-            data, type, bufferUsage,
-        } = info;
+Object.assign( BufferInfos.prototype, {
 
-        const buffer = gl.createBuffer();
-        gl.bindBuffer( bufferTarget, buffer );
-        if ( data )
-            gl.bufferData( bufferTarget, data, bufferUsage );
-
-        return {
-            type,
-            buffer,
-            bytesPerElement: data.BYTES_PER_ELEMENT,
-        };
-
-    }
-
-    function updateBufferInfo( info, buffer, bufferTarget ) {
-
-        const { updateInfo, data, bufferUsage } = info;
-
-        if ( ! updateInfo.needUpdate ) return;
-
-        gl.bindBuffer( bufferTarget, buffer );
-        if ( bufferUsage === gl.STATIC_DRAW )
-            gl.bufferData( bufferTarget, data, gl.STATIC_DRAW );
-        else if ( updateInfo.count === 0 )
-            gl.bufferSubData( bufferTarget, 0, data );
-        else {
-
-            gl.bufferSubData(
-                bufferTarget, updateInfo.offset * data.BYTES_PER_ELEMENT,
-                data.subArray( updateInfo.offset, updateInfo.offset + updateInfo.count ),
-            );
-            updateInfo.count = 0;
-
-        }
-
-        updateInfo.needUpdate = false;
-
-    }
-
-    function get( attrib ) {
+    get( attrib ) {
 
         return buffersMap.get( attrib.interlace || attrib );
 
-    }
+    },
 
-    function remove( attrib ) {
+    remove( attrib ) {
 
         if ( buffersMap.has( attrib.interlace || attrib ) ) {
 
             const value = buffersMap.get( attrib.interlace || attrib );
             if ( value ) {
 
-                gl.deleteBuffer( value.buffer );
+                this._gl.deleteBuffer( value.buffer );
                 buffersMap.delete( attrib );
 
             }
 
         }
 
-    }
+    },
 
-    function update( attrib, bufferTarget ) {
+    update( attrib, bufferTarget ) {
 
         const value = buffersMap.get( attrib.interlace || attrib );
         if ( value === undefined )
-            buffersMap.set( ( attrib.interlace || attrib ), createBufferInfo( attrib.interlace || attrib, bufferTarget ) );
+            buffersMap.set( ( attrib.interlace || attrib ), createBufferInfo( this._gl, attrib.interlace || attrib, bufferTarget ) );
         else
-            updateBufferInfo( value.buffer, attrib.interlace || attrib, bufferTarget );
+            updateBufferInfo( this._gl, attrib.interlace || attrib, value.buffer, bufferTarget );
 
-    }
+    },
 
-    return { get, remove, update };
-
-}
+} );
 
 export { BufferInfos };

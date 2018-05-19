@@ -1,6 +1,6 @@
-import { isArrayBuffer, getGLTypeFromTypedArray, getTypedArrayTypeFromGLType } from './typedArray';
+import { isArrayBuffer, getGLTypeFromTypedArray, getTypedArrayTypeFromGLType } from '../core/typedArray';
 import { isWebGL2, glEnumToString } from './utils';
-import { DefaultColor } from './constant';
+import { DefaultColor } from '../core/constant';
 
 const defaults = {
     textureColor: DefaultColor.Foreground,

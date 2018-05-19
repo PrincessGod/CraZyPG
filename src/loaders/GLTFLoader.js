@@ -1,6 +1,6 @@
 /* eslint no-loop-func: 0 */
-import { getTypedArrayTypeFromGLType } from '../renderer/typedArray';
-import { ShaderParams, TextureFilters } from '../renderer/constant';
+import { getTypedArrayTypeFromGLType } from '../core/typedArray';
+import { ShaderParams, TextureFilters } from '../core/constant';
 import { Model } from '../model/Model';
 import { Mesh } from '../model/Primatives';
 import { Node } from '../scene/Node';

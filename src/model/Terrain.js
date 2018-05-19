@@ -1,10 +1,10 @@
 import { Mesh } from './Primatives';
-import { ShaderParams, BeginMode, BufferParams } from '../renderer/constant';
+import { ShaderParams, BeginMode, BufferParams } from '../core/constant';
 import { Perlin } from '../math/Perlin';
 import { PMath } from '../math/Math';
 import { Model } from '../model/Model';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
-import { getTypedArray } from '../renderer/typedArray';
+import { getTypedArray } from '../core/typedArray';
 
 function generateNormals( vertices, rowCount, colCount, yin ) {
 

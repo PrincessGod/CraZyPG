@@ -1,9 +1,9 @@
 import { ColorPointShader } from '../shader/ColorPointShader';
 import { Mesh } from '../model/Primatives';
 import { Model } from '../model/Model';
-import { ShaderParams } from '../renderer/constant';
+import { ShaderParams } from '../core/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
-import { getTypedArray } from '../renderer/typedArray';
+import { getTypedArray } from '../core/typedArray';
 
 function PointHelper( gl, data = [], pointSize, pointColor ) {
 

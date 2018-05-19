@@ -1,9 +1,9 @@
 import { ColorLineShader } from '../shader/ColorLineShader';
 import { Mesh } from '../model/Primatives';
 import { Model } from '../model/Model';
-import { ShaderParams } from '../renderer/constant';
+import { ShaderParams } from '../core/constant';
 import { setTypedArrayToBuffer } from '../renderer/attributes';
-import { getTypedArray } from '../renderer/typedArray';
+import { getTypedArray } from '../core/typedArray';
 
 function LineHelper( gl, points, colors, normalLength = 0.1 ) {
 

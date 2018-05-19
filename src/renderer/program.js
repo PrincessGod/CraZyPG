@@ -1,5 +1,5 @@
 import { isWebGL2 } from './utils';
-import { ShaderParams } from './constant';
+import { ShaderParams } from '../core/constant';
 
 function getHTMLElementSrc( id ) {
 

@@ -1,4 +1,4 @@
-import { DefaultColor } from './constant';
+import { DefaultColor } from '../core/constant';
 
 function getContext( canvasOrId, opts ) {
 

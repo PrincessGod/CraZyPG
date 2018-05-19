@@ -1,4 +1,4 @@
-export * from './renderer/constant.js';
+export * from './core/constant.js';
 export * from './model/Transform.js';
 export * from './model/Model.js';
 export * from './model/Primatives.js';

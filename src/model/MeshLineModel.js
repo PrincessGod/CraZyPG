@@ -1,6 +1,6 @@
 import { Model } from './Model';
 import { Mesh } from './Primatives';
-import { ShaderParams } from '../renderer/constant';
+import { ShaderParams } from '../core/constant';
 import { createBufferFromArray } from '../renderer/attributes';
 
 function MeshLineModel( meshModel, widthCallback, name ) {

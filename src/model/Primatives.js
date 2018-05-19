@@ -1,6 +1,6 @@
-import { ShaderParams, BeginMode } from '../renderer/constant';
+import { ShaderParams, BeginMode } from '../core/constant';
 import { Model } from '../model/Model';
-import { getTypedArray } from '../renderer/typedArray';
+import { getTypedArray } from '../core/typedArray';
 import { getNumComponents } from '../renderer/attributes';
 import { BezierCurve } from '../math/BezierCurve';
 

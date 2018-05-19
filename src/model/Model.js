@@ -2,7 +2,7 @@ import { Transform } from './Transform';
 import { createVertexArray } from '../renderer/vertexArray';
 import { createBufferInfoFromArrays } from '../renderer/attributes';
 import { CommonVAOShader } from '../shader/CommonVAOShader';
-import { ShaderParams } from '../renderer/constant';
+import { ShaderParams } from '../core/constant';
 
 const getDefaultShader = ( function () {
 
