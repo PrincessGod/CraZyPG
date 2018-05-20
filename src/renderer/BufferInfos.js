@@ -1,19 +1,19 @@
 import { getGLTypeFromTypedArray } from '../core/typedArray';
 
-// key: attrib.interlace || attrib = {data, bufferUsage, [{ipdateInfo.needUpdate, updateInfo.offset, offsetInfo.count}]}
+// key: attrib.interlace || attrib = {data, usage, [{ipdateInfo.needUpdate, updateInfo.offset, offsetInfo.count}]}
 const buffersMap = new WeakMap();
 
-function createBufferInfo( gl, info, bufferTarget ) {
+function createBufferInfo( gl, info, target ) {
 
     const {
-        data, bufferUsage,
+        data, usage,
     } = info;
 
     const type = getGLTypeFromTypedArray( data );
     const buffer = gl.createBuffer();
-    gl.bindBuffer( bufferTarget, buffer );
+    gl.bindBuffer( target, buffer );
     if ( data )
-        gl.bufferData( bufferTarget, data, bufferUsage );
+        gl.bufferData( target, data, usage );
 
     return {
         type,
@@ -23,21 +23,21 @@ function createBufferInfo( gl, info, bufferTarget ) {
 
 }
 
-function updateBufferInfo( gl, info, buffer, bufferTarget ) {
+function updateBufferInfo( gl, info, buffer, target ) {
 
-    const { updateInfo, data, bufferUsage } = info;
+    const { updateInfo, data, usage } = info;
 
     if ( ! updateInfo.needUpdate ) return;
 
-    gl.bindBuffer( bufferTarget, buffer );
-    if ( bufferUsage === gl.STATIC_DRAW )
-        gl.bufferData( bufferTarget, data, gl.STATIC_DRAW );
+    gl.bindBuffer( target, buffer );
+    if ( usage === gl.STATIC_DRAW )
+        gl.bufferData( target, data, gl.STATIC_DRAW );
     else if ( updateInfo.count === 0 )
-        gl.bufferSubData( bufferTarget, 0, data );
+        gl.bufferSubData( target, 0, data );
     else {
 
         gl.bufferSubData(
-            bufferTarget, updateInfo.offset * data.BYTES_PER_ELEMENT,
+            target, updateInfo.offset * data.BYTES_PER_ELEMENT,
             data.subArray( updateInfo.offset, updateInfo.offset + updateInfo.count ),
         );
         updateInfo.count = 0;
@@ -78,13 +78,13 @@ Object.assign( BufferInfos.prototype, {
 
     },
 
-    update( attrib, bufferTarget ) {
+    update( attrib, target ) {
 
         const value = buffersMap.get( attrib.interlace || attrib );
         if ( value === undefined )
-            buffersMap.set( ( attrib.interlace || attrib ), createBufferInfo( this._gl, attrib.interlace || attrib, bufferTarget ) );
+            buffersMap.set( ( attrib.interlace || attrib ), createBufferInfo( this._gl, attrib.interlace || attrib, target ) );
         else
-            updateBufferInfo( this._gl, attrib.interlace || attrib, value.buffer, bufferTarget );
+            updateBufferInfo( this._gl, attrib.interlace || attrib, value.buffer, target );
 
     },
 

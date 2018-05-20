@@ -491,7 +491,7 @@ function setTextureParameters( gl, tex, options ) {
 
 }
 
-const ctx = document.createElement( 'canvas' ).getContext( '2d' );
+const ctx = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' ).getContext( '2d' );
 
 function setTextureFromElement( gl, tex, element, options ) {
 
@@ -622,7 +622,6 @@ function getTextureTypeFromArrayType( gl, src, defaultType ) {
 
     if ( isArrayBuffer( src ) )
         return getGLTypeFromTypedArray( src );
-
 
     return defaultType || gl.UNSIGNED_BYTE;
 
