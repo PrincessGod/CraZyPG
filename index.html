@@ -57,142 +57,171 @@
     <script src="./sample/js/dat.gui.min.js"></script>
     <script>
 
-        var sceneNode, ca, sc, or;
+        var ct, qd, texs, states, t2d;
         window.addEventListener('load', function() {
-            const renderer = new CZPG.Renderer('glpaper', { antialias: true, preserveDrawingBuffer: true }).setSize('100%', '100%').clear();
-            const context = renderer.context;
+            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
+            const context = renderer.context; ct = context;
             const scene = new CZPG.Scene(renderer);
             const controler = scene.controler;
-
-            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            // let camera = new CZPG.OrthographicCamera(10, context.canvas.width/context.canvas.height);
-            camera.transform.position = [0, 0, 7];
-            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
-            cameraControler.enableDamping = true;
-            cameraControler.autoRotate = true;
-
+            states = new CZPG.States(ct);
+            texs = new CZPG.Textures(ct, states);
+            t2d = new CZPG.Texture2D({src:[100, 0, 0, 255]});
             const textures = CZPG.createTextures(context, {
-                env: {
+                checker: {
+                    mag: context.NEAREST,
+                    min: context.LINEAR,
+                    src: [
+                        255,255,255,255,
+                        192,192,192,255,
+                        192,192,192,255,
+                        255,255,255,255,
+                    ],
+                },
+                pic: {
+                    src : './resource/UV_Grid_Lrg.jpg',
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
+                },
+                cvs: { src : document.getElementById('test-tex')},
+                day: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/px.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/nx.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/py.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/ny.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/pz.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/nz.jpg',
+                        './resource/miramar_right.png',
+                        './resource/miramar_left.png',
+                        './resource/miramar_top.png',
+                        './resource/miramar_bottom.png',
+                        './resource/miramar_back.png',
+                        './resource/miramar_front.png',
                     ]
                 },
-                diffuse: {
+                night: {
                     target: context.TEXTURE_CUBE_MAP,
                     src: [
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.px.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.nx.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.py.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.ny.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.pz.jpg',
-                        'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/environment/diffuse.nz.jpg',
+                        './resource/grimmnight_right.png',
+                        './resource/grimmnight_left.png',
+                        './resource/grimmnight_top.png',
+                        './resource/grimmnight_bottom.png',
+                        './resource/grimmnight_back.png',
+                        './resource/grimmnight_front.png',
                     ]
                 },
-                lut: {
+                goldengate: {
+                    target: context.TEXTURE_CUBE_MAP,
+                    src: './resource/goldengate.jpg',
+                },
+                barrel: {
+                    src : './resource/barrel.png',
+                    min : context.LINEAR_MIPMAP_LINEAR,
+                    mag : context.LINEAR,
+                },
+                scalar: {
                     mag: context.NEAREST,
                     min: context.NEAREST,
-                    src: 'https://raw.githubusercontent.com/PrincessGod/resources/master/EnvTextures/brdfLUT.png',
+                    src: [
+                        100, 100, 100, 255,
+                    ],
                 }
             });
 
-            // let file = './resource/gltf/VC/glTF/VC.gltf';
-            let file = 'https://cdn.rawgit.com/KhronosGroup/glTF-Sample-Models/395358db/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf';
-            let gltfShader = new CZPG.GLTFShader(context).setUniformObj({
-                u_lightDirection: [0, 1, 1],
-                u_lightColor: [1, 1, 1],
-                u_diffuseEnvMap: textures.diffuse,
-                u_specularEnvMap: textures.env,
-                u_brdfLUT: textures.lut,
-            });
-            let gltfLoader = new CZPG.GLTFLoader();
-            let animator;
-            gltfLoader.load(file)
-                .then( res => {
-                    const {rootNode, textures, animations, cameras} = res;
-                    sceneNode = rootNode; ca = cameras; sc = scene; or = cameraControler;
-                    const gltfTextures = CZPG.createTextures(context, textures);
-                    rootNode.traverse((node)=> {
-                        if(node.model && node.model.textures !== undefined) {
-                            Object.keys(node.model.textures).forEach(uniformName => node.model.textures[uniformName] = gltfTextures[node.model.textures[uniformName]])
-                            node.model.setUniformObj(node.model.textures);
-                        }
-                    });
-
-                    if(cameras.length > 0) {
-                        allCamera = [camera, ...cameras];
-                        allCameraName = ['Default', ...cameras.map(c => c.name)];
-                        datgui.add(controlObj, 'camera', allCameraName)
-                            .onFinishChange(value => {
-                                let target = allCamera.filter(c => c.name === value);
-                                scene.setCamera(allCamera[allCameraName.indexOf(value)]);
-                                if(scene.currentCamera === camera) {
-                                    cameraControler.enable = true;
-                                } else {
-                                    cameraControler.enable = false;
-                                }
-                            });
-                    }
-
-                    animator = new CZPG.Animator(animations);
-                    let animates = animator.animations;
-                    if(animates.length > 0) {
-                        let animateMap = animates.map(ani => ani.name);
-                        animateMap = ['None'].concat(animateMap);
-                        datgui.add(controlObj, 'animate', animateMap)
-                            .onFinishChange(value => {
-                                animator.resetAll().playAnimation(value);
-                            });
-                    }
-                    // animator.playAll();
-                    scene.add([
-                        {shader: gltfShader, model: rootNode},
-                    ]);
-                });
+            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
+            camera.position = [0, 1, 3];
+            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
+            cameraControler.enableDamping = true;
+            // cameraControler.autoRotate = true;
 
             let gridShader = new CZPG.GridAxisShader(context);
             let gridModal = CZPG.GridAxis.createModel()
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.env);
+            let quadShader = new CZPG.FlatTextureShader(context, textures.pic);
+            let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0); qd = quadModal;
+            let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
+            let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
+            let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0, Math.PI * 0.5, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
+            sphereOctModel.mesh.cullFace = false;
+
+            let lightShader = new CZPG.PointlightShader(context);
+            let phongShader = new CZPG.PhongLightShader(context);
+            let objModels = [];
+            CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
+                for (let i = 0; i < meshs.length; i++) {
+                    objModels.push((new CZPG.Model(meshs[i])).setScale(0.1, 0.1, 0.1).setUniformObj({
+                            ambientColor: [ 0.05, 0.05, 0.05 ],
+                            falloff: 0.15,
+                            radius: 8.0,
+                            // materials
+                            shiness: 10.0,
+                            specularFactor: 0.1,
+                            roughness: 0.6,
+                            albedo: 0.9,
+                            isFlat: i % 2 === 1,
+                            isGamma: true,
+                        }));
+                }
+                // colorPicker.addModels(objModels);
+                scene.add([
+                    { shader: phongShader.setTexture(textures.barrel), model: objModels },
+                    // { helper: pointHelper, data: objModels.map(m => { return { data: m.positionInfo, transform: m.transform }; } ) },
+                ]);
+
+            });
+
+            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
             let skyCubeModal = CZPG.Cube.createModel('sky');
 
+            let pointHelper = new CZPG.PointHelper(context, [0, 0, 0], 8.0);
+            let lineHelper = new CZPG.LineHelper(context, cubeModal);
+
+            let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
+
+            let colorPicker = new CZPG.FramebufferPicker(context, controler).setCamera(camera).activate();
+            colorPicker.models = scene.models;
+
+            let lightPos = [0, 0, 0];
+
             scene.add([
-                // {shader: gridShader, model: gridModal},
                 {shader: skymapShader, model: skyCubeModal},
+                {shader: gridShader, model: gridModal},
+                // {shader: quadShader.setTexture(textures.pic), model: [quadModal, sphereModel, sphereOctModel]},
+                {
+                    shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
+                    model: [cubeModal.setUniformObj({texture: textures.pic}), quadModal, sphereModel, sphereOctModel, terrainModel.setUniformObj({texture: textures.scalar})],
+                },
+                {
+                    helper: lineHelper,
+                    data:[
+                        {data: cubeModal},
+                        {data: terrainModel},
+                    ]
+                },
+                {
+                    helper: pointHelper,
+                    data: [
+                        {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
+                    ]
+                },
             ]).setCamera(camera);
 
             let resized = false;
             let loop = new CZPG.Render(function(timespan) {
-                resized = renderer.clear(0.05,0.05,0.05,1).fixCanvasToDisplay(window.devicePixelRatio);
-                if(resized) scene.cameras.forEach(c => c.updateProjMatrix( context.canvas.width / context.canvas.height ));
+                resized = renderer.clear().fixCanvasToDisplay(window.devicePixelRatio)
+                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
                 cameraControler.update();
-                if(animator) animator.update(timespan);
-                scene.render();
-            }).start();
 
-            let controlObj = {
-                showgrid: false,
-                autoRotate: true,
-                animate: 'None',
-                camera: 'Default',
-            };
-            let datgui = new dat.GUI();
-            datgui.add(controlObj, 'showgrid')
-                .onFinishChange(value => {
-                    if(value)
-                        scene.add({shader: gridShader, model: gridModal});
-                    else
-                        scene.remove({shader: gridShader, model: gridModal});
-                });
-            datgui.add(controlObj, 'autoRotate')
-                .onFinishChange(value => {
-                        cameraControler.autoRotate = value;
-                });
+                lightPos[0] = 2 * Math.cos(performance.now() * 0.0003);
+                lightPos[1] = 2 * Math.abs(Math.cos(performance.now() * 0.0003));
+                lightPos[2] = 2 * Math.sin(performance.now() * 0.0003);
+
+                skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) );
+                terrainModel.addTime(context, timespan * 2);
+                lightShader.setUniformObj({ position: lightPos });
+                phongShader.setUniformObj({ position: lightPos });
+
+                // scene.render2Buffer(resized).render2Screen(0);
+                scene.render();
+
+                colorPicker.update();
+
+            }).start();
         });
 
     </script>

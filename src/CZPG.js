@@ -37,3 +37,7 @@ export * from './controls/FramebufferPicker.js';
 export * from './scene/Scene.js';
 export * from './controls/Controler.js';
 export * from './scene/Animator.js';
+
+export * from './texture/Texture2D.js';
+export * from './renderer/Textures.js';
+export * from './renderer/States.js';

@@ -193,3 +193,10 @@ export const FrameBufferFormat = makeReadonlyObj( {
     DEPTH_STENCIL: 0x84F9,
 
 } );
+
+export const TextureType = makeReadonlyObj( {
+
+    TEXTURE_2D: 0x0DE1,
+    TEXTURE_CUBE_MAP: 0x8513,
+
+} );
