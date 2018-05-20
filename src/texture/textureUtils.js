@@ -246,13 +246,10 @@ function getBytesPerElementForInternalFromat( internalFromat, type ) {
 
 }
 
-function getDimensions( target, width, height, numElements ) {
+function guessDimensions( target, width, height, numElements ) {
 
-    if ( numElements % 1 !== 0 )
-        throw new Error( 'can\'t guess dimensions' );
-
-    let guessWidth = width;
-    let guessHeight = height;
+    let rwidth = width;
+    let rheight = height;
     const faces = target === TextureType.TEXTURE_CUBE_MAP ? 6 : 1;
     const singleFace = numElements / faces;
     if ( ! width && ! height ) {
@@ -260,33 +257,87 @@ function getDimensions( target, width, height, numElements ) {
         const size = Math.sqrt( singleFace );
         if ( size % 1 === 0 ) {
 
-            guessWidth = size;
-            guessHeight = size;
+            rwidth = size;
+            rheight = size;
 
         } else {
 
-            guessWidth = singleFace % 1 === 0 ? singleFace : numElements;
-            guessHeight = 1;
+            rwidth = singleFace % 1 === 0 ? singleFace : numElements;
+            rheight = 1;
 
         }
 
     } else if ( ! height ) {
 
-        guessHeight = singleFace % width;
-        if ( guessHeight % 1 )
+        rheight = singleFace % width;
+        if ( rheight % 1 )
             throw new Error( 'can\'t guess dimensions' );
 
     } else if ( ! width ) {
 
-        guessHeight = singleFace % height;
-        if ( guessWidth % 1 )
+        rwidth = singleFace % height;
+        if ( rwidth % 1 )
             throw new Error( 'can\'t guess dimensions' );
+
+    }
+
+    return {
+        width: rwidth,
+        height: rheight,
+    };
+
+}
+
+function getDimensions( target, width, height, depth, numElements ) {
+
+    if ( numElements % 1 !== 0 )
+        throw new Error( 'can\'t guess dimensions' );
+
+    let guessWidth = width;
+    let guessHeight = height;
+    let guessDepth = depth;
+    let dimensions;
+    if ( target === TextureType.TEXTURE_3D )
+        if ( ! width && ! height && ! depth ) {
+
+            const size = Math.cbrt( numElements );
+            if ( size % 1 !== 0 )
+                throw new Error( `can't guess size of array of numElements: ${numElements}` );
+            guessWidth = size;
+            guessHeight = size;
+            guessDepth = size;
+
+        } else if ( width && ( ! height || ! depth ) ) {
+
+            dimensions = guessDimensions( target, height, depth, numElements / width );
+            guessHeight = dimensions.width;
+            guessDepth = dimensions.height;
+
+        } else if ( height && ( ! width || ! depth ) ) {
+
+            dimensions = guessDimensions( target, width, depth, numElements / height );
+            guessWidth = dimensions.width;
+            guessDepth = dimensions.height;
+
+        } else {
+
+            dimensions = guessDimensions( target, width, height, numElements / depth );
+            guessWidth = dimensions.width;
+            guessHeight = dimensions.height;
+
+        }
+    else {
+
+        dimensions = guessDimensions( target, width, height, numElements );
+        guessWidth = dimensions.width;
+        guessHeight = dimensions.height;
 
     }
 
     return {
         width: guessWidth,
         height: guessHeight,
+        depth: guessDepth,
     };
 
 }

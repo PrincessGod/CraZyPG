@@ -30,7 +30,7 @@ Object.assign( Texture.prototype, {
 
         const {
             src, target, level, internalFormat, format, type,
-            unpackAlignment, autoFiltering, width, height,
+            unpackAlignment, autoFiltering, width, height, depth,
         } = this._texture;
 
         this._texture.level = level || 0;
@@ -57,9 +57,7 @@ Object.assign( Texture.prototype, {
                 const TypedArrayType = getTypedArrayTypeFromGLType( this._texture.type );
                 this._texture.src = new TypedArrayType( src );
 
-            }
-
-            if ( src instanceof Uint8ClampedArray )
+            } else if ( src instanceof Uint8ClampedArray )
                 this._texture.src = new Uint8Array( src.buffer );
 
             const bytesPerElemnet = getBytesPerElementForInternalFromat( this._texture.internalFormat, this._texture.type );
@@ -67,12 +65,14 @@ Object.assign( Texture.prototype, {
             if ( numElements % 1 )
                 throw new Error( `length wrong for format: 0x${this._texture.format.toString( 16 )}` );
 
-            const dimensions = getDimensions( target, width, height, numElements );
-            this._texture.width = dimensions.width;
-            this._texture.height = dimensions.height;
-
             this._texture.bytesPerElement = bytesPerElemnet;
             this._texture.numElements = numElements;
+
+            const dimensions = getDimensions( target, width, height, depth, numElements );
+            this._texture.width = dimensions.width;
+            this._texture.height = dimensions.height;
+            if ( dimensions.depth )
+                this._texture.depth = dimensions.depth;
 
         }
 

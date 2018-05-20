@@ -44,6 +44,15 @@ export const ShaderParams = makeReadonlyObj( {
 
 } );
 
+export const DefaultColor = makeReadonlyObj( {
+
+    Foreground: new Uint8Array( [ 255, 105, 180, 255 ] ),
+    ForegroundNormalized: new Float32Array( [ 255 / 255, 105 / 255, 180 / 255, 255 / 255 ] ),
+    Background: new Uint8Array( [ 255, 255, 255, 255 ] ),
+    BackgroundNormalized: new Float32Array( [ 1, 1, 1, 1 ] ),
+
+} );
+
 export const BeginMode = makeReadonlyObj( {
 
     POINTS: 0x0000,
@@ -64,7 +73,7 @@ export const BufferParams = makeReadonlyObj( {
 
 } );
 
-export const TextureFilters = makeReadonlyObj( {
+export const TextureFilter = makeReadonlyObj( {
 
     NEAREST: 9728,
     LINEAR: 9729,
@@ -75,12 +84,30 @@ export const TextureFilters = makeReadonlyObj( {
 
 } );
 
-export const DefaultColor = makeReadonlyObj( {
+export const TextureType = makeReadonlyObj( {
 
-    Foreground: new Uint8Array( [ 255, 105, 180, 255 ] ),
-    ForegroundNormalized: new Float32Array( [ 255 / 255, 105 / 255, 180 / 255, 255 / 255 ] ),
-    Background: new Uint8Array( [ 255, 255, 255, 255 ] ),
-    BackgroundNormalized: new Float32Array( [ 1, 1, 1, 1 ] ),
+    TEXTURE_2D: 0x0DE1,
+    TEXTURE_3D: 0x806F,
+    TEXTURE_CUBE_MAP: 0x8513,
+
+} );
+
+export const TextureCubeFace = makeReadonlyObj( {
+
+    TEXTURE_CUBE_MAP_NEGATIVE_X: 0x8516,
+    TEXTURE_CUBE_MAP_POSITIVE_Y: 0x8517,
+    TEXTURE_CUBE_MAP_NEGATIVE_Y: 0x8518,
+    TEXTURE_CUBE_MAP_POSITIVE_Z: 0x8519,
+    TEXTURE_CUBE_MAP_POSITIVE_X: 0x8515,
+    TEXTURE_CUBE_MAP_NEGATIVE_Z: 0x851A,
+
+} );
+
+export const TextureWrapMode = makeReadonlyObj( {
+
+    REPEAT: 0x2901,
+    CLAMP_TO_EDGE: 0x812F,
+    MIRRORED_REPEAT: 0x8370,
 
 } );
 
@@ -191,23 +218,5 @@ export const FrameBufferFormat = makeReadonlyObj( {
     STENCIL_INDEX: 0x1901,
     STENCIL_INDEX8: 0x8D48,
     DEPTH_STENCIL: 0x84F9,
-
-} );
-
-export const TextureType = makeReadonlyObj( {
-
-    TEXTURE_2D: 0x0DE1,
-    TEXTURE_CUBE_MAP: 0x8513,
-
-} );
-
-export const TextureCubeFaces = makeReadonlyObj( {
-
-    TEXTURE_CUBE_MAP_NEGATIVE_X: 0x8516,
-    TEXTURE_CUBE_MAP_POSITIVE_Y: 0x8517,
-    TEXTURE_CUBE_MAP_NEGATIVE_Y: 0x8518,
-    TEXTURE_CUBE_MAP_POSITIVE_Z: 0x8519,
-    TEXTURE_CUBE_MAP_POSITIVE_X: 0x8515,
-    TEXTURE_CUBE_MAP_NEGATIVE_Z: 0x851A,
 
 } );

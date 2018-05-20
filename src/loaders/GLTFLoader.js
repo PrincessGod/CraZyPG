@@ -1,6 +1,6 @@
 /* eslint no-loop-func: 0 */
 import { getTypedArrayTypeFromGLType } from '../core/typedArray';
-import { ShaderParams, TextureFilters } from '../core/constant';
+import { ShaderParams, TextureWrapMode } from '../core/constant';
 import { Model } from '../model/Model';
 import { Mesh } from '../model/Primatives';
 import { Node } from '../scene/Node';
@@ -1311,7 +1311,7 @@ Object.assign( GLTFLoader.prototype, {
 
     parseSampler( samplerId ) {
 
-        if ( samplerId === undefined ) return { wrap: TextureFilters.REPEAT };
+        if ( samplerId === undefined ) return { wrap: TextureWrapMode.REPEAT };
         const sampler = this.gltf.samplers[ samplerId ];
         if ( ! sampler )
             return errorMiss( 'sampler', samplerId );
@@ -1323,7 +1323,7 @@ Object.assign( GLTFLoader.prototype, {
             magFilter, minFilter, wrapS, wrapT,
         } = sampler;
 
-        const dsampler = { wrapS: wrapS || TextureFilters.REPEAT, wrapT: wrapT || TextureFilters.REPEAT };
+        const dsampler = { wrapS: wrapS || TextureWrapMode.REPEAT, wrapT: wrapT || TextureWrapMode.REPEAT };
         if ( minFilter )
             dsampler.min = minFilter;
         if ( magFilter )

@@ -1,6 +1,6 @@
 import { Texture } from './Texture';
 import { isTypedArray } from '../core/typedArray';
-import { TextureType } from '../core/constant';
+import { TextureType, TextureWrapMode } from '../core/constant';
 
 function TextureCubeMap( options ) {
 
@@ -17,6 +17,10 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
         const {
             src, numElements, bytesPerElement,
         } = this._texture;
+
+        this._texture.wrap = TextureWrapMode.CLAMP_TO_EDGE;
+        this._texture.wrapS = TextureWrapMode.CLAMP_TO_EDGE;
+        this._texture.wrapT = TextureWrapMode.CLAMP_TO_EDGE;
 
         if ( isTypedArray( src ) ) {
 
