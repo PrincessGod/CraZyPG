@@ -32,7 +32,7 @@ function getCubeFacesWithIdx( gl, options ) {
 
 // ArrayTexture {[ unpackAlignment=1, colorspaceConversion, premultiplyAlpha, flipY ]}
 // Texture2D { src, traget, width, height, level, internalFormat, format, type }
-// TextureCubeMap { ...Texture2D, faceSize }
+// TextureCubeMap { ...Texture2D, faceSize, cubeFaceOrder }
 // Texture3D { ...Texture2D, depth }
 function setTextureFromArray( gl, states, gltex, texture ) {
 
@@ -141,6 +141,7 @@ function createTexture( gl, states, texture ) {
 
     if ( autoFiltering )
         setTextureFiltering( gl, texture );
+
     setTextureSamplers( gl, texture );
 
     return {

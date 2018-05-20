@@ -200,3 +200,14 @@ export const TextureType = makeReadonlyObj( {
     TEXTURE_CUBE_MAP: 0x8513,
 
 } );
+
+export const TextureCubeFaces = makeReadonlyObj( {
+
+    TEXTURE_CUBE_MAP_NEGATIVE_X: 0x8516,
+    TEXTURE_CUBE_MAP_POSITIVE_Y: 0x8517,
+    TEXTURE_CUBE_MAP_NEGATIVE_Y: 0x8518,
+    TEXTURE_CUBE_MAP_POSITIVE_Z: 0x8519,
+    TEXTURE_CUBE_MAP_POSITIVE_X: 0x8515,
+    TEXTURE_CUBE_MAP_NEGATIVE_Z: 0x851A,
+
+} );

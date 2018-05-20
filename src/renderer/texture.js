@@ -219,9 +219,9 @@ const textureInternalFormatInfo = {};
 function empty() {
 }
 
-function getFormatAndTypeFromInternalFormat( internalFromat ) {
+function getFormatAndTypeFromInternalFormat( internalFormat ) {
 
-    const info = textureInternalFormatInfo[ internalFromat ];
+    const info = textureInternalFormatInfo[ internalFormat ];
 
     if ( ! info )
         throw new Error( 'unknown internal format' );
@@ -627,9 +627,9 @@ function getTextureTypeFromArrayType( gl, src, defaultType ) {
 
 }
 
-function getBytesPerElementForInternalFromat( internalFromat, type ) {
+function getBytesPerElementForInternalFromat( internalFormat, type ) {
 
-    const info = textureInternalFormatInfo[ internalFromat ];
+    const info = textureInternalFormatInfo[ internalFormat ];
     if ( ! info )
         throw new Error( 'unknown internal format' );
     const bytesPerElement = info.bytesPerElementMap[ type ];
@@ -689,8 +689,8 @@ function setTextureFromArray( gl, tex, src, options ) {
     gl.bindTexture( target, tex );
     let { width, height, depth } = opts;
     const level = opts.level || 0;
-    const internalFromat = opts.internalFormat || opts.format || gl.RGBA;
-    const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
+    const internalFormat = opts.internalFormat || opts.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFormat );
     const format = opts.format || formatType.format;
     const type = opts.format || getTextureTypeFromArrayType( gl, src, formatType.type );
     let typedSrc = src;
@@ -702,7 +702,7 @@ function setTextureFromArray( gl, tex, src, options ) {
     } else if ( typedSrc instanceof Uint8ClampedArray )
         typedSrc = new Uint8Array( typedSrc.buffer );
 
-    const bytesPerElement = getBytesPerElementForInternalFromat( internalFromat, type );
+    const bytesPerElement = getBytesPerElementForInternalFromat( internalFormat, type );
     const numElements = typedSrc.byteLength / bytesPerElement;
     if ( numElements % 1 )
         throw new Error( `length wrong for format: ${glEnumToString( gl, format )}` );
@@ -757,14 +757,14 @@ function setTextureFromArray( gl, tex, src, options ) {
 
             const offset = faceSize * f.idx;
             const data = typedSrc.subarray( offset, offset + faceSize );
-            gl.texImage2D( f.face, level, internalFromat, width, height, 0, format, type, data );
+            gl.texImage2D( f.face, level, internalFormat, width, height, 0, format, type, data );
 
         } );
 
     } else if ( target === gl.TEXTURE_3D )
-        gl.texImage3D( target, level, internalFromat, width, height, depth, 0, format, type, typedSrc );
+        gl.texImage3D( target, level, internalFormat, width, height, depth, 0, format, type, typedSrc );
     else
-        gl.texImage2D( target, level, internalFromat, width, height, 0, format, type, typedSrc );
+        gl.texImage2D( target, level, internalFormat, width, height, 0, format, type, typedSrc );
 
 
     restorePackState( gl, options );
@@ -784,8 +784,8 @@ function loadCubeMapFromUrls( gl, tex, options, callback ) {
     if ( urls.length !== 6 )
         throw new Error( 'there must be 6 urls for a cubemap' );
     const level = options.level || 0;
-    const internalFromat = options.internalFormat || options.format || gl.RGBA;
-    const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
+    const internalFormat = options.internalFormat || options.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFormat );
     const format = options.format || formatType.format;
     const type = options.type || gl.UNSIGNED_BYTE;
     const target = options.target || gl.TEXTURE_2D;
@@ -814,11 +814,11 @@ function loadCubeMapFromUrls( gl, tex, options, callback ) {
                 if ( numToLoad === 5 )
                     getCubeFacesOrder( gl ).forEach( ( otherTarget ) => {
 
-                        gl.texImage2D( otherTarget, level, internalFromat, format, type, img );
+                        gl.texImage2D( otherTarget, level, internalFormat, format, type, img );
 
                     } );
                 else
-                    gl.texImage2D( faceTarget, level, internalFromat, format, type, img );
+                    gl.texImage2D( faceTarget, level, internalFormat, format, type, img );
 
                 restorePackState( gl, opts );
                 if ( shouldAutoSetTextureFiltering( opts ) )
@@ -841,8 +841,8 @@ function loadSlicesFromUrls( gl, tex, options, callback ) {
 
     const cb = callback || empty;
     const urls = options.src;
-    const internalFromat = options.internalFormat || options.format || gl.RGBA;
-    const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
+    const internalFormat = options.internalFormat || options.format || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFormat );
     const format = options.format || formatType.format;
     const type = options.type || gl.UNSIGNED_BYTE;
     const target = options.target || gl.TEXTURE_2D_ARRAY;
@@ -878,7 +878,7 @@ function loadSlicesFromUrls( gl, tex, options, callback ) {
                     firstImage = false;
                     width = opts.width || img.width;
                     height = opts.width || img.width;
-                    gl.texImage3D( target, level, internalFromat, width, height, depth, 0, format, type, null );
+                    gl.texImage3D( target, level, internalFormat, width, height, depth, 0, format, type, null );
 
                     for ( let s = 0; s < depth; s ++ )
                         gl.texSubImage3D( target, level, 0, 0, s, width, height, 1, format, type, img );
@@ -956,8 +956,8 @@ function createTexture( gl, options, callback ) {
     const target = opts.target || gl.TEXTURE_2D;
     let width = opts.width || 1;
     let height = opts.height || 1;
-    const internalFromat = opts.internalFromat || gl.RGBA;
-    const formatType = getFormatAndTypeFromInternalFormat( internalFromat );
+    const internalFormat = opts.internalFormat || gl.RGBA;
+    const formatType = getFormatAndTypeFromInternalFormat( internalFormat );
     let type = opts.type || formatType.type;
     gl.bindTexture( target, tex );
     if ( target === gl.TEXTURE_CUBE_MAP ) {
@@ -1007,7 +1007,7 @@ function createTexture( gl, options, callback ) {
         setEmptyTexture( gl, tex, opts );
 
     if ( shouldAutoSetTextureFiltering( options ) )
-        setTextureFiltering( gl, tex, opts, width, height, internalFromat, type );
+        setTextureFiltering( gl, tex, opts, width, height, internalFormat, type );
 
     setTextureParameters( gl, tex, opts );
 

@@ -57,7 +57,7 @@
     <script src="./sample/js/dat.gui.min.js"></script>
     <script>
 
-        var ct, qd, texs, states, t2d;
+        var ct, qd, texs, states, t2d, tq;
         window.addEventListener('load', function() {
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
             const context = renderer.context; ct = context;
@@ -65,7 +65,24 @@
             const controler = scene.controler;
             states = new CZPG.States(ct);
             texs = new CZPG.Textures(ct, states);
-            t2d = new CZPG.Texture2D({src:[100, 0, 0, 255]});
+            t2d = new CZPG.Texture2D({src:[255,255,255,255,
+                        192,0,0,255,],
+                        minMag: context.NEAREST,
+                        });
+            tq = new CZPG.TextureCubeMap({
+                src: [
+                    255,0,0,255,
+                    100,0,0,255,
+                    0,255,0,255,
+                    0,100,0,255,
+                    0,0,255,255,
+                    0,0,100,255,
+                ],
+                // autoFiltering: false,
+                minMag: context.NEAREST,
+            })
+            texs.update(t2d.texture);
+            texs.update(tq.texture);
             const textures = CZPG.createTextures(context, {
                 checker: {
                     mag: context.NEAREST,
@@ -133,7 +150,7 @@
             let gridModal = CZPG.GridAxis.createModel()
 
             let quadShader = new CZPG.FlatTextureShader(context, textures.pic);
-            let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0); qd = quadModal;
+            let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
             let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
             let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
             let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0, Math.PI * 0.5, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
@@ -167,7 +184,7 @@
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
             let skyCubeModal = CZPG.Cube.createModel('sky');
-
+            qd = skymapShader;
             let pointHelper = new CZPG.PointHelper(context, [0, 0, 0], 8.0);
             let lineHelper = new CZPG.LineHelper(context, cubeModal);
 

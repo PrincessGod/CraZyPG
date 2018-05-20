@@ -41,3 +41,4 @@ export * from './scene/Animator.js';
 export * from './texture/Texture2D.js';
 export * from './renderer/Textures.js';
 export * from './renderer/States.js';
+export * from './texture/TextureCubeMap.js';
