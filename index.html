@@ -55,6 +55,7 @@
     </div>
     <script src="./build/czpg.js"></script>
     <script src="./sample/js/dat.gui.min.js"></script>
+    <img id="test-tex" src="./resource/goldengate.jpg" style="display:none;"/>
     <script>
 
         var ct, qd, texs, states, t2d, tq;
@@ -65,21 +66,11 @@
             const controler = scene.controler;
             states = new CZPG.States(ct);
             texs = new CZPG.Textures(ct, states);
-            t2d = new CZPG.Texture2D({src:[255,255,255,255,
-                        192,0,0,255,],
-                        minMag: context.NEAREST,
-                        });
+            t2d = new CZPG.Texture2D({ src : document.getElementById('test-tex'), min : context.LINEAR_MIPMAP_LINEAR});
             tq = new CZPG.TextureCubeMap({
-                src: [
-                    255,0,0,255,
-                    100,0,0,255,
-                    0,255,0,255,
-                    0,100,0,255,
-                    0,0,255,255,
-                    0,0,100,255,
-                ],
+                src: document.getElementById('test-tex'),
                 // autoFiltering: false,
-                minMag: context.NEAREST,
+                min: context.LINEAR_MIPMAP_LINEAR,
             })
             texs.update(t2d.texture);
             texs.update(tq.texture);
@@ -155,7 +146,6 @@
             let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
             let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0, Math.PI * 0.5, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
             sphereOctModel.mesh.cullFace = false;
-
             let lightShader = new CZPG.PointlightShader(context);
             let phongShader = new CZPG.PhongLightShader(context);
             let objModels = [];
@@ -184,10 +174,9 @@
 
             let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
             let skyCubeModal = CZPG.Cube.createModel('sky');
-            qd = skymapShader;
             let pointHelper = new CZPG.PointHelper(context, [0, 0, 0], 8.0);
             let lineHelper = new CZPG.LineHelper(context, cubeModal);
-
+    qd = skymapShader;
             let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
 
             let colorPicker = new CZPG.FramebufferPicker(context, controler).setCamera(camera).activate();

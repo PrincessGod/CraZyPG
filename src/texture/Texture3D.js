@@ -14,11 +14,24 @@ Texture3D.prototype = Object.assign( Object.create( Texture.prototype ), {
 
         Texture.prototype.setDefaultValue.call( this );
 
-        // const {src} = this._texture;
+        const { src } = this._texture;
 
-        // if(isTypedArray(src)) {
+        if ( src instanceof HTMLElement ) {
 
-        // }
+            const size = Math.min( src.width, src.height );
+            const largest = Math.max( src.width, src.height );
+            const depth = largest / size;
+            if ( depth % 1 !== 0 )
+                throw new Error( 'can not compute TEXTURE_3D dimensions of element' );
+
+            const xMult = src.width === largest ? 1 : 0;
+            const yMult = src.height === largest ? 1 : 0;
+
+            this._texture = Object.assign( this._texture, {
+                size, depth, xMult, yMult,
+            } );
+
+        }
 
     },
 

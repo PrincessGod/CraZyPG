@@ -35,6 +35,9 @@ Object.assign( Texture.prototype, {
 
         this._texture.level = level || 0;
         this._texture.internalFormat = internalFormat || PixelFormat.RGBA;
+        const formatType = getFormatAndTypeFromInternalFormat( this._texture.internalFormat );
+        this._texture.format = format || formatType.format;
+        this._texture.type = type || formatType.type;
 
         this._texture.unpackAlignment = unpackAlignment || 1;
 
@@ -48,8 +51,6 @@ Object.assign( Texture.prototype, {
 
         if ( ( Array.isArray( src ) && typeof src[ 0 ] === 'number' ) || isTypedArray( src ) ) {
 
-            const formatType = getFormatAndTypeFromInternalFormat( this._texture.internalFormat );
-            this._texture.format = format || formatType.format;
             this._texture.type = type || getTextureTypeFromArrayType( src );
 
             if ( ! isTypedArray( src ) ) {
