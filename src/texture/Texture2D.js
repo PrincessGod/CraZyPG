@@ -1,6 +1,8 @@
 import { Texture } from './Texture';
-import { TextureType } from '../core/constant';
-// import { isTypedArray } from '../core/typedArray';
+import { TextureType, DefaultColor } from '../core/constant';
+import { ImageLoader } from '../loaders/ImageLoader';
+
+const imageLoader = new ImageLoader();
 
 function Texture2D( options ) {
 
@@ -14,11 +16,25 @@ Texture2D.prototype = Object.assign( Object.create( Texture.prototype ), {
 
         Texture.prototype.setDefaultValue.call( this );
 
-        // const {src} = this._textureConfig;
+        const { src, color } = this._textureConfig;
 
-        // if(isTypedArray(src)) {
+        if ( typeof src === 'string' ) {
 
-        // }
+            this._textureConfig.isPending = true;
+            this._textureConfig.color = color || DefaultColor.Foreground;
+            imageLoader.load( src, ( err, img ) => {
+
+                if ( ! err ) {
+
+                    this._textureConfig.src = img;
+                    this._textureConfig.isPending = false;
+                    this._textureConfig.needUpdate = true;
+
+                }
+
+            } );
+
+        }
 
     },
 

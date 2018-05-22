@@ -27,7 +27,7 @@ Texture3D.prototype = Object.assign( Object.create( Texture.prototype ), {
             const xMult = src.width === largest ? 1 : 0;
             const yMult = src.height === largest ? 1 : 0;
 
-            this._texture = Object.assign( this._texture, {
+            this._textureConfig = Object.assign( this._textureConfig, {
                 size, depth, xMult, yMult,
             } );
 

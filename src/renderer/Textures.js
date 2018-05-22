@@ -73,6 +73,22 @@ function getCubeFacesWithIdx( gl, options ) {
 
 }
 
+// OnePixelTexture { target, color[array [255 / 1]] }
+function setTextureTo1PixelColor( gl, texture ) {
+
+    const { target, color } = texture;
+    const onePixelColor = isTypedArray( color ) ? color : new Uint8Array( [ color[ 0 ], color[ 1 ], color[ 2 ], color[ 3 ] ] );
+
+    if ( target === gl.TEXTURE_CUBE_MAP )
+        for ( let i = 0; i < 6; i ++ )
+            gl.texImage2D( gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, onePixelColor );
+    else if ( target === gl.TEXTURE_3D || target === gl.TEXTURE_2D_ARRAY )
+        gl.texImage3D( target, 0, gl.RGBA, 1, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, onePixelColor );
+    else
+        gl.texImage2D( target, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, onePixelColor );
+
+}
+
 // ArrayTexture {[ unpackAlignment=1, colorspaceConversion, premultiplyAlpha, flipY ]}
 // Texture2D { src, traget, width, height, level, internalFormat, format, type }
 // TextureCubeMap { ...Texture2D, faceSize, cubeFaceOrder }
@@ -254,16 +270,19 @@ function setTextureSamplers( gl, options ) {
 
 }
 
-// Texture { autoFiltering, canGenerateMipmap, canFilter,
+// Texture { autoFiltering, canGenerateMipmap, canFilter, isPending
 // [ minMag, min=gl.NEAREST_MIPMAP_LINEAR, mag=gl.LINEAR, wrap, wrapR, wrapS, wrapT, minLod, maxLod, baseLevel, maxLevel ]
 // }
-function createTexture( gl, states, texture ) {
+function setTexture( gl, states, texture, gltex = gl.createTexture() ) {
 
-    const gltex = gl.createTexture();
-    const { src, target, autoFiltering } = texture;
+    const {
+        src, target, autoFiltering, isPending,
+    } = texture;
 
     gl.bindTexture( target, gltex );
-    if ( src )
+    if ( isPending )
+        setTextureTo1PixelColor( gl, texture );
+    else if ( src )
         if ( isTypedArray( src ) )
             setTextureFromArray( gl, states, texture );
         else if ( src instanceof HTMLElement )
@@ -312,12 +331,19 @@ Object.assign( Textures.prototype, {
 
     },
 
+    // { needUpdate }
     update( texture ) {
 
         const value = texturesMap.get( texture );
 
         if ( value === undefined )
-            texturesMap.set( texture, createTexture( this._gl, this._states, texture ) );
+            texturesMap.set( texture, setTexture( this._gl, this._states, texture ) );
+        else if ( texture.needUpdate ) {
+
+            setTexture( this._gl, this._states, texture, value.texture );
+            texture.needUpdate = false; // eslint-disable-line
+
+        }
 
     },
 
