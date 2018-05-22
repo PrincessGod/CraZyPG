@@ -162,6 +162,31 @@ function setTextureFromElement( gl, states, texture ) {
 
 }
 
+// EmptyTexture { [ unpackAlignment=1, colorspaceConversion, premultiplyAlpha, flipY ] }
+// Texture2D { src, target, level, internalFormat, format, type, width, height }
+// TextureCubeMap { ...Texture2D }
+// Texture3D { ... Texture2D, depth }
+function setEmptyTexture( gl, states, texture ) {
+
+    const {
+        target, level, internalFormat, format, type, width, height,
+        depth,
+    } = texture;
+
+    savePackState( gl, states, texture );
+
+    if ( target === gl.TEXTURE_CUBE_MAP )
+        for ( let i = 0; i < 6; i ++ )
+            gl.texImage2D( gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, level, internalFormat, width, height, 0, format, type, null );
+    else if ( target === gl.TEXTURE_3D )
+        gl.texImage3D( target, level, internalFormat, width, height, depth, 0, format, type, null );
+    else
+        gl.texImage2D( target, level, internalFormat, width, height, 0, format, type, null );
+
+    restorePackState( gl, states, texture );
+
+}
+
 function setTextureFiltering( gl, texture ) {
 
     const { target, canGenerateMipmap, canFilter } = texture;
@@ -238,10 +263,15 @@ function createTexture( gl, states, texture ) {
     const { src, target, autoFiltering } = texture;
 
     gl.bindTexture( target, gltex );
-    if ( isTypedArray( src ) )
-        setTextureFromArray( gl, states, texture );
-    else if ( src instanceof HTMLElement )
-        setTextureFromElement( gl, states, texture );
+    if ( src )
+        if ( isTypedArray( src ) )
+            setTextureFromArray( gl, states, texture );
+        else if ( src instanceof HTMLElement )
+            setTextureFromElement( gl, states, texture );
+        else
+            throw new Error( 'unsupported src type' );
+    else
+        setEmptyTexture( gl, states, texture );
 
     if ( autoFiltering )
         setTextureFiltering( gl, texture );

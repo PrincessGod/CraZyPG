@@ -16,16 +16,16 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
 
         const {
             src, numElements, bytesPerElement,
-        } = this._texture;
+        } = this._textureConfig;
 
-        this._texture.wrap = TextureWrapMode.CLAMP_TO_EDGE;
-        this._texture.wrapS = TextureWrapMode.CLAMP_TO_EDGE;
-        this._texture.wrapT = TextureWrapMode.CLAMP_TO_EDGE;
+        this._textureConfig.wrap = TextureWrapMode.CLAMP_TO_EDGE;
+        this._textureConfig.wrapS = TextureWrapMode.CLAMP_TO_EDGE;
+        this._textureConfig.wrapT = TextureWrapMode.CLAMP_TO_EDGE;
 
         if ( isTypedArray( src ) ) {
 
             const componentsPerElement = bytesPerElement / src.BYTES_PER_ELEMENT;
-            this._texture.faceSize = ( numElements / 6 ) * componentsPerElement;
+            this._textureConfig.faceSize = ( numElements / 6 ) * componentsPerElement;
 
         } else if ( src instanceof HTMLElement ) {
 
@@ -56,8 +56,8 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
             } else
                 throw new Error( `can't guess cube map from element: ${src.src ? src.src : src.nodeName}` );
 
-            this._texture.size = size;
-            this._texture.slices = slices;
+            this._textureConfig.size = size;
+            this._textureConfig.slices = slices;
 
         }
 

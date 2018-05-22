@@ -14,7 +14,7 @@ Texture3D.prototype = Object.assign( Object.create( Texture.prototype ), {
 
         Texture.prototype.setDefaultValue.call( this );
 
-        const { src } = this._texture;
+        const { src } = this._textureConfig;
 
         if ( src instanceof HTMLElement ) {
 
