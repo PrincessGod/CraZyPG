@@ -46,6 +46,7 @@ Texture3D.prototype = Object.assign( Object.create( Texture.prototype ), {
                 updateInfo.fill( new Array( depth ), 0, src[ 0 ].length );
 
             this._textureConfig.updateInfo = updateInfo;
+            this._textureConfig.depth = depth;
 
             if ( typeof src[ 0 ] === 'string' || typeof src[ 0 ][ 0 ] === 'string' ) {
 
@@ -62,6 +63,12 @@ Texture3D.prototype = Object.assign( Object.create( Texture.prototype ), {
 
                         results[ x ].fill( img );
                         updateInfo[ x ].fill( true );
+                        if ( x === 0 ) {
+
+                            this._textureConfig.width = img.width;
+                            this._textureConfig.height = img.height;
+
+                        }
 
                     }
                     updateInfo[ x ][ y ] = true;
@@ -76,6 +83,8 @@ Texture3D.prototype = Object.assign( Object.create( Texture.prototype ), {
                 if ( src[ 0 ] instanceof HTMLElement )
                     this._textureConfig.src = [ src ];
                 updateInfo.forEach( a => a.fill( true ) );
+                this._textureConfig.width = src[ 0 ][ 0 ].width;
+                this._textureConfig.height = src[ 0 ][ 0 ].height;
 
             }
 

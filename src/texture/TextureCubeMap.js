@@ -90,6 +90,12 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
 
                         results[ x ].fill( img );
                         updateInfo[ x ].fill( true );
+                        if ( x === 0 ) {
+
+                            this._textureConfig.width = img.width;
+                            this._textureConfig.height = img.height;
+
+                        }
 
                     }
                     updateInfo[ x ][ y ] = true;
@@ -104,6 +110,8 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
                 if ( src[ 0 ] instanceof HTMLElement )
                     this._textureConfig.src = [ src ];
                 updateInfo.forEach( a => a.fill( true ) );
+                this._textureConfig.width = src[ 0 ][ 0 ].width;
+                this._textureConfig.height = src[ 0 ][ 0 ].height;
 
             }
 

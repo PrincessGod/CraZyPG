@@ -322,6 +322,27 @@ function setTextureSamplers( gl, options ) {
 
 }
 
+// Texture2D { target, width, height, level, internalFormat, format, type }
+// TextureCubemap { ...Texture2D }
+// Texture3D { ...Texture2D, depth }
+function resizeTexture( gl, texture, gltex ) {
+
+    const {
+        target, width, height, depth, level, internalFormat, format, type,
+    } = texture;
+
+    gl.bindTexture( target, gltex );
+
+    if ( target === gl.TEXTURE_CUBE_MAP )
+        for ( let i = 0; i < 6; i ++ )
+            gl.texImage2D( gl.TEXTURE_CUBE_MAP_NEGATIVE_X + i, level, internalFormat, width, height, 0, format, type, null );
+    else if ( target === gl.TEXTURE_3D )
+        gl.texImage3D( target, 0, internalFormat, width, height, depth, 0, format, type, null );
+    else
+        gl.texImage2D( target, level, internalFormat, width, height, 0, format, type, null );
+
+}
+
 // Texture { autoFiltering, canGenerateMipmap, canFilter, isPending
 // [ minMag, min=gl.NEAREST_MIPMAP_LINEAR, mag=gl.LINEAR, wrap, wrapR, wrapS, wrapT, minLod, maxLod, baseLevel, maxLevel ]
 // }
@@ -401,6 +422,11 @@ Object.assign( Textures.prototype, {
 
             setTexture( this._gl, this._states, texture, value.texture );
             texture.needUpdate = false; // eslint-disable-line
+
+        } else if ( texture.needResize ) {
+
+            resizeTexture( this._gl, texture, value.texture );
+            texture.needResize = false; // eslint-disable-line
 
         }
 
