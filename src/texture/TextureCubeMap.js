@@ -1,6 +1,9 @@
 import { Texture } from './Texture';
 import { isTypedArray } from '../core/typedArray';
-import { TextureType, TextureWrapMode } from '../core/constant';
+import { TextureType, TextureWrapMode, DefaultColor } from '../core/constant';
+import { ImageLoader } from '../loaders/ImageLoader';
+
+const imageLoader = new ImageLoader();
 
 function TextureCubeMap( options ) {
 
@@ -15,8 +18,8 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
         Texture.prototype.setDefaultValue.call( this );
 
         const {
-            src, numElements, bytesPerElement,
-        } = this._textureConfig;
+            src, numElements, bytesPerElement, color,
+        } = this._texture;
 
         this._textureConfig.wrap = TextureWrapMode.CLAMP_TO_EDGE;
         this._textureConfig.wrapS = TextureWrapMode.CLAMP_TO_EDGE;
@@ -58,6 +61,51 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
 
             this._textureConfig.size = size;
             this._textureConfig.slices = slices;
+
+        } else if ( Array.isArray( src ) ) {
+
+            if ( Array.isArray( src[ 0 ] ) && src.length > 1 )
+                this._textureConfig.autoFiltering = false;
+
+            const updateInfo = [];
+            if ( typeof src[ 0 ] === 'string' || typeof src[ 0 ] instanceof HTMLElement )
+                updateInfo.push( new Array( 6 ) );
+            else
+                updateInfo.fill( new Array( 6 ), 0, src[ 0 ].length );
+
+            this._textureConfig.updateInfo = updateInfo;
+
+            if ( typeof src[ 0 ] === 'string' || typeof src[ 0 ][ 0 ] === 'string' ) {
+
+                this._textureConfig.isPending = true;
+                this._textureConfig.color = color || DefaultColor.Foreground;
+
+                imageLoader.load( src, ( err, {
+                    results, img, x, y,
+                } ) => {
+
+                    if ( err ) return;
+
+                    if ( updateInfo[ x ][ 0 ] === undefined ) {
+
+                        results[ x ].fill( img );
+                        updateInfo[ x ].fill( true );
+
+                    }
+                    updateInfo[ x ][ y ] = true;
+                    this._textureConfig.src = results;
+                    this._textureConfig.isPending = false;
+                    this._textureConfig.needUpdate = true;
+
+                } );
+
+            } else if ( src[ 0 ] instanceof HTMLElement || src[ 0 ][ 0 ] instanceof HTMLElement ) {
+
+                if ( src[ 0 ] instanceof HTMLElement )
+                    this._textureConfig.src = [ src ];
+                updateInfo.forEach( a => a.fill( true ) );
+
+            }
 
         }
 

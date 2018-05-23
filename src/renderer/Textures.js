@@ -203,6 +203,58 @@ function setEmptyTexture( gl, states, texture ) {
 
 }
 
+// TextureCubeMap { src: [[]], internalFormat, format, type, updateInfo, }
+function setCubeMapFromElements( gl, states, texture ) {
+
+    const {
+        src, internalFormat, format, type, updateInfo,
+    } = texture;
+
+    const faces = getCubeFacesOrder( gl, texture );
+    savePackState( gl, states, texture );
+
+    for ( let level = 0; level < src.length; level ++ )
+        for ( let face = 0; face < 6; face ++ )
+            if ( updateInfo[ level ][ face ] )
+                gl.texImage2D( faces[ face ], level, internalFormat, format, type, src[ level ][ face ] );
+
+    restorePackState( gl, states, texture );
+
+}
+
+// Texture3D { src, target, internalFormat, format, type, [firstImage], updateInfo }
+function setTexture3DFromElements( gl, states, texture ) {
+
+    const {
+        src, internalFormat, format, type,
+        target, firstImage, updateInfo,
+    } = texture;
+
+    const { width, height } = src[ 0 ][ 0 ];
+    const depth = src[ 0 ].length;
+
+    savePackState( gl, states, texture );
+
+    if ( ! firstImage ) {
+
+        texture.firstImage = {}; // eslint-disable-line
+        gl.texImage3D( target, 0, internalFormat, width, height, depth, 0, format, type, null );
+
+    }
+
+    for ( let level = 0; level < src.length; level ++ )
+        for ( let dep = 0; dep < depth; dep ++ )
+            if ( updateInfo[ level ][ dep ] ) {
+
+                const img = src[ level ][ dep ];
+                gl.texSubImage3D( target, level, 0, 0, dep, img.width, img.height, 1, format, type, img );
+
+            }
+
+    restorePackState( gl, states, texture );
+
+}
+
 function setTextureFiltering( gl, texture ) {
 
     const { target, canGenerateMipmap, canFilter } = texture;
@@ -287,7 +339,14 @@ function setTexture( gl, states, texture, gltex = gl.createTexture() ) {
             setTextureFromArray( gl, states, texture );
         else if ( src instanceof HTMLElement )
             setTextureFromElement( gl, states, texture );
-        else
+        else if ( Array.isArray( src ) && src[ 0 ][ 0 ] instanceof HTMLElement ) {
+
+            if ( target === gl.TEXTURE_CUBE_MAP )
+                setCubeMapFromElements( gl, states, texture );
+            else
+                setTexture3DFromElements( gl, states, texture );
+
+        } else
             throw new Error( 'unsupported src type' );
     else
         setEmptyTexture( gl, states, texture );

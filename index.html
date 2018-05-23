@@ -68,9 +68,16 @@
             texs = new CZPG.Textures(ct, states);
             t2d = new CZPG.Texture2D({ src : './resource/barrel.png', min : context.LINEAR_MIPMAP_LINEAR});
             tq = new CZPG.TextureCubeMap({
-                src: document.getElementById('test-tex'),
+                src: [
+                        './resource/grimmnight_right.png',
+                        './resource/grimmnight_left.png',
+                        './resource/grimmnight_top.png',
+                        './resource/grimmnight_bottom.png',
+                        './resource/grimmnight_back.png',
+                        './resource/grimmnight_front.png',
+                    ],
                 // autoFiltering: false,
-                min: context.LINEAR_MIPMAP_LINEAR,
+                // min: context.LINEAR_MIPMAP_LINEAR,
             })
             texs.update(t2d.texture);
             texs.update(tq.texture);
@@ -176,7 +183,7 @@
             let skyCubeModal = CZPG.Cube.createModel('sky');
             let pointHelper = new CZPG.PointHelper(context, [0, 0, 0], 8.0);
             let lineHelper = new CZPG.LineHelper(context, cubeModal);
-    qd = cubeModal;
+    qd = skymapShader;
             let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
 
             let colorPicker = new CZPG.FramebufferPicker(context, controler).setCamera(camera).activate();

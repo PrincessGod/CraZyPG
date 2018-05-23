@@ -16,7 +16,7 @@ Texture2D.prototype = Object.assign( Object.create( Texture.prototype ), {
 
         Texture.prototype.setDefaultValue.call( this );
 
-        const { src, color } = this._textureConfig;
+        const { src, color } = this._texture;
 
         if ( typeof src === 'string' ) {
 
