@@ -733,8 +733,11 @@ Object.assign( Programs.prototype, {
             }
             if ( updateInfo.attrib ) {
 
-                setAttributes( attribSetters, bufferInfo );
+                setAttributes( attribSetters, bufferInfo.attribs );
                 updateInfo.attrib = false;
+                if ( bufferInfo.indices )
+                    this._gl.bindBuffer( this._gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indices );
+
 
             }
 

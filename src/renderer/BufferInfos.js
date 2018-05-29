@@ -67,12 +67,9 @@ Object.assign( BufferInfos.prototype, {
         if ( buffersMap.has( attrib.interlace || attrib ) ) {
 
             const value = buffersMap.get( attrib.interlace || attrib );
-            if ( value ) {
+            this._gl.deleteBuffer( value.buffer );
+            buffersMap.delete( attrib );
 
-                this._gl.deleteBuffer( value.buffer );
-                buffersMap.delete( attrib );
-
-            }
 
         }
 
