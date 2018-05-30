@@ -44,6 +44,8 @@ export const ShaderParams = makeReadonlyObj( {
 
 } );
 
+export const IndicesKey = 'indices';
+
 export const DefaultColor = makeReadonlyObj( {
 
     Foreground: new Uint8Array( [ 255, 105, 180, 255 ] ),
@@ -70,6 +72,9 @@ export const BufferParams = makeReadonlyObj( {
     STREAM_DRAW: 0x88E0,
     STATIC_DRAW: 0x88E4,
     DYNAMIC_DRAW: 0x88E8,
+
+    ARRAY_BUFFER: 0x8892,
+    ELEMENT_ARRAY_BUFFER: 0x8893,
 
 } );
 

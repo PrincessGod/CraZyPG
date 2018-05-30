@@ -712,38 +712,13 @@ Object.assign( Programs.prototype, {
 
     },
 
-    // { vs, fs, uniformObj, bufferInfo, needUpdate, updateInfo }
+    // { vs, fs, opts }
     update( program ) {
 
         if ( ! programsMap.has( program ) )
             programsMap.set( program, createProgramInfo( this._gl, program ) );
 
-        const {
-            uniformObj, bufferInfo, needUpdate, updateInfo,
-        } = program;
-        const { uniformSetters, attribSetters } = programsMap.get( program );
-
-        if ( needUpdate ) {
-
-            if ( updateInfo.uniform ) {
-
-                setUniforms( uniformSetters, uniformObj );
-                updateInfo.uniform = false;
-
-            }
-            if ( updateInfo.attrib ) {
-
-                setAttributes( attribSetters, bufferInfo.attribs );
-                updateInfo.attrib = false;
-                if ( bufferInfo.indices )
-                    this._gl.bindBuffer( this._gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indices );
-
-
-            }
-
-            program.needUpdate = false; // eslint-disable-line
-
-        }
+        return this;
 
     },
 
@@ -764,3 +739,5 @@ Object.assign( Programs.prototype, {
     },
 
 } );
+
+export { Programs, setAttributes, setUniforms };

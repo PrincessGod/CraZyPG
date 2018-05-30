@@ -1,12 +1,37 @@
+import { setAttributes } from './Programs';
+import { IndicesKey } from '../core/constant';
 
 const vaosMap = new WeakMap();
 
-function createVao( gl, programs, programInfo ) {
+function createVao( gl, programs, buffers, vaoInfo ) {
 
+    const { programInfo, bufferInfo } = vaoInfo;
     const vao = gl.createVertexArray();
     gl.bindVertexArray( vao );
-    programInfo.updateInfo.attrib = true; // eslint-disable-line
-    programs.update( programInfo );
+
+    const { attribSetters } = programs.update( programInfo ).get( programInfo );
+    Object.keys( bufferInfo.attribs ).forEach( ( attrib ) => {
+
+        Object.defineProperties( bufferInfo[ attrib ], {
+
+            buffer: {
+
+                get() {
+
+                    return buffers.update().get( ( bufferInfo[ attrib ] ) );
+
+                },
+
+            },
+
+        } );
+
+    } );
+    setAttributes( attribSetters, bufferInfo.attribs );
+
+    if ( bufferInfo[ IndicesKey ] )
+        gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, buffers.update( bufferInfo[ IndicesKey ] ).get( bufferInfo[ IndicesKey ] ) );
+
     gl.bindBuffer( this._gl.ARRAY_BUFFER, null );
     gl.bindVertexArray( null );
 
@@ -14,41 +39,44 @@ function createVao( gl, programs, programInfo ) {
 
 }
 
-function VertexArrays( gl, programs ) {
+function VertexArrays( gl, programs, buffers ) {
 
     this._gl = gl;
     this._programs = programs;
+    this._buffers = buffers;
 
 }
 
 Object.assign( VertexArrays.prototype, {
 
-    get( programInfo ) {
+    get( vaoInfo ) {
 
-        return vaosMap.get( programInfo );
+        return vaosMap.get( vaoInfo );
 
     },
 
-    remove( programInfo ) {
+    remove( vaoInfo ) {
 
-        if ( vaosMap.has( programInfo ) ) {
+        if ( vaosMap.has( vaoInfo ) ) {
 
-            const vao = vaosMap.get( programInfo );
+            const vao = vaosMap.get( vaoInfo );
             this._gl.deleteVertexArray( vao );
-            vaosMap.delete( programInfo );
+            vaosMap.delete( vaoInfo );
 
         }
 
     },
 
-    update( programInfo ) {
+    update( vaoInfo ) {
 
-        const vao = vaosMap.get( programInfo );
+        const vao = vaosMap.get( vaoInfo );
 
         if ( vao )
-            this.remove( programInfo );
+            this.remove( vaoInfo );
 
-        vaosMap.set( programInfo, createVao( this._gl, this._programs, programInfo ) );
+        vaosMap.set( vaoInfo, createVao( this._gl, this._programs, this._buffers, vaoInfo ) );
+
+        return this;
 
     },
 

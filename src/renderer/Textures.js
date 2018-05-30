@@ -430,6 +430,8 @@ Object.assign( Textures.prototype, {
 
         }
 
+        return this;
+
     },
 
 } );

@@ -3,10 +3,10 @@ import { getGLTypeFromTypedArray } from '../core/typedArray';
 // key: attrib.interlace || attrib = {data, usage, [{ipdateInfo.needUpdate, updateInfo.offset, offsetInfo.count}]}
 const buffersMap = new WeakMap();
 
-function createBufferInfo( gl, info, target ) {
+function createBufferInfo( gl, info ) {
 
     const {
-        data, usage,
+        data, usage, target,
     } = info;
 
     const type = getGLTypeFromTypedArray( data );
@@ -23,11 +23,11 @@ function createBufferInfo( gl, info, target ) {
 
 }
 
-function updateBufferInfo( gl, info, buffer, target ) {
+function updateBufferInfo( gl, info, buffer ) {
 
-    const { updateInfo, data, usage } = info;
-
-    if ( ! updateInfo.needUpdate ) return;
+    const {
+        updateInfo, data, usage, target,
+    } = info;
 
     gl.bindBuffer( target, buffer );
     if ( usage === gl.STATIC_DRAW )
@@ -43,8 +43,6 @@ function updateBufferInfo( gl, info, buffer, target ) {
         updateInfo.count = 0;
 
     }
-
-    updateInfo.needUpdate = false;
 
 }
 
@@ -75,13 +73,19 @@ Object.assign( BufferInfos.prototype, {
 
     },
 
-    update( attrib, target ) {
+    update( attrib ) {
+
+        if ( ! attrib.needUpdate ) return this;
 
         const value = buffersMap.get( attrib.interlace || attrib );
         if ( value === undefined )
-            buffersMap.set( ( attrib.interlace || attrib ), createBufferInfo( this._gl, attrib.interlace || attrib, target ) );
+            buffersMap.set( ( attrib.interlace || attrib ), createBufferInfo( this._gl, attrib.interlace || attrib ) );
         else
-            updateBufferInfo( this._gl, attrib.interlace || attrib, value.buffer, target );
+            updateBufferInfo( this._gl, attrib.interlace || attrib, value.buffer );
+
+        attrib.needUpdate = false // eslint-disable-line
+
+        return this;
 
     },
 
