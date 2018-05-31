@@ -1,4 +1,4 @@
-import { IndicesKey, BufferParams, ShaderParams } from '../core/constant';
+import { IndicesKey, BufferParams, ShaderParams, BeginMode } from '../core/constant';
 import { getGLTypeFromTypedArray, getTypedArrayTypeFromGLType, isTypedArray } from '../core/typedArray';
 
 let nameIdx = 0;
@@ -28,9 +28,20 @@ function getNumComponents( array, name ) {
 
 function Primitive( name = `NO_NAME_PRIMITIVE${nameIdx ++}`, props = {} ) {
 
-    const { attribArrays } = props;
+    const {
+        attribArrays, drawMode, cullFace, blend, depth, sampleBlend, instanceCount, offset,
+    } = props;
+
     this.name = name;
     this.attribArrays = attribArrays;
+    this.drawMode = drawMode === undefined ? BeginMode.TRIANGLES : drawMode;
+    this.cullFace = cullFace === undefined ? true : cullFace;
+    this.blend = blend === undefined ? false : blend;
+    this.depth = depth === undefined ? true : depth;
+    this.sampleBlend = sampleBlend === undefined ? false : sampleBlend;
+    this.instanceCount = instanceCount;
+    this.offset = offset === undefined ? 0 : offset;
+    this.vaoInfo = { needUpdate: true };
 
     this.createBufferInfo();
 
@@ -126,6 +137,14 @@ Object.assign( Primitive.prototype, {
         bufferInfo.needUpdate = true;
         bufferInfo.updateInfo = { count: 0, offset: 0 };
         this.bufferInfo = bufferInfo;
+        this.vaoInfo.bufferInfo = bufferInfo;
+
+    },
+
+    updateVaoInfo( programInfo ) {
+
+        this.vaoInfo.programInfo = programInfo;
+        this.vaoInfo.needUpdate = true;
 
     },
 

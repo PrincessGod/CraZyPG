@@ -50,6 +50,7 @@
             <canvas id="glpaper"></canvas>
         </div>
     </div>
+    <canvas id="glpaper1"></canvas>
     <div id="footbar">
         <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
     </div>
@@ -60,6 +61,7 @@
 
         var ct, qd, texs, states, t2d, tq;
         window.addEventListener('load', function() {
+            window.ren = new CZPG.WebGLRenderer('glpaper1');
             const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
             const context = renderer.context; ct = context;
             const scene = new CZPG.Scene(renderer);

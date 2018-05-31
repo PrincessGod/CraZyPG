@@ -43,3 +43,4 @@ export * from './texture/Texture3D.js';
 export * from './renderer/Textures.js';
 export * from './renderer/States.js';
 export * from './texture/TextureCubeMap.js';
+export * from './renderer/WebGLRenderer.js';

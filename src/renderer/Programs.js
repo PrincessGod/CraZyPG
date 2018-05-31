@@ -715,8 +715,12 @@ Object.assign( Programs.prototype, {
     // { vs, fs, opts }
     update( program ) {
 
+        if ( ! program.needUpdate ) return this;
+
         if ( ! programsMap.has( program ) )
             programsMap.set( program, createProgramInfo( this._gl, program ) );
+
+        program.needUpdate = false; // eslint-disable-line
 
         return this;
 

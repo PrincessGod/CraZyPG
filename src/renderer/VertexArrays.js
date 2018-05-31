@@ -69,12 +69,13 @@ Object.assign( VertexArrays.prototype, {
 
     update( vaoInfo ) {
 
-        const vao = vaosMap.get( vaoInfo );
+        if ( ! vaoInfo.needUpdate ) return this;
 
-        if ( vao )
+        if ( vaosMap.has( vaoInfo ) )
             this.remove( vaoInfo );
 
         vaosMap.set( vaoInfo, createVao( this._gl, this._programs, this._buffers, vaoInfo ) );
+        vaoInfo.needUpdate = false; // eslint-disable-line
 
         return this;
 
