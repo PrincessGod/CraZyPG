@@ -10,29 +10,12 @@ function createVao( gl, programs, buffers, vaoInfo ) {
     gl.bindVertexArray( vao );
 
     const { attribSetters } = programs.update( programInfo ).get( programInfo );
-    Object.keys( bufferInfo.attribs ).forEach( ( attrib ) => {
-
-        Object.defineProperties( bufferInfo[ attrib ], {
-
-            buffer: {
-
-                get() {
-
-                    return buffers.update().get( ( bufferInfo[ attrib ] ) );
-
-                },
-
-            },
-
-        } );
-
-    } );
     setAttributes( attribSetters, bufferInfo.attribs );
 
     if ( bufferInfo[ IndicesKey ] )
         gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, buffers.update( bufferInfo[ IndicesKey ] ).get( bufferInfo[ IndicesKey ] ) );
 
-    gl.bindBuffer( this._gl.ARRAY_BUFFER, null );
+    gl.bindBuffer( gl.ARRAY_BUFFER, null );
     gl.bindVertexArray( null );
 
     return vao;

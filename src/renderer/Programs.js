@@ -391,11 +391,17 @@ typeMap[ UniformTypes.FLOAT_MAT4x2UNSIGNED_INT_SAMPLER_2D_ARRAY ] = {
     Type: null, size: 0, setter: samplerSetter, arraySetter: samplerArraySetter, bindPoint: TextureType.TEXTURE_2D_ARRAY,
 };
 
-function floatAttribSetter( gl, index ) {
+function getBuffer( buffers, bufferInfo ) {
+
+    return buffers.update( bufferInfo ).get( bufferInfo );
+
+}
+
+function floatAttribSetter( gl, buffers, index ) {
 
     return function ( b ) {
 
-        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
+        gl.bindBuffer( gl.ARRAY_BUFFER, getBuffer( buffers, b ) );
         gl.enableVertexAttribArray( index );
         gl.vertexAttribPointer( index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0 );
 
@@ -406,11 +412,11 @@ function floatAttribSetter( gl, index ) {
 
 }
 
-function intAttribSetter( gl, index ) {
+function intAttribSetter( gl, buffers, index ) {
 
     return function ( b ) {
 
-        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
+        gl.bindBuffer( gl.ARRAY_BUFFER, getBuffer( buffers, b ) );
         gl.enableVertexAttribArray( index );
         gl.vertexAttribIPointer( index, b.numComponents || b.size, b.type || gl.INT, b.stride || 0, b.offset || 0 );
 
@@ -421,14 +427,14 @@ function intAttribSetter( gl, index ) {
 
 }
 
-function matAttribSetter( gl, index, typeInfo ) {
+function matAttribSetter( gl, buffers, index, typeInfo ) {
 
     const defaultSize = typeInfo.size;
     const count = typeInfo.count;
 
     return function ( b ) {
 
-        gl.bindBuffer( gl.ARRAY_BUFFER, b.buffer );
+        gl.bindBuffer( gl.ARRAY_BUFFER, buffers.get( b ) );
         const numComponents = b.size || b.numComponents || defaultSize;
         const size = numComponents / count;
         const type = b.type || gl.FLOAT;
@@ -479,7 +485,7 @@ function isBuiltIn( info ) {
 
 }
 
-function createAttributesSetters( gl, program ) {
+function createAttributesSetters( gl, buffers, program ) {
 
     const attribSetters = {};
 
@@ -491,7 +497,7 @@ function createAttributesSetters( gl, program ) {
             continue;
         const index = gl.getAttribLocation( program, attribInfo.name );
         const typeInfo = attrTypeMap[ attribInfo.type ];
-        const setter = typeInfo.setter( gl, index, typeInfo );
+        const setter = typeInfo.setter( gl, buffers, index, typeInfo );
         setter.location = index;
         attribSetters[ attribInfo.name ] = setter;
 
@@ -682,12 +688,12 @@ function createProgram( gl, vs, fs, opts = {} ) {
 
 }
 
-function createProgramInfo( gl, program ) {
+function createProgramInfo( gl, buffers, program ) {
 
     const { vs, fs, opts } = program;
 
     const prog = createProgram( gl, vs, fs, opts );
-    const attribSetters = createAttributesSetters( gl, prog );
+    const attribSetters = createAttributesSetters( gl, buffers, prog );
     const uniformSetters = createUniformSetters( gl, prog );
 
     return {
@@ -698,9 +704,10 @@ function createProgramInfo( gl, program ) {
 
 }
 
-function Programs( gl ) {
+function Programs( gl, buffers ) {
 
     this._gl = gl;
+    this._buffers = buffers;
 
 }
 
@@ -718,7 +725,7 @@ Object.assign( Programs.prototype, {
         if ( ! program.needUpdate ) return this;
 
         if ( ! programsMap.has( program ) )
-            programsMap.set( program, createProgramInfo( this._gl, program ) );
+            programsMap.set( program, createProgramInfo( this._gl, this._buffers, program ) );
 
         program.needUpdate = false; // eslint-disable-line
 

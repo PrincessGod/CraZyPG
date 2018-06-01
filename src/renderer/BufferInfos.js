@@ -1,5 +1,3 @@
-import { getGLTypeFromTypedArray } from '../core/typedArray';
-
 // key: attrib.interlace || attrib = {data, usage, [{ipdateInfo.needUpdate, updateInfo.offset, offsetInfo.count}]}
 const buffersMap = new WeakMap();
 
@@ -9,17 +7,12 @@ function createBufferInfo( gl, info ) {
         data, usage, target,
     } = info;
 
-    const type = getGLTypeFromTypedArray( data );
     const buffer = gl.createBuffer();
     gl.bindBuffer( target, buffer );
     if ( data )
         gl.bufferData( target, data, usage );
 
-    return {
-        type,
-        buffer,
-        bytesPerElement: data.BYTES_PER_ELEMENT,
-    };
+    return buffer;
 
 }
 
@@ -77,11 +70,11 @@ Object.assign( BufferInfos.prototype, {
 
         if ( ! attrib.needUpdate ) return this;
 
-        const value = buffersMap.get( attrib.interlace || attrib );
-        if ( value === undefined )
+        const buffer = buffersMap.get( attrib.interlace || attrib );
+        if ( buffer === undefined )
             buffersMap.set( ( attrib.interlace || attrib ), createBufferInfo( this._gl, attrib.interlace || attrib ) );
         else
-            updateBufferInfo( this._gl, attrib.interlace || attrib, value.buffer );
+            updateBufferInfo( this._gl, attrib.interlace || attrib, buffer );
 
         attrib.needUpdate = false // eslint-disable-line
 

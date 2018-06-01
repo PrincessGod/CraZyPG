@@ -76,7 +76,7 @@ function WebGLRenderer( canvasOrId, opts ) {
     this.context.blendFunc( this.context.SRC_ALPHA, this.context.ONE_MINUS_SRC_ALPHA );
 
     this.buffers = new BufferInfos( this.context );
-    this.programs = new Programs( this.context );
+    this.programs = new Programs( this.context, this.buffers );
     this.vaos = new VertexArrays( this.context, this.programs, this.buffers );
 
 }
@@ -132,21 +132,22 @@ Object.assign( WebGLRenderer.prototype, {
         const vao = this.vaos.update( vaoInfo ).get( vaoInfo );
         const { program, uniformSetters } = this.programs.update( programInfo ).get( programInfo );
         this.context.useProgram( program );
-        setUniforms( uniformSetters, primitive.uniformObj );
+        // setUniforms( uniformSetters, primitive.uniformObj );
         this.context.bindVertexArray( vao );
+
         if ( bufferInfo.indices || bufferInfo.elementType )
             if ( typeof instanceCount === 'number' )
-                this.gl.drawElementsInstanced( model.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.offset, instanceCount );
+                this.context.drawElementsInstanced( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, model.offset, instanceCount );
             else
-                this.gl.drawElements( model.drawMode, bufferInfo.numElements, bufferInfo.elementType === undefined ? this.gl.UNSIGNED_SHORT : bufferInfo.elementType, model.offset ); // eslint-disable-line
+                this.context.drawElements( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, model.offset ); // eslint-disable-line
         else
         /* eslint-disable */ // eslint bug
             if ( typeof instanceCount === 'number' )
-                this.gl.drawArraysInstanced( model.drawMode, model.offset, bufferInfo.numElements, instanceCount );
+                this.context.drawArraysInstanced( model.drawMode, model.offset, bufferInfo.numElements, instanceCount );
             else
-                this.gl.drawArrays( model.drawMode, model.offset, bufferInfo.numElements );
+                this.context.drawArrays( model.drawMode, model.offset, bufferInfo.numElements );
         /* eslint-enable */
-        this.gl.bindVertexArray( null );
+        this.context.bindVertexArray( null );
 
     },
 

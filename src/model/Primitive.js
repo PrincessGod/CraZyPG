@@ -5,6 +5,7 @@ let nameIdx = 0;
 
 const colorRE = /color|colour/i;
 const textureRE = /uv|coord/i;
+const positionRE = /a_position|a_pos|position/i;
 
 function guessNumComponentsFromName( name, length ) {
 
@@ -86,6 +87,7 @@ Object.assign( Primitive.prototype, {
                     divisor: typeof array.divisor === 'undefined' ? undefined : array.divisor,
                     usage: array.drawType || BufferParams.STATIC_DRAW,
                     target: array.target || BufferParams.ARRAY_BUFFER,
+                    needUpdate: true,
                 };
 
             }
@@ -95,7 +97,7 @@ Object.assign( Primitive.prototype, {
 
         if ( this.attribArrays[ IndicesKey ] ) {
 
-            let typedIndices = this.attribArrays[ IndicesKey ];
+            let typedIndices = this.attribArrays[ IndicesKey ].data;
             if ( ! isTypedArray( typedIndices ) ) {
 
                 const ArrayType = Math.max.apply( null, typedIndices ) > 0xffff ? Uint32Array : Uint16Array;
@@ -106,6 +108,7 @@ Object.assign( Primitive.prototype, {
                 data: typedIndices,
                 usage: BufferParams.STATIC_DRAW,
                 target: BufferParams.ELEMENT_ARRAY_BUFFER,
+                needUpdate: true,
             };
             bufferInfo[ IndicesKey ] = indices;
             bufferInfo.numElements = typedIndices.length;
@@ -113,7 +116,19 @@ Object.assign( Primitive.prototype, {
 
         } else {
 
-            const position = attribs[ ShaderParams.ATTRIB_POSITION_NAME ];
+            let position = attribs[ ShaderParams.ATTRIB_POSITION_NAME ];
+            if ( ! position ) {
+
+                let positionKey;
+                Object.keys( attribs ).forEach( ( k ) => {
+
+                    if ( positionRE.test( k ) )
+                        positionKey = k;
+
+                } );
+                position = attribs[ positionKey ];
+
+            }
             if ( position )
                 throw Error( 'Primitive do not have position info' );
 

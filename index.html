@@ -50,7 +50,6 @@
             <canvas id="glpaper"></canvas>
         </div>
     </div>
-    <canvas id="glpaper1"></canvas>
     <div id="footbar">
         <p><a href="https://github.com/PrincessGod/CraZyPG">CZPG.js</a></p>
     </div>
@@ -59,184 +58,54 @@
     <img id="test-tex" src="./resource/goldengate.jpg" style="display:none;"/>
     <script>
 
-        var ct, qd, texs, states, t2d, tq;
         window.addEventListener('load', function() {
-            window.ren = new CZPG.WebGLRenderer('glpaper1');
-            const renderer = new CZPG.Renderer('glpaper', { antialias: true }).setSize('100%', '100%').clear();
-            const context = renderer.context; ct = context;
-            const scene = new CZPG.Scene(renderer);
-            const controler = scene.controler;
-            states = new CZPG.States(ct);
-            texs = new CZPG.Textures(ct, states);
-            t2d = new CZPG.Texture2D({ src : './resource/barrel.png', min : context.LINEAR_MIPMAP_LINEAR});
-            tq = new CZPG.TextureCubeMap({
-                src: [
-                        './resource/grimmnight_right.png',
-                        './resource/grimmnight_left.png',
-                        './resource/grimmnight_top.png',
-                        './resource/grimmnight_bottom.png',
-                        './resource/grimmnight_back.png',
-                        './resource/grimmnight_front.png',
-                    ],
-                // autoFiltering: false,
-                // min: context.LINEAR_MIPMAP_LINEAR,
-            })
-            texs.update(t2d.texture);
-            texs.update(tq.texture);
-            const textures = CZPG.createTextures(context, {
-                checker: {
-                    mag: context.NEAREST,
-                    min: context.LINEAR,
-                    src: [
-                        255,255,255,255,
-                        192,192,192,255,
-                        192,192,192,255,
-                        255,255,255,255,
-                    ],
-                },
-                pic: {
-                    src : './resource/UV_Grid_Lrg.jpg',
-                    min : context.LINEAR_MIPMAP_LINEAR,
-                    mag : context.LINEAR,
-                },
-                cvs: { src : document.getElementById('test-tex')},
-                day: {
-                    target: context.TEXTURE_CUBE_MAP,
-                    src: [
-                        './resource/miramar_right.png',
-                        './resource/miramar_left.png',
-                        './resource/miramar_top.png',
-                        './resource/miramar_bottom.png',
-                        './resource/miramar_back.png',
-                        './resource/miramar_front.png',
-                    ]
-                },
-                night: {
-                    target: context.TEXTURE_CUBE_MAP,
-                    src: [
-                        './resource/grimmnight_right.png',
-                        './resource/grimmnight_left.png',
-                        './resource/grimmnight_top.png',
-                        './resource/grimmnight_bottom.png',
-                        './resource/grimmnight_back.png',
-                        './resource/grimmnight_front.png',
-                    ]
-                },
-                goldengate: {
-                    target: context.TEXTURE_CUBE_MAP,
-                    src: './resource/goldengate.jpg',
-                },
-                barrel: {
-                    src : './resource/barrel.png',
-                    min : context.LINEAR_MIPMAP_LINEAR,
-                    mag : context.LINEAR,
-                },
-                scalar: {
-                    mag: context.NEAREST,
-                    min: context.NEAREST,
-                    src: [
-                        100, 100, 100, 255,
-                    ],
-                }
-            });
+            window.ren = new CZPG.WebGLRenderer('glpaper');
+            const positions = [ 
+                -0.5, 0.5, 0.0, // v0
+                0.5, 0.5, 0.0, // v1 
+                -0.5,-0.5, 0.0, // v2
+                0.5,-0.5, 0.0  // v3
+            ];
+            const colors = [
+                1.0, 0.0, 0.0, 1.0, // v0
+                0.0, 1.0, 0.0, 1.0, // v1
+                0.0, 0.0, 1.0, 1.0, // v2
+                1.0, 1.0, 0.0, 1.0  // v3
+            ];
+            const indices = [
+                2, 1, 0, // v2-v1-v0
+                2, 3, 1  // v2-v3-v1
+            ];
 
-            let camera = new CZPG.PerspectiveCamera(45, context.canvas.width/context.canvas.height);
-            camera.position = [0, 1, 3];
-            let cameraControler = new CZPG.OrbitControls(camera, context.canvas, controler);
-            cameraControler.enableDamping = true;
-            // cameraControler.autoRotate = true;
+            const attribArrays = {
+                indices: { data: indices },
+            };
+            attribArrays['position'] = { data: positions, numComponents: 3 };
+            attribArrays['color'] = { data: colors, numComponents: 4 };
 
-            let gridShader = new CZPG.GridAxisShader(context);
-            let gridModal = CZPG.GridAxis.createModel()
+            window.pr = new CZPG.Primitive('tt', {attribArrays});
+            window.mo = Object.assign({primitive: window.pr}, window.pr);
 
-            let quadShader = new CZPG.FlatTextureShader(context, textures.pic);
-            let quadModal = CZPG.Quad.createModel().setPosition(2.5, 0.5, 0);
-            let cubeModal = CZPG.Cube.createModel().setPosition(-2.5, 0.5, 0);
-            let sphereModel = CZPG.Sphere.createModel().setPosition(2.5, 0.5, -2.5);
-            let sphereOctModel = CZPG.Sphere.createModel('oct-sphere', 0.5, 4, 4, Math.PI * 0, Math.PI * 0.5, 0, Math.PI / 2).setPosition(1.5, 0.5, -2.5);
-            sphereOctModel.mesh.cullFace = false;
-            let lightShader = new CZPG.PointlightShader(context);
-            let phongShader = new CZPG.PhongLightShader(context);
-            let objModels = [];
-            CZPG.ObjLoader.load('./resource/barrel.obj').then(function(meshs) {
-                for (let i = 0; i < meshs.length; i++) {
-                    objModels.push((new CZPG.Model(meshs[i])).setScale(0.1, 0.1, 0.1).setUniformObj({
-                            ambientColor: [ 0.05, 0.05, 0.05 ],
-                            falloff: 0.15,
-                            radius: 8.0,
-                            // materials
-                            shiness: 10.0,
-                            specularFactor: 0.1,
-                            roughness: 0.6,
-                            albedo: 0.9,
-                            isFlat: i % 2 === 1,
-                            isGamma: true,
-                        }));
-                }
-                // colorPicker.addModels(objModels);
-                scene.add([
-                    { shader: phongShader.setTexture(textures.barrel), model: objModels },
-                    // { helper: pointHelper, data: objModels.map(m => { return { data: m.positionInfo, transform: m.transform }; } ) },
-                ]);
+            const fs = `#version 300 es
+precision mediump float;
 
-            });
+in vec4 vColor;
+out vec4 fragColor;
 
-            let skymapShader = new CZPG.DynamicSkyboxShader(context, textures.day, textures.night);
-            let skyCubeModal = CZPG.Cube.createModel('sky');
-            let pointHelper = new CZPG.PointHelper(context, [0, 0, 0], 8.0);
-            let lineHelper = new CZPG.LineHelper(context, cubeModal);
-    qd = skymapShader;
-            let terrainModel = CZPG.Terrain.createModel('terrain', 15, 15, 31, 31).setPosition(0, -1, 0);
+void main() {
+    fragColor = vColor;
+}`;
+            const vs = `#version 300 es
+in  vec3 position;
+in  vec4 color;
+out vec4 vColor;
 
-            let colorPicker = new CZPG.FramebufferPicker(context, controler).setCamera(camera).activate();
-            colorPicker.models = scene.models;
-
-            let lightPos = [0, 0, 0];
-
-            scene.add([
-                {shader: skymapShader, model: skyCubeModal},
-                {shader: gridShader, model: gridModal},
-                // {shader: quadShader.setTexture(textures.pic), model: [quadModal, sphereModel, sphereOctModel]},
-                {
-                    shader: lightShader.setUniformObj({ isFlat: true, isGamma: false, specularFactor: 0.2, diffuseFactor: 0.6, shiness: 40}),
-                    model: [cubeModal.setUniformObj({texture: textures.pic}), quadModal, sphereModel, sphereOctModel, terrainModel.setUniformObj({texture: textures.scalar})],
-                },
-                {
-                    helper: lineHelper,
-                    data:[
-                        {data: cubeModal},
-                        {data: terrainModel},
-                    ]
-                },
-                {
-                    helper: pointHelper,
-                    data: [
-                        {data: [0, 0, 0], transform: new CZPG.Transform(), position: lightPos},
-                    ]
-                },
-            ]).setCamera(camera);
-
-            let resized = false;
-            let loop = new CZPG.Render(function(timespan) {
-                resized = renderer.clear().fixCanvasToDisplay(window.devicePixelRatio)
-                if(resized) camera.updateProjMatrix( context.canvas.width / context.canvas.height );
-                cameraControler.update();
-
-                lightPos[0] = 2 * Math.cos(performance.now() * 0.0003);
-                lightPos[1] = 2 * Math.abs(Math.cos(performance.now() * 0.0003));
-                lightPos[2] = 2 * Math.sin(performance.now() * 0.0003);
-
-                skymapShader.setRate( Math.abs( Math.sin( performance.now() * 0.0003) ) );
-                terrainModel.addTime(context, timespan * 2);
-                lightShader.setUniformObj({ position: lightPos });
-                phongShader.setUniformObj({ position: lightPos });
-
-                // scene.render2Buffer(resized).render2Screen(0);
-                scene.render();
-
-                colorPicker.update();
-
-            }).start();
+void main() {
+    vColor = color;
+    gl_Position = vec4(position, 1.0);
+}`;
+            window.pro = { vs, fs, needUpdate:true };
+            ren.setSize( '100%', '100%' ).render(pro, mo);
         });
 
     </script>
