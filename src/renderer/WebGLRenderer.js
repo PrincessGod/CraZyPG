@@ -132,22 +132,24 @@ Object.assign( WebGLRenderer.prototype, {
         const vao = this.vaos.update( vaoInfo ).get( vaoInfo );
         const { program, uniformSetters } = this.programs.update( programInfo ).get( programInfo );
         this.context.useProgram( program );
-        // setUniforms( uniformSetters, primitive.uniformObj );
+        setUniforms( uniformSetters, model.uniformObj );
         this.context.bindVertexArray( vao );
 
         if ( bufferInfo.indices || bufferInfo.elementType )
             if ( typeof instanceCount === 'number' )
-                this.context.drawElementsInstanced( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, model.offset, instanceCount );
+                this.context.drawElementsInstanced( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, primitive.offset, instanceCount );
             else
-                this.context.drawElements( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, model.offset ); // eslint-disable-line
+                this.context.drawElements( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, primitive.offset ); // eslint-disable-line
         else
         /* eslint-disable */ // eslint bug
             if ( typeof instanceCount === 'number' )
-                this.context.drawArraysInstanced( model.drawMode, model.offset, bufferInfo.numElements, instanceCount );
+                this.context.drawArraysInstanced( model.drawMode, primitive.offset, bufferInfo.numElements, instanceCount );
             else
-                this.context.drawArrays( model.drawMode, model.offset, bufferInfo.numElements );
+                this.context.drawArrays( model.drawMode, primitive.offset, bufferInfo.numElements );
         /* eslint-enable */
         this.context.bindVertexArray( null );
+
+        return this;
 
     },
 

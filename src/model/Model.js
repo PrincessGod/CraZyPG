@@ -1,33 +1,71 @@
-import { Transform } from './Transform';
-import { createVertexArray } from '../renderer/vertexArray';
-import { createBufferInfoFromArrays } from '../renderer/attributes';
-import { CommonVAOShader } from '../shader/CommonVAOShader';
-import { ShaderParams } from '../core/constant';
+import { Node } from './Node';
+import { Primitive } from './Primitive';
 
-const getDefaultShader = ( function () {
+let modelCount = 0;
 
-    let commonVAOShader;
+function Model( primitiveLike, props = {} ) {
 
-    return function getDefaultShader( gl ) { // eslint-disable-line
+    Node.call( this, props.name || `NO_NAME_MODEL${modelCount ++}` );
 
-        if ( ! commonVAOShader )
-            commonVAOShader = new CommonVAOShader( gl );
+    let primitive = primitiveLike;
+    if ( ! ( primitiveLike instanceof Primitive ) )
+        primitive = new Primitive( primitiveLike, props );
 
-        return commonVAOShader;
-
-    };
-
-}() );
-
-function Model( mesh ) {
-
-    this.mesh = mesh;
-    this.enablePick = true;
-    this.transform = new Transform();
-    this.node = null;
-    this._uniformObj = {};
+    const { enablePick, uniformObj } = props;
+    this.primitive = primitive;
+    this.enablePick = enablePick === undefined ? true : !! enablePick;
+    this._uniformObj = uniformObj || {};
 
 }
+
+Model.prototype = Object.assign( Object.create( Node.prototype ), {
+
+    constructor: Model,
+
+    setScale( ...args ) {
+
+        this.transform.setScale( ...args );
+        return this;
+
+    },
+
+    setPosition( ...args ) {
+
+        this.transform.setPosition( ...args );
+        return this;
+
+    },
+
+    setRotation( ...args ) {
+
+        this.transform.setRotation( ...args );
+        return this;
+
+    },
+
+    setQuaternion( ...args ) {
+
+        this.transform.setQuaternion( ...args );
+        return this;
+
+    },
+
+    setTransform( transform ) {
+
+        this.transform = transform;
+        return this;
+
+    },
+
+    setUniformObj( obj ) {
+
+        Object.assign( this._uniformObj, obj );
+        return this;
+
+    },
+
+} );
+
 
 Object.defineProperties( Model.prototype, {
 
@@ -36,22 +74,6 @@ Object.defineProperties( Model.prototype, {
         get() {
 
             return true;
-
-        },
-
-    },
-
-    name: {
-
-        get() {
-
-            return this._name || this.mesh.name;
-
-        },
-
-        set( value ) {
-
-            this._name = value;
 
         },
 
@@ -72,36 +94,6 @@ Object.defineProperties( Model.prototype, {
         get() {
 
             return this.transform.matrix.raw;
-
-        },
-
-    },
-
-    positionInfo: {
-
-        get() {
-
-            return this.mesh.attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ];
-
-        },
-
-    },
-
-    uvInfo: {
-
-        get() {
-
-            return this.mesh.attribArrays[ ShaderParams.ATTRIB_UV_NAME ];
-
-        },
-
-    },
-
-    normalInfo: {
-
-        get() {
-
-            return this.mesh.attribArrays[ ShaderParams.ATTRIB_NORMAL_NAME ];
 
         },
 
@@ -186,7 +178,7 @@ Object.defineProperties( Model.prototype, {
 
             if ( this._drawMode !== undefined )
                 return this._drawMode;
-            return this.mesh.drawMode;
+            return this.primitive.drawMode;
 
         },
 
@@ -204,7 +196,7 @@ Object.defineProperties( Model.prototype, {
 
             if ( this._cullFace !== undefined )
                 return this._cullFace;
-            return this.mesh.cullFace;
+            return this.primitive.cullFace;
 
         },
 
@@ -222,7 +214,7 @@ Object.defineProperties( Model.prototype, {
 
             if ( this._blend !== undefined )
                 return this._blend;
-            return this.mesh.blend;
+            return this.primitive.blend;
 
         },
 
@@ -240,7 +232,7 @@ Object.defineProperties( Model.prototype, {
 
             if ( this._depth !== undefined )
                 return this._depth;
-            return this.mesh.depth;
+            return this.primitive.depth;
 
         },
         set( v ) {
@@ -257,7 +249,7 @@ Object.defineProperties( Model.prototype, {
 
             if ( this._sampleBlend !== undefined )
                 return this._sampleBlend;
-            return this.mesh.sampleBlend;
+            return this.primitive.sampleBlend;
 
         },
 
@@ -275,7 +267,7 @@ Object.defineProperties( Model.prototype, {
 
             if ( this._instanceCount !== undefined )
                 return this._instanceCount;
-            return this.mesh.instanceCount;
+            return this.primitive.instanceCount;
 
         },
 
@@ -284,134 +276,6 @@ Object.defineProperties( Model.prototype, {
             this._instanceCount = v;
 
         },
-
-    },
-
-    offset: {
-
-        get() {
-
-            if ( this._offset !== undefined )
-                return this._offset;
-            return this.mesh.offset;
-
-        },
-
-        set( v ) {
-
-            this._offset = v;
-
-        },
-
-    },
-
-    updateVao: {
-
-        get() {
-
-            return this.mesh._updateVao;
-
-        },
-
-        set( v ) {
-
-            this.mesh._updateVao = !! v;
-
-        },
-
-    },
-
-} );
-
-Object.assign( Model.prototype, {
-
-    setScale( ...args ) {
-
-        if ( args[ 0 ] instanceof Transform )
-            return this.setScale( ...( args[ 0 ].scale ) );
-
-        this.transform.setScale( ...args );
-        return this;
-
-    },
-
-    setPosition( ...args ) {
-
-        if ( args[ 0 ] instanceof Transform )
-            return this.setPosition( ...( args[ 0 ].position.getArray() ) );
-
-        this.transform.setPosition( ...args );
-        return this;
-
-    },
-
-    setRotation( ...args ) {
-
-        if ( args[ 0 ] instanceof Transform )
-            return this.setRotation( ...( args[ 0 ].rotation.getArray() ) );
-
-        this.transform.setRotation( ...args );
-        return this;
-
-    },
-
-    setQuaternion( ...args ) {
-
-        if ( args[ 0 ] instanceof Transform )
-            return this.setQuaternion( ...( args[ 0 ].quaternion.getArray() ) );
-
-        this.transform.setQuaternion( ...args );
-        return this;
-
-    },
-
-    setTransform( transform ) {
-
-        this.transform = transform;
-        return this;
-
-    },
-
-    preRender( gl, shader = getDefaultShader( gl ) ) {
-
-        this.createBufferInfo( gl ).createVAO( gl, shader );
-        return this;
-
-    },
-
-    createVAO( gl, shader = getDefaultShader( gl ) ) {
-
-        if ( this.mesh._updateVao && this.mesh.vao ) {
-
-            gl.deleteVertexArray( this.mesh.vao );
-            this.mesh._updateVao = false;
-            this.mesh.vao = null;
-
-        }
-
-        if ( ! this.mesh.vao )
-            this.mesh.vao = createVertexArray( gl, this.mesh.bufferInfo, shader.program, shader.attribSetters );
-
-        return this;
-
-    },
-
-    createBufferInfo( gl ) {
-
-        if ( ! this.mesh.bufferInfo ) {
-
-            this.mesh.bufferInfo = createBufferInfoFromArrays( gl, this.mesh.attribArrays );
-            this.bufferInfo = this.mesh.bufferInfo;
-
-        }
-        return this;
-
-    },
-
-    setUniformObj( obj ) {
-
-        Object.assign( this._uniformObj, obj );
-        return this;
 
     },
 

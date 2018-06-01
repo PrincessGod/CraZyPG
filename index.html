@@ -83,8 +83,8 @@
             attribArrays['position'] = { data: positions, numComponents: 3 };
             attribArrays['color'] = { data: colors, numComponents: 4 };
 
-            window.pr = new CZPG.Primitive('tt', {attribArrays});
-            window.mo = Object.assign({primitive: window.pr}, window.pr);
+            // window.pr = new CZPG.Primitive(attribArrays, {name:'tt'});
+            window.mo = new CZPG.Model(attribArrays, {name: 't2'});
 
             const fs = `#version 300 es
 precision mediump float;
@@ -105,7 +105,9 @@ void main() {
     gl_Position = vec4(position, 1.0);
 }`;
             window.pro = { vs, fs, needUpdate:true };
-            ren.setSize( '100%', '100%' ).render(pro, mo);
+            ren.setSize( '100%', '100%' ).fixCanvasToDisplay(window.devicePixelRatio);
+            ren.render(pro, mo);
+
         });
 
     </script>

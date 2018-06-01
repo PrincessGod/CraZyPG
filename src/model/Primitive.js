@@ -27,13 +27,13 @@ function getNumComponents( array, name ) {
 
 }
 
-function Primitive( name = `NO_NAME_PRIMITIVE${nameIdx ++}`, props = {} ) {
+function Primitive( attribArrays, props = {} ) {
 
     const {
-        attribArrays, drawMode, cullFace, blend, depth, sampleBlend, instanceCount, offset,
+        name, drawMode, cullFace, blend, depth, sampleBlend, instanceCount, offset,
     } = props;
 
-    this.name = name;
+    this.name = name === undefined ? `NO_NAME_PRIMITIVE${nameIdx ++}` : name;
     this.attribArrays = attribArrays;
     this.drawMode = drawMode === undefined ? BeginMode.TRIANGLES : drawMode;
     this.cullFace = cullFace === undefined ? true : cullFace;
