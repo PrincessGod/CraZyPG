@@ -5,45 +5,45 @@ const WebGLSamplerCtor = window.WebGLSampler || function NoWebGLSampler() {};
 const ctx = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' ).getContext( '2d' );
 
 const lastPackState = {};
-function savePackState( gl, states, options ) {
+function savePackState( gl, options ) {
 
     if ( options.unpackAlignment !== undefined ) {
 
         lastPackState.unpackAlignment = gl.getParameter( gl.UNPACK_ALIGNMENT );
-        states.pixelStorei( gl.UNPACK_ALIGNMENT, options.unpackAlignment );
+        gl.pixelStorei( gl.UNPACK_ALIGNMENT, options.unpackAlignment );
 
     }
     if ( options.colorspaceConversion !== undefined ) {
 
         lastPackState.colorspaceConversion = gl.getParameter( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL );
-        states.pixelStorei( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, options.colorspaceConversion );
+        gl.pixelStorei( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, options.colorspaceConversion );
 
     }
     if ( options.premultiplyAlpha !== undefined ) {
 
         lastPackState.premultiplyAlpha = gl.getParameter( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL );
-        states.pixelStorei( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL, options.premultiplyAlpha );
+        gl.pixelStorei( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL, options.premultiplyAlpha );
 
     }
     if ( options.flipY !== undefined ) {
 
         lastPackState.flipY = gl.getParameter( gl.UNPACK_FLIP_Y_WEBGL );
-        states.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, options.flipY );
+        gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, options.flipY );
 
     }
 
 }
 
-function restorePackState( gl, states, options ) {
+function restorePackState( gl, options ) {
 
     if ( options.unpackAlignment !== undefined )
-        states.pixelStorei( gl.UNPACK_ALIGNMENT, lastPackState.unpackAlignment );
+        gl.pixelStorei( gl.UNPACK_ALIGNMENT, lastPackState.unpackAlignment );
     if ( options.colorspaceConversion !== undefined )
-        states.pixelStorei( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, lastPackState.colorspaceConversion );
+        gl.pixelStorei( gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, lastPackState.colorspaceConversion );
     if ( options.premultiplyAlpha !== undefined )
-        states.pixelStorei( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL, lastPackState.premultiplyAlpha );
+        gl.pixelStorei( gl.UNPACH_PREMULTIPLY_ALPHA_WEBGL, lastPackState.premultiplyAlpha );
     if ( options.flipY !== undefined )
-        states.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, lastPackState.flipY );
+        gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, lastPackState.flipY );
 
 }
 
@@ -93,14 +93,14 @@ function setTextureTo1PixelColor( gl, texture ) {
 // Texture2D { src, traget, width, height, level, internalFormat, format, type }
 // TextureCubeMap { ...Texture2D, faceSize, cubeFaceOrder }
 // Texture3D { ...Texture2D, depth }
-function setTextureFromArray( gl, states, texture ) {
+function setTextureFromArray( gl, texture ) {
 
     const {
         src, target, width, height, depth, level, internalFormat, format, type,
         faceSize,
     } = texture;
 
-    savePackState( gl, states, texture );
+    savePackState( gl, texture );
 
     if ( target === gl.TEXTURE_CUBE_MAP )
         getCubeFacesWithIdx( gl, texture ).forEach( ( f ) => {
@@ -115,7 +115,7 @@ function setTextureFromArray( gl, states, texture ) {
     else
         gl.texImage2D( target, level, internalFormat, width, height, 0, format, type, src );
 
-    restorePackState( gl, states, texture );
+    restorePackState( gl, texture );
 
 }
 
@@ -123,7 +123,7 @@ function setTextureFromArray( gl, states, texture ) {
 // Texture2D { src, target, level, internalFormat, format, type }
 // TextureCubeMap { ...Texture2D, size, slices }
 // Texture3D { ... Texture2D, size, depth, xMult, yMult }
-function setTextureFromElement( gl, states, texture ) {
+function setTextureFromElement( gl, texture ) {
 
     const {
         src, target, level, internalFormat, format, type,
@@ -131,7 +131,7 @@ function setTextureFromElement( gl, states, texture ) {
         depth, xMult, yMult,
     } = texture;
 
-    savePackState( gl, states, texture );
+    savePackState( gl, texture );
 
     if ( target === gl.TEXTURE_CUBE_MAP ) {
 
@@ -182,14 +182,14 @@ function setTextureFromElement( gl, states, texture ) {
 // Texture2D { src, target, level, internalFormat, format, type, width, height }
 // TextureCubeMap { ...Texture2D }
 // Texture3D { ... Texture2D, depth }
-function setEmptyTexture( gl, states, texture ) {
+function setEmptyTexture( gl, texture ) {
 
     const {
         target, level, internalFormat, format, type, width, height,
         depth,
     } = texture;
 
-    savePackState( gl, states, texture );
+    savePackState( gl, texture );
 
     if ( target === gl.TEXTURE_CUBE_MAP )
         for ( let i = 0; i < 6; i ++ )
@@ -199,31 +199,31 @@ function setEmptyTexture( gl, states, texture ) {
     else
         gl.texImage2D( target, level, internalFormat, width, height, 0, format, type, null );
 
-    restorePackState( gl, states, texture );
+    restorePackState( gl, texture );
 
 }
 
 // TextureCubeMap { src: [[]], internalFormat, format, type, updateInfo, }
-function setCubeMapFromElements( gl, states, texture ) {
+function setCubeMapFromElements( gl, texture ) {
 
     const {
         src, internalFormat, format, type, updateInfo,
     } = texture;
 
     const faces = getCubeFacesOrder( gl, texture );
-    savePackState( gl, states, texture );
+    savePackState( gl, texture );
 
     for ( let level = 0; level < src.length; level ++ )
         for ( let face = 0; face < 6; face ++ )
             if ( updateInfo[ level ][ face ] )
                 gl.texImage2D( faces[ face ], level, internalFormat, format, type, src[ level ][ face ] );
 
-    restorePackState( gl, states, texture );
+    restorePackState( gl, texture );
 
 }
 
 // Texture3D { src, target, internalFormat, format, type, [firstImage], updateInfo }
-function setTexture3DFromElements( gl, states, texture ) {
+function setTexture3DFromElements( gl, texture ) {
 
     const {
         src, internalFormat, format, type,
@@ -233,7 +233,7 @@ function setTexture3DFromElements( gl, states, texture ) {
     const { width, height } = src[ 0 ][ 0 ];
     const depth = src[ 0 ].length;
 
-    savePackState( gl, states, texture );
+    savePackState( gl, texture );
 
     if ( ! firstImage ) {
 
@@ -251,7 +251,7 @@ function setTexture3DFromElements( gl, states, texture ) {
 
             }
 
-    restorePackState( gl, states, texture );
+    restorePackState( gl, texture );
 
 }
 
@@ -346,7 +346,7 @@ function resizeTexture( gl, texture, gltex ) {
 // Texture { autoFiltering, canGenerateMipmap, canFilter, isPending
 // [ minMag, min=gl.NEAREST_MIPMAP_LINEAR, mag=gl.LINEAR, wrap, wrapR, wrapS, wrapT, minLod, maxLod, baseLevel, maxLevel ]
 // }
-function setTexture( gl, states, texture, gltex = gl.createTexture() ) {
+function setTexture( gl, texture, gltex = gl.createTexture() ) {
 
     const {
         src, target, autoFiltering, isPending,
@@ -357,20 +357,20 @@ function setTexture( gl, states, texture, gltex = gl.createTexture() ) {
         setTextureTo1PixelColor( gl, texture );
     else if ( src )
         if ( isTypedArray( src ) )
-            setTextureFromArray( gl, states, texture );
+            setTextureFromArray( gl, texture );
         else if ( src instanceof HTMLElement )
-            setTextureFromElement( gl, states, texture );
+            setTextureFromElement( gl, texture );
         else if ( Array.isArray( src ) && src[ 0 ][ 0 ] instanceof HTMLElement ) {
 
             if ( target === gl.TEXTURE_CUBE_MAP )
-                setCubeMapFromElements( gl, states, texture );
+                setCubeMapFromElements( gl, texture );
             else
-                setTexture3DFromElements( gl, states, texture );
+                setTexture3DFromElements( gl, texture );
 
         } else
             throw new Error( 'unsupported src type' );
     else
-        setEmptyTexture( gl, states, texture );
+        setEmptyTexture( gl, texture );
 
     if ( autoFiltering )
         setTextureFiltering( gl, texture );
@@ -383,10 +383,9 @@ function setTexture( gl, states, texture, gltex = gl.createTexture() ) {
 
 }
 
-function Textures( gl, states ) {
+function Textures( gl ) {
 
     this._gl = gl;
-    this._states = states;
 
 }
 
@@ -417,10 +416,10 @@ Object.assign( Textures.prototype, {
         const value = texturesMap.get( texture );
 
         if ( value === undefined )
-            texturesMap.set( texture, setTexture( this._gl, this._states, texture ) );
+            texturesMap.set( texture, setTexture( this._gl, texture ) );
         else if ( texture.needUpdate ) {
 
-            setTexture( this._gl, this._states, texture, value.texture );
+            setTexture( this._gl, texture, value.texture );
             texture.needUpdate = false; // eslint-disable-line
 
         } else if ( texture.needResize ) {
