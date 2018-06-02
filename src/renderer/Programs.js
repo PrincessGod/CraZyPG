@@ -568,15 +568,6 @@ function createUniformSetters( gl, program ) {
 
     }
 
-    const keyMap = {};
-    uniformSetters.keyMap = keyMap;
-    Object.keys( uniformSetters ).forEach( ( key ) => {
-
-        if ( key.indexOf( ShaderParams.UNIFORM_PREFIX ) === 0 )
-            keyMap[ key.replace( ShaderParams.UNIFORM_PREFIX, '' ) ] = key;
-
-    } );
-
     return uniformSetters;
 
 }
@@ -596,10 +587,7 @@ function setUniforms( setters, ...unifroms ) {
         } else
             Object.keys( vals ).forEach( ( name ) => {
 
-                let setter = setters[ name ];
-                if ( setter === undefined && Object.prototype.hasOwnProperty.call( setters.keyMap, name ) )
-                    setter = setters[ setters.keyMap[ name ] ];
-
+                const setter = setters[ name ];
                 if ( setter )
                     setter( vals[ name ] );
 

@@ -13,7 +13,7 @@ function Texture( texture = {}, target = TextureType.TEXTURE_2D ) {
 
 Object.defineProperties( Texture.prototype, {
 
-    texture: {
+    textureInfo: {
 
         get() {
 

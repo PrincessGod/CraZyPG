@@ -4,6 +4,16 @@ import { Programs, setUniforms } from './Programs';
 import { VertexArrays } from './VertexArrays';
 import { DefaultColor } from '../core/constant';
 
+const enableMap = {
+
+    blend: 'BLEND',
+    cullFace: 'CULL_FACE',
+    depth: 'DEPTH_TEST',
+    polygonOffset: 'POLYGON_OFFSET_FILL',
+    sampleBlend: 'SAMPLE_ALPHA_TO_COVERAGE',
+
+};
+
 function getContext( canvasOrId, opts ) {
 
     let canvas;
@@ -126,8 +136,22 @@ Object.assign( WebGLRenderer.prototype, {
 
     },
 
-    render( programInfo, model ) {
+    applyStates( programInfo, model ) {
 
+        Object.keys( enableMap ).forEach( ( key ) => {
+
+            if ( programInfo[ key ] || model[ key ] )
+                this.context.enable( this.context[ enableMap[ key ] ] );
+            else
+                this.context.disable( this.context[ enableMap[ key ] ] );
+
+        } );
+
+    },
+
+    render( shader, model ) {
+
+        const { programInfo } = shader;
         const { primitive, instanceCount } = model;
         const { vaoInfo } = primitive;
         const { bufferInfo } = vaoInfo;
@@ -141,7 +165,7 @@ Object.assign( WebGLRenderer.prototype, {
         const { uniformSetters } = programInfo;
 
         this.context.useProgram( program );
-
+        this.applyStates( programInfo, model );
         setUniforms( uniformSetters, model.uniformObj );
         this.context.bindVertexArray( vao );
 

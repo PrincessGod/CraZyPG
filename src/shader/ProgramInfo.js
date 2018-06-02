@@ -1,3 +1,5 @@
+import { State } from './State';
+
 function getHTMLElementSrc( id ) {
 
     const ele = document.getElementById( id );
@@ -26,14 +28,27 @@ function getShaderSrc( src ) {
 
 }
 
+// opts{ ...State.opts, transformFeedbackVaryings, validateProgram }
 function ProgramInfo( vs, fs, opts = {} ) {
 
+    State.call( this, opts );
     this._vs = getShaderSrc( vs );
     this._fs = getShaderSrc( fs );
     this.opts = opts;
     this.needUpdate = true;
 
 }
+
+ProgramInfo.prototype = Object.assign( Object.create( State.prototype ), {
+
+    setSetters( attrib, uniform ) {
+
+        this._attribSetters = attrib;
+        this._uniformSetters = uniform;
+
+    },
+
+} );
 
 Object.defineProperties( ProgramInfo.prototype, {
 
@@ -74,17 +89,6 @@ Object.defineProperties( ProgramInfo.prototype, {
             return this._uniformSetters;
 
         },
-
-    },
-
-} );
-
-Object.assign( ProgramInfo.prototype, {
-
-    setSetters( attrib, uniform ) {
-
-        this._attribSetters = attrib;
-        this._uniformSetters = uniform;
 
     },
 

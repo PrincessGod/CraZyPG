@@ -261,6 +261,24 @@ Object.defineProperties( Model.prototype, {
 
     },
 
+    polygonOffset: {
+
+        get() {
+
+            if ( this._polygonOffset !== undefined )
+                return this._polygonOffset;
+            return this.primitive.polygonOffset;
+
+        },
+
+        set( v ) {
+
+            this._polygonOffset = v;
+
+        },
+
+    },
+
     instanceCount: {
 
         get() {

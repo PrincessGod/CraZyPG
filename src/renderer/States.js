@@ -44,8 +44,8 @@ function States( gl ) {
 
     const disable = _h( gl.disable, ( cap ) => {
 
-        const cached = ( cache.disable[ cap ] === false );
-        cache.disable[ cap ] = false;
+        const cached = ( cache.enable[ cap ] === false );
+        cache.enable[ cap ] = false;
         return cached;
 
     } ).bind( gl );

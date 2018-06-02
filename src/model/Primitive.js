@@ -1,5 +1,6 @@
 import { IndicesKey, BufferParams, ShaderParams, BeginMode } from '../core/constant';
 import { getGLTypeFromTypedArray, getTypedArrayTypeFromGLType, isTypedArray } from '../core/typedArray';
+import { State } from '../shader/State';
 
 let nameIdx = 0;
 
@@ -15,7 +16,7 @@ function guessNumComponentsFromName( name, length ) {
     else numComponents = 3;
 
     if ( length % numComponents > 0 )
-        throw new Error( `Can not guess numComponents for attribute ${name}.` );
+        throw new Error( `can not guess numComponents for attribute ${name}.` );
 
     return numComponents;
 
@@ -29,17 +30,14 @@ function getNumComponents( array, name ) {
 
 function Primitive( attribArrays, props = {} ) {
 
+    State.call( this, props );
     const {
-        name, drawMode, cullFace, blend, depth, sampleBlend, instanceCount, offset,
+        name, drawMode, instanceCount, offset,
     } = props;
 
     this.name = name === undefined ? `NO_NAME_PRIMITIVE${nameIdx ++}` : name;
     this.attribArrays = attribArrays;
     this.drawMode = drawMode === undefined ? BeginMode.TRIANGLES : drawMode;
-    this.cullFace = cullFace === undefined ? true : cullFace;
-    this.blend = blend === undefined ? false : blend;
-    this.depth = depth === undefined ? true : depth;
-    this.sampleBlend = sampleBlend === undefined ? false : sampleBlend;
     this.instanceCount = instanceCount;
     this.offset = offset === undefined ? 0 : offset;
     this.vaoInfo = { needUpdate: true };
@@ -48,7 +46,7 @@ function Primitive( attribArrays, props = {} ) {
 
 }
 
-Object.assign( Primitive.prototype, {
+Primitive.prototype = Object.assign( Object.create( State.prototype ), {
 
     // { key: number }
     // { key: { data: number|array|typedArray, [name=key], [normalize=false], [type=GLTYPE], [stride=0], [offset=0], [diverse=0], [usage=STATIC_DRAW], [target=ARRAY_BUFFER] } }
@@ -130,7 +128,7 @@ Object.assign( Primitive.prototype, {
 
             }
             if ( position )
-                throw Error( 'Primitive do not have position info' );
+                throw Error( 'primitive do not have position info' );
 
             const {
                 data, offset, stride, numComponents,
@@ -143,7 +141,7 @@ Object.assign( Primitive.prototype, {
                 numElements = byteLenght / data.BYTES_PER_ELEMENT / numComponents;
 
             if ( numComponents % 1 )
-                throw Error( 'Can not get elemnet number from position array' );
+                throw Error( 'can not get elemnet number from position array' );
 
             bufferInfo.numElements = numElements;
 
