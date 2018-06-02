@@ -1,3 +1,4 @@
+import { States } from './States';
 import { BufferInfos } from './BufferInfos';
 import { Programs, setUniforms } from './Programs';
 import { VertexArrays } from './VertexArrays';
@@ -8,10 +9,12 @@ function getContext( canvasOrId, opts ) {
     let canvas;
     if ( typeof canvasOrId === 'string' )
         canvas = document.getElementById( canvasOrId );
-    else
+    else if ( canvasOrId instanceof HTMLCanvasElement )
         canvas = canvasOrId;
+    else
+        throw TypeError( 'renderer expect a Canvas or Canvas\' ID' );
 
-    const names = [ 'webgl2', 'experimental-webgl2', 'webgl', 'experimental-webgl' ];
+    const names = [ 'webgl2', 'experimental-webgl2' ];
     let context = null;
     for ( let i = 0; i < names.length; i ++ ) {
 
@@ -26,7 +29,7 @@ function getContext( canvasOrId, opts ) {
     }
 
     if ( ! context )
-        throw new Error( 'Please use a decent browser, this browser not support WebglContext.' );
+        throw new Error( 'Please use a browser support WebGL 2.0 (like Chrome), this browser not support WebGL2Context.' );
 
     return context;
 
@@ -75,6 +78,7 @@ function WebGLRenderer( canvasOrId, opts ) {
     this.context.depthFunc( this.context.LEQUAL );
     this.context.blendFunc( this.context.SRC_ALPHA, this.context.ONE_MINUS_SRC_ALPHA );
 
+    this.states = new States( this.context );
     this.buffers = new BufferInfos( this.context );
     this.programs = new Programs( this.context, this.buffers );
     this.vaos = new VertexArrays( this.context, this.programs, this.buffers );
@@ -126,27 +130,29 @@ Object.assign( WebGLRenderer.prototype, {
 
         const { primitive, instanceCount } = model;
         const { vaoInfo } = primitive;
-        if ( vaoInfo.programInfo !== programInfo )
-            primitive.updateVaoInfo( programInfo );
         const { bufferInfo } = vaoInfo;
-        const vao = this.vaos.update( vaoInfo ).get( vaoInfo );
-        const { program, uniformSetters } = this.programs.update( programInfo ).get( programInfo );
+
+        primitive.updateVaoInfo( programInfo );
+        this.programs.update( programInfo );
+        this.vaos.update( vaoInfo );
+
+        const vao = this.vaos.get( vaoInfo );
+        const program = this.programs.get( programInfo );
+        const { uniformSetters } = programInfo;
+
         this.context.useProgram( program );
+
         setUniforms( uniformSetters, model.uniformObj );
         this.context.bindVertexArray( vao );
 
-        if ( bufferInfo.indices || bufferInfo.elementType )
-            if ( typeof instanceCount === 'number' )
-                this.context.drawElementsInstanced( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, primitive.offset, instanceCount );
-            else
-                this.context.drawElements( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, primitive.offset ); // eslint-disable-line
+        const isIndexed = ( bufferInfo.indices || bufferInfo.elementType );
+        const drawFun = `draw${isIndexed ? 'Elements' : 'Arrays'}${( typeof instanceCount === 'number' ) ? 'Instanced' : ''}`;
+
+        if ( isIndexed )
+            this.context[ drawFun ]( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, primitive.offset, instanceCount );
         else
-        /* eslint-disable */ // eslint bug
-            if ( typeof instanceCount === 'number' )
-                this.context.drawArraysInstanced( model.drawMode, primitive.offset, bufferInfo.numElements, instanceCount );
-            else
-                this.context.drawArrays( model.drawMode, primitive.offset, bufferInfo.numElements );
-        /* eslint-enable */
+            this.context[ drawFun ]( model.drawMode, primitive.offset, bufferInfo.numElements, instanceCount );
+
         this.context.bindVertexArray( null );
 
         return this;

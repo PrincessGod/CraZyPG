@@ -6,14 +6,19 @@ const vaosMap = new WeakMap();
 function createVao( gl, programs, buffers, vaoInfo ) {
 
     const { programInfo, bufferInfo } = vaoInfo;
+    const { attribSetters } = programInfo;
+
     const vao = gl.createVertexArray();
     gl.bindVertexArray( vao );
 
-    const { attribSetters } = programs.update( programInfo ).get( programInfo );
     setAttributes( attribSetters, bufferInfo.attribs );
 
-    if ( bufferInfo[ IndicesKey ] )
-        gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, buffers.update( bufferInfo[ IndicesKey ] ).get( bufferInfo[ IndicesKey ] ) );
+    if ( bufferInfo[ IndicesKey ] ) {
+
+        const indexBuffer = buffers.update( bufferInfo[ IndicesKey ] ).get( bufferInfo[ IndicesKey ] );
+        gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, indexBuffer );
+
+    }
 
     gl.bindBuffer( gl.ARRAY_BUFFER, null );
     gl.bindVertexArray( null );

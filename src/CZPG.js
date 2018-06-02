@@ -45,3 +45,4 @@ export * from './renderer/States.js';
 export * from './texture/TextureCubeMap.js';
 export * from './renderer/WebGLRenderer.js';
 export * from './model/Primitive.js';
+export * from './shader/ProgramInfo.js';

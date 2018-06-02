@@ -154,12 +154,20 @@ Object.assign( Primitive.prototype, {
         this.bufferInfo = bufferInfo;
         this.vaoInfo.bufferInfo = bufferInfo;
 
+        return this;
+
     },
 
     updateVaoInfo( programInfo ) {
 
-        this.vaoInfo.programInfo = programInfo;
-        this.vaoInfo.needUpdate = true;
+        if ( this.vaoInfo.programInfo !== programInfo ) {
+
+            this.vaoInfo.programInfo = programInfo;
+            this.vaoInfo.needUpdate = true;
+
+        }
+
+        return this;
 
     },
 

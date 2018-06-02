@@ -55,14 +55,35 @@
     </div>
     <script src="./build/czpg.js"></script>
     <script src="./sample/js/dat.gui.min.js"></script>
-    <img id="test-tex" src="./resource/goldengate.jpg" style="display:none;"/>
+    <script id="vs" type="shader-vs">
+            #version 300 es
+            in  vec3 position;
+            in  vec4 color;
+            out vec4 vColor;
+
+            void main() {
+                vColor = color;
+                gl_Position = vec4(position, 1.0);
+            }
+    </script>
+    <script id="fs" type="shader-fs">
+            #version 300 es
+            precision mediump float;
+
+            in vec4 vColor;
+            out vec4 fragColor;
+
+            void main() {
+                fragColor = vColor;
+            }
+    </script>
     <script>
 
         window.addEventListener('load', function() {
             window.ren = new CZPG.WebGLRenderer('glpaper');
-            const positions = [ 
+            const positions = [
                 -0.5, 0.5, 0.0, // v0
-                0.5, 0.5, 0.0, // v1 
+                0.5, 0.5, 0.0, // v1
                 -0.5,-0.5, 0.0, // v2
                 0.5,-0.5, 0.0  // v3
             ];
@@ -82,29 +103,9 @@
             };
             attribArrays['position'] = { data: positions, numComponents: 3 };
             attribArrays['color'] = { data: colors, numComponents: 4 };
-
             // window.pr = new CZPG.Primitive(attribArrays, {name:'tt'});
             window.mo = new CZPG.Model(attribArrays, {name: 't2'});
-
-            const fs = `#version 300 es
-precision mediump float;
-
-in vec4 vColor;
-out vec4 fragColor;
-
-void main() {
-    fragColor = vColor;
-}`;
-            const vs = `#version 300 es
-in  vec3 position;
-in  vec4 color;
-out vec4 vColor;
-
-void main() {
-    vColor = color;
-    gl_Position = vec4(position, 1.0);
-}`;
-            window.pro = { vs, fs, needUpdate:true };
+            window.pro = new CZPG.ProgramInfo( 'vs', 'fs' );
             ren.setSize( '100%', '100%' ).fixCanvasToDisplay(window.devicePixelRatio);
             ren.render(pro, mo);
 

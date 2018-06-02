@@ -695,12 +695,9 @@ function createProgramInfo( gl, buffers, program ) {
     const prog = createProgram( gl, vs, fs, opts );
     const attribSetters = createAttributesSetters( gl, buffers, prog );
     const uniformSetters = createUniformSetters( gl, prog );
+    program.setSetters( attribSetters, uniformSetters );
 
-    return {
-        program: prog,
-        attribSetters,
-        uniformSetters,
-    };
+    return prog;
 
 }
 
