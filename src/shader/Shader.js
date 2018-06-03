@@ -36,6 +36,11 @@ Object.assign( Shader.prototype, {
             else if ( equalsFun === PMath.arrayEquals )
                 this._currentUniformObj[ prop ] = PMath.arrayClone( value );
 
+        } else if ( value.textureInfo && value.textureInfo.needUpdate ) {
+
+            this._uniformObj[ prop ] = value;
+            this._currentUniformObj[ prop ] = value;
+
         }
 
     },
@@ -60,6 +65,13 @@ Object.assign( Shader.prototype, {
 
     preRender() {
 
+        return this;
+
+    },
+
+    afterRender() {
+
+        this._uniformObj = {};
         return this;
 
     },

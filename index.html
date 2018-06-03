@@ -109,9 +109,7 @@
 
         window.addEventListener('load', function() {
             window.ren = new CZPG.WebGLRenderer('glpaper');
-            window.texs = new CZPG.Textures(ren.context);
             window.tex = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
-            let texture = texs.update(tex.textureInfo).get(tex.textureInfo);
 
             const positions = [
                 -0.5, 0.5, 0.0, // v0
@@ -143,12 +141,12 @@
             attribArrays['uv'] = { data: uvs, numComponents: 2 };
             attribArrays['color'] = { data: colors, numComponents: 4 };
             // window.pr = new CZPG.Primitive(attribArrays, {name:'tt'});
-            window.mat = new TestMaterial( { uniformObj: { u_texture:texture } } )
+            window.mat = new TestMaterial( { uniformObj: { u_texture:tex } } )
             window.mo = new CZPG.Model(attribArrays, {name: 't2', material: mat, offset: 3 });
             ren.setSize( '100%', '100%' ).fixCanvasToDisplay(window.devicePixelRatio);
             ren.render(mo);
 
-            setTimeout(()=>{texs.update(tex.textureInfo); ren.render(mo);}, 1000);
+            setTimeout(()=>{ ren.render(mo); }, 1000);
 
         });
 

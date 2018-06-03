@@ -1,5 +1,6 @@
 import { States } from './States';
 import { BufferInfos } from './BufferInfos';
+import { Textures } from './Textures';
 import { Programs, setUniforms } from './Programs';
 import { VertexArrays } from './VertexArrays';
 import { DefaultColor } from '../core/constant';
@@ -92,6 +93,7 @@ function WebGLRenderer( canvasOrId, opts ) {
 
     this.states = new States( this.context );
     this.buffers = new BufferInfos( this.context );
+    this.textures = new Textures( this.context );
     this.programs = new Programs( this.context, this.buffers );
     this.vaos = new VertexArrays( this.context, this.programs, this.buffers );
 
@@ -151,6 +153,23 @@ Object.assign( WebGLRenderer.prototype, {
 
     },
 
+    updateUniforms( uniformSetters, shader, material ) {
+
+        shader.setUniformObj( material.uniformObj );
+
+        const uniforms = Object.assign( {}, shader.uniformObj );
+        Object.keys( uniforms ).forEach( ( uniformName ) => {
+
+            const textureInfo = uniforms[ uniformName ].textureInfo;
+            if ( textureInfo )
+                uniforms[ uniformName ] = this.textures.update( textureInfo ).get( textureInfo );
+
+        } );
+
+        setUniforms( uniformSetters, uniforms );
+
+    },
+
     render( model ) {
 
 
@@ -180,8 +199,7 @@ Object.assign( WebGLRenderer.prototype, {
 
         this.context.useProgram( program );
         this.applyStates( programInfo, material );
-        shader.setUniformObj( material.uniformObj );
-        setUniforms( uniformSetters, shader.uniformObj );
+        this.updateUniforms( uniformSetters, shader, material );
         this.context.bindVertexArray( vao );
 
         const { drawMode, instanceCount } = material;
@@ -195,6 +213,8 @@ Object.assign( WebGLRenderer.prototype, {
             this.context[ drawFun ]( drawMode, start, numElements, instanceCount );
 
         this.context.bindVertexArray( null );
+
+        shader.afterRender();
 
         return this;
 
