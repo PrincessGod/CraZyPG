@@ -78,7 +78,7 @@ function clear(
 
 }
 
-function WebGLRenderer( canvasOrId, opts ) {
+function WebGL2Renderer( canvasOrId, opts ) {
 
     this.context = getContext( canvasOrId, opts );
     this.canvas = this.context.canvas;
@@ -99,7 +99,7 @@ function WebGLRenderer( canvasOrId, opts ) {
 
 }
 
-Object.assign( WebGLRenderer.prototype, {
+Object.assign( WebGL2Renderer.prototype, {
 
     clear( ...args ) {
 
@@ -222,4 +222,4 @@ Object.assign( WebGLRenderer.prototype, {
 
 } );
 
-export { WebGLRenderer };
+export { WebGL2Renderer };

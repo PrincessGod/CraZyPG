@@ -43,7 +43,7 @@ export * from './texture/Texture3D.js';
 export * from './renderer/Textures.js';
 export * from './renderer/States.js';
 export * from './texture/TextureCubeMap.js';
-export * from './renderer/WebGLRenderer.js';
+export * from './renderer/WebGL2Renderer.js';
 export * from './model/Primitive.js';
 export * from './shader/ProgramInfo.js';
 export * from './shader/Material.js';

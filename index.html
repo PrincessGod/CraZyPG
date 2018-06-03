@@ -108,7 +108,7 @@
         }
 
         window.addEventListener('load', function() {
-            window.ren = new CZPG.WebGLRenderer('glpaper');
+            window.ren = new CZPG.WebGL2Renderer('glpaper');
             window.tex = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
 
             const positions = [
