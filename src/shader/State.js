@@ -1,13 +1,13 @@
 function State( opts = {} ) {
 
     const {
-        blend, cullFace, depth, polygonOffset, sampleBlend,
+        blend, cull, depth, polygon, sampleBlend,
     } = opts;
 
     this.blend = !! blend;
-    this.cullFace = !! cullFace;
+    this.cull = !! cull;
     this.depth = !! depth;
-    this.polygonOffset = !! polygonOffset;
+    this.polygon = !! polygon;
     this.sampleBlend = !! sampleBlend;
 
 }

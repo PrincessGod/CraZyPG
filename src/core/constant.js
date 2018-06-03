@@ -271,3 +271,61 @@ export const UniformTypes = makeReadonlyObj( {
     UNSIGNED_INT_SAMPLER_2D_ARRAY: 0x8DD7,
 
 } );
+
+export const BlendEquation = makeReadonlyObj( {
+
+    FUNC_ADD: 0x8006,
+    FUNC_SUBTRACT: 0x800A,
+    FUNC_REVERSE_SUBTRACT: 0x800B,
+    MIN: 0x8007,
+    MAX: 0x8008,
+
+} );
+
+export const BlendFactor = makeReadonlyObj( {
+
+    ZERO: 0,
+    ONE: 1,
+    SRC_COLOR: 0x0300,
+    ONE_MINUS_SRC_COLOR: 0x0301,
+    SRC_ALPHA: 0x0302,
+    ONE_MINUS_SRC_ALPHA: 0x0303,
+    DST_ALPHA: 0x0304,
+    ONE_MINUS_DST_ALPHA: 0x0305,
+    DST_COLOR: 0x0306,
+    ONE_MINUS_DST_COLOR: 0x0307,
+    SRC_ALPHA_SATURATE: 0x0308,
+    CONSTANT_COLOR: 0x8001,
+    ONE_MINUS_CONSTANT_COLOR: 0x8002,
+    CONSTANT_ALPHA: 0x8003,
+    ONE_MINUS_CONSTANT_ALPHA: 0x8004,
+
+} );
+
+export const CullFaceMode = makeReadonlyObj( {
+
+    FRONT: 0x0404,
+    BACK: 0x0405,
+    FRONT_AND_BACK: 0x0408,
+
+} );
+
+export const Condition = makeReadonlyObj( {
+
+    NEVER: 0x0200,
+    LESS: 0x0201,
+    EQUAL: 0x0202,
+    LEQUAL: 0x0203,
+    GREATER: 0x0204,
+    NOTEQUAL: 0x0205,
+    GEQUAL: 0x0206,
+    ALWAYS: 0x0207,
+
+} );
+
+export const FrontFace = makeReadonlyObj( {
+
+    CW: 0x0900,
+    CCW: 0x0901,
+
+} );

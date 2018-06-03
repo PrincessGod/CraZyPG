@@ -16,8 +16,12 @@ const cache = {
 
     enable: {},
     uniform1f: {},
+    colorMask: {},
+    blendColor: {},
     pixelStorei: {},
+    blendFuncSeparate: {},
     bufferDataArrayUsage: {},
+    blendEquationSeparate: {},
     bufferDataArraySizeOrData: {},
     bufferDataElementArrayUsage: {},
     bufferDataElementArraySizeOrData: {},
@@ -215,7 +219,7 @@ function States( gl ) {
     const disableVertexAttribArray = _h( gl.disableVertexAttribArray, ( index ) => {
 
         const cached = ( cache.disableVertexAttribArrayIndex === index );
-        cache.disableVertexAttribArray = index;
+        cache.disableVertexAttribArrayIndex = index;
         return cached;
 
     } ).bind( gl );
@@ -223,7 +227,63 @@ function States( gl ) {
     const enableVertexAttribArray = _h( gl.enableVertexAttribArray, ( index ) => {
 
         const cached = ( cache.enableVertexAttribArrayIndex === index );
-        cache.enableVertexAttribArray = index;
+        cache.enableVertexAttribArrayIndex = index;
+        return cached;
+
+    } ).bind( gl );
+
+    const blendColor = _h( gl.blendColor, ( r, g, b, a ) => {
+
+        const cached = ( cache.blendColor.r === r && cache.blendColor.g === g && cache.blendColor.b === b && cache.blendColor.a === a );
+        Object.assign( cache.blendColor, {
+            r, g, b, a,
+        } );
+        return cached;
+
+    } ).bind( gl );
+
+    const blendEquationSeparate = _h( gl.blendEquationSeparate, ( modeRGB, modeAlpha ) => {
+
+        const cached = ( cache.blendEquationSeparate.modeRGB === modeRGB && cache.blendEquationSeparate.modeAlpha === modeAlpha );
+        Object.assign( cache.blendEquationSeparate, {
+            modeRGB, modeAlpha,
+        } );
+        return cached;
+
+    } ).bind( gl );
+
+    const blendFuncSeparate = _h( gl.blendFuncSeparate, ( srcRGB, dstRGB, srcAlpha, dstAlpha ) => {
+
+        const cached = ( cache.blendFuncSeparate.srcRGB === srcRGB && cache.blendFuncSeparate.dstRGB === dstRGB && cache.blendFuncSeparate.srcAlpha === srcAlpha && cache.blendFuncSeparate.dstAlpha === dstAlpha );
+        Object.assign( cache.blendFuncSeparate, {
+            srcRGB, dstRGB, srcAlpha, dstAlpha,
+        } );
+        return cached;
+
+    } ).bind( gl );
+
+    const colorMask = _h( gl.colorMask, ( r, g, b, a ) => {
+
+        const cached = ( cache.colorMask.r === r && cache.colorMask.g === g && cache.colorMask.b === b && cache.colorMask.a === a );
+        Object.assign( cache.colorMask, {
+            r, g, b, a,
+        } );
+        return cached;
+
+    } ).bind( gl );
+
+    const depthFunc = _h( gl.depthFunc, ( func ) => {
+
+        const cached = ( cache.depthFuncFunc === func );
+        cache.depthFuncFunc = func;
+        return cached;
+
+    } ).bind( gl );
+
+    const depthMask = _h( gl.depthMask, ( v ) => {
+
+        const cached = ( cache.depthMaskEnable === v );
+        cache.depthMaskEnable = v;
         return cached;
 
     } ).bind( gl );
@@ -248,6 +308,12 @@ function States( gl ) {
         polygonOffset,
         disableVertexAttribArray,
         enableVertexAttribArray,
+        blendColor,
+        blendEquationSeparate,
+        blendFuncSeparate,
+        colorMask,
+        depthFunc,
+        depthMask,
     } );
 
 }

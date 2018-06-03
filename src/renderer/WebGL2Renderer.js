@@ -10,12 +10,18 @@ const shaders = new Map();
 const enableMap = {
 
     blend: 'BLEND',
-    cullFace: 'CULL_FACE',
+    cull: 'CULL_FACE',
     depth: 'DEPTH_TEST',
-    polygonOffset: 'POLYGON_OFFSET_FILL',
+    polygon: 'POLYGON_OFFSET_FILL',
     sampleBlend: 'SAMPLE_ALPHA_TO_COVERAGE',
 
 };
+
+const materialFuncs = [
+    'blendColor', 'blendEquationSeparate', 'blendFuncSeparate',
+    'colorMask', 'cullFace', 'depthFunc', 'depthMask', 'depthRange',
+    'frontFace', 'lineWidth', 'polygonOffset',
+];
 
 function getContext( canvasOrId, opts ) {
 
@@ -84,13 +90,6 @@ function WebGL2Renderer( canvasOrId, opts ) {
     this.canvas = this.context.canvas;
     this.multiplier = 1.0;
 
-    this.context.cullFace( this.context.BACK );
-    this.context.frontFace( this.context.CCW );
-    this.context.enable( this.context.CULL_FACE );
-    this.context.enable( this.context.DEPTH_TEST );
-    this.context.depthFunc( this.context.LEQUAL );
-    this.context.blendFunc( this.context.SRC_ALPHA, this.context.ONE_MINUS_SRC_ALPHA );
-
     this.states = new States( this.context );
     this.buffers = new BufferInfos( this.context );
     this.textures = new Textures( this.context );
@@ -116,8 +115,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
         this.canvas.style.width = width;
         this.canvas.style.height = height;
-        this.canvas.width = this.canvas.clientWidth;
-        this.canvas.height = this.canvas.clientHeight;
+        resizeCanvasToDisplaySize( this.canvas, this.multiplier );
         this.context.viewport( 0, 0, this.canvas.width, this.canvas.height );
         return this;
 
@@ -150,6 +148,8 @@ Object.assign( WebGL2Renderer.prototype, {
                 this.context.disable( this.context[ enableMap[ key ] ] );
 
         } );
+
+        materialFuncs.forEach( func => this.context[ func ]( ...material[ func ] ) );
 
     },
 
