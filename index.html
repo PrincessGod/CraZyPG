@@ -87,9 +87,28 @@
     </script>
     <script>
 
+        class TestShader extends CZPG.Shader {
+
+            constructor() {
+
+                super('vs', 'fs');
+
+            }
+
+        }
+
+        class TestMaterial extends CZPG.Material {
+
+            constructor( opts ) {
+
+                super(TestShader, opts);
+
+            }
+
+        }
+
         window.addEventListener('load', function() {
             window.ren = new CZPG.WebGLRenderer('glpaper');
-
             window.texs = new CZPG.Textures(ren.context);
             window.tex = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
             let texture = texs.update(tex.textureInfo).get(tex.textureInfo);
@@ -124,12 +143,12 @@
             attribArrays['uv'] = { data: uvs, numComponents: 2 };
             attribArrays['color'] = { data: colors, numComponents: 4 };
             // window.pr = new CZPG.Primitive(attribArrays, {name:'tt'});
-            window.mo = new CZPG.Model(attribArrays, {name: 't2'});
-            window.pro = new CZPG.Shader( 'vs', 'fs' );
+            window.mat = new TestMaterial( { uniformObj: { u_texture:texture } } )
+            window.mo = new CZPG.Model(attribArrays, {name: 't2', material: mat, offset: 3 });
             ren.setSize( '100%', '100%' ).fixCanvasToDisplay(window.devicePixelRatio);
-            ren.render(pro.setUniformObj({u_texture:texture}), mo);
+            ren.render(mo);
 
-            setTimeout(()=>{texs.update(tex.textureInfo); ren.render(pro, mo);}, 1000);
+            setTimeout(()=>{texs.update(tex.textureInfo); ren.render(mo);}, 1000);
 
         });
 

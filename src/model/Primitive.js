@@ -1,6 +1,5 @@
-import { IndicesKey, BufferParams, ShaderParams, BeginMode } from '../core/constant';
+import { IndicesKey, BufferParams, ShaderParams } from '../core/constant';
 import { getGLTypeFromTypedArray, getTypedArrayTypeFromGLType, isTypedArray } from '../core/typedArray';
-import { State } from '../shader/State';
 
 let nameIdx = 0;
 
@@ -28,25 +27,58 @@ function getNumComponents( array, name ) {
 
 }
 
-function Primitive( attribArrays, props = {} ) {
+function guessNumberElementForNoIndices( attribs, primitiveOffset ) {
 
-    State.call( this, props );
+    let position = attribs[ ShaderParams.ATTRIB_POSITION_NAME ];
+    if ( ! position ) {
+
+        let positionKey;
+        Object.keys( attribs ).forEach( ( k ) => {
+
+            if ( positionRE.test( k ) )
+                positionKey = k;
+
+        } );
+        position = attribs[ positionKey ];
+
+    }
+    if ( position )
+        throw Error( 'primitive do not have position info' );
+
     const {
-        name, drawMode, instanceCount, offset,
-    } = props;
+        data, offset, stride, numComponents,
+    } = position;
+    let numElements = 0;
+    const byteLenght = ( data.length - primitiveOffset ) * data.BYTES_PER_ELEMENT - offset;
+    if ( stride )
+        numElements = byteLenght / stride;
+    else
+        numElements = byteLenght / data.BYTES_PER_ELEMENT / numComponents;
+
+    if ( numElements % 1 )
+        throw Error( 'can not get elemnet number from position array' );
+
+    return numElements;
+
+}
+
+// opts { name }
+function Primitive( attribArrays, opts = {} ) {
+
+    const {
+        name, offset,
+    } = opts;
 
     this.name = name === undefined ? `NO_NAME_PRIMITIVE${nameIdx ++}` : name;
     this.attribArrays = attribArrays;
-    this.drawMode = drawMode === undefined ? BeginMode.TRIANGLES : drawMode;
-    this.instanceCount = instanceCount;
-    this.offset = offset === undefined ? 0 : offset;
+    this._offset = offset === undefined ? 0 : offset;
     this.vaoInfo = { needUpdate: true };
 
     this.createBufferInfo();
 
 }
 
-Primitive.prototype = Object.assign( Object.create( State.prototype ), {
+Object.assign( Primitive.prototype, {
 
     // { key: number }
     // { key: { data: number|array|typedArray, [name=key], [normalize=false], [type=GLTYPE], [stride=0], [offset=0], [diverse=0], [usage=STATIC_DRAW], [target=ARRAY_BUFFER] } }
@@ -72,6 +104,7 @@ Primitive.prototype = Object.assign( Object.create( State.prototype ), {
                 } else if ( Array.isArray( array.data ) )
                     typedData = new Float32Array( array.data );
 
+                array.data = typedData;
                 const type = getGLTypeFromTypedArray( typedData );
                 const numComponents = getNumComponents( typedData, key );
 
@@ -83,7 +116,7 @@ Primitive.prototype = Object.assign( Object.create( State.prototype ), {
                     stride: array.stride || 0,
                     offset: array.offset || 0,
                     divisor: typeof array.divisor === 'undefined' ? undefined : array.divisor,
-                    usage: array.drawType || BufferParams.STATIC_DRAW,
+                    usage: array.usage || BufferParams.STATIC_DRAW,
                     target: array.target || BufferParams.ARRAY_BUFFER,
                     needUpdate: true,
                 };
@@ -100,6 +133,7 @@ Primitive.prototype = Object.assign( Object.create( State.prototype ), {
 
                 const ArrayType = Math.max.apply( null, typedIndices ) > 0xffff ? Uint32Array : Uint16Array;
                 typedIndices = new ArrayType( typedIndices );
+                this.attribArrays[ IndicesKey ].data = typedIndices;
 
             }
             const indices = {
@@ -109,43 +143,11 @@ Primitive.prototype = Object.assign( Object.create( State.prototype ), {
                 needUpdate: true,
             };
             bufferInfo[ IndicesKey ] = indices;
-            bufferInfo.numElements = typedIndices.length;
+            bufferInfo.numElements = typedIndices.length - this._offset;
             bufferInfo.elementType = getGLTypeFromTypedArray( typedIndices );
 
-        } else {
-
-            let position = attribs[ ShaderParams.ATTRIB_POSITION_NAME ];
-            if ( ! position ) {
-
-                let positionKey;
-                Object.keys( attribs ).forEach( ( k ) => {
-
-                    if ( positionRE.test( k ) )
-                        positionKey = k;
-
-                } );
-                position = attribs[ positionKey ];
-
-            }
-            if ( position )
-                throw Error( 'primitive do not have position info' );
-
-            const {
-                data, offset, stride, numComponents,
-            } = position;
-            let numElements = 0;
-            const byteLenght = data.length * data.BYTES_PER_ELEMENT - offset;
-            if ( stride )
-                numElements = byteLenght / stride;
-            else
-                numElements = byteLenght / data.BYTES_PER_ELEMENT / numComponents;
-
-            if ( numComponents % 1 )
-                throw Error( 'can not get elemnet number from position array' );
-
-            bufferInfo.numElements = numElements;
-
-        }
+        } else
+            bufferInfo.numElements = guessNumberElementForNoIndices( attribs, this._offset );
 
         bufferInfo.needUpdate = true;
         bufferInfo.updateInfo = { count: 0, offset: 0 };
@@ -166,6 +168,45 @@ Primitive.prototype = Object.assign( Object.create( State.prototype ), {
         }
 
         return this;
+
+    },
+
+} );
+
+Object.defineProperties( Primitive.prototype, {
+
+    start: {
+
+        get() {
+
+            return this._offset === 0 ? 0 : this._offset - 1;
+
+        },
+
+    },
+
+    offset: {
+
+        get() {
+
+            return this._offset;
+
+        },
+
+        set( v ) {
+
+            if ( v !== this._offset ) {
+
+                this._offset = v;
+
+                if ( this.bufferInfo.indices )
+                    this.bufferInfo.numElements = this.bufferInfo.indices.data.length - this._offset;
+                else
+                    this.bufferInfo.numElements = guessNumberElementForNoIndices( this.bufferInfo.attribs, this._offset );
+
+            }
+
+        },
 
     },
 

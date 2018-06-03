@@ -377,9 +377,7 @@ function setTexture( gl, texture, gltex = gl.createTexture() ) {
 
     setTextureSamplers( gl, texture );
 
-    return {
-        texture: gltex,
-    };
+    return gltex;
 
 }
 
@@ -419,12 +417,12 @@ Object.assign( Textures.prototype, {
             texturesMap.set( texture, setTexture( this._gl, texture ) );
         else if ( texture.needUpdate ) {
 
-            setTexture( this._gl, texture, value.texture );
+            setTexture( this._gl, texture, value );
             texture.needUpdate = false; // eslint-disable-line
 
         } else if ( texture.needResize ) {
 
-            resizeTexture( this._gl, texture, value.texture );
+            resizeTexture( this._gl, texture, value );
             texture.needResize = false; // eslint-disable-line
 
         }

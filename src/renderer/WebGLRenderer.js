@@ -4,6 +4,8 @@ import { Programs, setUniforms } from './Programs';
 import { VertexArrays } from './VertexArrays';
 import { DefaultColor } from '../core/constant';
 
+const shaders = new Map();
+
 const enableMap = {
 
     blend: 'BLEND',
@@ -136,11 +138,11 @@ Object.assign( WebGLRenderer.prototype, {
 
     },
 
-    applyStates( programInfo, model ) {
+    applyStates( programInfo, material ) {
 
         Object.keys( enableMap ).forEach( ( key ) => {
 
-            if ( programInfo[ key ] || model[ key ] )
+            if ( programInfo[ key ] || material[ key ] )
                 this.context.enable( this.context[ enableMap[ key ] ] );
             else
                 this.context.disable( this.context[ enableMap[ key ] ] );
@@ -149,11 +151,23 @@ Object.assign( WebGLRenderer.prototype, {
 
     },
 
-    render( shader, model ) {
+    render( model ) {
+
+
+        const { material, primitive } = model;
+
+        let shader;
+        if ( shaders.has( material.ShaderType ) )
+            shader = shaders.get( material.ShaderType );
+        else {
+
+            shader = new material.ShaderType();
+            shaders.set( material.ShaderType, shader );
+
+        }
 
         const { programInfo } = shader;
-        const { primitive, instanceCount } = model;
-        const { vaoInfo } = primitive;
+        const { vaoInfo, start } = primitive;
         const { bufferInfo } = vaoInfo;
 
         primitive.updateVaoInfo( programInfo );
@@ -165,17 +179,20 @@ Object.assign( WebGLRenderer.prototype, {
         const { uniformSetters } = programInfo;
 
         this.context.useProgram( program );
-        this.applyStates( programInfo, model );
-        setUniforms( uniformSetters, model.uniformObj );
+        this.applyStates( programInfo, material );
+        shader.setUniformObj( material.uniformObj );
+        setUniforms( uniformSetters, shader.uniformObj );
         this.context.bindVertexArray( vao );
 
-        const isIndexed = ( bufferInfo.indices || bufferInfo.elementType );
+        const { drawMode, instanceCount } = material;
+        const { indices, numElements, elementType } = bufferInfo;
+        const isIndexed = ( indices || elementType );
         const drawFun = `draw${isIndexed ? 'Elements' : 'Arrays'}${( typeof instanceCount === 'number' ) ? 'Instanced' : ''}`;
 
         if ( isIndexed )
-            this.context[ drawFun ]( model.drawMode, bufferInfo.numElements, bufferInfo.elementType, primitive.offset, instanceCount );
+            this.context[ drawFun ]( drawMode, numElements, elementType, start, instanceCount );
         else
-            this.context[ drawFun ]( model.drawMode, primitive.offset, bufferInfo.numElements, instanceCount );
+            this.context[ drawFun ]( drawMode, start, numElements, instanceCount );
 
         this.context.bindVertexArray( null );
 

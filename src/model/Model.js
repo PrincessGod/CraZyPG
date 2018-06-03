@@ -3,6 +3,7 @@ import { Primitive } from './Primitive';
 
 let modelCount = 0;
 
+// props { ...Primitive.props, enablePick=true, material }
 function Model( primitiveLike, props = {} ) {
 
     Node.call( this, props.name || `NO_NAME_MODEL${modelCount ++}` );
@@ -11,10 +12,10 @@ function Model( primitiveLike, props = {} ) {
     if ( ! ( primitiveLike instanceof Primitive ) )
         primitive = new Primitive( primitiveLike, props );
 
-    const { enablePick, uniformObj } = props;
+    const { material, enablePick } = props;
+    this.material = material;
     this.primitive = primitive;
     this.enablePick = enablePick === undefined ? true : !! enablePick;
-    this._uniformObj = uniformObj || {};
 
 }
 
@@ -57,13 +58,6 @@ Model.prototype = Object.assign( Object.create( Node.prototype ), {
 
     },
 
-    setUniformObj( obj ) {
-
-        Object.assign( this._uniformObj, obj );
-        return this;
-
-    },
-
 } );
 
 
@@ -94,16 +88,6 @@ Object.defineProperties( Model.prototype, {
         get() {
 
             return this.transform.matrix.raw;
-
-        },
-
-    },
-
-    uniformObj: {
-
-        get() {
-
-            return this._uniformObj;
 
         },
 
@@ -167,131 +151,6 @@ Object.defineProperties( Model.prototype, {
         set( arrayQuat ) {
 
             this.setQuaternion( arrayQuat );
-
-        },
-
-    },
-
-    drawMode: {
-
-        get() {
-
-            if ( this._drawMode !== undefined )
-                return this._drawMode;
-            return this.primitive.drawMode;
-
-        },
-
-        set( v ) {
-
-            this._drawMode = v;
-
-        },
-
-    },
-
-    cullFace: {
-
-        get() {
-
-            if ( this._cullFace !== undefined )
-                return this._cullFace;
-            return this.primitive.cullFace;
-
-        },
-
-        set( v ) {
-
-            this._cullFace = v;
-
-        },
-
-    },
-
-    blend: {
-
-        get() {
-
-            if ( this._blend !== undefined )
-                return this._blend;
-            return this.primitive.blend;
-
-        },
-
-        set( v ) {
-
-            this._blend = v;
-
-        },
-
-    },
-
-    depth: {
-
-        get() {
-
-            if ( this._depth !== undefined )
-                return this._depth;
-            return this.primitive.depth;
-
-        },
-        set( v ) {
-
-            this._depth = v;
-
-        },
-
-    },
-
-    sampleBlend: {
-
-        get() {
-
-            if ( this._sampleBlend !== undefined )
-                return this._sampleBlend;
-            return this.primitive.sampleBlend;
-
-        },
-
-        set( v ) {
-
-            this._sampleBlend = v;
-
-        },
-
-    },
-
-    polygonOffset: {
-
-        get() {
-
-            if ( this._polygonOffset !== undefined )
-                return this._polygonOffset;
-            return this.primitive.polygonOffset;
-
-        },
-
-        set( v ) {
-
-            this._polygonOffset = v;
-
-        },
-
-    },
-
-    instanceCount: {
-
-        get() {
-
-            if ( this._instanceCount !== undefined )
-                return this._instanceCount;
-            return this.primitive.instanceCount;
-
-        },
-
-        set( v ) {
-
-            this._instanceCount = v;
 
         },
 
