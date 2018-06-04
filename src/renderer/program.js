@@ -1035,10 +1035,7 @@ export {
     setUniforms,
 
     createUniformBlockSpec,
-    createUniformBlockInfo,
     createUniformBlockInfos,
-    setUniformBlock,
-    setBlockUniforms,
     setBlockUniformsForProgram,
 
     createTransformFeedbackInfo,
