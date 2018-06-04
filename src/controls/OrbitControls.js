@@ -56,6 +56,7 @@ function OrbitControls( camera, domElement, controler ) {
     this._scale = 1;
     this._panOffset = new Vector3();
     this._isMouseUp = true;
+    this._isTouchUp = true;
 
     // pan
     this._vPan = new Vector3();
@@ -144,13 +145,14 @@ Object.assign( OrbitControls.prototype, {
             this._sphericalDump.phi *= ( 1 - this.dampingFactor );
             this._zoomFrag *= ( 1 - this.zoomFactor );
 
-            if ( this._isMouseUp ) {
+            if ( ! this._isMouseUp || ! this._isTouchUp )
+                this._sphericalDelta.set( 0, 0, 0 );
+            else {
 
                 this._sphericalDelta.theta = this._sphericalDump.theta;
                 this._sphericalDelta.phi = this._sphericalDump.phi;
 
-            } else
-                this._sphericalDelta.set( 0, 0, 0 );
+            }
 
         } else {
 
@@ -537,7 +539,7 @@ Object.assign( OrbitControls.prototype, {
 
         if ( this.enable === false ) return;
 
-        this._isMouseUp = false;
+        this._isTouchUp = false;
 
         switch ( event.touches.length ) {
 
@@ -626,7 +628,7 @@ Object.assign( OrbitControls.prototype, {
 
         if ( this.enable === false ) return;
 
-        this._isMouseUp = true;
+        this._isTouchUp = true;
 
         this._state = this.STATE.NONE;
 
