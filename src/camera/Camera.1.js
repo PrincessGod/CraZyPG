@@ -1,20 +1,15 @@
 import { Matrix4 } from '../math/Matrix4';
+import { Transform } from '../model/Transform';
 import { Vector3 } from '../math/Vector3';
 import { PMath } from '../math/Math';
-import { Node } from '../model/Node';
 
-let cameraCount = 0;
-function Camera( name ) {
+function Camera() {
 
-    Node.call( this, name );
+    this.transform = new Transform();
     this.projMat = Matrix4.identity();
     this.viewMat = Matrix4.identity();
     this.target = new Vector3();
     this.up = new Vector3( 0, 1, 0 );
-    this._uniformObj = {
-        u_viewMat: this.viewMat,
-        u_projMat: this.projMat,
-    };
 
 }
 
@@ -56,11 +51,11 @@ Object.defineProperties( Camera.prototype, {
 
     },
 
-    uniformObj: {
+    isCamera: {
 
         get() {
 
-            return this._uniformObj;
+            return true;
 
         },
 
@@ -109,9 +104,9 @@ Object.assign( Camera.prototype, {
 
 } );
 
-function PerspectiveCamera( fov = 45, aspectRatio = 1.5, near = 0.01, far = 1000, fixAspectRatio = false, name = `NO_NAME_PERSPECTIVE_CAMERA${cameraCount ++}` ) {
+function PerspectiveCamera( fov = 45, aspectRatio = 1.5, near = 0.01, far = 1000, fixAspectRatio = false ) {
 
-    Camera.call( this, name );
+    Camera.call( this );
 
     this.fov = fov;
     this.aspectRatio = aspectRatio;
@@ -158,9 +153,9 @@ Object.defineProperties( PerspectiveCamera.prototype, {
 
 } );
 
-function OrthographicCamera( size, aspectRatio, near = 1, far = size * 2, fixAspectRatio = false, name = `NO_NAME_ORTHOGRAPHIC_CAMERA${cameraCount ++}` ) {
+function OrthographicCamera( size, aspectRatio, near = 1, far = size * 2, fixAspectRatio = false ) {
 
-    Camera.call( this, name );
+    Camera.call( this );
 
     this.size = size;
     this.aspectRatio = aspectRatio;

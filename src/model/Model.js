@@ -3,19 +3,20 @@ import { Primitive } from './Primitive';
 
 let modelCount = 0;
 
-// props { ...Primitive.props, enablePick=true, material }
-function Model( primitiveLike, props = {} ) {
+// opts { ...Primitive.opts, enablePick=true, material }
+function Model( primitiveLike, opts = {} ) {
 
-    Node.call( this, props.name || `NO_NAME_MODEL${modelCount ++}` );
+    Node.call( this, opts.name || `NO_NAME_MODEL${modelCount ++}` );
 
     let primitive = primitiveLike;
     if ( ! ( primitiveLike instanceof Primitive ) )
-        primitive = new Primitive( primitiveLike, props );
+        primitive = new Primitive( primitiveLike, opts );
 
-    const { material, enablePick } = props;
+    const { material, enablePick } = opts;
     this.material = material;
     this.primitive = primitive;
     this.enablePick = enablePick === undefined ? true : !! enablePick;
+    this._uniformObj = {};
 
 }
 
@@ -63,16 +64,6 @@ Model.prototype = Object.assign( Object.create( Node.prototype ), {
 
 Object.defineProperties( Model.prototype, {
 
-    isModel: {
-
-        get() {
-
-            return true;
-
-        },
-
-    },
-
     normMat: {
 
         get() {
@@ -88,6 +79,19 @@ Object.defineProperties( Model.prototype, {
         get() {
 
             return this.transform.matrix.raw;
+
+        },
+
+    },
+
+    uniformObj: {
+
+        get() {
+
+            return Object.assign( this._uniformObj, {
+                u_modelMat: this.transform.matrix.raw,
+                u_normalMat: this.transform.normMat,
+            } );
 
         },
 

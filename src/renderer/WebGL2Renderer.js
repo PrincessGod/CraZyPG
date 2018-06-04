@@ -153,9 +153,9 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    updateUniforms( uniformSetters, shader, material ) {
+    updateUniforms( uniformSetters, shader, material, camera, model ) {
 
-        shader.setUniformObj( material.uniformObj );
+        shader.setUniformObj( material.uniformObj ).setUniformObj( camera.uniformObj ).setUniformObj( model.uniformObj );
 
         const uniforms = Object.assign( {}, shader.uniformObj );
         Object.keys( uniforms ).forEach( ( uniformName ) => {
@@ -170,7 +170,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    render( model ) {
+    render( model, camera ) {
 
 
         const { material, primitive } = model;
@@ -199,7 +199,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
         this.context.useProgram( program );
         this.applyStates( programInfo, material );
-        this.updateUniforms( uniformSetters, shader, material );
+        this.updateUniforms( uniformSetters, shader, material, camera, model );
         this.context.bindVertexArray( vao );
 
         const { drawMode, instanceCount } = material;

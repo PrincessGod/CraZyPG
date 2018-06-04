@@ -64,10 +64,14 @@
     out vec4 vColor;
     out vec2 vUv;
 
+    uniform mat4 u_modelMat;
+    uniform mat4 u_viewMat;
+    uniform mat4 u_projMat;
+
     void main() {
         vColor = color;
         vUv = uv;
-        gl_Position = vec4(position, 1.0);
+        gl_Position = u_projMat * u_viewMat * u_modelMat * vec4(position, 1.0);
     }
     </script>
     <script id="fs" type="shader-fs">
@@ -108,9 +112,14 @@
         }
 
         window.addEventListener('load', function() {
-            window.ren = new CZPG.WebGL2Renderer('glpaper');
+            window.renderer = new CZPG.WebGL2Renderer('glpaper');
+            window.scene = new CZPG.Scene( renderer );
             window.tex = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
-
+            window.camera = new CZPG.PerspectiveCamera(45, renderer.canvas.width/renderer.canvas.height);
+            renderer.setSize( '100%', '100%' );
+            let cameraControler = new CZPG.OrbitControls(camera, renderer.canvas, scene.controler);
+            cameraControler.enableDamping = true;
+            camera.position = [0, 0, 3];
             const positions = [
                 -0.5, 0.5, 0.0, // v0
                 0.5, 0.5, 0.0, // v1
@@ -141,12 +150,21 @@
             attribArrays['uv'] = { data: uvs, numComponents: 2 };
             attribArrays['color'] = { data: colors, numComponents: 4 };
             // window.pr = new CZPG.Primitive(attribArrays, {name:'tt'});
-            window.mat = new TestMaterial( { uniformObj: { u_texture:tex } } )
-            window.mo = new CZPG.Model(attribArrays, {name: 't2', material: mat, offset: 3 });
-            ren.setSize( '100%', '100%' ).fixCanvasToDisplay(window.devicePixelRatio);
-            ren.render(mo);
+            window.material = new TestMaterial( { uniformObj: { u_texture:tex } } )
+            window.model = new CZPG.Model(attribArrays, {name: 't2', material, offset: 3 });
+            const primitive = model.primitive;
+            scene.add(model);
+            scene.currentCamera = camera;
 
-            setTimeout(()=>{ ren.render(mo); }, 1000);
+            window.loop = new CZPG.Render(function(timespan) {
+                if(renderer.fixCanvasToDisplay(window.devicePixelRatio))
+                    camera.updateProjMatrix( renderer.canvas.width / renderer.canvas.height );
+                cameraControler.update();
+
+                primitive.offset = 3 - 3 * Math.ceil( Math.sin( loop.lastTime * 0.003 ) )
+
+                scene.render();
+            }).start();
 
         });
 
