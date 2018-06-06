@@ -403,7 +403,7 @@ function floatAttribSetter( gl, buffers, index ) {
 
         gl.bindBuffer( gl.ARRAY_BUFFER, getBuffer( buffers, b ) );
         gl.enableVertexAttribArray( index );
-        gl.vertexAttribPointer( index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0 );
+        gl.vertexAttribPointer( index, b.numComponents, b.type, b.normalize, b.stride, b.offset );
 
         if ( b.divisor !== undefined )
             gl.vertexAttribDivisor( index, b.divisor );
@@ -418,7 +418,7 @@ function intAttribSetter( gl, buffers, index ) {
 
         gl.bindBuffer( gl.ARRAY_BUFFER, getBuffer( buffers, b ) );
         gl.enableVertexAttribArray( index );
-        gl.vertexAttribIPointer( index, b.numComponents || b.size, b.type || gl.INT, b.stride || 0, b.offset || 0 );
+        gl.vertexAttribIPointer( index, b.numComponents, b.type, b.stride, b.offset );
 
         if ( b.divisor !== undefined )
             gl.vertexAttribDivisor( index, b.divisor );
@@ -435,13 +435,13 @@ function matAttribSetter( gl, buffers, index, typeInfo ) {
     return function ( b ) {
 
         gl.bindBuffer( gl.ARRAY_BUFFER, buffers.get( b ) );
-        const numComponents = b.size || b.numComponents || defaultSize;
+        const numComponents = b.numComponents || defaultSize;
         const size = numComponents / count;
-        const type = b.type || gl.FLOAT;
+        const type = b.type;
         const typeInfoNew = typeMap[ type ];
         const stride = typeInfoNew.size * numComponents;
-        const normalize = b.normalize || false;
-        const offset = b.offset || 0;
+        const normalize = b.normalize;
+        const offset = b.offset;
         const rowOffset = stride / count;
         for ( let i = 0; i < count; ++ i ) {
 

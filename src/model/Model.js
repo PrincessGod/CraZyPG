@@ -6,7 +6,7 @@ let modelCount = 0;
 // opts { ...Primitive.opts, enablePick=true, material }
 function Model( primitiveLike, opts = {} ) {
 
-    Node.call( this, opts.name || `NO_NAME_MODEL${modelCount ++}` );
+    Node.call( this, primitiveLike.name || opts.name || `NO_NAME_MODEL${modelCount ++}` );
 
     let primitive = primitiveLike;
     if ( ! ( primitiveLike instanceof Primitive ) )

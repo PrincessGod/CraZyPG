@@ -154,6 +154,11 @@
             window.model = new CZPG.Model(attribArrays, {name: 't2', material, offset: 3 });
             const primitive = model.primitive;
             scene.add(model);
+
+            var grid = new CZPG.Model(new CZPG.GridAxis(), { material: new CZPG.GridAxisMaterial() });
+            scene.add(grid);
+
+
             scene.currentCamera = camera;
 
             window.loop = new CZPG.Render(function(timespan) {

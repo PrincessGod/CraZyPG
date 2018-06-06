@@ -47,3 +47,4 @@ export * from './renderer/WebGL2Renderer.js';
 export * from './model/Primitive.js';
 export * from './shader/ProgramInfo.js';
 export * from './shader/Material.js';
+export * from './model/primitives/index.js';

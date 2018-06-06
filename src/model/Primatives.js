@@ -517,4 +517,4 @@ const Curve = {
 
 };
 
-export { Mesh, GridAxis, Quad, Cube, Sphere, deIndexAttribs, addBarycentricAttrib, Curve };
+export { Mesh, Quad, Cube, Sphere, deIndexAttribs, addBarycentricAttrib, Curve };

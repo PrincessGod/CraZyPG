@@ -42,7 +42,7 @@ function guessNumberElementForNoIndices( attribs, primitiveOffset ) {
         position = attribs[ positionKey ];
 
     }
-    if ( position )
+    if ( ! position )
         throw Error( 'primitive do not have position info' );
 
     const {
@@ -105,8 +105,8 @@ Object.assign( Primitive.prototype, {
                     typedData = new Float32Array( array.data );
 
                 array.data = typedData;
-                const type = getGLTypeFromTypedArray( typedData );
-                const numComponents = getNumComponents( typedData, key );
+                const type = array.type || getGLTypeFromTypedArray( typedData );
+                const numComponents = array.numComponents || getNumComponents( typedData, key );
 
                 attribs[ attribName ] = {
                     data: typedData,
@@ -119,6 +119,7 @@ Object.assign( Primitive.prototype, {
                     usage: array.usage || BufferParams.STATIC_DRAW,
                     target: array.target || BufferParams.ARRAY_BUFFER,
                     needUpdate: true,
+                    updateInfo: { count: 0, offset: 0 },
                 };
 
             }
@@ -141,6 +142,7 @@ Object.assign( Primitive.prototype, {
                 usage: BufferParams.STATIC_DRAW,
                 target: BufferParams.ELEMENT_ARRAY_BUFFER,
                 needUpdate: true,
+                updateInfo: { count: 0, offset: 0 },
             };
             bufferInfo[ IndicesKey ] = indices;
             bufferInfo.numElements = typedIndices.length - this._offset;
@@ -149,8 +151,6 @@ Object.assign( Primitive.prototype, {
         } else
             bufferInfo.numElements = guessNumberElementForNoIndices( attribs, this._offset );
 
-        bufferInfo.needUpdate = true;
-        bufferInfo.updateInfo = { count: 0, offset: 0 };
         this.bufferInfo = bufferInfo;
         this.vaoInfo.bufferInfo = bufferInfo;
 

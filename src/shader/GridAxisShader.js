@@ -1,26 +1,39 @@
 import { Shader } from './Shader';
+import { Material } from './Material';
+import { BeginMode } from '../core/constant';
 import vs from './shadersrc/gridaxis.vs.glsl';
 import fs from './shadersrc/gridaxis.fs.glsl';
 
-function GridAxisShader( gl ) {
+function GridAxisShader() {
 
-    Shader.call( this, gl, GridAxisShader.vs, GridAxisShader.fs );
-
-    this.setUniformObj( { u_colors: [ 0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1 ] } );
-
-    this.deactivate();
+    Shader.call( this, vs, fs );
 
 }
 
 GridAxisShader.prototype = Object.assign( Object.create( Shader.prototype ), {
+
     constructor: GridAxisShader,
-} );
-
-Object.assign( GridAxisShader, {
-
-    vs,
-    fs,
 
 } );
 
-export { GridAxisShader };
+function GridAxisMaterial( opts = {} ) {
+
+    const defaultOpts = {
+        polygon: true,
+        polygonOffset: [ 1, 1 ],
+        drawMode: BeginMode.LINES,
+    };
+
+    Material.call( this, GridAxisShader, Object.assign( opts, defaultOpts ) );
+
+    this.setUniformObj( { u_colors: [ 0.5, 0.5, 0.5, 1, 0, 0, 0, 1, 0, 0, 0, 1 ] } );
+
+}
+
+GridAxisMaterial.prototype = Object.assign( Object.create( Material.prototype ), {
+
+    constructor: GridAxisMaterial,
+
+} );
+
+export { GridAxisMaterial };

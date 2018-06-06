@@ -216,22 +216,6 @@ function States( gl ) {
 
     } ).bind( gl );
 
-    const disableVertexAttribArray = _h( gl.disableVertexAttribArray, ( index ) => {
-
-        const cached = ( cache.disableVertexAttribArrayIndex === index );
-        cache.disableVertexAttribArrayIndex = index;
-        return cached;
-
-    } ).bind( gl );
-
-    const enableVertexAttribArray = _h( gl.enableVertexAttribArray, ( index ) => {
-
-        const cached = ( cache.enableVertexAttribArrayIndex === index );
-        cache.enableVertexAttribArrayIndex = index;
-        return cached;
-
-    } ).bind( gl );
-
     const blendColor = _h( gl.blendColor, ( r, g, b, a ) => {
 
         const cached = ( cache.blendColor.r === r && cache.blendColor.g === g && cache.blendColor.b === b && cache.blendColor.a === a );
@@ -306,8 +290,6 @@ function States( gl ) {
         lineWidth,
         pixelStorei,
         polygonOffset,
-        disableVertexAttribArray,
-        enableVertexAttribArray,
         blendColor,
         blendEquationSeparate,
         blendFuncSeparate,
