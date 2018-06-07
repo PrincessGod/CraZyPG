@@ -28,8 +28,12 @@ Object.assign( Scene.prototype, {
             if ( Array.isArray( arg ) )
                 return this.add( ...arg );
 
-            if ( arg instanceof Model )
+            if ( arg instanceof Model ) {
+
+                this.root.addChild( arg );
                 return this.models.push( arg );
+
+            }
 
             return console.warn( 'unknow type add into scene' );
 
@@ -41,6 +45,7 @@ Object.assign( Scene.prototype, {
 
     render() {
 
+        this.root.updateMatrix();
         this.models.forEach( m => this.renderer.render( m, this.currentCamera ) );
 
     },

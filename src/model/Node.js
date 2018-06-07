@@ -141,10 +141,10 @@ Object.assign( Node, {
             if ( parent ) {
 
                 node.transform.updateMatrix();
-                Matrix4.mult( node.worldMatrix.raw, parent.worldMatrix.raw, node.matrix.raw );
+                Matrix4.mult( node.worldMatrix.raw, parent.worldMatrix.raw, node.transform.matrix.raw );
 
             } else
-                Matrix4.copy( node.worldMatrix.raw, node.matrix.raw );
+                Matrix4.copy( node.worldMatrix.raw, node.transform.matrix.raw );
 
     },
 
@@ -228,17 +228,13 @@ Object.assign( Node.prototype, {
 
     },
 
-    addChild( nodelike ) {
-
-        let node = nodelike;
-        if ( typeof nodelike === 'string' || nodelike.isModel || nodelike.isCamera )
-            node = new Node( nodelike );
+    addChild( node ) {
 
         if ( node.parent )
             Node.remove( node );
 
         this.children.push( node );
-        node.parent = this;
+        node.parent = this; // eslint-disable-line
 
         return this;
 
@@ -279,22 +275,6 @@ Object.assign( Node.prototype, {
         this.traverse( Node.updateMatrixMarker );
         this.traverseTwoExeFun( Node.updateWorldMatrix, Node.updateNormalAndDirection );
         this.traverse( Node.afterUpdateMatrix );
-        return this;
-
-    },
-
-    setCamera( camera ) {
-
-        if ( this.transform )
-            camera.setTransform( this.transform.clone() );
-
-        camera.node = this; // eslint-disable-line
-        this.camera = camera;
-        this.name = this.camera.name || `NODE_${nodeCount ++}_CAMERA`;
-        this.camera.name = this.name;
-        this.transform = this.camera.transform;
-        this.needUpdateWorldMatrix = true;
-
         return this;
 
     },

@@ -5,7 +5,7 @@ function State( opts = {} ) {
     } = opts;
 
     this.blend = !! blend;
-    this.cull = !! cull;
+    this.cull = cull === undefined ? true : !! cull;
     this.depth = depth === undefined ? true : !! depth;
     this.polygon = !! polygon;
     this.sampleBlend = !! sampleBlend;

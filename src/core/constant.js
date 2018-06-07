@@ -25,7 +25,7 @@ export const ShaderParams = makeReadonlyObj( {
     ATTRIB_NORMAL_LOC: 2,
     ATTRIB_BARYCENTRIC_NAME: 'a_barycentric',
     ATTRIB_BARYCENTRIC_LOC: 4,
-    UNIFORM_WORLD_MAT_NAME: 'u_worldMat',
+    UNIFORM_Model_MAT_NAME: 'u_modelMat',
     UNIFORM_VIEW_MAT_NAME: 'u_viewMat',
     UNIFORM_PROJ_MAT_NAME: 'u_projMat',
     UNIFORM_MVP_MAT_NAME: 'u_mvpMat',

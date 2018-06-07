@@ -3,7 +3,8 @@ import { BufferInfos } from './BufferInfos';
 import { Textures } from './Textures';
 import { Programs, setUniforms } from './Programs';
 import { VertexArrays } from './VertexArrays';
-import { DefaultColor } from '../core/constant';
+import { DefaultColor, ShaderParams } from '../core/constant';
+import { Matrix4 } from '../math/Matrix4';
 
 const shaders = new Map();
 
@@ -158,6 +159,38 @@ Object.assign( WebGL2Renderer.prototype, {
         shader.setUniformObj( material.uniformObj ).setUniformObj( camera.uniformObj ).setUniformObj( model.uniformObj );
 
         const uniforms = Object.assign( {}, shader.uniformObj );
+
+        Object.keys( uniformSetters ).forEach( ( uniform ) => {
+
+            switch ( uniform ) {
+
+            case ShaderParams.UNIFORM_MVP_MAT_NAME:
+                if ( ! material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ] ) {
+
+                    const mvpMat = {};
+                    mvpMat[ ShaderParams.UNIFORM_MVP_MAT_NAME ] = Matrix4.identity();
+                    material.setUniformObj( mvpMat );
+
+                }
+                Matrix4.mult(
+                    material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ],
+                    camera.uniformObj[ ShaderParams.UNIFORM_PROJ_MAT_NAME ],
+                    camera.uniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ],
+                );
+                Matrix4.mult(
+                    material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ],
+                    material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ],
+                    model.uniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ],
+                );
+                uniforms[ ShaderParams.UNIFORM_MVP_MAT_NAME ] = material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ];
+                break;
+            default:
+                break;
+
+            }
+
+        } );
+
         Object.keys( uniforms ).forEach( ( uniformName ) => {
 
             const textureInfo = uniforms[ uniformName ].textureInfo;

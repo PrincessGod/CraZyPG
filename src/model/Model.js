@@ -1,5 +1,6 @@
 import { Node } from './Node';
 import { Primitive } from './Primitive';
+import { ShaderParams } from '../core/constant';
 
 let modelCount = 0;
 
@@ -16,7 +17,9 @@ function Model( primitiveLike, opts = {} ) {
     this.material = material;
     this.primitive = primitive;
     this.enablePick = enablePick === undefined ? true : !! enablePick;
-    this._uniformObj = {};
+    this._innerUniformObj = {};
+    this._innerUniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ] = this.transform.matrix.raw;
+    this._innerUniformObj[ ShaderParams.UNIFORM_NORMAL_MAT_NAME ] = this.transform.normMat;
 
 }
 
@@ -88,10 +91,7 @@ Object.defineProperties( Model.prototype, {
 
         get() {
 
-            return Object.assign( this._uniformObj, {
-                u_modelMat: this.transform.matrix.raw,
-                u_normalMat: this.transform.normMat,
-            } );
+            return this._innerUniformObj;
 
         },
 

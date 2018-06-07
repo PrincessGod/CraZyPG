@@ -2,6 +2,7 @@ import { Matrix4 } from '../math/Matrix4';
 import { Vector3 } from '../math/Vector3';
 import { PMath } from '../math/Math';
 import { Node } from '../model/Node';
+import { ShaderParams } from '../core/constant';
 
 let cameraCount = 0;
 function Camera( name ) {
@@ -11,10 +12,9 @@ function Camera( name ) {
     this.viewMat = Matrix4.identity();
     this.target = new Vector3();
     this.up = new Vector3( 0, 1, 0 );
-    this._uniformObj = {
-        u_viewMat: this.viewMat,
-        u_projMat: this.projMat,
-    };
+    this._innerUniformObj = {};
+    this._innerUniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ] = this.viewMat;
+    this._innerUniformObj[ ShaderParams.UNIFORM_PROJ_MAT_NAME ] = this.projMat;
 
 }
 
@@ -60,7 +60,7 @@ Object.defineProperties( Camera.prototype, {
 
         get() {
 
-            return this._uniformObj;
+            return this._innerUniformObj;
 
         },
 
