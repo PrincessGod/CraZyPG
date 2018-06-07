@@ -1,14 +1,11 @@
 import { Shader } from './Shader';
+import { Material } from './Material';
 import vs from './shadersrc/singleTexture.vs.glsl';
 import fs from './shadersrc/singleTexture.fs.glsl';
 
-function FlatTextureShader( gl, texture ) {
+function FlatTextureShader() {
 
-    Shader.call( this, gl, FlatTextureShader.vs, FlatTextureShader.fs );
-
-    this.setUniformObj( { u_texture: texture } );
-
-    this.deactivate();
+    Shader.call( this, vs, fs );
 
 }
 
@@ -18,11 +15,19 @@ FlatTextureShader.prototype = Object.assign( Object.create( Shader.prototype ), 
 
 } );
 
-Object.assign( FlatTextureShader, {
+// { texture }
+function FlatTextureMaterial( opts = {} ) {
 
-    vs,
-    fs,
+    Material.call( this, FlatTextureShader, opts );
+    if ( opts.texture )
+        this.setUniformObj( { u_texture: opts.texture } );
+
+}
+
+FlatTextureMaterial.prototype = Object.assign( Object.create( Material.prototype ), {
+
+    constructor: FlatTextureMaterial,
 
 } );
 
-export { FlatTextureShader };
+export { FlatTextureMaterial };

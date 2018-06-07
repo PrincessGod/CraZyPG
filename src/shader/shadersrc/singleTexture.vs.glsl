@@ -4,7 +4,7 @@ in vec2 a_uv;
 
 uniform mat4 u_mvpMat;
 
-out highp vec2 v_uv;
+out vec2 v_uv;
 
 void main() {
     v_uv = a_uv;

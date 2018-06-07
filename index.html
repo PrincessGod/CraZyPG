@@ -146,11 +146,11 @@
             const attribArrays = {
                 indices: { data: indices },
             };
-            attribArrays['position'] = { data: positions, numComponents: 3 };
-            attribArrays['uv'] = { data: uvs, numComponents: 2 };
-            attribArrays['color'] = { data: colors, numComponents: 4 };
+            attribArrays['a_position'] = { data: positions, numComponents: 3 };
+            attribArrays['a_uv'] = { data: uvs, numComponents: 2 };
+            // attribArrays['color'] = { data: colors, numComponents: 4 };
             // window.pr = new CZPG.Primitive(attribArrays, {name:'tt'});
-            window.material = new TestMaterial( { uniformObj: { u_texture:tex } } )
+            window.material = new CZPG.FlatTextureMaterial({texture: tex});
             window.model = new CZPG.Model(attribArrays, {name: 't2', material, offset: 3 });
             const primitive = model.primitive;
             scene.add(model);
