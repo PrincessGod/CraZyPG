@@ -1,13 +1,17 @@
 import { ShaderParams } from '../../core/constant';
 import { Primitive } from '../Primitive';
 
-function GridAxis( name = 'GridAxis', size, div ) {
+// { ...Primitive.opts, size, div }
+function GridAxis( opts ) {
 
-    Primitive.call( this, this.createAttribArrays( size, div ), { name } );
+    const { size, div } = opts;
+    Primitive.call( this, this.createAttribArrays( size, div ), Object.assign( { name: 'GridAxis' }, opts ) );
 
 }
 
 GridAxis.prototype = Object.assign( Object.create( Primitive.prototype ), {
+
+    constructor: GridAxis,
 
     createAttribArrays( size = 10, div = 20 ) {
 

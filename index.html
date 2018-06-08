@@ -120,44 +120,21 @@
             let cameraControler = new CZPG.OrbitControls(camera, renderer.canvas, scene.controler);
             cameraControler.enableDamping = true;
             camera.position = [0, 0, 3];
-            const positions = [
-                -0.5, 0.5, 0.0, // v0
-                0.5, 0.5, 0.0, // v1
-                -0.5,-0.5, 0.0, // v2
-                0.5,-0.5, 0.0  // v3
-            ];
-            const uvs = [
-                0, 0,
-                1, 0,
-                0, 1,
-                1, 1,
-            ]
-            const colors = [
-                1.0, 0.0, 0.0, 1.0, // v0
-                0.0, 1.0, 0.0, 1.0, // v1
-                0.0, 0.0, 1.0, 1.0, // v2
-                1.0, 1.0, 0.0, 1.0  // v3
-            ];
-            const indices = [
-                2, 1, 0, // v2-v1-v0
-                2, 3, 1  // v2-v3-v1
-            ];
 
-            const attribArrays = {
-                indices: { data: indices },
-            };
-            attribArrays['a_position'] = { data: positions, numComponents: 3 };
-            attribArrays['a_uv'] = { data: uvs, numComponents: 2 };
-            // attribArrays['color'] = { data: colors, numComponents: 4 };
-            // window.pr = new CZPG.Primitive(attribArrays, {name:'tt'});
             window.material = new CZPG.FlatTextureMaterial({texture: tex});
-            window.model = new CZPG.Model(attribArrays, {name: 't2', material, offset: 3 });
-            const primitive = model.primitive;
+            window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), { material });
             scene.add(model);
 
-            var grid = new CZPG.Model(new CZPG.GridAxis(), { material: new CZPG.GridAxisMaterial() });
-            scene.add(grid);
+            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), { material } );
+            cube.position = [1, 0, 0];
+            scene.add(cube);
 
+            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3 }), { material } );
+            sphere.position = [-1, 0, 0];
+            scene.add(sphere);
+
+            var grid = new CZPG.Model(new CZPG.GridAxis({ size:1, div:1, offset: 2 }), { material: new CZPG.GridAxisMaterial() });
+            scene.add(grid);
 
             scene.currentCamera = camera;
 
@@ -166,8 +143,9 @@
                     camera.updateProjMatrix( renderer.canvas.width / renderer.canvas.height );
                 cameraControler.update();
 
-                primitive.offset = 3 - 3 * Math.ceil( Math.sin( loop.lastTime * 0.003 ) )
-
+                model.primitive.offset = 3 - 3 * Math.ceil( Math.sin( loop.lastTime * 0.003 ) );
+                cube.primitive.offset = 3 - 3 * Math.ceil( Math.sin( loop.lastTime * 0.003 ) );
+                grid.primitive.offset = 2 - 2 * Math.ceil( Math.sin( loop.lastTime * 0.006 ) );
                 scene.render();
             }).start();
 
