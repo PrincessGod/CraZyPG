@@ -49,7 +49,7 @@ function guessNumberElementForNoIndices( attribs, primitiveOffset ) {
         data, offset, stride, numComponents,
     } = position;
     let numElements = 0;
-    const byteLenght = ( data.length - primitiveOffset ) * data.BYTES_PER_ELEMENT - offset;
+    const byteLenght = ( data.length - primitiveOffset * numComponents ) * data.BYTES_PER_ELEMENT - offset;
     if ( stride )
         numElements = byteLenght / stride;
     else
@@ -174,16 +174,6 @@ Object.assign( Primitive.prototype, {
 } );
 
 Object.defineProperties( Primitive.prototype, {
-
-    start: {
-
-        get() {
-
-            return this._offset === 0 ? 0 : this._offset - 1;
-
-        },
-
-    },
 
     offset: {
 

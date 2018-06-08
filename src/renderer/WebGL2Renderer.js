@@ -219,7 +219,7 @@ Object.assign( WebGL2Renderer.prototype, {
         }
 
         const { programInfo } = shader;
-        const { vaoInfo, start } = primitive;
+        const { vaoInfo, offset } = primitive;
         const { bufferInfo } = vaoInfo;
 
         primitive.updateVaoInfo( programInfo );
@@ -241,9 +241,9 @@ Object.assign( WebGL2Renderer.prototype, {
         const drawFun = `draw${isIndexed ? 'Elements' : 'Arrays'}${( typeof instanceCount === 'number' ) ? 'Instanced' : ''}`;
 
         if ( isIndexed )
-            this.context[ drawFun ]( drawMode, numElements, elementType, start, instanceCount );
+            this.context[ drawFun ]( drawMode, numElements, elementType, offset * indices.data.BYTES_PER_ELEMENT, instanceCount );
         else
-            this.context[ drawFun ]( drawMode, start, numElements, instanceCount );
+            this.context[ drawFun ]( drawMode, offset, numElements, instanceCount );
 
         this.context.bindVertexArray( null );
 
