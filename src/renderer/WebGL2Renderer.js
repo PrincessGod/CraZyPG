@@ -5,6 +5,7 @@ import { Programs, setUniforms } from './Programs';
 import { VertexArrays } from './VertexArrays';
 import { DefaultColor, ShaderParams } from '../core/constant';
 import { Matrix4 } from '../math/Matrix4';
+import { pick } from '../core/utils';
 
 const shaders = new Map();
 
@@ -139,11 +140,11 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    applyStates( programInfo, material ) {
+    applyStates( material ) {
 
         Object.keys( enableMap ).forEach( ( key ) => {
 
-            if ( programInfo[ key ] || material[ key ] )
+            if ( material[ key ] )
                 this.context.enable( this.context[ enableMap[ key ] ] );
             else
                 this.context.disable( this.context[ enableMap[ key ] ] );
@@ -158,7 +159,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
         shader.setUniformObj( material.uniformObj ).setUniformObj( camera.uniformObj ).setUniformObj( model.uniformObj );
 
-        const uniforms = Object.assign( {}, shader.uniformObj );
+        const uniforms = pick( shader.uniformObj, Object.keys( uniformSetters ) );
 
         Object.keys( uniformSetters ).forEach( ( uniform ) => {
 
@@ -231,7 +232,7 @@ Object.assign( WebGL2Renderer.prototype, {
         const { uniformSetters } = programInfo;
 
         this.context.useProgram( program );
-        this.applyStates( programInfo, material );
+        this.applyStates( material );
         this.updateUniforms( uniformSetters, shader, material, camera, model );
         this.context.bindVertexArray( vao );
 

@@ -1,5 +1,3 @@
-import { State } from './State';
-
 function getHTMLElementSrc( id ) {
 
     const ele = document.getElementById( id );
@@ -28,10 +26,9 @@ function getShaderSrc( src ) {
 
 }
 
-// opts{ ...State.opts, transformFeedbackVaryings, validateProgram }
+// opts{ transformFeedbackVaryings, validateProgram }
 function ProgramInfo( vs, fs, opts = {} ) {
 
-    State.call( this, opts );
     this._vs = getShaderSrc( vs );
     this._fs = getShaderSrc( fs );
     this.opts = opts;
@@ -39,7 +36,7 @@ function ProgramInfo( vs, fs, opts = {} ) {
 
 }
 
-ProgramInfo.prototype = Object.assign( Object.create( State.prototype ), {
+Object.assign( ProgramInfo.prototype, {
 
     setSetters( attrib, uniform ) {
 
@@ -95,4 +92,3 @@ Object.defineProperties( ProgramInfo.prototype, {
 } );
 
 export { ProgramInfo };
-

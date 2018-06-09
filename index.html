@@ -112,11 +112,11 @@
         }
 
         window.addEventListener('load', function() {
-            window.renderer = new CZPG.WebGL2Renderer('glpaper');
+            window.renderer = new CZPG.WebGL2Renderer('glpaper').setSize( '100%', '100%' );
             window.scene = new CZPG.Scene( renderer );
             window.tex = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
-            window.camera = new CZPG.PerspectiveCamera(45, renderer.canvas.width/renderer.canvas.height);
-            renderer.setSize( '100%', '100%' );
+            window.camera = new CZPG.PerspectiveCamera(45, renderer.canvas.width / renderer.canvas.height);
+
             let cameraControler = new CZPG.OrbitControls(camera, renderer.canvas, scene.controler);
             cameraControler.enableDamping = true;
             camera.position = [0, 0, 3];
@@ -129,11 +129,11 @@
             cube.position = [1, 0, 0];
             scene.add(cube);
 
-            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3 }), { material } );
+            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3, subdivAixs: 40, subdivHeight: 20 }), { material } );
             sphere.position = [-1, 0, 0];
             scene.add(sphere);
 
-            var grid = new CZPG.Model(new CZPG.GridAxis({ size:1, div:1, offset: 2 }), { material: new CZPG.GridAxisMaterial() });
+            var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), { material: new CZPG.GridAxisMaterial() });
             scene.add(grid);
 
             scene.currentCamera = camera;
