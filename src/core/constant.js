@@ -31,7 +31,7 @@ export const ShaderParams = makeReadonlyObj( {
     UNIFORM_MVP_MAT_NAME: 'u_mvpMat',
     UNIFORM_VP_MAT_NAME: 'u_vpMat',
     UNIFORM_NORMAL_MAT_NAME: 'u_normMat',
-    UNIFORM_MAIN_TEXTURE_NAME: 'u_texture',
+    UNIFORM_BASE_TEXTURE_NAME: 'u_baseTexture',
     UNIFORM_PREFIX: 'u_',
     UNIFORM_CAMPOS: 'u_camPos',
     ATTRIB_JOINT_0_NAME: 'a_joint',
