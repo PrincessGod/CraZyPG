@@ -157,13 +157,24 @@ Object.assign( WebGL2Renderer.prototype, {
 
     updateUniforms( uniformSetters, shader, material, camera, model ) {
 
-        shader.setUniformObj( material.uniformObj ).setUniformObj( camera.uniformObj ).setUniformObj( model.uniformObj );
-
-        const uniforms = pick( shader.uniformObj, Object.keys( uniformSetters ) );
-
         Object.keys( uniformSetters ).forEach( ( uniform ) => {
 
             switch ( uniform ) {
+
+            case ShaderParams.UNIFORM_MV_MAT_NAME:
+                if ( ! material.uniformObj[ ShaderParams.UNIFORM_MV_MAT_NAME ] ) {
+
+                    const mvMat = {};
+                    mvMat[ ShaderParams.UNIFORM_MV_MAT_NAME ] = Matrix4.identity();
+                    material.setUniformObj( mvMat );
+
+                }
+                Matrix4.mult(
+                    material.uniformObj[ ShaderParams.UNIFORM_MV_MAT_NAME ],
+                    camera.uniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ],
+                    model.uniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ],
+                );
+                break;
 
             case ShaderParams.UNIFORM_MVP_MAT_NAME:
                 if ( ! material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ] ) {
@@ -183,8 +194,8 @@ Object.assign( WebGL2Renderer.prototype, {
                     material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ],
                     model.uniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ],
                 );
-                uniforms[ ShaderParams.UNIFORM_MVP_MAT_NAME ] = material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ];
                 break;
+
             default:
                 break;
 
@@ -192,15 +203,18 @@ Object.assign( WebGL2Renderer.prototype, {
 
         } );
 
-        Object.keys( uniforms ).forEach( ( uniformName ) => {
+        const usedUniforms = Object.keys( uniformSetters );
+        shader.setUniformObj( pick( material.uniformObj, usedUniforms ) ).setUniformObj( pick( camera.uniformObj, usedUniforms ) ).setUniformObj( pick( model.uniformObj, usedUniforms ) );
+        const updatedUniforms = shader.uniformObj;
+        Object.keys( updatedUniforms ).forEach( ( uniformName ) => {
 
-            const textureInfo = uniforms[ uniformName ].textureInfo;
+            const textureInfo = updatedUniforms[ uniformName ].textureInfo;
             if ( textureInfo )
-                uniforms[ uniformName ] = this.textures.update( textureInfo ).get( textureInfo );
+                updatedUniforms[ uniformName ] = this.textures.update( textureInfo ).get( textureInfo );
 
         } );
 
-        setUniforms( uniformSetters, uniforms );
+        setUniforms( uniformSetters, updatedUniforms );
 
     },
 

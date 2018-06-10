@@ -29,7 +29,7 @@ export const ShaderParams = makeReadonlyObj( {
     UNIFORM_VIEW_MAT_NAME: 'u_viewMat',
     UNIFORM_PROJ_MAT_NAME: 'u_projMat',
     UNIFORM_MVP_MAT_NAME: 'u_mvpMat',
-    UNIFORM_VP_MAT_NAME: 'u_vpMat',
+    UNIFORM_MV_MAT_NAME: 'u_mvMat',
     UNIFORM_NORMAL_MAT_NAME: 'u_normMat',
     UNIFORM_BASE_TEXTURE_NAME: 'u_baseTexture',
     UNIFORM_PREFIX: 'u_',
