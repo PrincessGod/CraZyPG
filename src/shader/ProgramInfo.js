@@ -1,3 +1,5 @@
+import { ShaderFactory } from './ShaderFactory';
+
 function getHTMLElementSrc( id ) {
 
     const ele = document.getElementById( id );
@@ -45,6 +47,25 @@ Object.assign( ProgramInfo.prototype, {
 
     },
 
+    compile( primitive, material ) {
+
+        const primitiveDefine = ShaderFactory.parseDefineObjFromPrimitive( primitive );
+        const materialDefine = ShaderFactory.parseDefineObjFromMaterial( material );
+        this._defines = Object.assign( primitiveDefine, materialDefine );
+        this._vs = ShaderFactory.parseVersion( material.verison ) +
+            ShaderFactory.parseShaderName( material.name ) +
+            ShaderFactory.parsePrecision( material.vertexPrecision ) +
+            ShaderFactory.parseDefineObj( this._defines ) +
+            ShaderFactory.parseIncludes( this._vs );
+
+        this._fs = ShaderFactory.parseVersion( material.verison ) +
+            ShaderFactory.parseShaderName( material.name ) +
+            ShaderFactory.parsePrecision( material.fragmentPrecision ) +
+            ShaderFactory.parseDefineObj( this._defines ) +
+            ShaderFactory.parseIncludes( this._vs );
+
+    },
+
 } );
 
 Object.defineProperties( ProgramInfo.prototype, {
@@ -84,6 +105,16 @@ Object.defineProperties( ProgramInfo.prototype, {
         get() {
 
             return this._uniformSetters;
+
+        },
+
+    },
+
+    defineObj: {
+
+        get() {
+
+            return this._defines;
 
         },
 

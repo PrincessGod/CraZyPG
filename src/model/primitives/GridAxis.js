@@ -83,7 +83,7 @@ GridAxis.prototype = Object.assign( Object.create( Primitive.prototype ), {
         color.push( ...colors[ 3 ] );
 
         const attribArrays = {};
-        attribArrays[ ShaderParams.ATTRIB_VERTEX_COLOR_NAME ] = { data: color, numComponents: 3 };
+        attribArrays[ ShaderParams.ATTRIB_COLOR_NAME ] = { data: color, numComponents: 3 };
         attribArrays[ ShaderParams.ATTRIB_POSITION_NAME ] = { data: vertices, numComponents: 3 };
         return attribArrays;
 

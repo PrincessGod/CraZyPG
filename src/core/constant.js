@@ -25,6 +25,10 @@ export const ShaderParams = makeReadonlyObj( {
     ATTRIB_NORMAL_LOC: 2,
     ATTRIB_BARYCENTRIC_NAME: 'a_barycentric',
     ATTRIB_BARYCENTRIC_LOC: 4,
+    ATTRIB_JOINT_0_NAME: 'a_joint',
+    ATTRIB_WEIGHT_0_NAME: 'a_weight',
+    ATTRIB_UV2_NAME: 'a_uv2',
+    ATTRIB_COLOR_NAME: 'a_color',
     UNIFORM_Model_MAT_NAME: 'u_modelMat',
     UNIFORM_VIEW_MAT_NAME: 'u_viewMat',
     UNIFORM_PROJ_MAT_NAME: 'u_projMat',
@@ -34,13 +38,6 @@ export const ShaderParams = makeReadonlyObj( {
     UNIFORM_BASE_TEXTURE_NAME: 'u_baseTexture',
     UNIFORM_PREFIX: 'u_',
     UNIFORM_CAMPOS: 'u_camPos',
-    ATTRIB_JOINT_0_NAME: 'a_joint',
-    ATTRIB_WEIGHT_0_NAME: 'a_weight',
-    ATTRIB_UV_1_NAME: 'a_uv1',
-    ATTRIB_JOINT_1_NAME: 'a_joint1',
-    ATTRIB_WEIGHT_1_NAME: 'a_weight1',
-    ATTRIB_TANGENT_NAME: 'a_tangent',
-    ATTRIB_VERTEX_COLOR_NAME: 'a_color',
 
 } );
 
