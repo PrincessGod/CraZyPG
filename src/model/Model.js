@@ -1,19 +1,14 @@
 import { Node } from './Node';
-import { Primitive } from './Primitive';
 import { ShaderParams } from '../core/constant';
 
 let modelCount = 0;
 
-// opts { ...Primitive.opts, enablePick=true, material }
-function Model( primitiveLike, opts = {} ) {
+// opts { enablePick=true }
+function Model( primitive, material, opts = {} ) {
 
-    Node.call( this, primitiveLike.name || opts.name || `NO_NAME_MODEL${modelCount ++}` );
+    Node.call( this, primitive.name || opts.name || `NO_NAME_MODEL${modelCount ++}` );
 
-    let primitive = primitiveLike;
-    if ( ! ( primitiveLike instanceof Primitive ) )
-        primitive = new Primitive( primitiveLike, opts );
-
-    const { material, enablePick } = opts;
+    const { enablePick } = opts;
     this.material = material;
     this.primitive = primitive;
     this.enablePick = enablePick === undefined ? true : !! enablePick;

@@ -1,4 +1,3 @@
-
 import { ShaderSlices } from './ShaderSlices';
 
 const ShaderFactory = {};
@@ -40,8 +39,7 @@ Object.assign( ShaderFactory, {
 
             if ( slice === undefined )
 
-                throw new Error( `Can not resolve #include <${include}>` );
-
+                throw new TypeError( `can not find shader slice #include <${include}>` );
 
             return ShaderFactory.parseIncludes( replace );
 

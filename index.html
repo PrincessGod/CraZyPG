@@ -122,18 +122,18 @@
             camera.position = [0, 0, 3];
 
             window.material = new CZPG.FlatTextureMaterial({texture: tex});
-            window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), { material });
+            window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), material);
             scene.add(model);
 
-            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), { material } );
+            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), material );
             cube.position = [1, 0, 0];
             scene.add(cube);
 
-            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3, subdivAixs: 40, subdivHeight: 20 }), { material } );
+            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3, subdivAixs: 40, subdivHeight: 20 }), material );
             sphere.position = [-1, 0, 0];
             scene.add(sphere);
 
-            var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), { material: new CZPG.GridAxisMaterial() });
+            var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), new CZPG.GridAxisMaterial());
             scene.add(grid);
 
             scene.currentCamera = camera;
