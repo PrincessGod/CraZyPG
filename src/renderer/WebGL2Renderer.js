@@ -233,7 +233,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
         }
 
-        const { programInfo } = shader;
+        const programInfo = shader.getProgramInfo( primitive, material );
         const { vaoInfo, offset } = primitive;
         const { bufferInfo } = vaoInfo;
 

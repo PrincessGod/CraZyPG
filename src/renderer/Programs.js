@@ -600,17 +600,13 @@ function setUniforms( setters, ...unifroms ) {
 function addLineNum( str ) {
 
     const lines = str.split( '\n' );
-    const limitLength = ( lines.length + 1 ).toString().length + 6;
+    const limitLength = ( lines.length + 1 ).toString().length + 4;
     let prefix;
     return lines.map( ( line, index ) => {
 
         prefix = `0:${index + 1}`;
-        if ( prefix.length >= limitLength )
-            return prefix.substring( 0, limitLength ) + line;
-
-        for ( let i = 0; i < limitLength - prefix.length; i ++ )
+        for ( let i = 0, l = limitLength - prefix.length; i < l; i ++ )
             prefix += ' ';
-
         return prefix + line;
 
     } ).join( '\n' );

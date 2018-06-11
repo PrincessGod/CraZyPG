@@ -1,4 +1,4 @@
-import { Shader } from './Shader';
+import { RawShader } from './RawShader';
 import { Material } from './Material';
 import { BeginMode } from '../core/constant';
 import vs from './shadersrc/gridaxis.vs.glsl';
@@ -6,11 +6,11 @@ import fs from './shadersrc/gridaxis.fs.glsl';
 
 function GridAxisShader() {
 
-    Shader.call( this, vs, fs );
+    RawShader.call( this, vs, fs );
 
 }
 
-GridAxisShader.prototype = Object.assign( Object.create( Shader.prototype ), {
+GridAxisShader.prototype = Object.assign( Object.create( RawShader.prototype ), {
 
     constructor: GridAxisShader,
 

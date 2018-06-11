@@ -19,7 +19,7 @@ Object.assign( ShaderFactory, {
 
     parseShaderName( name ) {
 
-        return `#define SHADER_NAME ${name}`;
+        return `#define SHADER_NAME ${name}\n`;
 
     },
 
@@ -46,6 +46,8 @@ Object.assign( ShaderFactory, {
         if ( material.baseTexture )
             defineObj.HAS_BASETEXTURE = 1;
 
+        Object.assign( defineObj, material.customDefines );
+
         return defineObj;
 
     },
@@ -58,8 +60,8 @@ Object.assign( ShaderFactory, {
 
     parsePrecision( p ) {
 
-        return `precision ${p} float;\n
-                precision ${p} int;\n\n`;
+        return `precision ${p} float;\n` +
+               `precision ${p} int;\n`;
 
     },
 
@@ -75,7 +77,7 @@ Object.assign( ShaderFactory, {
 
                 throw new TypeError( `can not find shader slice #include <${include}>` );
 
-            return ShaderFactory.parseIncludes( replace );
+            return ShaderFactory.parseIncludes( slice );
 
         }
 

@@ -1,15 +1,15 @@
-import { Shader } from './Shader';
+import { RawShader } from './RawShader';
 import { Material } from './Material';
 import vs from './shadersrc/singleTexture.vs.glsl';
 import fs from './shadersrc/singleTexture.fs.glsl';
 
 function FlatTextureShader() {
 
-    Shader.call( this, vs, fs );
+    RawShader.call( this, vs, fs );
 
 }
 
-FlatTextureShader.prototype = Object.assign( Object.create( Shader.prototype ), {
+FlatTextureShader.prototype = Object.assign( Object.create( RawShader.prototype ), {
 
     constructor: FlatTextureShader,
 

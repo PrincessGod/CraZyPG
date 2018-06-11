@@ -1,5 +1,5 @@
 import { State } from './State';
-import { BeginMode, DefaultColor } from '../core/constant';
+import { BeginMode } from '../core/constant';
 
 // opts { uniformObj, drawMode=TRIANGLES, instanceCount,
 // blendColor, blendEquationSeparate, blendFuncSeparate,
@@ -34,19 +34,20 @@ function Material( ShaderType, opts ) {
     this.polygonOffset = polygonOffset || [ 0, 0 ];
 
     const {
-        name, version, vertexPrecision, fragmentPrecision, baseColor, baseColorTexture,
+        name, version, vertexPrecision, fragmentPrecision,
     } = opts;
 
     this.name = name || 'NO_NAME_MATERIAL';
     this.version = version || '300 es';
     this.vertexPrecision = vertexPrecision || 'highp';
     this.fragmentPrecision = fragmentPrecision || 'mediump';
-    this.baseColor = baseColor || DefaultColor.ForegroundNormalized;
-    this.baseColorTexture = baseColorTexture;
+    this.customDefines = {};
 
 }
 
 Material.prototype = Object.assign( Object.create( State.prototype ), {
+
+    constructor: Material,
 
     setUniformObj( obj ) {
 

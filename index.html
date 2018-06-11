@@ -122,7 +122,8 @@
             camera.position = [0, 0, 3];
 
             window.material = new CZPG.FlatTextureMaterial({texture: tex});
-            window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), material);
+            const quadMaterial = new CZPG.BasicMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex});
+            window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), quadMaterial);
             scene.add(model);
 
             const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), material );
@@ -133,7 +134,8 @@
             sphere.position = [-1, 0, 0];
             scene.add(sphere);
 
-            var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), new CZPG.GridAxisMaterial());
+            const gridMaterial = new CZPG.BasicMaterial( { base1Color: [1, 0, 0, 1], drawMode: CZPG.BeginMode.LINES } );
+            var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), gridMaterial, new CZPG.GridAxisMaterial());
             scene.add(grid);
 
             scene.currentCamera = camera;

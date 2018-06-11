@@ -2,7 +2,7 @@ in vec3 a_position;
 
 #ifdef HAS_UV
 
-    in vec3 a_uv;
+    in vec2 a_uv;
 
 #endif
 

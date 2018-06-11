@@ -1,3 +1,4 @@
+/* eslint prefer-template: 0 */
 import { ShaderFactory } from './ShaderFactory';
 
 function getHTMLElementSrc( id ) {
@@ -21,7 +22,7 @@ function getShaderSrc( src ) {
     if ( typeof src !== 'string' )
         throw TypeError( 'shader source expect to be String' );
 
-    if ( src.length < 50 || src.indexOf( '#version' ) < 0 )
+    if ( src.length < 30 )
         return getHTMLElementSrc( src );
 
     return src;
@@ -52,17 +53,17 @@ Object.assign( ProgramInfo.prototype, {
         const primitiveDefine = ShaderFactory.parseDefineObjFromPrimitive( primitive );
         const materialDefine = ShaderFactory.parseDefineObjFromMaterial( material );
         this._defines = Object.assign( primitiveDefine, materialDefine );
-        this._vs = ShaderFactory.parseVersion( material.verison ) +
-            ShaderFactory.parseShaderName( material.name ) +
-            ShaderFactory.parsePrecision( material.vertexPrecision ) +
-            ShaderFactory.parseDefineObj( this._defines ) +
+        this._vs = ShaderFactory.parseVersion( material.version ) +
+            ShaderFactory.parseShaderName( material.name ) + '\n' +
+            ShaderFactory.parseDefineObj( this._defines ) + '\n' +
+            ShaderFactory.parsePrecision( material.vertexPrecision ) + '\n' +
             ShaderFactory.parseIncludes( this._vs );
 
-        this._fs = ShaderFactory.parseVersion( material.verison ) +
-            ShaderFactory.parseShaderName( material.name ) +
-            ShaderFactory.parsePrecision( material.fragmentPrecision ) +
-            ShaderFactory.parseDefineObj( this._defines ) +
-            ShaderFactory.parseIncludes( this._vs );
+        this._fs = ShaderFactory.parseVersion( material.version ) +
+            ShaderFactory.parseShaderName( material.name ) + '\n' +
+            ShaderFactory.parseDefineObj( this._defines ) + '\n' +
+            ShaderFactory.parsePrecision( material.fragmentPrecision ) + '\n' +
+            ShaderFactory.parseIncludes( this._fs );
 
     },
 
@@ -110,7 +111,7 @@ Object.defineProperties( ProgramInfo.prototype, {
 
     },
 
-    defineObj: {
+    defines: {
 
         get() {
 
