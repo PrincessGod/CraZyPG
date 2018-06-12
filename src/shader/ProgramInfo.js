@@ -1,5 +1,14 @@
 /* eslint prefer-template: 0 */
+import { PMath } from '../math/Math';
+import { Matrix3 } from '../math/Matrix3';
+import { Matrix4 } from '../math/Matrix4';
 import { ShaderFactory } from './ShaderFactory';
+
+function equalSign( a, b ) {
+
+    return a === b;
+
+}
 
 function getHTMLElementSrc( id ) {
 
@@ -35,6 +44,8 @@ function ProgramInfo( vs, fs, opts = {} ) {
     this._vs = getShaderSrc( vs );
     this._fs = getShaderSrc( fs );
     this.opts = opts;
+    this._currentUniformObj = {};
+    this._uniformObj = {};
     this.needUpdate = true;
 
 }
@@ -45,6 +56,56 @@ Object.assign( ProgramInfo.prototype, {
 
         this._attribSetters = attrib;
         this._uniformSetters = uniform;
+
+    },
+
+    setUniformObjProp( prop, value, equalsFun = equalSign ) {
+
+        if ( this._currentUniformObj[ prop ] === undefined || ! equalsFun( this._currentUniformObj[ prop ], value ) ) {
+
+            this._uniformObj[ prop ] = value;
+            this._currentUniformObj[ prop ] = value;
+
+            if ( equalsFun === Matrix4.equals )
+                this._currentUniformObj[ prop ] = Matrix4.clone( value );
+            else if ( equalsFun === Matrix3.equals )
+                this._currentUniformObj[ prop ] = Matrix3.clone( value );
+            else if ( Array.isArray( value ) )
+                this._currentUniformObj[ prop ] = value.slice();
+            else if ( equalsFun === PMath.arrayEquals )
+                this._currentUniformObj[ prop ] = PMath.arrayClone( value );
+
+        } else if ( value.textureInfo && value.textureInfo.needUpdate ) {
+
+            this._uniformObj[ prop ] = value;
+            this._currentUniformObj[ prop ] = value;
+
+        }
+
+    },
+
+    setUniformObj( obj ) {
+
+        Object.keys( obj ).forEach( ( prop ) => {
+
+            if ( obj[ prop ].length === 16 && typeof obj[ prop ][ 0 ] === 'number' )
+                this.setUniformObjProp( prop, obj[ prop ], Matrix4.equals );
+            else if ( obj[ prop ].length === 9 && typeof obj[ prop ][ 0 ] === 'number' )
+                this.setUniformObjProp( prop, obj[ prop ], Matrix3.equals );
+            else if ( obj[ prop ].length && typeof obj[ prop ][ 0 ] === 'number' )
+                this.setUniformObjProp( prop, obj[ prop ], PMath.arrayEquals );
+            else
+                this.setUniformObjProp( prop, obj[ prop ] );
+
+        } );
+        return this;
+
+    },
+
+    afterUpdateUniform() {
+
+        this._uniformObj = {};
+        return this;
 
     },
 
@@ -86,6 +147,16 @@ Object.defineProperties( ProgramInfo.prototype, {
         get() {
 
             return this._fs;
+
+        },
+
+    },
+
+    uniformObj: {
+
+        get() {
+
+            return this._uniformObj;
 
         },
 
