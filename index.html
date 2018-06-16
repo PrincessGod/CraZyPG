@@ -91,7 +91,7 @@
     </script>
     <script>
 
-        class TestShader extends CZPG.Shader {
+        class TestShader extends CZPG.RawShader {
 
             constructor() {
 
@@ -121,21 +121,20 @@
             cameraControler.enableDamping = true;
             camera.position = [0, 0, 3];
 
-            window.material = new CZPG.FlatTextureMaterial({texture: tex});
-            const quadMaterial = new CZPG.BasicMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex});
+            const quadMaterial = new CZPG.BasicModelMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex});
             window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), quadMaterial);
             scene.add(model);
 
-            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), material );
+            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), quadMaterial );
             cube.position = [1, 0, 0];
             scene.add(cube);
 
-            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3, subdivAixs: 40, subdivHeight: 20 }), material );
+            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3, subdivAixs: 40, subdivHeight: 20 }), quadMaterial );
             sphere.position = [-1, 0, 0];
             scene.add(sphere);
 
-            const gridMaterial = new CZPG.BasicMaterial( { base1Color: [1, 0, 0, 1], drawMode: CZPG.BeginMode.LINES } );
-            var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), gridMaterial, new CZPG.GridAxisMaterial());
+            const gridMaterial = new CZPG.BasicLineMaterial();
+            var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), gridMaterial);
             scene.add(grid);
 
             scene.currentCamera = camera;

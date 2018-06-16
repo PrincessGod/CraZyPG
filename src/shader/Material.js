@@ -43,6 +43,9 @@ function Material( ShaderType, opts ) {
     this.fragmentPrecision = fragmentPrecision || 'mediump';
     this.customDefines = {};
 
+    const { baseColor } = opts;
+    this.baseColor = baseColor || [ 1, 1, 1, 1 ];
+
 }
 
 Material.prototype = Object.assign( Object.create( State.prototype ), {
@@ -74,6 +77,23 @@ Object.defineProperties( Material.prototype, {
         get() {
 
             return this._uniformObj;
+
+        },
+
+    },
+
+    baseColor: {
+
+        get() {
+
+            return this._baseColor;
+
+        },
+
+        set( v ) {
+
+            this._baseColor = v;
+            this.setUniformObj( { u_baseColor: v } );
 
         },
 

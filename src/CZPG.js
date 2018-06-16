@@ -46,6 +46,5 @@ export * from './model/Primitive.js';
 export * from './shader/ProgramInfo.js';
 export * from './shader/Material.js';
 export * from './model/primitives/index.js';
-export * from './shader/GridAxisMaterial.js';
-export * from './shader/FlatTextureMaterial.js';
-export * from './shader/BasicMaterial.js';
+export * from './shader/RawShader.js';
+export * from './shader/Materials.js';
