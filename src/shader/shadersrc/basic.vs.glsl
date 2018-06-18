@@ -4,6 +4,7 @@
 #include <uv2_spec_vs>
 #include <normal_spec_vs>
 #include <color_spec_vs>
+#include <env_texture_spec_vs>
 
 void main() {
 
@@ -13,8 +14,11 @@ void main() {
     #include <skinning_vs>
     #include <uv_vs>
     #include <uv2_vs>
+    #include <normal_default_vs>
     #include <normal_vs>
     #include <color_vs>
+    #include <worldpos_vs>
+    #include <env_texture_vs>
     #include <position_vs>
 
 }

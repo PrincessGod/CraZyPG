@@ -6,6 +6,7 @@ import uv_spec_vs from './shaderslices/uv_spec_vs.glsl';
 import uv2_spec_vs from './shaderslices/uv2_spec_vs.glsl';
 import normal_spec_vs from './shaderslices/normal_spec_vs.glsl';
 import color_spec_vs from './shaderslices/color_spec_vs.glsl';
+import env_texture_spec_vs from './shaderslices/env_texture_spec_vs.glsl';
 
 import begin_position_vs from './shaderslices/begin_position_vs.glsl';
 import begin_normal_vs from './shaderslices/begin_normal_vs.glsl';
@@ -17,6 +18,9 @@ import uv2_vs from './shaderslices/uv2_vs.glsl';
 import normal_vs from './shaderslices/normal_vs.glsl';
 import color_vs from './shaderslices/color_vs.glsl';
 import position_vs from './shaderslices/position_vs.glsl';
+import normal_default_vs from './shaderslices/normal_default_vs.glsl';
+import worldpos_vs from './shaderslices/worldpos_vs.glsl';
+import env_texture_vs from './shaderslices/env_texture_vs.glsl';
 
 import common_fs from './shaderslices/common_fs.glsl';
 import uv_spec_fs from './shaderslices/uv_spec_fs.glsl';
@@ -28,6 +32,7 @@ import alpha_texture_spec_fs from './shaderslices/alpha_texture_spec_fs.glsl';
 import specular_texture_spec_fs from './shaderslices/specular_texture_spec_fs.glsl';
 import light_texture_spec_fs from './shaderslices/light_texture_spec_fs.glsl';
 import ao_texture_spec_fs from './shaderslices/ao_texture_spec_fs.glsl';
+import env_texture_spec_fs from './shaderslices/env_texture_spec_fs.glsl';
 
 import base_texture_fs from './shaderslices/base_texture_fs.glsl';
 import color_fs from './shaderslices/color_fs.glsl';
@@ -37,6 +42,7 @@ import alpha_blend_fs from './shaderslices/alpha_blend_fs.glsl';
 import specular_texture_fs from './shaderslices/specular_texture_fs.glsl';
 import light_texture_fs from './shaderslices/light_texture_fs.glsl';
 import ao_texture_fs from './shaderslices/ao_texture_fs.glsl';
+import env_texture_fs from './shaderslices/env_texture_fs.glsl';
 
 export const ShaderSlices = {
 
@@ -47,6 +53,7 @@ export const ShaderSlices = {
     uv2_spec_vs,
     normal_spec_vs,
     color_spec_vs,
+    env_texture_spec_vs,
 
     begin_position_vs,
     begin_normal_vs,
@@ -58,6 +65,9 @@ export const ShaderSlices = {
     normal_vs,
     color_vs,
     position_vs,
+    normal_default_vs,
+    worldpos_vs,
+    env_texture_vs,
 
     common_fs,
     uv_spec_fs,
@@ -69,6 +79,7 @@ export const ShaderSlices = {
     specular_texture_spec_fs,
     light_texture_spec_fs,
     ao_texture_spec_fs,
+    env_texture_spec_fs,
 
     base_texture_fs,
     color_fs,
@@ -78,5 +89,6 @@ export const ShaderSlices = {
     specular_texture_fs,
     light_texture_fs,
     ao_texture_fs,
+    env_texture_fs,
 
 };
