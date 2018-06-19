@@ -1,5 +1,4 @@
 export * from './core/constant.js';
-export * from './model/Transform.js';
 export * from './model/Model.js';
 export * from './model/Primatives.js';
 export * from './core/Render.js';
@@ -48,3 +47,4 @@ export * from './shader/Material.js';
 export * from './model/primitives/index.js';
 export * from './shader/RawShader.js';
 export * from './shader/Materials.js';
+export * from './light/Lights';
