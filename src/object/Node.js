@@ -13,9 +13,6 @@ function Node( name = `NODE_${nodeCount ++}` ) {
     this.needUpdateWorldMatrix = true;
     this.name = name;
 
-    if ( !! name && name.isCamera )
-        this.setCamera( name );
-
 }
 
 Object.defineProperties( Node.prototype, {

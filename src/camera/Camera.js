@@ -1,7 +1,7 @@
 import { Matrix4 } from '../math/Matrix4';
 import { Vector3 } from '../math/Vector3';
 import { PMath } from '../math/Math';
-import { Node } from '../model/Node';
+import { Node } from '../object/Node';
 import { ShaderParams } from '../core/constant';
 
 let cameraCount = 0;

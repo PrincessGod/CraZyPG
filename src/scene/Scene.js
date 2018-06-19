@@ -1,4 +1,4 @@
-import { Node } from '../model/Node';
+import { Node } from '../object/Node';
 import { Model } from '../model/Model';
 import { Controler } from '../controls/Controler';
 

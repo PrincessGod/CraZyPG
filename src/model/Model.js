@@ -1,4 +1,4 @@
-import { Node } from './Node';
+import { Node } from '../object/Node';
 import { ShaderParams } from '../core/constant';
 
 let modelCount = 0;
