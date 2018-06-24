@@ -1,6 +1,10 @@
 /* eslint camelcase: 0 */
 import common from './shaderslices/common.glsl';
 
+import bsdf from './shaderslices/bsdf.glsl';
+import light_spec from './shaderslices/light_spec.glsl';
+import light_lambert_vs from './shaderslices/light_lambert_vs.glsl';
+
 import common_vs from './shaderslices/common_vs.glsl';
 import uv_spec_vs from './shaderslices/uv_spec_vs.glsl';
 import uv2_spec_vs from './shaderslices/uv2_spec_vs.glsl';
@@ -47,6 +51,10 @@ import env_texture_fs from './shaderslices/env_texture_fs.glsl';
 export const ShaderSlices = {
 
     common,
+
+    bsdf,
+    light_spec,
+    light_lambert_vs,
 
     common_vs,
     uv_spec_vs,

@@ -122,10 +122,11 @@
             camera.position = [0, 0, 3];
 
             const quadMaterial = new CZPG.BasicModelMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex});
+            const lambertMaterial = new CZPG.LambertModelMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex, uniformObj: { u_ambientLightColor: [.1, .1, .1] }});
             window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), quadMaterial);
             scene.add(model);
 
-            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), quadMaterial );
+            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), lambertMaterial );
             cube.position = [1, 0, 0];
             scene.add(cube);
 

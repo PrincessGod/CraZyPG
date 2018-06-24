@@ -1,4 +1,4 @@
-uniform vec3 u_ambientLightColor;
+uniform VERTEX_PRECISION vec3 u_ambientLightColor;
 
 vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
@@ -14,7 +14,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
 }
 
-#if DIR_LIGHT_NUM > 0
+#if defined( DIR_LIGHT_NUM ) && DIR_LIGHT_NUM > 0
 
     struct DirectionalLight {
 
@@ -35,7 +35,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
 #endif
 
-#if POINT_LIGHT_NUM > 0
+#if defined( POINT_LIGHT_NUM ) && POINT_LIGHT_NUM > 0
 
     struct PointLight {
 
@@ -63,7 +63,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
 #endif
 
-#if NUM_SPOT_LIGHTS > 0
+#if defined( SPOT_LIGHT_NUM ) && SPOT_LIGHT_NUM > 0
 
     struct SpotLight {
 
