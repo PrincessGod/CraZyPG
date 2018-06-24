@@ -1,10 +1,10 @@
     #ifdef HAS_COLOR
 
-        baseColor.rgb *= v_color.rgb;
+        diffuseColor.rgb *= v_color.rgb;
 
         #ifdef HAS_COLORALPHA
 
-            baseColor.a *= v_color.a;
+            diffuseColor.a *= v_color.a;
 
         #endif
 

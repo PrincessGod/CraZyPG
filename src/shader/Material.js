@@ -43,8 +43,10 @@ function Material( ShaderType, opts ) {
     this.fragmentPrecision = fragmentPrecision || 'mediump';
     this.customDefines = {};
 
-    const { baseColor } = opts;
+    const { baseColor, diffuse, alpha } = opts;
     this.baseColor = baseColor || [ 1, 1, 1, 1 ];
+    this.diffuse = diffuse || [ 1, 1, 1 ];
+    this.alpha = alpha || 1;
 
 }
 
@@ -86,14 +88,48 @@ Object.defineProperties( Material.prototype, {
 
         get() {
 
-            return this._baseColor;
+            return this._diffuse.concat( this._alpha );
 
         },
 
         set( v ) {
 
-            this._baseColor = v;
-            this.setUniformObj( { u_baseColor: v } );
+            this.diffuse = v.slice( 0, 3 );
+            this.alpha = v[ 3 ];
+
+        },
+
+    },
+
+    diffuse: {
+
+        get() {
+
+            return this._diffuse;
+
+        },
+
+        set( v ) {
+
+            this._diffuse = v;
+            this.setUniformObj( { u_diffuse: v } );
+
+        },
+
+    },
+
+    alpha: {
+
+        get() {
+
+            return this._alpha;
+
+        },
+
+        set( v ) {
+
+            this._alpha = v;
+            this.setUniformObj( { u_alpha: v } );
 
         },
 

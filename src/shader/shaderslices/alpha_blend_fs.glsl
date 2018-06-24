@@ -1,5 +1,5 @@
     #ifndef ALPHA_BLEND
 
-        baseColor.a = 1.0;
+        diffuseColor.a = 1.0;
 
     #endif

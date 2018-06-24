@@ -1,3 +1,6 @@
+uniform vec3 u_diffuse;
+uniform float u_alpha;
+
 #include <common>
 #include <common_fs>
 #include <uv_spec_fs>
@@ -12,6 +15,8 @@
 #include <env_texture_spec_fs>
 
 void main() {
+
+    vec4 diffuseColor = vec4( u_diffuse, u_alpha );
 
     #include <base_texture_fs>
     #include <color_fs>
@@ -34,11 +39,11 @@ void main() {
 
     #include <ao_texture_fs>
 
-    reflectedLight.indirectDiffuse *= baseColor.rgb;
+    reflectedLight.indirectDiffuse *= diffuseColor.rgb;
 	vec3 outgoingLight = reflectedLight.indirectDiffuse;
 
     #include <env_texture_fs>
 
-    finalColor = vec4( outgoingLight, baseColor.a );
+    finalColor = vec4( outgoingLight, diffuseColor.a );
 
 }
