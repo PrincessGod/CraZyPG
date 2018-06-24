@@ -71,6 +71,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
         vec3 direction;
         vec3 color;
         float distance;
+        float decay;
         float coneCos;
         float penumbraCos;
 
