@@ -121,16 +121,21 @@
             cameraControler.enableDamping = true;
             camera.position = [0, 0, 3];
 
+            const ambientLight = new CZPG.AmbientLight( [.1, .1, .1], 0.1 );
+            const directLight = new CZPG.DirectionalLight( [1, 1, 1], 0.1 );
+            const pointLight = new CZPG.PointLight( [1, 0.6, 1], 0.5 );
+            scene.add(ambientLight, directLight, pointLight);
+
             const quadMaterial = new CZPG.BasicModelMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex});
-            const lambertMaterial = new CZPG.LambertModelMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex, uniformObj: { u_ambientLightColor: [.1, .1, .1] }});
+            const lambertMaterial = new CZPG.LambertModelMaterial({ baseColor: [1, 0, 0, 1], baseTexture: tex });
             window.model = new CZPG.Model(new CZPG.Quad({offset: 3}), quadMaterial);
             scene.add(model);
 
-            const cube = new CZPG.Model( new CZPG.Cube({ offset: 3 }), lambertMaterial );
+            const cube = new CZPG.Model( new CZPG.Cube({ offset: 0 }), lambertMaterial );
             cube.position = [1, 0, 0];
             scene.add(cube);
 
-            const sphere = new CZPG.Model( new CZPG.Sphere({ offset: 3, subdivAixs: 40, subdivHeight: 20 }), quadMaterial );
+            const sphere = new CZPG.Model( new CZPG.Sphere({ radius: 0.01, offset: 3, subdivAixs: 40, subdivHeight: 20 }), quadMaterial );
             sphere.position = [-1, 0, 0];
             scene.add(sphere);
 
@@ -146,8 +151,11 @@
                 cameraControler.update();
 
                 model.primitive.offset = 3 - 3 * Math.ceil( Math.sin( loop.lastTime * 0.003 ) );
-                cube.primitive.offset = 3 - 3 * Math.ceil( Math.sin( loop.lastTime * 0.003 ) );
+                // cube.primitive.offset = 3 - 3 * Math.ceil( Math.sin( loop.lastTime * 0.003 ) );
                 grid.primitive.offset = 2 - 2 * Math.ceil( Math.sin( loop.lastTime * 0.006 ) );
+
+                pointLight.position = [ 1.5 * Math.sin(loop.lastTime * 0.0006) + 1, 1.5 * Math.cos(loop.lastTime * 0.0003), 1.5 * Math.cos(loop.lastTime * 0.0003) ];
+                sphere.position = pointLight.position;
                 scene.render();
             }).start();
 

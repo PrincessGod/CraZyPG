@@ -85,6 +85,22 @@ Object.defineProperties( Node.prototype, {
 
     },
 
+    rotation: {
+
+        get() {
+
+            return this.transform.rotation;
+
+        },
+
+        set( v ) {
+
+            this.transform.rotation = v;
+
+        },
+
+    },
+
     scale: {
 
         get() {

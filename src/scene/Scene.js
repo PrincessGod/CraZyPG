@@ -1,6 +1,8 @@
 import { Node } from '../object/Node';
 import { Model } from '../model/Model';
 import { Controler } from '../controls/Controler';
+import { Light } from '../light/Light';
+import { LightManager } from '../light/LightManger';
 
 function Scene( renderer ) {
 
@@ -12,6 +14,7 @@ function Scene( renderer ) {
     this.gl = this.renderer.context;
     this.canvas = this.gl.canvas;
     this.controler = new Controler( this.gl.canvas );
+    this.lightManager = new LightManager();
 
 }
 
@@ -28,12 +31,13 @@ Object.assign( Scene.prototype, {
             if ( Array.isArray( arg ) )
                 return this.add( ...arg );
 
-            if ( arg instanceof Model ) {
+            this.root.addChild( arg );
 
-                this.root.addChild( arg );
+            if ( arg instanceof Model )
                 return this.models.push( arg );
 
-            }
+            if ( arg instanceof Light )
+                return this.lightManager.add( arg );
 
             return console.warn( 'unknow type add into scene' );
 
@@ -46,7 +50,8 @@ Object.assign( Scene.prototype, {
     render() {
 
         this.root.updateMatrix();
-        this.models.forEach( m => this.renderer.render( m, this.currentCamera ) );
+        this.lightManager.updateUniformObj( this.currentCamera.viewMat );
+        this.models.forEach( m => this.renderer.render( m, this.currentCamera, this.lightManager ) );
 
     },
 

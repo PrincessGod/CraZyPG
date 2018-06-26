@@ -17,7 +17,6 @@ void main() {
     #include <normal_default_vs>
     #include <normal_vs>
     #include <color_vs>
-    #include <worldpos_vs>
     #include <env_texture_vs>
     #include <position_vs>
 

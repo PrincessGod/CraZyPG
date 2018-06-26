@@ -109,11 +109,9 @@ Object.assign( ProgramInfo.prototype, {
 
     },
 
-    compile( primitive, material ) {
+    compile( material, defines ) {
 
-        const primitiveDefine = ShaderFactory.parseDefineObjFromPrimitive( primitive );
-        const materialDefine = ShaderFactory.parseDefineObjFromMaterial( material );
-        this._defines = Object.assign( primitiveDefine, materialDefine );
+        this._defines = defines;
         this._vs = ShaderFactory.parseVersion( material.version ) +
             ShaderFactory.parseShaderName( material.name ) + '\n' +
             ShaderFactory.parseDefineObj( this._defines ) + '\n' +

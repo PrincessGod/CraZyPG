@@ -5,7 +5,7 @@ import fs from './shadersrc/lambert.fs.glsl';
 
 function LambertModelShader() {
 
-    Shader.call( this, vs, fs );
+    Shader.call( this, vs, fs, { useLight: true } );
 
 }
 

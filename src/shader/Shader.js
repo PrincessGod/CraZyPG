@@ -2,12 +2,13 @@ import { objEqual } from '../core/utils';
 import { ShaderFactory } from './ShaderFactory';
 import { ProgramInfo } from './ProgramInfo';
 
-// opts { ...ProgramInfo.opts,  }
-function Shader( vs, fs, opts ) {
+// opts { ...ProgramInfo.opts, useLight  }
+function Shader( vs, fs, opts = {} ) {
 
     this._vs = vs;
     this._fs = fs;
     this._opts = opts;
+    this._useLight = !! opts.useLight;
     this._currentProgramInfo = null;
     this._programInfos = [];
 
@@ -15,12 +16,13 @@ function Shader( vs, fs, opts ) {
 
 Object.assign( Shader.prototype, {
 
-    getProgramInfo( primitive, material ) {
+    getProgramInfo( primitive, material, lightManager ) {
 
         let target;
         const primitiveDefine = ShaderFactory.parseDefineObjFromPrimitive( primitive );
         const materialDefine = ShaderFactory.parseDefineObjFromMaterial( material );
-        const defines = Object.assign( primitiveDefine, materialDefine );
+        const lightDefine = ShaderFactory.parseDefineObjFromLightManager( lightManager );
+        const defines = Object.assign( primitiveDefine, materialDefine, this._useLight ? lightDefine : {} );
         for ( let i = 0; i < this._programInfos.length; i ++ )
             if ( objEqual( defines, this._programInfos[ i ].defines ) ) {
 
@@ -33,7 +35,7 @@ Object.assign( Shader.prototype, {
         if ( ! target ) {
 
             const programInfo = new ProgramInfo( this._vs, this._fs );
-            programInfo.compile( primitive, material );
+            programInfo.compile( material, defines );
             this._currentProgramInfo = programInfo;
             this._programInfos.push( programInfo );
 

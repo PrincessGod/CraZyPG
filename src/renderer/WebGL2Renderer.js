@@ -155,7 +155,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    updateUniforms( uniformSetters, programInfo, material, camera, model ) {
+    updateUniforms( uniformSetters, programInfo, material, camera, model, lightManager ) {
 
         Object.keys( uniformSetters ).forEach( ( uniform ) => {
 
@@ -204,7 +204,8 @@ Object.assign( WebGL2Renderer.prototype, {
         } );
 
         const usedUniforms = Object.keys( uniformSetters );
-        programInfo.setUniformObj( pick( material.uniformObj, usedUniforms ) ).setUniformObj( pick( camera.uniformObj, usedUniforms ) ).setUniformObj( pick( model.uniformObj, usedUniforms ) );
+        programInfo.setUniformObj( pick( material.uniformObj, usedUniforms ) ).setUniformObj( pick( camera.uniformObj, usedUniforms ) )
+            .setUniformObj( pick( model.uniformObj, usedUniforms ) ).setUniformObj( pick( lightManager.uniformObj, usedUniforms ) );
         const updatedUniforms = programInfo.uniformObj;
         Object.keys( updatedUniforms ).forEach( ( uniformName ) => {
 
@@ -219,8 +220,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    render( model, camera ) {
-
+    render( model, camera, lightManager ) {
 
         const { material, primitive } = model;
 
@@ -234,7 +234,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
         }
 
-        const programInfo = shader.getProgramInfo( primitive, material );
+        const programInfo = shader.getProgramInfo( primitive, material, lightManager );
         const { vaoInfo, offset } = primitive;
         const { bufferInfo } = vaoInfo;
 
@@ -248,7 +248,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
         this.context.useProgram( program );
         this.applyStates( material );
-        this.updateUniforms( uniformSetters, programInfo, material, camera, model );
+        this.updateUniforms( uniformSetters, programInfo, material, camera, model, lightManager );
         this.context.bindVertexArray( vao );
 
         const { drawMode, instanceCount } = material;

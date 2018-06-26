@@ -18,10 +18,10 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
     struct DirectionalLight {
 
-        vec3 direction;
-        vec3 color;
+        VERTEX_PRECISION vec3 direction;
+        VERTEX_PRECISION vec3 color;
 
-    }
+    };
 
     uniform DirectionalLight u_directionalLights[ DIR_LIGHT_NUM ];
 
@@ -39,12 +39,12 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
     struct PointLight {
 
-        vec3 position;
-        vec3 color;
-        float distance;
-        float decay;
+        VERTEX_PRECISION vec3 position;
+        VERTEX_PRECISION vec3 color;
+        VERTEX_PRECISION float distance;
+        VERTEX_PRECISION float decay;
 
-    }
+    };
 
     uniform PointLight u_pointLights[ POINT_LIGHT_NUM ];
 
@@ -57,7 +57,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
         directLight.color = pointLight.color;
         directLight.color *= punctualLightIntensityToIrradianceFactor( lightDistance, pointLight.distance, pointLight.decay );
-        directLight.color = ( directLight.color != vec3( 0.0 ) );
+        directLight.visible = ( directLight.color != vec3( 0.0 ) );
 
     }
 
@@ -67,15 +67,15 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
     struct SpotLight {
 
-        vec3 position;
-        vec3 direction;
-        vec3 color;
-        float distance;
-        float decay;
-        float coneCos;
-        float penumbraCos;
+        VERTEX_PRECISION vec3 position;
+        VERTEX_PRECISION vec3 direction;
+        VERTEX_PRECISION vec3 color;
+        VERTEX_PRECISION float distance;
+        VERTEX_PRECISION float decay;
+        VERTEX_PRECISION float coneCos;
+        VERTEX_PRECISION float penumbraCos;
 
-    }
+    };
 
     uniform SpotLight u_spotLights[ NUM_SPOT_LIGHTS ];
 

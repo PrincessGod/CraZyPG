@@ -1,9 +1,9 @@
     vec3 diffuse = vec3( 1.0 );
 
     GeometricContext geometry;
-    geometry.position = mvPosition.xyz;
+    geometry.position = worldpos.xyz;
     geometry.normal = normal;
-    geometry.viewDir = normalize( -mvPosition.xyz );
+    geometry.viewDir = normalize( u_viewMat[3].xyz - worldpos.xyz );
 
     v_LightFront = vec3( 0.0 );
 

@@ -52,6 +52,18 @@ Object.assign( ShaderFactory, {
 
     },
 
+    parseDefineObjFromLightManager( lightManager ) {
+
+        const defineObj = {
+            DIR_LIGHT_NUM: lightManager.directionalLights.length,
+            POINT_LIGHT_NUM: lightManager.pointLights.length,
+            SPOT_LIGHT_NUM: lightManager.spotLights.length,
+        };
+
+        return defineObj;
+
+    },
+
     parseDefineObj( defines ) {
 
         return `${Object.keys( defines ).map( key => `#define ${key} ${defines[ key ]}` ).join( '\n' )}\n`;
