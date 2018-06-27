@@ -63,7 +63,7 @@
 
         for( int i = 0; i < SPOT_LIGHT_NUM; i ++ ) {
 
-            getSpotDirectLightIrradiance( spotLights[ i ], geometry, directLight );
+            getSpotDirectLightIrradiance( u_spotLights[ i ], geometry, directLight );
 
             dotNL = dot( geometry.normal, directLight.direction );
             directLightColor_Diffuse = PI * directLight.color;

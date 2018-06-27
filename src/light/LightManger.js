@@ -1,4 +1,3 @@
-import { Matrix4 } from '../math/Matrix4';
 import { AmbientLight } from './AmbientLight';
 import { DirectionalLight } from './DirectionalLight';
 import { PointLight } from './PointLight';
@@ -80,7 +79,7 @@ Object.assign( LightManager.prototype, {
 
     },
 
-    updateUniformObj( viewMat ) {
+    updateUniformObj() {
 
         const uniformObj = this._uniformObj;
 
@@ -111,15 +110,12 @@ Object.assign( LightManager.prototype, {
             for ( let i = 0; i < this.spotLights.length; i ++ ) {
 
                 const spotLight = this.spotLights[ i ];
-                const lightPoistion = [ 0, 0, 0, 1 ];
-                Matrix4.transformVec4( lightPoistion, spotLight.transform.matrix.raw, lightPoistion );
-                Matrix4.transformVec4( lightPoistion, viewMat, lightPoistion );
 
                 uniformObj[ `u_spotLights[${i}].color` ] = [ spotLight.color[ 0 ] * spotLight.intensity, spotLight.color[ 1 ] * spotLight.intensity, spotLight.color[ 2 ] * spotLight.intensity ];
-                uniformObj[ `u_spotLights[${i}].position` ] = lightPoistion.slice( 0, 3 );
+                uniformObj[ `u_spotLights[${i}].position` ] = spotLight.position;
                 uniformObj[ `u_spotLights[${i}].direction` ] = spotLight.transform.forward.slice( 0, 3 );
                 uniformObj[ `u_spotLights[${i}].distance` ] = spotLight.distance;
-                uniformObj[ `u_spotLights[${i}].coneCos` ] = spotLight.angle;
+                uniformObj[ `u_spotLights[${i}].coneCos` ] = Math.cos( spotLight.angle );
                 uniformObj[ `u_spotLights[${i}].penumbraCos` ] = Math.cos( spotLight.angle * ( 1 - spotLight.penumbra ) );
                 uniformObj[ `u_spotLights[${i}].decay` ] = ( spotLight.distance === 0 ) ? 0 : spotLight.decay;
 

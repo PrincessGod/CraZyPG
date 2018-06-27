@@ -28,7 +28,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
     void getDirectionalDirectLightIrradiance( const in DirectionalLight directionalLight, const in GeometricContext geometry, out IncidentLight directLight ) {
 
         directLight.color = directionalLight.color;
-        directLight.direction = directionalLight.direction;
+        directLight.direction = - directionalLight.direction;
         directLight.visible = true;
 
     }
@@ -77,7 +77,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
 
     };
 
-    uniform SpotLight u_spotLights[ NUM_SPOT_LIGHTS ];
+    uniform SpotLight u_spotLights[ SPOT_LIGHT_NUM ];
 
     void getSpotDirectLightIrradiance( const in SpotLight spotLight, const in GeometricContext geometry, out IncidentLight directLight ) {
 
@@ -85,7 +85,7 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ){
         directLight.direction = normalize( l );
 
         float lightDistance = length( l );
-        float angleCos = dot( directLight.direction, spotLight.direction );
+        float angleCos = dot( directLight.direction, - spotLight.direction );
 
         if ( angleCos > spotLight.coneCos ) {
 

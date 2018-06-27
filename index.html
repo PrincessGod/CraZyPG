@@ -123,8 +123,9 @@
 
             const ambientLight = new CZPG.AmbientLight( [.1, .1, .1], 0.1 );
             const directLight = new CZPG.DirectionalLight( [1, 1, 1], 0.1 );
-            const pointLight = new CZPG.PointLight( [1, 1, 1], 1, 10 ); pointLight.position = [0, -1, 1];
-            scene.add(ambientLight, directLight, pointLight);
+            const pointLight = new CZPG.PointLight( [1, 1, 1], 1, 10 );
+            const spotLight = new CZPG.SpotLight( [1, 0, 0], 1, 0, Math.PI / 8, 0.8 ); spotLight.position = [0, 5, 0]; spotLight.rotation = [Math.PI / 2, 0, 0];
+            scene.add( ambientLight, directLight, pointLight, spotLight);
 
             const quadMaterial = new CZPG.BasicModelMaterial({baseColor: [1, 0, 0, 1], baseTexture: tex});
             const lambertMaterial = new CZPG.LambertModelMaterial({ baseColor: [1, 0, 0, 1], baseTexture: tex, cull:false });
@@ -156,7 +157,7 @@
                 grid.primitive.offset = 2 - 2 * Math.ceil( Math.sin( loop.lastTime * 0.006 ) );
 
                 pointLight.position = [ 1.2 * Math.sin(loop.lastTime * 0.0003) + 1, 1.2 * Math.cos(loop.lastTime * 0.0003), 1.2 * Math.sin(loop.lastTime * 0.0003) ];
-                sphere.position = pointLight.position;
+                sphere.position = spotLight.position;
                 scene.render();
             }).start();
 
