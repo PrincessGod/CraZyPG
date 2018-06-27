@@ -90,7 +90,7 @@ Object.assign( LightManager.prototype, {
             for ( let i = 0; i < this.directionalLights.length; i ++ ) {
 
                 uniformObj[ `u_directionalLights[${i}].color` ] = [ this.directionalLights[ i ].color[ 0 ] * this.directionalLights[ i ].intensity, this.directionalLights[ i ].color[ 1 ] * this.directionalLights[ i ].intensity, this.directionalLights[ i ].color[ 2 ] * this.directionalLights[ i ].intensity ];
-                uniformObj[ `u_directionalLights[${i}].direction` ] = this.directionalLights[ i ].transform.forward.slice( 0, 3 );
+                uniformObj[ `u_directionalLights[${i}].direction` ] = this.directionalLights[ i ].transform.forwardNormaled.raw;
 
             }
 
@@ -113,7 +113,7 @@ Object.assign( LightManager.prototype, {
 
                 uniformObj[ `u_spotLights[${i}].color` ] = [ spotLight.color[ 0 ] * spotLight.intensity, spotLight.color[ 1 ] * spotLight.intensity, spotLight.color[ 2 ] * spotLight.intensity ];
                 uniformObj[ `u_spotLights[${i}].position` ] = spotLight.position;
-                uniformObj[ `u_spotLights[${i}].direction` ] = spotLight.transform.forward.slice( 0, 3 );
+                uniformObj[ `u_spotLights[${i}].direction` ] = spotLight.transform.forwardNormaled.raw;
                 uniformObj[ `u_spotLights[${i}].distance` ] = spotLight.distance;
                 uniformObj[ `u_spotLights[${i}].coneCos` ] = Math.cos( spotLight.angle );
                 uniformObj[ `u_spotLights[${i}].penumbraCos` ] = Math.cos( spotLight.angle * ( 1 - spotLight.penumbra ) );

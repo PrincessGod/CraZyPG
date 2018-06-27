@@ -16,6 +16,10 @@ function Transform() {
     this.forward = new Float32Array( 4 );
     this.up = new Float32Array( 4 );
     this.right = new Float32Array( 4 );
+    this.forwardNormaled = new Vector3( 0, 0, 1 );
+    this.upNormaled = new Vector3( 0, 1, 0 );
+    this.rightNormaled = new Vector3( 1, 0, 0 );
+
 
     this._needUpdateMatrix = false;
     this.needUpdateWorldMatrix = true;
@@ -157,6 +161,9 @@ Object.assign( Transform.prototype, {
         Matrix4.transformVec4( this.forward, this.worldMatrix.raw, [ 0, 0, 1, 0 ] );
         Matrix4.transformVec4( this.up, this.worldMatrix.raw, [ 0, 1, 0, 0 ] );
         Matrix4.transformVec4( this.right, this.worldMatrix.raw, [ 1, 0, 0, 0 ] );
+        this.forwardNormaled.setFromArray( this.forward ).normalize();
+        this.upNormaled.setFromArray( this.up ).normalize();
+        this.rightNormaled.setFromArray( this.right ).normalize();
         return this;
 
     },
