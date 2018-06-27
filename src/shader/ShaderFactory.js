@@ -56,11 +56,14 @@ Object.assign( ShaderFactory, {
 
     parseDefineObjFromLightManager( lightManager ) {
 
-        const defineObj = {
-            DIR_LIGHT_NUM: lightManager.directionalLights.length,
-            POINT_LIGHT_NUM: lightManager.pointLights.length,
-            SPOT_LIGHT_NUM: lightManager.spotLights.length,
-        };
+        const defineObj = {};
+
+        if ( lightManager.directionalLights.length > 0 )
+            defineObj.DIR_LIGHT_NUM = lightManager.directionalLights.length;
+        if ( lightManager.pointLights.length > 0 )
+            defineObj.POINT_LIGHT_NUM = lightManager.pointLights.length;
+        if ( lightManager.spotLights.length > 0 )
+            defineObj.SPOT_LIGHT_NUM = lightManager.spotLights.length;
 
         return defineObj;
 

@@ -134,7 +134,7 @@
 
             const cube = new CZPG.Model( new CZPG.Cube({ offset: 0 }), lambertMaterial );
             cube.position = [1, 0, 0];
-            // scene.add(cube);
+            scene.add(cube);
 
             const sphere = new CZPG.Model( new CZPG.Sphere({ radius: 0.01, offset: 3, subdivAixs: 40, subdivHeight: 20 }), quadMaterial );
             sphere.position = [-1, 0, 0];
@@ -142,7 +142,7 @@
 
             const gridMaterial = new CZPG.BasicLineMaterial();
             var grid = new CZPG.Model(new CZPG.GridAxis({ size:3, div:1, offset: 2 }), gridMaterial);
-            // scene.add(grid);
+            scene.add(grid);
 
             scene.currentCamera = camera;
 
