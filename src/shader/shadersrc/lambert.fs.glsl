@@ -2,7 +2,7 @@ uniform vec3 u_diffuse;
 uniform vec3 u_emissive;
 uniform float u_alpha;
 
-in vec3 v_LightFront;
+in vec3 v_lightFront;
 
 #ifdef DOUBLE_SIDE
 
@@ -46,11 +46,11 @@ void main() {
 
     #ifdef DOUBLE_SIDE
 
-        reflectedLight.directDiffuse = ( gl_FrantFacing ) ? v_LightFront : v_lightBack;
+        reflectedLight.directDiffuse = ( gl_FrontFacing ) ? v_lightFront : v_lightBack;
 
     #else
 
-        reflectedLight.directDiffuse = v_LightFront;
+        reflectedLight.directDiffuse = v_lightFront;
 
     #endif
 
@@ -64,6 +64,4 @@ void main() {
 
     finalColor = vec4( outgoingLight, diffuseColor.a );
 
-
 }
-

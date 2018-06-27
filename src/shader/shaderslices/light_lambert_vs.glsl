@@ -5,11 +5,11 @@
     geometry.normal = normal;
     geometry.viewDir = normalize( u_viewMat[3].xyz - worldpos.xyz );
 
-    v_LightFront = vec3( 0.0 );
+    v_lightFront = vec3( 0.0 );
 
     #ifdef DOUBLE_SIDE
 
-        v_LightBack = vec3( 0.0 );
+        v_lightBack = vec3( 0.0 );
 
     #endif
 
@@ -26,11 +26,11 @@
             dotNL = dot( geometry.normal, directLight.direction );
             directLightColor_Diffuse = PI * directLight.color;
 
-            v_LightFront += saturate( dotNL ) * directLightColor_Diffuse;
+            v_lightFront += saturate( dotNL ) * directLightColor_Diffuse;
 
             #ifdef DOUBLE_SIDE
 
-                v_LightBack += saturate( -dotNL ) * directLightColor_Diffuse;
+                v_lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
 
             #endif
 
@@ -47,11 +47,11 @@
             dotNL = dot( geometry.normal, directLight.direction );
             directLightColor_Diffuse = PI * directLight.color;
 
-            v_LightFront += saturate( dotNL ) * directLightColor_Diffuse;
+            v_lightFront += saturate( dotNL ) * directLightColor_Diffuse;
 
             #ifdef DOUBLE_SIDE
 
-                v_LightFront += saturate( -dotNL ) * directLightColor_Diffuse;
+                v_lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
 
             #endif
 
@@ -68,11 +68,11 @@
             dotNL = dot( geometry.normal, directLight.direction );
             directLightColor_Diffuse = PI * directLight.color;
 
-            v_LightFront += saturate( dotNL ) * directLightColor_Diffuse;
+            v_lightFront += saturate( dotNL ) * directLightColor_Diffuse;
 
             #ifdef DOUBLE_SIDE
 
-                v_LightBack += saturate( -dotNL ) * directLightColor_Diffuse;
+                v_lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
 
             #endif
 

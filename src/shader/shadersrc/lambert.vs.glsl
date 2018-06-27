@@ -9,11 +9,11 @@
 #include <light_spec>
 // env map
 
-out vec3 v_LightFront;
+out vec3 v_lightFront;
 
 #ifdef DOUBLE_SIDE
 
-    out vec3 v_LightBack;
+    out vec3 v_lightBack;
 
 #endif
 
