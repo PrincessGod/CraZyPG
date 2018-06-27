@@ -44,9 +44,14 @@ function Material( ShaderType, opts ) {
     this.customDefines = {};
 
     const { baseColor, diffuse, alpha } = opts;
-    this.baseColor = baseColor || [ 1, 1, 1, 1 ];
-    this.diffuse = diffuse || [ 1, 1, 1 ];
-    this.alpha = alpha || 1;
+    if ( baseColor )
+        this.baseColor = baseColor || [ 1, 1, 1, 1 ];
+    else {
+
+        this.diffuse = diffuse || [ 1, 1, 1 ];
+        this.alpha = alpha || 1;
+
+    }
 
 }
 
