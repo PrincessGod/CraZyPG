@@ -1,15 +1,15 @@
     vec3 diffuse = vec3( 1.0 );
 
     GeometricContext geometry;
-    geometry.position = worldpos.xyz;
-    geometry.normal = normal;
-    geometry.viewDir = normalize( u_viewMat[3].xyz - worldpos.xyz );
+    geometry.position = v_worldpos.xyz;
+    geometry.normal = normalize( v_normal );
+    geometry.viewDir = normalize( u_viewMat[3].xyz - v_worldpos.xyz );
 
-    v_lightFront = vec3( 0.0 );
+    vec3 lightFront = vec3( 0.0 );
 
     #ifdef DOUBLE_SIDE
 
-        v_lightBack = vec3( 0.0 );
+        vec3 lightBack = vec3( 0.0 );
 
     #endif
 
@@ -26,11 +26,11 @@
             dotNL = dot( geometry.normal, directLight.direction );
             directLightColor_Diffuse = PI * directLight.color;
 
-            v_lightFront += saturate( dotNL ) * directLightColor_Diffuse;
+            lightFront += saturate( dotNL ) * directLightColor_Diffuse;
 
             #ifdef DOUBLE_SIDE
 
-                v_lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
+                lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
 
             #endif
 
@@ -47,11 +47,11 @@
             dotNL = dot( geometry.normal, directLight.direction );
             directLightColor_Diffuse = PI * directLight.color;
 
-            v_lightFront += saturate( dotNL ) * directLightColor_Diffuse;
+            lightFront += saturate( dotNL ) * directLightColor_Diffuse;
 
             #ifdef DOUBLE_SIDE
 
-                v_lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
+                lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
 
             #endif
 
@@ -68,11 +68,11 @@
             dotNL = dot( geometry.normal, directLight.direction );
             directLightColor_Diffuse = PI * directLight.color;
 
-            v_lightFront += saturate( dotNL ) * directLightColor_Diffuse;
+            lightFront += saturate( dotNL ) * directLightColor_Diffuse;
 
             #ifdef DOUBLE_SIDE
 
-                v_lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
+                lightBack += saturate( -dotNL ) * directLightColor_Diffuse;
 
             #endif
 

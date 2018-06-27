@@ -2,20 +2,13 @@ uniform vec3 u_diffuse;
 uniform vec3 u_emissive;
 uniform float u_alpha;
 
-in vec3 v_lightFront;
-
-#ifdef DOUBLE_SIDE
-
-    in vec3 v_lightBack;
-
-#endif
-
 #include <common>
 #include <common_fs>
 #include <uv_spec_fs>
 #include <uv2_spec_fs>
 #include <normal_spec_fs>
 #include <color_spec_fs>
+#include <worldpos_spec_fs>
 #include <base_texture_spec_fs>
 #include <alpha_texture_spec_fs>
 // light map
@@ -40,17 +33,19 @@ void main() {
     // specular map
     // emissive map
 
+    #include <light_lambert_fs>
+
     reflectedLight.indirectDiffuse = getAmbientLightIrradiance( u_ambientLightColor );
 
     // light map
 
     #ifdef DOUBLE_SIDE
 
-        reflectedLight.directDiffuse = ( gl_FrontFacing ) ? v_lightFront : v_lightBack;
+        reflectedLight.directDiffuse = ( gl_FrontFacing ) ? lightFront : lightBack;
 
     #else
 
-        reflectedLight.directDiffuse = v_lightFront;
+        reflectedLight.directDiffuse = lightFront;
 
     #endif
 

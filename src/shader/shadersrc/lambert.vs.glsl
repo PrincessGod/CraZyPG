@@ -4,18 +4,8 @@
 #include <uv2_spec_vs>
 #include <normal_spec_vs>
 #include <color_spec_vs>
-
-#include <bsdf>
-#include <light_spec>
+#include <worldpos_spec_vs>
 // env map
-
-out vec3 v_lightFront;
-
-#ifdef DOUBLE_SIDE
-
-    out vec3 v_lightBack;
-
-#endif
 
 void main() {
 
@@ -30,6 +20,6 @@ void main() {
     #include <color_vs>
     #include <position_vs>
 
-    #include <light_lambert_vs>
+    #include <worldpos_vs>
 
 }
