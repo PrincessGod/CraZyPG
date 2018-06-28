@@ -23,7 +23,6 @@ import uv2_vs from './shaderslices/uv2_vs.glsl';
 import normal_vs from './shaderslices/normal_vs.glsl';
 import color_vs from './shaderslices/color_vs.glsl';
 import position_vs from './shaderslices/position_vs.glsl';
-import normal_default_vs from './shaderslices/normal_default_vs.glsl';
 import worldpos_vs from './shaderslices/worldpos_vs.glsl';
 import env_texture_vs from './shaderslices/env_texture_vs.glsl';
 
@@ -77,7 +76,6 @@ export const ShaderSlices = {
     color_vs,
     worldpos_vs,
     position_vs,
-    normal_default_vs,
     env_texture_vs,
 
     common_fs,
