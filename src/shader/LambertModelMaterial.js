@@ -22,7 +22,8 @@ function LambertModelMaterial( opts = {} ) {
     const opt = Object.assign( defaultOpt, opts );
     Material.call( this, LambertModelShader, opt );
 
-    const { baseTexture } = opt;
+    const { emissive, baseTexture } = opt;
+    this.emissive = emissive || [ 0, 0, 0 ];
     this.baseTexture = baseTexture;
 
 }
@@ -34,6 +35,23 @@ LambertModelMaterial.prototype = Object.assign( Object.create( Material.prototyp
 } );
 
 Object.defineProperties( LambertModelMaterial.prototype, {
+
+    emissive: {
+
+        get() {
+
+            return this._emissive;
+
+        },
+
+        set( v ) {
+
+            this._emissive = v;
+            this.setUniformObj( { u_emissive: v } );
+
+        },
+
+    },
 
     baseTexture: {
 
