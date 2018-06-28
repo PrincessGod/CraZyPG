@@ -1,7 +1,8 @@
 /* eslint camelcase: 0 */
+import pack from './shaderslices/pack.glsl';
 import common from './shaderslices/common.glsl';
-
 import bsdf from './shaderslices/bsdf.glsl';
+
 import light_spec from './shaderslices/light_spec.glsl';
 import light_lambert_fs from './shaderslices/light_lambert_fs.glsl';
 
@@ -15,6 +16,7 @@ import env_texture_spec_vs from './shaderslices/env_texture_spec_vs.glsl';
 
 import begin_position_vs from './shaderslices/begin_position_vs.glsl';
 import begin_normal_vs from './shaderslices/begin_normal_vs.glsl';
+import begin_normal_fs from './shaderslices/begin_normal_fs.glsl';
 
 import morph_vs from './shaderslices/morph_vs.glsl';
 import skinning_vs from './shaderslices/skinning_vs.glsl';
@@ -38,6 +40,7 @@ import specular_texture_spec_fs from './shaderslices/specular_texture_spec_fs.gl
 import light_texture_spec_fs from './shaderslices/light_texture_spec_fs.glsl';
 import ao_texture_spec_fs from './shaderslices/ao_texture_spec_fs.glsl';
 import env_texture_spec_fs from './shaderslices/env_texture_spec_fs.glsl';
+import normal_texture_spec_fs from './shaderslices/normal_texture_spec_fs.glsl';
 
 import base_texture_fs from './shaderslices/base_texture_fs.glsl';
 import color_fs from './shaderslices/color_fs.glsl';
@@ -48,9 +51,11 @@ import specular_texture_fs from './shaderslices/specular_texture_fs.glsl';
 import light_texture_fs from './shaderslices/light_texture_fs.glsl';
 import ao_texture_fs from './shaderslices/ao_texture_fs.glsl';
 import env_texture_fs from './shaderslices/env_texture_fs.glsl';
+import normal_texture_fs from './shaderslices/normal_texture_fs.glsl';
 
 export const ShaderSlices = {
 
+    pack,
     common,
 
     bsdf,
@@ -67,6 +72,7 @@ export const ShaderSlices = {
 
     begin_position_vs,
     begin_normal_vs,
+    begin_normal_fs,
 
     morph_vs,
     skinning_vs,
@@ -90,6 +96,7 @@ export const ShaderSlices = {
     light_texture_spec_fs,
     ao_texture_spec_fs,
     env_texture_spec_fs,
+    normal_texture_spec_fs,
 
     base_texture_fs,
     color_fs,
@@ -100,5 +107,6 @@ export const ShaderSlices = {
     light_texture_fs,
     ao_texture_fs,
     env_texture_fs,
+    normal_texture_fs,
 
 };
