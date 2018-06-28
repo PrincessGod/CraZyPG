@@ -5,6 +5,9 @@
         "node": true
     },
     "extends": ["airbnb", "mdcs"],
+    "globals": {
+        "CZPG": true
+    },
     "parserOptions": {
         "sourceType": "module"
     },
