@@ -22,6 +22,7 @@ class TestMaterial extends CZPG.Material {
 const renderer = new CZPG.WebGL2Renderer( 'glpaper' ).setSize( '100%', '100%' );
 const scene = new CZPG.Scene( renderer );
 const baseTexture = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
+const normalTexture = new CZPG.Texture2D( { src: './resource/normal.png' } );
 const camera = new CZPG.PerspectiveCamera( 45, renderer.canvas.width / renderer.canvas.height );
 
 const cameraControler = new CZPG.OrbitControls( camera, renderer.canvas, scene.controler );
@@ -34,13 +35,14 @@ const pointLight = new CZPG.PointLight( [ 1, 0, 1 ], 0.5, 2 );
 const spotLight = new CZPG.SpotLight( [ 1, 1, 0 ], 0.5, 20, Math.PI / 10, 0.3 ); spotLight.position = [ 0, 5, 0 ]; spotLight.rotation = [ Math.PI / 2 - 0.5, 0, 0 ];
 scene.add( ambientLight, directLight, pointLight, spotLight );
 
-const quadMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture } );
+const basicMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: normalTexture } );
 const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture, cull: false } );
-const model = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), lambertMaterial );
-model.rotation = [ - Math.PI / 2, 0, 0 ];
-scene.add( model );
+const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, normalTexture } );
+const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), normalMaterial );
+quad.rotation = [ - Math.PI / 2, 0, 0 ];
+scene.add( quad );
 
-const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), lambertMaterial );
+const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), normalMaterial );
 cube.position = [ 1, 0.5, 0 ];
 scene.add( cube );
 

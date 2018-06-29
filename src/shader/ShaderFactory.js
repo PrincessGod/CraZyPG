@@ -47,6 +47,8 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_BASETEXTURE = 1;
         if ( ! material.cull )
             defineObj.DOUBLE_SIDE = 1;
+        if ( material.normalTexture )
+            defineObj.HAS_NORMALTEXTURE = 1;
 
         Object.assign( defineObj, material.customDefines );
 

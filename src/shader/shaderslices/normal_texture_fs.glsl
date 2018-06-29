@@ -1,5 +1,5 @@
     #ifdef HAS_NORMALTEXTURE
 
-        normal = perturbNormal2Arb( vec3( v_worldpos.xyz - u_viewMat[ 3 ].xyz ), normal );
+        normal = perturbNormal2Arb( v_worldpos.xyz, normal );
 
     #endif
