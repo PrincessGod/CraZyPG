@@ -51,7 +51,7 @@ Object.assign( Scene.prototype, {
 
         this.root.updateMatrix();
         this.lightManager.updateUniformObj();
-        this.models.forEach( m => this.renderer.render( m, this.currentCamera, this.lightManager ) );
+        this.renderer.render( this.models, this.currentCamera, this.lightManager );
 
     },
 

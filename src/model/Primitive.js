@@ -1,7 +1,7 @@
 import { IndicesKey, BufferParams, ShaderParams } from '../core/constant';
 import { getGLTypeFromTypedArray, getTypedArrayTypeFromGLType, isTypedArray } from '../core/typedArray';
 
-let nameIdx = 0;
+let geometryId = 0;
 
 const colorRE = /color|colour/i;
 const textureRE = /uv|coord/i;
@@ -69,7 +69,8 @@ function Primitive( attribArrays, opts = {} ) {
         name, offset,
     } = opts;
 
-    this.name = name === undefined ? `NO_NAME_PRIMITIVE${nameIdx ++}` : name;
+    this.name = name === undefined ? `NO_NAME_PRIMITIVE${geometryId}` : name;
+    Object.defineProperty( this, 'id', { value: geometryId ++, writable: false } );
     this.attribArrays = attribArrays;
     this._offset = offset === undefined ? 0 : offset;
     this.vaoInfo = { needUpdate: true };

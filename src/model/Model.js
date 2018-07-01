@@ -1,12 +1,13 @@
 import { Node } from '../object/Node';
 import { ShaderParams } from '../core/constant';
 
-let modelCount = 0;
+let modelId = 0;
 
 // opts { enablePick=true }
 function Model( primitive, material, opts = {} ) {
 
-    Node.call( this, primitive.name || opts.name || `NO_NAME_MODEL${modelCount ++}` );
+    Node.call( this, primitive.name || opts.name || `NO_NAME_MODEL${modelId}` );
+    Object.defineProperty( this, 'id', { value: modelId ++, writable: false } );
 
     const { enablePick } = opts;
     this.material = material;

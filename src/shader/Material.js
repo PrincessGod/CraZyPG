@@ -1,6 +1,7 @@
 import { State } from './State';
 import { BeginMode } from '../core/constant';
 
+let materialId = 0;
 // opts { uniformObj, drawMode=TRIANGLES, instanceCount,
 // blendColor, blendEquationSeparate, blendFuncSeparate,
 // colorMask, cullFace, depthFunc, depthMask, depthRange,
@@ -37,7 +38,8 @@ function Material( ShaderType, opts ) {
         name, version, vertexPrecision, fragmentPrecision,
     } = opts;
 
-    this.name = name || 'NO_NAME_MATERIAL';
+    this.name = name || `NO_NAME_MATERIAL${materialId}`;
+    Object.defineProperty( this, 'id', { value: materialId ++, writable: false } );
     this.version = version || '300 es';
     this.vertexPrecision = vertexPrecision || 'highp';
     this.fragmentPrecision = fragmentPrecision || 'mediump';

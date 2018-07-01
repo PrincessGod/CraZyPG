@@ -38,9 +38,12 @@ function getShaderSrc( src ) {
 
 }
 
+let programId = 0;
+
 // opts{ transformFeedbackVaryings, validateProgram }
 function ProgramInfo( vs, fs, opts = {} ) {
 
+    Object.defineProperty( this, 'id', { value: programId ++, writable: false } );
     this._vs = getShaderSrc( vs );
     this._fs = getShaderSrc( fs );
     this.opts = opts;
@@ -145,6 +148,16 @@ Object.defineProperties( ProgramInfo.prototype, {
         get() {
 
             return this._fs;
+
+        },
+
+    },
+
+    currentUniformObj: {
+
+        get() {
+
+            return this._currentUniformObj;
 
         },
 

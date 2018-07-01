@@ -6,6 +6,7 @@ import { VertexArrays } from './VertexArrays';
 import { DefaultColor, ShaderParams } from '../core/constant';
 import { Matrix4 } from '../math/Matrix4';
 import { pick } from '../core/utils';
+import { RenderList } from './RenderList';
 
 const shaders = new Map();
 
@@ -98,7 +99,11 @@ function WebGL2Renderer( canvasOrId, opts ) {
     this.programs = new Programs( this.context, this.buffers );
     this.vaos = new VertexArrays( this.context, this.programs, this.buffers );
 
+    this.renderList = new RenderList();
+
 }
+
+let lasProgram;
 
 Object.assign( WebGL2Renderer.prototype, {
 
@@ -155,8 +160,9 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    updateUniforms( uniformSetters, programInfo, material, camera, model, lightManager ) {
+    updateUniforms( programInfo, material, camera, model, lightManager ) {
 
+        const uniformSetters = programInfo.uniformSetters;
         Object.keys( uniformSetters ).forEach( ( uniform ) => {
 
             switch ( uniform ) {
@@ -215,53 +221,104 @@ Object.assign( WebGL2Renderer.prototype, {
 
         } );
 
+        if ( lasProgram !== programInfo )
+            Object.keys( programInfo.currentUniformObj ).forEach( ( prop ) => {
+
+                const textureInfo = programInfo.currentUniformObj[ prop ].textureInfo;
+                if ( textureInfo )
+                    updatedUniforms[ prop ] = this.textures.update( textureInfo ).get( textureInfo );
+
+            } );
+
         setUniforms( uniformSetters, updatedUniforms );
         programInfo.afterUpdateUniform();
 
     },
 
+    preRender( models, lightManager ) {
+
+        this.renderList.clear();
+
+        models.forEach( ( model ) => {
+
+            const { material, primitive } = model;
+
+            let shader;
+            if ( shaders.has( material.ShaderType ) )
+                shader = shaders.get( material.ShaderType );
+            else {
+
+                shader = new material.ShaderType();
+                shaders.set( material.ShaderType, shader );
+
+            }
+
+            const programInfo = shader.getProgramInfo( primitive, material, lightManager );
+            const { vaoInfo } = primitive;
+
+            primitive.updateVaoInfo( programInfo );
+            this.programs.update( programInfo );
+            this.vaos.update( vaoInfo );
+
+            const vao = this.vaos.get( vaoInfo );
+            const program = this.programs.get( programInfo );
+
+            this.renderList.add( {
+                model,
+                id: model.id,
+                material,
+                primitive,
+                vao,
+                program,
+                transparent: false,
+                programInfo,
+            } );
+
+        } );
+
+        this.renderList.sort();
+
+    },
+
+    renderModel( camera, lightManager ) {
+
+        const opqueTargets = this.renderList.opqueList;
+
+        opqueTargets.forEach( ( opque ) => {
+
+            const {
+                model, primitive, material, program, vao, programInfo,
+            } = opque;
+
+            this.context.useProgram( program );
+            this.applyStates( material );
+            this.updateUniforms( programInfo, material, camera, model, lightManager );
+            this.context.bindVertexArray( vao );
+
+            const { drawMode, instanceCount } = material;
+            const {
+                indices, numElements, elementType, offset,
+            } = primitive.bufferInfo;
+            const isIndexed = ( indices || elementType );
+            const drawFun = `draw${isIndexed ? 'Elements' : 'Arrays'}${( typeof instanceCount === 'number' ) ? 'Instanced' : ''}`;
+
+            if ( isIndexed )
+                this.context[ drawFun ]( drawMode, numElements, elementType, offset * indices.data.BYTES_PER_ELEMENT, instanceCount );
+            else
+                this.context[ drawFun ]( drawMode, offset, numElements, instanceCount );
+
+            this.context.bindVertexArray( null );
+
+            return this;
+
+        } );
+
+    },
+
     render( model, camera, lightManager ) {
 
-        const { material, primitive } = model;
-
-        let shader;
-        if ( shaders.has( material.ShaderType ) )
-            shader = shaders.get( material.ShaderType );
-        else {
-
-            shader = new material.ShaderType();
-            shaders.set( material.ShaderType, shader );
-
-        }
-
-        const programInfo = shader.getProgramInfo( primitive, material, lightManager );
-        const { vaoInfo, offset } = primitive;
-        const { bufferInfo } = vaoInfo;
-
-        primitive.updateVaoInfo( programInfo );
-        this.programs.update( programInfo );
-        this.vaos.update( vaoInfo );
-
-        const vao = this.vaos.get( vaoInfo );
-        const program = this.programs.get( programInfo );
-        const { uniformSetters } = programInfo;
-
-        this.context.useProgram( program );
-        this.applyStates( material );
-        this.updateUniforms( uniformSetters, programInfo, material, camera, model, lightManager );
-        this.context.bindVertexArray( vao );
-
-        const { drawMode, instanceCount } = material;
-        const { indices, numElements, elementType } = bufferInfo;
-        const isIndexed = ( indices || elementType );
-        const drawFun = `draw${isIndexed ? 'Elements' : 'Arrays'}${( typeof instanceCount === 'number' ) ? 'Instanced' : ''}`;
-
-        if ( isIndexed )
-            this.context[ drawFun ]( drawMode, numElements, elementType, offset * indices.data.BYTES_PER_ELEMENT, instanceCount );
-        else
-            this.context[ drawFun ]( drawMode, offset, numElements, instanceCount );
-
-        this.context.bindVertexArray( null );
+        this.preRender( model, lightManager );
+        this.renderModel( camera, lightManager );
 
         return this;
 
