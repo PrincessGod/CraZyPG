@@ -5,10 +5,11 @@ uniform float u_alpha;
 #include <uv_spec_fs>
 #include <normal_spec_fs>
 #include <normal_texture_spec_fs>
+#include <bump_texture_spec_fs>
 
 #include <pack>
 
-#if defined( FLAT_SHADE ) || defined( HAS_NORMALTEXTURE )
+#if defined( FLAT_SHADE ) || defined( HAS_NORMALTEXTURE ) || defined( HAS_BUMPTEXTURE )
 
     #include <worldpos_spec_fs>
 

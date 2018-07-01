@@ -49,6 +49,8 @@ Object.assign( ShaderFactory, {
             defineObj.DOUBLE_SIDE = 1;
         if ( material.normalTexture )
             defineObj.HAS_NORMALTEXTURE = 1;
+        if ( material.bumpTexture )
+            defineObj.HAS_BUMPTEXTURE = 1;
 
         Object.assign( defineObj, material.customDefines );
 

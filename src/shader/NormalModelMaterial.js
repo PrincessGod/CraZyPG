@@ -21,9 +21,13 @@ function NormalModelMaterial( opts = {} ) {
     const opt = Object.assign( defaultOpt, opts );
     Material.call( this, NormalModelShader, opt );
 
-    const { normalTexture, normalScale } = opt;
+    const {
+        normalTexture, normalScale, bumpTexture, bumpScale,
+    } = opt;
     this.normalTexture = normalTexture;
     this.normalScale = normalScale || [ 1, 1 ];
+    this.bumpTexture = bumpTexture;
+    this.bumpScale = bumpScale || 1;
 
 }
 
@@ -64,6 +68,40 @@ Object.defineProperties( NormalModelMaterial.prototype, {
 
             this._normalScale = v;
             this.setUniformObj( { u_normalScale: v } );
+
+        },
+
+    },
+
+    bumpTexture: {
+
+        get() {
+
+            return this._bumpTexture;
+
+        },
+
+        set( v ) {
+
+            this._bumpTexture = v;
+            this.setUniformObj( { u_bumpTexture: v } );
+
+        },
+
+    },
+
+    bumpScale: {
+
+        get() {
+
+            return this._bumpScale;
+
+        },
+
+        set( v ) {
+
+            this._bumpScale = v;
+            this.setUniformObj( { u_bumpScale: v } );
 
         },
 

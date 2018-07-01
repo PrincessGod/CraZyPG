@@ -3,7 +3,7 @@
 #include <uv_spec_vs>
 #include <normal_spec_vs>
 
-#if defined( FLAT_SHADE ) || defined( HAS_NORMALTEXTURE )
+#if defined( FLAT_SHADE ) || defined( HAS_NORMALTEXTURE ) || defined( HAS_BUMPTEXTURE )
 
     #include <worldpos_spec_vs>
 
@@ -20,7 +20,7 @@ void main() {
     #include <normal_vs>
     #include <position_vs>
 
-    #if defined( FLAT_SHADE ) || defined( HAS_NORMALTEXTURE )
+    #if defined( FLAT_SHADE ) || defined( HAS_NORMALTEXTURE ) || defined( HAS_BUMPTEXTURE )
 
         #include <worldpos_vs>
 
