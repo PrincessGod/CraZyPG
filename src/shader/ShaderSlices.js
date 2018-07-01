@@ -4,7 +4,13 @@ import common from './shaderslices/common.glsl';
 import bsdf from './shaderslices/bsdf.glsl';
 
 import light_spec from './shaderslices/light_spec.glsl';
+import begin_light_fs from './shaderslices/begin_light_fs.glsl';
+import light_textures_fs from './shaderslices/light_textures_fs.glsl';
+import end_light_fs from './shaderslices/end_light_fs.glsl';
 import light_lambert_fs from './shaderslices/light_lambert_fs.glsl';
+import light_phong_spec_fs from './shaderslices/light_phong_spec_fs.glsl';
+import light_phong_fs from './shaderslices/light_phong_fs.glsl';
+
 
 import common_vs from './shaderslices/common_vs.glsl';
 import uv_spec_vs from './shaderslices/uv_spec_vs.glsl';
@@ -61,7 +67,12 @@ export const ShaderSlices = {
 
     bsdf,
     light_spec,
+    begin_light_fs,
+    light_textures_fs,
+    end_light_fs,
     light_lambert_fs,
+    light_phong_spec_fs,
+    light_phong_fs,
 
     common_vs,
     uv_spec_vs,
