@@ -24,12 +24,14 @@ function PhongModelMaterial( opts = {} ) {
 
     const {
         baseTexture, specular, shininess, emissive, emissiveTexture,
+        specularTexture,
     } = opt;
     this.baseTexture = baseTexture;
     this.specular = specular || [ 1, 1, 1 ];
     this.shininess = shininess || 10;
     this.emissive = emissive || [ 0, 0, 0 ];
     this.emissiveTexture = emissiveTexture;
+    this.specularTexture = specularTexture;
 
 }
 
@@ -40,6 +42,23 @@ PhongModelMaterial.prototype = Object.assign( Object.create( Material.prototype 
 } );
 
 Object.defineProperties( PhongModelMaterial.prototype, {
+
+    baseTexture: {
+
+        get() {
+
+            return this._baseTexture;
+
+        },
+
+        set( v ) {
+
+            this._baseTexture = v;
+            this.setUniformObj( { u_baseTexture: v } );
+
+        },
+
+    },
 
     emissive: {
 
@@ -75,18 +94,18 @@ Object.defineProperties( PhongModelMaterial.prototype, {
 
     },
 
-    baseTexture: {
+    specularTexture: {
 
         get() {
 
-            return this._baseTexture;
+            return this._specularTexture;
 
         },
 
         set( v ) {
 
-            this._baseTexture = v;
-            this.setUniformObj( { u_baseTexture: v } );
+            this._specularTexture = v;
+            this.setUniformObj( { u_specularTexture: v } );
 
         },
 

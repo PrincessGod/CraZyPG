@@ -2,7 +2,7 @@
 
     #ifdef HAS_SPECULARTEXTURE
 
-        specularStrength = texture( u_specularTexture, v_uv );
+        specularStrength = texture( u_specularTexture, v_uv ).r;
 
     #else
 

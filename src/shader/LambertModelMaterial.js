@@ -22,10 +22,13 @@ function LambertModelMaterial( opts = {} ) {
     const opt = Object.assign( defaultOpt, opts );
     Material.call( this, LambertModelShader, opt );
 
-    const { emissive, baseTexture, emissiveTexture } = opt;
+    const {
+        emissive, baseTexture, emissiveTexture, specularTexture,
+    } = opt;
     this.baseTexture = baseTexture;
     this.emissive = emissive || [ 0, 0, 0 ];
     this.emissiveTexture = emissiveTexture;
+    this.specularTexture = specularTexture;
 
 }
 
@@ -66,6 +69,23 @@ Object.defineProperties( LambertModelMaterial.prototype, {
 
             this._emissiveTexture = v;
             this.setUniformObj( { u_emissiveTexture: v } );
+
+        },
+
+    },
+
+    specularTexture: {
+
+        get() {
+
+            return this._specularTexture;
+
+        },
+
+        set( v ) {
+
+            this._specularTexture = v;
+            this.setUniformObj( { u_specularTexture: v } );
 
         },
 

@@ -53,6 +53,8 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_BUMPTEXTURE = 1;
         if ( material.emissiveTexture )
             defineObj.HAS_EMISSIVETEXTURE = 1;
+        if ( material.specularTexture )
+            defineObj.HAS_SPECULARTEXTURE = 1;
 
         Object.assign( defineObj, material.customDefines );
 
