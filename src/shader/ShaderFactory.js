@@ -51,6 +51,8 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_NORMALTEXTURE = 1;
         if ( material.bumpTexture )
             defineObj.HAS_BUMPTEXTURE = 1;
+        if ( material.emissiveTexture )
+            defineObj.HAS_EMISSIVETEXTURE = 1;
 
         Object.assign( defineObj, material.customDefines );
 
