@@ -29,7 +29,7 @@ const cameraControler = new CZPG.OrbitControls( camera, renderer.canvas, scene.c
 cameraControler.enableDamping = true;
 camera.position = [ 0, 4, 10 ];
 
-const ambientLight = new CZPG.AmbientLight( [ 0.1, 0.1, 0.1 ], 0.1 );
+const ambientLight = new CZPG.AmbientLight( [ 0.1, 0.1, 0.1 ], 1 );
 const directLight = new CZPG.DirectionalLight( [ 1, 1, 1 ], 0.1 );
 const pointLight = new CZPG.PointLight( [ 1, 0, 1 ], 0.5, 2 );
 const spotLight = new CZPG.SpotLight( [ 1, 1, 0 ], 0.5, 20, Math.PI / 10, 0.3 ); spotLight.position = [ 0, 5, 0 ]; spotLight.rotation = [ Math.PI / 2 - 0.5, 0, 0 ];
@@ -38,13 +38,19 @@ scene.add( ambientLight, directLight, pointLight, spotLight );
 const basicMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture } );
 const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: bumpTexture, cull: false } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
-const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), normalMaterial );
+const phongMaterial = new CZPG.PhongModelMaterial( {
+    cull: false, baseTexture, shininess: 10, specular: [ 0.5, 0.5, 0.5 ],
+} );
+const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMaterial );
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
 scene.add( quad );
 
 const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), lambertMaterial );
 cube.position = [ 1, 0.5, 0 ];
 scene.add( cube );
+
+const sphere = new CZPG.Model( new CZPG.Sphere(), phongMaterial );
+scene.add( sphere );
 
 const pointLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0, 0.5, 1 ] } );
 const pointLightObj = new CZPG.Model( new CZPG.Sphere( {

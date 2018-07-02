@@ -2,7 +2,7 @@ import { Primitive } from '../Primitive';
 import { ShaderParams, IndicesKey } from '../../core/constant';
 
 // { ...Primitive.opts, radius, subdivAixs, subdivHeight, startLon, endLon, startLat, endLat }
-function Sphere( opts ) {
+function Sphere( opts = {} ) {
 
     const {
         radius, subdivAixs, subdivHeight, startLon, endLon, startLat, endLat,

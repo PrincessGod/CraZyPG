@@ -2,10 +2,10 @@ struct BlinnPhongMaterial {
 
     vec3 diffuseColor;
     vec3 specularColor;
-    float sepcularShininess;
+    float specularShininess;
     float specularStrength;
 
-}
+};
 
 void RE_Direct_BlinnPhong( const in IncidentLight directLight, const in GeometricContext geometry, const in BlinnPhongMaterial material, inout ReflectedLight reflectedLight ) {
 

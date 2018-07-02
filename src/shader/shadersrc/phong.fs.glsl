@@ -3,15 +3,16 @@
 #include <uv_spec_fs>
 #include <normal_spec_fs>
 #include <color_spec_fs>
-#include <world_pos_fs>
+#include <worldpos_spec_fs>
 // dither
 #include <base_texture_spec_fs>
 #include <alpha_texture_spec_fs>
 #include <normal_texture_spec_fs>
 #include <bump_texture_spec_fs>
+#include <emissive_texture_spec_fs>
+#include <specular_texture_spec_fs>
 // ao map
 // light map
-// emissive map
 // env map
 // gradient map
 // fog
@@ -22,22 +23,21 @@
 #include <light_phong_spec_fs>
 
 // shadow map
-// specular map
 // log depth
 // clip planes
 
 uniform vec3 u_diffuse;
+uniform float u_alpha;
 uniform vec3 u_emissive;
 uniform vec3 u_specular;
 uniform float u_shininess;
-uniform float u_alpha;
 
 void main() {
 
     // clip plane
 
     vec4 diffuseColor = vec4( u_diffuse, u_alpha );
-    ReflectedLight = reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+    ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
     vec3 totalEmissiveRadiance = u_emissive;
 
     #include <base_texture_fs>
@@ -47,10 +47,9 @@ void main() {
     #include <alpha_blend_fs>
     #include <begin_normal_fs>
     #include <normal_texture_fs>
-    // specular map
-    // emissive map
+    #include <emissive_texture_fs>
+    #include <specular_texture_fs>
 
-    // phong accumulation
     #include <light_phong_fs>
     #include <begin_light_fs>
     #include <light_textures_fs>

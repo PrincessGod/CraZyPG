@@ -11,10 +11,10 @@ uniform float u_alpha;
 #include <worldpos_spec_fs>
 #include <base_texture_spec_fs>
 #include <alpha_texture_spec_fs>
+#include <emissive_texture_spec_fs>
+#include <specular_texture_spec_fs>
 // light map
-// emmissive map
 // env map
-// specular map
 
 #include <bsdf>
 #include <light_spec>
@@ -30,8 +30,8 @@ void main() {
     #include <alpha_texture_fs>
     #include <alpha_mask_fs>
     #include <alpha_blend_fs>
-    // specular map
-    // emissive map
+    #include <emissive_texture_fs>
+    #include <specular_texture_fs>
 
     #include <light_lambert_fs>
 
