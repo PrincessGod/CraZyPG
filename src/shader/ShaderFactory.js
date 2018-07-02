@@ -55,6 +55,8 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_EMISSIVETEXTURE = 1;
         if ( material.specularTexture )
             defineObj.HAS_SPECULARTEXTURE = 1;
+        if ( material.aoTexture )
+            defineObj.HAS_AOTEXTURE = 1;
 
         Object.assign( defineObj, material.customDefines );
 

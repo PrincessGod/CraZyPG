@@ -25,6 +25,7 @@ function PhongModelMaterial( opts = {} ) {
     const {
         baseTexture, specular, shininess, emissive, emissiveTexture,
         specularTexture, normalTexture, normalScale, bumpTexture, bumpScale,
+        aoIntensity, aoTexture,
     } = opt;
     this.baseTexture = baseTexture;
     this.specular = specular || [ 1, 1, 1 ];
@@ -36,6 +37,8 @@ function PhongModelMaterial( opts = {} ) {
     this.normalScale = normalScale || [ 1, 1 ];
     this.bumpTexture = bumpTexture;
     this.bumpScale = bumpScale || 1;
+    this.aoIntensity = aoIntensity || 1;
+    this.aoTexture = aoTexture;
 
 }
 
@@ -212,6 +215,40 @@ Object.defineProperties( PhongModelMaterial.prototype, {
 
             this._bumpScale = v;
             this.setUniformObj( { u_bumpScale: v } );
+
+        },
+
+    },
+
+    aoIntensity: {
+
+        get() {
+
+            return this._aoIntensity;
+
+        },
+
+        set( v ) {
+
+            this._aoIntensity = v;
+            this.setUniformObj( { u_aoIntensity: v } );
+
+        },
+
+    },
+
+    aoTexture: {
+
+        get() {
+
+            return this._aoTexture;
+
+        },
+
+        set( v ) {
+
+            this._aoTexture = v;
+            this.setUniformObj( { u_aoTexture: v } );
 
         },
 

@@ -13,6 +13,7 @@ uniform float u_alpha;
 #include <alpha_texture_spec_fs>
 #include <emissive_texture_spec_fs>
 #include <specular_texture_spec_fs>
+#include <ao_texture_spec_fs>
 // light map
 // env map
 
@@ -51,7 +52,7 @@ void main() {
 
     reflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );
 
-    // ao map
+    #include <ao_texture_fs>
 
     vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
 

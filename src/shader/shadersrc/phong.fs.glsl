@@ -11,7 +11,7 @@
 #include <bump_texture_spec_fs>
 #include <emissive_texture_spec_fs>
 #include <specular_texture_spec_fs>
-// ao map
+#include <ao_texture_spec_fs>
 // light map
 // env map
 // gradient map
@@ -55,7 +55,7 @@ void main() {
     #include <light_textures_fs>
     #include <end_light_fs>
 
-    // ao map
+    #include <ao_texture_fs>
 
     vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
 
