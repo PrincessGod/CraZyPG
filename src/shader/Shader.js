@@ -16,14 +16,12 @@ function Shader( vs, fs, opts = {} ) {
 
 Object.assign( Shader.prototype, {
 
-    getProgramInfo( primitive, material, lightManager, fog ) {
+    getProgramInfo( primitive, material, lightDefine, fogDefine, rendererDefine ) {
 
         let target;
         const primitiveDefine = ShaderFactory.parseDefineObjFromPrimitive( primitive );
         const materialDefine = ShaderFactory.parseDefineObjFromMaterial( material );
-        const lightDefine = ShaderFactory.parseDefineObjFromLightManager( lightManager );
-        const fogDefine = ShaderFactory.parseDefineObjFromFog( material, fog );
-        const defines = Object.assign( primitiveDefine, materialDefine, this._useLight ? lightDefine : {}, fogDefine );
+        const defines = Object.assign( primitiveDefine, materialDefine, this._useLight ? lightDefine : {}, material.fog ? fogDefine : {}, rendererDefine );
         for ( let i = 0; i < this._programInfos.length; i ++ )
             if ( objEqual( defines, this._programInfos[ i ].defines ) ) {
 

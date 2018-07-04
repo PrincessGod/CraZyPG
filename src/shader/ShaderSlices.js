@@ -19,6 +19,7 @@ import color_spec_vs from './shaderslices/color_spec_vs.glsl';
 import worldpos_spec_vs from './shaderslices/worldpos_spec_vs.glsl';
 import env_texture_spec_vs from './shaderslices/env_texture_spec_vs.glsl';
 import fog_spec_vs from './shaderslices/fog_spec_vs.glsl';
+import logdepth_spec_vs from './shaderslices/logdepth_spec_vs.glsl';
 
 import begin_position_vs from './shaderslices/begin_position_vs.glsl';
 import begin_normal_vs from './shaderslices/begin_normal_vs.glsl';
@@ -34,6 +35,7 @@ import position_vs from './shaderslices/position_vs.glsl';
 import worldpos_vs from './shaderslices/worldpos_vs.glsl';
 import env_texture_vs from './shaderslices/env_texture_vs.glsl';
 import fog_vs from './shaderslices/fog_vs.glsl';
+import logdepth_vs from './shaderslices/logdepth_vs.glsl';
 
 import common_fs from './shaderslices/common_fs.glsl';
 import uv_spec_fs from './shaderslices/uv_spec_fs.glsl';
@@ -52,6 +54,7 @@ import bump_texture_spec_fs from './shaderslices/bump_texture_spec_fs.glsl';
 import emissive_texture_spec_fs from './shaderslices/emissive_texture_spec_fs.glsl';
 import fog_spec_fs from './shaderslices/fog_spec_fs.glsl';
 import dither_spec_fs from './shaderslices/dither_spec_fs.glsl';
+import logdepth_spec_fs from './shaderslices/logdepth_spec_fs.glsl';
 
 import base_texture_fs from './shaderslices/base_texture_fs.glsl';
 import color_fs from './shaderslices/color_fs.glsl';
@@ -66,6 +69,7 @@ import normal_texture_fs from './shaderslices/normal_texture_fs.glsl';
 import emissive_texture_fs from './shaderslices/emissive_texture_fs.glsl';
 import fog_fs from './shaderslices/fog_fs.glsl';
 import dither_fs from './shaderslices/dither_fs.glsl';
+import logdepth_fs from './shaderslices/logdepth_fs.glsl';
 
 export const ShaderSlices = {
 
@@ -89,6 +93,7 @@ export const ShaderSlices = {
     worldpos_spec_vs,
     env_texture_spec_vs,
     fog_spec_vs,
+    logdepth_spec_vs,
 
     begin_position_vs,
     begin_normal_vs,
@@ -104,6 +109,7 @@ export const ShaderSlices = {
     position_vs,
     env_texture_vs,
     fog_vs,
+    logdepth_vs,
 
     common_fs,
     uv_spec_fs,
@@ -122,6 +128,7 @@ export const ShaderSlices = {
     emissive_texture_spec_fs,
     fog_spec_fs,
     dither_spec_fs,
+    logdepth_spec_fs,
 
     base_texture_fs,
     color_fs,
@@ -136,5 +143,6 @@ export const ShaderSlices = {
     emissive_texture_fs,
     fog_fs,
     dither_fs,
+    logdepth_fs,
 
 };

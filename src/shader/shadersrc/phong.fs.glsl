@@ -23,8 +23,8 @@
 
 #include <fog_spec_fs>
 #include <dither_spec_fs>
+#include <logdepth_spec_fs>
 // shadow map
-// log depth
 // clip planes
 
 uniform vec3 u_diffuse;
@@ -69,5 +69,6 @@ void main() {
     #include <fog_fs>
     // pre mul alpha
     #include <dither_fs>
+    #include <logdepth_fs>
 
 }

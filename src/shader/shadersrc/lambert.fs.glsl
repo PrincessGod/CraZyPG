@@ -21,6 +21,7 @@ uniform float u_alpha;
 #include <light_spec>
 
 #include <fog_spec_fs>
+#include <logdepth_spec_fs>
 
 void main() {
 
@@ -63,5 +64,6 @@ void main() {
     finalColor = vec4( outgoingLight, diffuseColor.a );
 
     #include <fog_fs>
+    #include <logdepth_fs>
 
 }

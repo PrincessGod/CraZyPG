@@ -7,6 +7,7 @@ import { DefaultColor, ShaderParams } from '../core/constant';
 import { Matrix4 } from '../math/Matrix4';
 import { pick } from '../core/utils';
 import { RenderList } from './RenderList';
+import { ShaderFactory } from '../shader/ShaderFactory';
 
 const shaders = new Map();
 
@@ -26,7 +27,7 @@ const materialFuncs = [
     'frontFace', 'lineWidth', 'polygonOffset',
 ];
 
-function getContext( canvasOrId, opts ) {
+function getContext( canvasOrId, opts = {} ) {
 
     let canvas;
     if ( typeof canvasOrId === 'string' )
@@ -87,7 +88,7 @@ function clear(
 
 }
 
-function WebGL2Renderer( canvasOrId, opts ) {
+function WebGL2Renderer( canvasOrId, opts = {} ) {
 
     this.context = getContext( canvasOrId, opts );
     this.canvas = this.context.canvas;
@@ -100,6 +101,9 @@ function WebGL2Renderer( canvasOrId, opts ) {
     this.vaos = new VertexArrays( this.context, this.programs, this.buffers );
 
     this.renderList = new RenderList();
+
+    this.logDepth = !! opts.logDepth;
+    this._uniformObj = {};
 
 }
 
@@ -213,7 +217,8 @@ Object.assign( WebGL2Renderer.prototype, {
         programInfo.setUniformObj( pick( material.uniformObj, usedUniforms ) )
             .setUniformObj( pick( camera.uniformObj, usedUniforms ) )
             .setUniformObj( pick( model.uniformObj, usedUniforms ) )
-            .setUniformObj( pick( lightManager.uniformObj, usedUniforms ) );
+            .setUniformObj( pick( lightManager.uniformObj, usedUniforms ) )
+            .setUniformObj( pick( this.uniformObj, usedUniforms ) );
 
         if ( fog )
             programInfo.setUniformObj( pick( fog.uniformObj, usedUniforms ) );
@@ -245,6 +250,10 @@ Object.assign( WebGL2Renderer.prototype, {
 
         this.renderList.clear();
 
+        const lightDefine = ShaderFactory.parseDefineObjFromLightManager( lightManager );
+        const fogDefine = ShaderFactory.parseDefineObjFromFog( fog );
+        const rendererDefine = ShaderFactory.parseDefineObjFromRenderer( this );
+
         models.forEach( ( model ) => {
 
             const { material, primitive } = model;
@@ -259,7 +268,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
             }
 
-            const programInfo = shader.getProgramInfo( primitive, material, lightManager, fog );
+            const programInfo = shader.getProgramInfo( primitive, material, lightDefine, fogDefine, rendererDefine );
             const { vaoInfo } = primitive;
 
             primitive.updateVaoInfo( programInfo );
@@ -287,6 +296,9 @@ Object.assign( WebGL2Renderer.prototype, {
     },
 
     renderModel( camera, lightManager, fog ) {
+
+        if ( this.logDepth )
+            this._uniformObj.u_logDepthBufFC = 2.0 / ( Math.log( camera.far + 1.0 ) / Math.LN2 );
 
         const opqueTargets = this.renderList.opqueList;
 
@@ -327,6 +339,20 @@ Object.assign( WebGL2Renderer.prototype, {
         this.renderModel( camera, lightManager, fog );
 
         return this;
+
+    },
+
+} );
+
+Object.defineProperties( WebGL2Renderer.prototype, {
+
+    uniformObj: {
+
+        get() {
+
+            return this._uniformObj;
+
+        },
 
     },
 

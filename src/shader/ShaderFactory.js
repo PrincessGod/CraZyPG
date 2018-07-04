@@ -81,11 +81,11 @@ Object.assign( ShaderFactory, {
 
     },
 
-    parseDefineObjFromFog( material, fog ) {
+    parseDefineObjFromFog( fog ) {
 
         const defineObj = {};
 
-        if ( material.fog && fog && ( fog.isFog || fog.isFogEXP2 ) ) {
+        if ( fog && ( fog.isFog || fog.isFogEXP2 ) ) {
 
             defineObj.HAS_FOG = 1;
 
@@ -93,6 +93,17 @@ Object.assign( ShaderFactory, {
                 defineObj.FOG_EXP2 = 1;
 
         }
+
+        return defineObj;
+
+    },
+
+    parseDefineObjFromRenderer( renderer ) {
+
+        const defineObj = {};
+
+        if ( renderer.logDepth )
+            defineObj.LOGDEPTH = 1;
 
         return defineObj;
 

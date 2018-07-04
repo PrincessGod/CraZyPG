@@ -7,6 +7,7 @@
 
 #include <fog_spec_vs>
 #include <env_texture_spec_vs>
+#include <logdepth_spec_vs>
 
 void main() {
 
@@ -23,5 +24,6 @@ void main() {
 
     #include <fog_vs>
     #include <env_texture_vs>
+    #include <logdepth_vs>
 
 }

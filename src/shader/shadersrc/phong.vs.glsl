@@ -7,11 +7,11 @@
 // displacement
 // env
 // shadow
-// log depth
 // clip planes
 
-#include <worldpos_spec_vs>
 #include <fog_spec_vs>
+#include <worldpos_spec_vs>
+#include <logdepth_spec_vs>
 
 void main() {
 
@@ -26,7 +26,8 @@ void main() {
     #include <color_vs>
     #include <position_vs>
 
-    #include <worldpos_vs>
     #include <fog_vs>
+    #include <worldpos_vs>
+    #include <logdepth_vs>
 
 }
