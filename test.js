@@ -26,7 +26,7 @@ const bumpTexture = new CZPG.Texture2D( { src: './resource/bump.jpg' } );
 const camera = new CZPG.PerspectiveCamera( 45, renderer.canvas.width / renderer.canvas.height );
 
 scene.fog = new CZPG.Fog( [ 1, 0, 0 ], 1, 50 );
-scene.fog = new CZPG.FogEXP2( [ 1, 0, 0 ], 0.02 );
+scene.fog = new CZPG.FogEXP2( [ 0, 0, 0 ], 0.02 );
 
 const cameraControler = new CZPG.OrbitControls( camera, renderer.canvas, scene.controler );
 cameraControler.enableDamping = true;
