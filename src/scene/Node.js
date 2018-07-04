@@ -1,4 +1,4 @@
-import { Transform } from '../object/Transform';
+import { Transform } from '../math/Transform';
 import { Matrix4 } from '../math/Matrix4';
 
 let nodeCount = 0;

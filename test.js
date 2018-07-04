@@ -44,7 +44,7 @@ const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture 
 const phongMaterial = new CZPG.PhongModelMaterial( {
     cull: false, baseTexture, shininess: 10, specular: [ 0.5, 0.5, 0.5 ],
 } );
-const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMaterial );
+const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), lambertMaterial );
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
 scene.add( quad );
 
