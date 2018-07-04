@@ -1,2 +1,3 @@
     vec4 worldpos = u_modelMat * position;
-    gl_Position = u_projMat * u_viewMat * worldpos;
+    vec4 viewpos = u_viewMat * worldpos;
+    gl_Position = u_projMat * viewpos;

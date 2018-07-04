@@ -11,7 +11,6 @@ import light_lambert_fs from './shaderslices/light_lambert_fs.glsl';
 import light_phong_spec_fs from './shaderslices/light_phong_spec_fs.glsl';
 import light_phong_fs from './shaderslices/light_phong_fs.glsl';
 
-
 import common_vs from './shaderslices/common_vs.glsl';
 import uv_spec_vs from './shaderslices/uv_spec_vs.glsl';
 import uv2_spec_vs from './shaderslices/uv2_spec_vs.glsl';
@@ -19,6 +18,7 @@ import normal_spec_vs from './shaderslices/normal_spec_vs.glsl';
 import color_spec_vs from './shaderslices/color_spec_vs.glsl';
 import worldpos_spec_vs from './shaderslices/worldpos_spec_vs.glsl';
 import env_texture_spec_vs from './shaderslices/env_texture_spec_vs.glsl';
+import fog_spec_vs from './shaderslices/fog_spec_vs.glsl';
 
 import begin_position_vs from './shaderslices/begin_position_vs.glsl';
 import begin_normal_vs from './shaderslices/begin_normal_vs.glsl';
@@ -33,6 +33,7 @@ import color_vs from './shaderslices/color_vs.glsl';
 import position_vs from './shaderslices/position_vs.glsl';
 import worldpos_vs from './shaderslices/worldpos_vs.glsl';
 import env_texture_vs from './shaderslices/env_texture_vs.glsl';
+import fog_vs from './shaderslices/fog_vs.glsl';
 
 import common_fs from './shaderslices/common_fs.glsl';
 import uv_spec_fs from './shaderslices/uv_spec_fs.glsl';
@@ -49,6 +50,7 @@ import env_texture_spec_fs from './shaderslices/env_texture_spec_fs.glsl';
 import normal_texture_spec_fs from './shaderslices/normal_texture_spec_fs.glsl';
 import bump_texture_spec_fs from './shaderslices/bump_texture_spec_fs.glsl';
 import emissive_texture_spec_fs from './shaderslices/emissive_texture_spec_fs.glsl';
+import fog_spec_fs from './shaderslices/fog_spec_fs.glsl';
 
 import base_texture_fs from './shaderslices/base_texture_fs.glsl';
 import color_fs from './shaderslices/color_fs.glsl';
@@ -61,6 +63,7 @@ import ao_texture_fs from './shaderslices/ao_texture_fs.glsl';
 import env_texture_fs from './shaderslices/env_texture_fs.glsl';
 import normal_texture_fs from './shaderslices/normal_texture_fs.glsl';
 import emissive_texture_fs from './shaderslices/emissive_texture_fs.glsl';
+import fog_fs from './shaderslices/fog_fs.glsl';
 
 export const ShaderSlices = {
 
@@ -83,6 +86,7 @@ export const ShaderSlices = {
     color_spec_vs,
     worldpos_spec_vs,
     env_texture_spec_vs,
+    fog_spec_vs,
 
     begin_position_vs,
     begin_normal_vs,
@@ -97,6 +101,7 @@ export const ShaderSlices = {
     worldpos_vs,
     position_vs,
     env_texture_vs,
+    fog_vs,
 
     common_fs,
     uv_spec_fs,
@@ -113,6 +118,7 @@ export const ShaderSlices = {
     normal_texture_spec_fs,
     bump_texture_spec_fs,
     emissive_texture_spec_fs,
+    fog_spec_fs,
 
     base_texture_fs,
     color_fs,
@@ -125,5 +131,6 @@ export const ShaderSlices = {
     env_texture_fs,
     normal_texture_fs,
     emissive_texture_fs,
+    fog_fs,
 
 };

@@ -1,16 +1,17 @@
 #include <common>
 #include <common_vs>
 #include <uv_spec_vs>
-// uv2
+#include <uv2_spec_vs>
 #include <normal_spec_vs>
 #include <color_spec_vs>
-#include <worldpos_spec_vs>
 // displacement
 // env
-// fog
 // shadow
 // log depth
 // clip planes
+
+#include <worldpos_spec_vs>
+#include <fog_spec_vs>
 
 void main() {
 
@@ -20,10 +21,12 @@ void main() {
     #include <morph_vs>
     #include <skinning_vs>
     #include <uv_vs>
+    #include <uv2_vs>
     #include <normal_vs>
     #include <color_vs>
     #include <position_vs>
 
     #include <worldpos_vs>
+    #include <fog_vs>
 
 }

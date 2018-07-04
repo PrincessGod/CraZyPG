@@ -79,6 +79,23 @@ Object.assign( ShaderFactory, {
 
     },
 
+    parseDefineObjFromFog( material, fog ) {
+
+        const defineObj = {};
+
+        if ( material.fog && fog && ( fog.isFog || fog.isFogEXP2 ) ) {
+
+            defineObj.HAS_FOG = 1;
+
+            if ( fog.isFogEXP2 )
+                defineObj.FOG_EXP2 = 1;
+
+        }
+
+        return defineObj;
+
+    },
+
     parseDefineObj( defines ) {
 
         return `${Object.keys( defines ).map( key => `#define ${key} ${defines[ key ]}` ).join( '\n' )}\n`;

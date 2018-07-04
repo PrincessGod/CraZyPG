@@ -4,8 +4,10 @@
 #include <uv2_spec_vs>
 #include <normal_spec_vs>
 #include <color_spec_vs>
-#include <worldpos_spec_vs>
 // env map
+
+#include <worldpos_spec_vs>
+#include <fog_spec_vs>
 
 void main() {
 
@@ -21,5 +23,6 @@ void main() {
     #include <position_vs>
 
     #include <worldpos_vs>
+    #include <fog_vs>
 
 }

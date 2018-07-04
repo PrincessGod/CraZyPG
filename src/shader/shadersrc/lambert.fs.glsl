@@ -20,6 +20,8 @@ uniform float u_alpha;
 #include <bsdf>
 #include <light_spec>
 
+#include <fog_spec_fs>
+
 void main() {
 
     vec4 diffuseColor = vec4( u_diffuse, u_alpha );
@@ -59,5 +61,7 @@ void main() {
     // env map
 
     finalColor = vec4( outgoingLight, diffuseColor.a );
+
+    #include <fog_fs>
 
 }

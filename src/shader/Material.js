@@ -45,7 +45,9 @@ function Material( ShaderType, opts ) {
     this.fragmentPrecision = fragmentPrecision || 'mediump';
     this.customDefines = {};
 
-    const { baseColor, diffuse, alpha } = opts;
+    const {
+        baseColor, diffuse, alpha, fog,
+    } = opts;
     if ( baseColor )
         this.baseColor = baseColor || [ 1, 1, 1, 1 ];
     else {
@@ -54,6 +56,8 @@ function Material( ShaderType, opts ) {
         this.alpha = alpha || 1;
 
     }
+
+    this.fog = fog === undefined ? true : !! fog;
 
 }
 

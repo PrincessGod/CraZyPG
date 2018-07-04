@@ -1,6 +1,7 @@
 #include <common>
 #include <common_fs>
 #include <uv_spec_fs>
+#include <uv2_spec_fs>
 #include <normal_spec_fs>
 #include <color_spec_fs>
 #include <worldpos_spec_fs>
@@ -15,13 +16,13 @@
 // light map
 // env map
 // gradient map
-// fog
 
 #include <pack>
 #include <bsdf>
 #include <light_spec>
 #include <light_phong_spec_fs>
 
+#include <fog_spec_fs>
 // shadow map
 // log depth
 // clip planes
@@ -65,7 +66,7 @@ void main() {
 
     // tone map
     // encode
-    // fog
+    #include <fog_fs>
     // pre mul alpha
     // dither
 

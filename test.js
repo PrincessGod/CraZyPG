@@ -25,6 +25,9 @@ const normalTexture = new CZPG.Texture2D( { src: './resource/normal.png' } );
 const bumpTexture = new CZPG.Texture2D( { src: './resource/bump.jpg' } );
 const camera = new CZPG.PerspectiveCamera( 45, renderer.canvas.width / renderer.canvas.height );
 
+scene.fog = new CZPG.Fog( [ 1, 0, 0 ], 1, 50 );
+scene.fog = new CZPG.FogEXP2( [ 1, 0, 0 ], 0.02 );
+
 const cameraControler = new CZPG.OrbitControls( camera, renderer.canvas, scene.controler );
 cameraControler.enableDamping = true;
 camera.position = [ 0, 4, 10 ];
@@ -35,7 +38,7 @@ const pointLight = new CZPG.PointLight( [ 1, 0, 1 ], 0.5, 2 );
 const spotLight = new CZPG.SpotLight( [ 1, 1, 0 ], 0.5, 20, Math.PI / 10, 0.3 ); spotLight.position = [ 0, 5, 0 ]; spotLight.rotation = [ Math.PI / 2 - 0.5, 0, 0 ];
 scene.add( ambientLight, directLight, pointLight, spotLight );
 
-const basicMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture } );
+const basicMaterial = new CZPG.BasicModelMaterial( { baseTexture } );
 const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: bumpTexture, cull: false } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
 const phongMaterial = new CZPG.PhongModelMaterial( {

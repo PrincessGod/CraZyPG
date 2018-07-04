@@ -15,6 +15,7 @@ function Scene( renderer ) {
     this.canvas = this.gl.canvas;
     this.controler = new Controler( this.gl.canvas );
     this.lightManager = new LightManager();
+    this.fog = null;
 
 }
 
@@ -51,7 +52,7 @@ Object.assign( Scene.prototype, {
 
         this.root.updateMatrix();
         this.lightManager.updateUniformObj();
-        this.renderer.render( this.models, this.currentCamera, this.lightManager );
+        this.renderer.render( this.models, this.currentCamera, this.lightManager, this.fog );
 
     },
 

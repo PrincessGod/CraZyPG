@@ -47,4 +47,6 @@ export * from './shader/Material.js';
 export * from './model/primitives/index.js';
 export * from './shader/RawShader.js';
 export * from './shader/Materials.js';
-export * from './light/Lights';
+export * from './light/Lights.js';
+export * from './scene/Fog.js';
+export * from './scene/FogEXP2.js';

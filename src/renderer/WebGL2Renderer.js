@@ -160,7 +160,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    updateUniforms( programInfo, material, camera, model, lightManager ) {
+    updateUniforms( programInfo, material, camera, model, lightManager, fog ) {
 
         const uniformSetters = programInfo.uniformSetters;
         Object.keys( uniformSetters ).forEach( ( uniform ) => {
@@ -210,8 +210,14 @@ Object.assign( WebGL2Renderer.prototype, {
         } );
 
         const usedUniforms = Object.keys( uniformSetters );
-        programInfo.setUniformObj( pick( material.uniformObj, usedUniforms ) ).setUniformObj( pick( camera.uniformObj, usedUniforms ) )
-            .setUniformObj( pick( model.uniformObj, usedUniforms ) ).setUniformObj( pick( lightManager.uniformObj, usedUniforms ) );
+        programInfo.setUniformObj( pick( material.uniformObj, usedUniforms ) )
+            .setUniformObj( pick( camera.uniformObj, usedUniforms ) )
+            .setUniformObj( pick( model.uniformObj, usedUniforms ) )
+            .setUniformObj( pick( lightManager.uniformObj, usedUniforms ) );
+
+        if ( fog )
+            programInfo.setUniformObj( pick( fog.uniformObj, usedUniforms ) );
+
         const updatedUniforms = programInfo.uniformObj;
         Object.keys( updatedUniforms ).forEach( ( uniformName ) => {
 
@@ -235,7 +241,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    preRender( models, lightManager ) {
+    preRender( models, lightManager, fog ) {
 
         this.renderList.clear();
 
@@ -253,7 +259,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
             }
 
-            const programInfo = shader.getProgramInfo( primitive, material, lightManager );
+            const programInfo = shader.getProgramInfo( primitive, material, lightManager, fog );
             const { vaoInfo } = primitive;
 
             primitive.updateVaoInfo( programInfo );
@@ -280,7 +286,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    renderModel( camera, lightManager ) {
+    renderModel( camera, lightManager, fog ) {
 
         const opqueTargets = this.renderList.opqueList;
 
@@ -292,7 +298,7 @@ Object.assign( WebGL2Renderer.prototype, {
 
             this.context.useProgram( program );
             this.applyStates( material );
-            this.updateUniforms( programInfo, material, camera, model, lightManager );
+            this.updateUniforms( programInfo, material, camera, model, lightManager, fog );
             this.context.bindVertexArray( vao );
 
             const { drawMode, instanceCount } = material;
@@ -315,10 +321,10 @@ Object.assign( WebGL2Renderer.prototype, {
 
     },
 
-    render( model, camera, lightManager ) {
+    render( model, camera, lightManager, fog ) {
 
-        this.preRender( model, lightManager );
-        this.renderModel( camera, lightManager );
+        this.preRender( model, lightManager, fog );
+        this.renderModel( camera, lightManager, fog );
 
         return this;
 

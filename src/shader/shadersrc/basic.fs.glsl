@@ -14,6 +14,8 @@ uniform float u_alpha;
 #include <ao_texture_spec_fs>
 #include <env_texture_spec_fs>
 
+#include <fog_spec_fs>
+
 void main() {
 
     vec4 diffuseColor = vec4( u_diffuse, u_alpha );
@@ -45,5 +47,7 @@ void main() {
     #include <env_texture_fs>
 
     finalColor = vec4( outgoingLight, diffuseColor.a );
+
+    #include <fog_fs>
 
 }
