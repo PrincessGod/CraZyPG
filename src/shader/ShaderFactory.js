@@ -57,6 +57,8 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_SPECULARTEXTURE = 1;
         if ( material.aoTexture )
             defineObj.HAS_AOTEXTURE = 1;
+        if ( material.dither )
+            defineObj.DITHER = 1;
 
         Object.assign( defineObj, material.customDefines );
 

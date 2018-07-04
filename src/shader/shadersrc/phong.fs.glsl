@@ -5,7 +5,6 @@
 #include <normal_spec_fs>
 #include <color_spec_fs>
 #include <worldpos_spec_fs>
-// dither
 #include <base_texture_spec_fs>
 #include <alpha_texture_spec_fs>
 #include <normal_texture_spec_fs>
@@ -23,6 +22,7 @@
 #include <light_phong_spec_fs>
 
 #include <fog_spec_fs>
+#include <dither_spec_fs>
 // shadow map
 // log depth
 // clip planes
@@ -68,6 +68,6 @@ void main() {
     // encode
     #include <fog_fs>
     // pre mul alpha
-    // dither
+    #include <dither_fs>
 
 }

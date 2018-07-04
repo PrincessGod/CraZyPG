@@ -51,6 +51,7 @@ import normal_texture_spec_fs from './shaderslices/normal_texture_spec_fs.glsl';
 import bump_texture_spec_fs from './shaderslices/bump_texture_spec_fs.glsl';
 import emissive_texture_spec_fs from './shaderslices/emissive_texture_spec_fs.glsl';
 import fog_spec_fs from './shaderslices/fog_spec_fs.glsl';
+import dither_spec_fs from './shaderslices/dither_spec_fs.glsl';
 
 import base_texture_fs from './shaderslices/base_texture_fs.glsl';
 import color_fs from './shaderslices/color_fs.glsl';
@@ -64,6 +65,7 @@ import env_texture_fs from './shaderslices/env_texture_fs.glsl';
 import normal_texture_fs from './shaderslices/normal_texture_fs.glsl';
 import emissive_texture_fs from './shaderslices/emissive_texture_fs.glsl';
 import fog_fs from './shaderslices/fog_fs.glsl';
+import dither_fs from './shaderslices/dither_fs.glsl';
 
 export const ShaderSlices = {
 
@@ -119,6 +121,7 @@ export const ShaderSlices = {
     bump_texture_spec_fs,
     emissive_texture_spec_fs,
     fog_spec_fs,
+    dither_spec_fs,
 
     base_texture_fs,
     color_fs,
@@ -132,5 +135,6 @@ export const ShaderSlices = {
     normal_texture_fs,
     emissive_texture_fs,
     fog_fs,
+    dither_fs,
 
 };
