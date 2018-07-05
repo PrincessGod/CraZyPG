@@ -17,7 +17,7 @@
 
     geometry.position = v_worldpos.xyz;
     geometry.normal = normal;
-    geometry.viewDir = normalize( u_viewMat[3].xyz - v_worldpos.xyz );
+    geometry.viewDir = normalize( u_camPos - v_worldpos.xyz );
 
     IncidentLight directLight;
 

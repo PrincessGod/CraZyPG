@@ -3,7 +3,7 @@
     GeometricContext geometry;
     geometry.position = v_worldpos.xyz;
     geometry.normal = normalize( v_normal );
-    geometry.viewDir = normalize( u_viewMat[3].xyz - v_worldpos.xyz );
+    geometry.viewDir = normalize( u_camPos - v_worldpos.xyz );
 
     vec3 lightFront = vec3( 0.0 );
 
