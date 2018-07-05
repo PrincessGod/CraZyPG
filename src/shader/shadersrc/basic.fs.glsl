@@ -7,6 +7,7 @@ uniform float u_alpha;
 #include <uv2_spec_fs>
 #include <normal_spec_fs>
 #include <color_spec_fs>
+#include <worldpos_spec_fs>
 #include <base_texture_spec_fs>
 #include <alpha_texture_spec_fs>
 #include <light_texture_spec_fs>

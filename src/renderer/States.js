@@ -104,28 +104,28 @@ function States( gl ) {
 
     } ).bind( gl );
 
-    const bindTexture = _h( gl.bindTexture, ( target, texture ) => {
+    // const bindTexture = _h( gl.bindTexture, ( target, texture ) => {
 
-        let cached;
+    //     let cached;
 
-        switch ( target ) {
+    //     switch ( target ) {
 
-        case gl.TEXTURE_2D:
-            cached = ( cache.bindTexture2D === texture );
-            cache.bindTexture2D = texture;
-            break;
-        case gl.TEXTURE_CUBE_MAP:
-            cached = ( cache.bindTextureCubeMap === texture );
-            cache.bindTextureCubeMap = texture;
-            break;
-        default:
-            break;
+    //     case gl.TEXTURE_2D:
+    //         cached = ( cache.bindTexture2D === texture );
+    //         cache.bindTexture2D = texture;
+    //         break;
+    //     case gl.TEXTURE_CUBE_MAP:
+    //         cached = ( cache.bindTextureCubeMap === texture );
+    //         cache.bindTextureCubeMap = texture;
+    //         break;
+    //     default:
+    //         break;
 
-        }
+    //     }
 
-        return cached;
+    //     return cached;
 
-    } ).bind( gl );
+    // } ).bind( gl );
 
     const activeTexture = _h( gl.activeTexture, ( texture ) => {
 
@@ -279,7 +279,6 @@ function States( gl ) {
         bindBuffer,
         bindRenderbuffer,
         bindFramebuffer,
-        bindTexture,
         activeTexture,
         viewport,
         blendEquation,

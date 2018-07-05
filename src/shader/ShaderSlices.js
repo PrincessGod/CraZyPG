@@ -17,7 +17,6 @@ import uv2_spec_vs from './shaderslices/uv2_spec_vs.glsl';
 import normal_spec_vs from './shaderslices/normal_spec_vs.glsl';
 import color_spec_vs from './shaderslices/color_spec_vs.glsl';
 import worldpos_spec_vs from './shaderslices/worldpos_spec_vs.glsl';
-import env_texture_spec_vs from './shaderslices/env_texture_spec_vs.glsl';
 import fog_spec_vs from './shaderslices/fog_spec_vs.glsl';
 import logdepth_spec_vs from './shaderslices/logdepth_spec_vs.glsl';
 
@@ -33,7 +32,6 @@ import normal_vs from './shaderslices/normal_vs.glsl';
 import color_vs from './shaderslices/color_vs.glsl';
 import position_vs from './shaderslices/position_vs.glsl';
 import worldpos_vs from './shaderslices/worldpos_vs.glsl';
-import env_texture_vs from './shaderslices/env_texture_vs.glsl';
 import fog_vs from './shaderslices/fog_vs.glsl';
 import logdepth_vs from './shaderslices/logdepth_vs.glsl';
 
@@ -92,7 +90,6 @@ export const ShaderSlices = {
     normal_spec_vs,
     color_spec_vs,
     worldpos_spec_vs,
-    env_texture_spec_vs,
     fog_spec_vs,
     logdepth_spec_vs,
 
@@ -108,7 +105,6 @@ export const ShaderSlices = {
     color_vs,
     worldpos_vs,
     position_vs,
-    env_texture_vs,
     fog_vs,
     logdepth_vs,
 

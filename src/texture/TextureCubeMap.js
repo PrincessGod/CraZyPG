@@ -88,6 +88,7 @@ TextureCubeMap.prototype = Object.assign( Object.create( Texture.prototype ), {
 
                     if ( updateInfo[ x ][ 0 ] === undefined ) {
 
+                        results[ x ].length = 6; // eslint-disable-line
                         results[ x ].fill( img );
                         updateInfo[ x ].fill( true );
                         if ( x === 0 ) {

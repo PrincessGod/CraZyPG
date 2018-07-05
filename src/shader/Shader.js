@@ -33,7 +33,7 @@ Object.assign( Shader.prototype, {
 
         if ( ! target ) {
 
-            const programInfo = new ProgramInfo( this._vs, this._fs );
+            const programInfo = new ProgramInfo( this._vs, this._fs, this._opts );
             programInfo.compile( material, defines );
             this._currentProgramInfo = programInfo;
             this._programInfos.push( programInfo );

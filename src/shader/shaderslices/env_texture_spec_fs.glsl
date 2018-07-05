@@ -1,19 +1,18 @@
-#if defined( HAS_ENV_TEXTURE )
+#define ENVTEXTURE_CUBE
+#define ENVTEXTURE_REFLECTION
+// #define ENVTEXTURE_BLENDING_MULTIPLY
+#define ENVTEXTURE_BLENDING_MIX
+
+#if defined( HAS_ENVTEXTURE ) || defined( PBR )
 
 	uniform float u_reflectivity;
 	uniform float u_envIntensity;
 
 #endif
 
-#ifdef HAS_ENV_TEXTURE
+#ifdef HAS_ENVTEXTURE
 
-    #if defined( HAS_BUMPTEXTURE ) || defined( HAS_NORMALTEXTURE ) || defined( PHONG )
-
-        in vec3 v_worldPos;
-
-    #endif
-
-    #ifdef ENV_TEXTURE_TYPE_CUBE
+    #ifdef ENVTEXTURE_CUBE
 
         uniform samplerCube u_envTexture;
 
@@ -24,15 +23,6 @@
     #endif
 
     uniform int u_mipmapLevel;
-
-    #if defined( HAS_BUMPTEXTURE ) || defined( HAS_NORMALTEXTURE ) || defined( PHONG )
-
-        uniform float u_refractionRatio;
-
-    #else
-
-        in vec3 v_reflect;
-
-    #endif
+    uniform float u_refractionRatio;
 
 #endif

@@ -6,7 +6,7 @@
 #include <color_spec_vs>
 
 #include <fog_spec_vs>
-#include <env_texture_spec_vs>
+#include <worldpos_spec_vs>
 #include <logdepth_spec_vs>
 
 void main() {
@@ -23,7 +23,7 @@ void main() {
     #include <position_vs>
 
     #include <fog_vs>
-    #include <env_texture_vs>
+    #include <worldpos_vs>
     #include <logdepth_vs>
 
 }

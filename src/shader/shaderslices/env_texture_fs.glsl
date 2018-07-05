@@ -1,26 +1,18 @@
     #ifdef HAS_ENVTEXTURE
 
-        #if defined( HAS_BUMPTEXTURE ) || defined( HAS_NORMALTEXTURE ) || defined( PHONG )
+        vec3 cameraToPos = normalize( v_worldpos.xyz - u_camPos );
 
-            vec3 cameraToPos = normalize( v_worldpos - u_camPos );
+        #ifdef ENVTEXTURE_REFLECTION
 
-            #ifdef ENV_TEXTURE_MODE_REFLECTION
-
-                vec3 reflectVec = reflect( cameraToPos, v_normal );
-
-            #else
-
-                vec3 reflectVec = reflect( cameraToPos, v_normal, u_refractionRatio );
-
-            #endif
+            vec3 reflectVec = reflect( cameraToPos, v_normal );
 
         #else
 
-            vec3 reflectVec = v_reflect;
+            vec3 reflectVec = refract( cameraToPos, v_normal, u_refractionRatio );
 
         #endif
 
-        #ifdef ENV_TEXTURE_TYPE_CUBE
+        #ifdef ENVTEXTURE_CUBE
 
             vec4 envColor = texture( u_envTexture, reflectVec );
 
@@ -32,15 +24,15 @@
 
         // linear
 
-        #ifdef ENV_TEXTURE_BLENDING_MULTIPLY
+        #ifdef ENVTEXTURE_BLENDING_MULTIPLY
 
             outgoingLight = mix( outgoingLight, outgoingLight * envColor.rgb, specularStrength * u_reflectivity );
 
-        #elif defined( ENV_TEXTURE_BLENDING_MIX )
+        #elif defined( ENVTEXTURE_BLENDING_MIX )
 
             outgoingLight = mix( outgoingLight, envColor.rgb, specularStrength * u_reflectivity );
 
-        #elif defined( ENV_TEXTURE_BLENDING_ADD )
+        #elif defined( ENVTEXTURE_BLENDING_ADD )
 
             outgoingLight += envColor.rgb * specularStrength * u_reflectivity;
 

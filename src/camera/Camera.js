@@ -15,6 +15,7 @@ function Camera( name ) {
     this._innerUniformObj = {};
     this._innerUniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ] = this.viewMat;
     this._innerUniformObj[ ShaderParams.UNIFORM_PROJ_MAT_NAME ] = this.projMat;
+    this._innerUniformObj[ ShaderParams.UNIFORM_CAMPOS ] = this.transform.vec3Position.raw;
 
 }
 

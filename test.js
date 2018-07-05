@@ -18,11 +18,22 @@ class TestMaterial extends CZPG.Material {
 
 }
 
+
 const renderer = new CZPG.WebGL2Renderer( 'glpaper' ).setSize( '100%', '100%' );
 const scene = new CZPG.Scene( renderer );
 const baseTexture = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
 const normalTexture = new CZPG.Texture2D( { src: './resource/normal.png' } );
 const bumpTexture = new CZPG.Texture2D( { src: './resource/bump.jpg' } );
+const envTexture = new CZPG.TextureCubeMap( {
+    src: [
+        './resource/grimmnight_right.png',
+        './resource/grimmnight_left.png',
+        './resource/grimmnight_top.png',
+        './resource/grimmnight_bottom.png',
+        './resource/grimmnight_back.png',
+        './resource/grimmnight_front.png',
+    ],
+} );
 const camera = new CZPG.PerspectiveCamera( 45, renderer.canvas.width / renderer.canvas.height );
 
 scene.fog = new CZPG.Fog( [ 1, 0, 0 ], 1, 50 );
@@ -38,7 +49,8 @@ const pointLight = new CZPG.PointLight( [ 1, 0, 1 ], 0.5, 2 );
 const spotLight = new CZPG.SpotLight( [ 1, 1, 0 ], 0.5, 20, Math.PI / 10, 0.3 ); spotLight.position = [ 0, 5, 0 ]; spotLight.rotation = [ Math.PI / 2 - 0.5, 0, 0 ];
 scene.add( ambientLight, directLight, pointLight, spotLight );
 
-const basicMaterial = new CZPG.BasicModelMaterial( { baseTexture } );
+const testMaterial = new TestMaterial( { uniformObj: { u_texture: envTexture } } );
+const basicMaterial = new CZPG.BasicModelMaterial( { baseTexture, envTexture, uniformObj: { u_reflectivity: 0.8 } } );
 const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: bumpTexture, cull: false } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
 const phongMaterial = new CZPG.PhongModelMaterial( {
@@ -49,26 +61,26 @@ const toonMaterial = new CZPG.ToonModelMaterial( {
 } );
 const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMaterial );
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
-scene.add( quad );
+// scene.add( quad );
 
-const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), phongMaterial );
-cube.position = [ 1, 0.5, 0 ];
+const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), basicMaterial );
+// cube.position = [ 1, 0.5, 0 ];
 scene.add( cube );
 
 const sphere = new CZPG.Model( new CZPG.Sphere(), toonMaterial );
-scene.add( sphere );
+// scene.add( sphere );
 
 const pointLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0, 0.5, 1 ] } );
 const pointLightObj = new CZPG.Model( new CZPG.Sphere( {
     radius: 0.05, offset: 3, subdivAixs: 40, subdivHeight: 20,
 } ), pointLightMaterial );
-scene.add( pointLightObj );
+// scene.add( pointLightObj );
 
 const spotLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0.5, 0, 1 ] } );
 const spotLightObj = new CZPG.Model( new CZPG.Sphere( {
     radius: 0.05, offset: 3, subdivAixs: 40, subdivHeight: 20,
 } ), spotLightMaterial );
-scene.add( spotLightObj );
+// scene.add( spotLightObj );
 
 const gridMaterial = new CZPG.BasicLineMaterial();
 const grid = new CZPG.Model( new CZPG.GridAxis( { size: 3, div: 1, offset: 2 } ), gridMaterial );

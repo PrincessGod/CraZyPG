@@ -57,36 +57,31 @@
     <script src="./sample/js/dat.gui.min.js"></script>
     <script id="vs" type="shader-vs">
     #version 300 es
-    in  vec3 position;
-    in  vec4 color;
-    in  vec2 uv;
+    in  vec3 a_position;
 
-    out vec4 vColor;
-    out vec2 vUv;
+    out vec3 v_pos;
 
     uniform mat4 u_modelMat;
     uniform mat4 u_viewMat;
     uniform mat4 u_projMat;
 
     void main() {
-        vColor = color;
-        vUv = uv;
-        gl_Position = u_projMat * u_viewMat * u_modelMat * vec4(position, 1.0);
+        gl_Position = u_projMat * u_viewMat * u_modelMat * vec4(a_position, 1.0);
+        v_pos = (u_modelMat * vec4(a_position, 1.0)).xyz;
     }
     </script>
     <script id="fs" type="shader-fs">
     #version 300 es
     precision mediump float;
 
-    in vec4 vColor;
-    in vec2 vUv;
+    in vec3 v_pos;
 
-    uniform sampler2D u_texture;
+    uniform samplerCube u_texture;
 
     out vec4 fragColor;
 
     void main() {
-        fragColor = mix(texture(u_texture, vUv), vColor, 0.5);
+        fragColor = texture(u_texture, v_pos);
     }
     </script>
     <script src="./test.js"></script>

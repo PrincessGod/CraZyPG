@@ -5,7 +5,7 @@ import fs from './shadersrc/basic.fs.glsl';
 
 function BasicModelShader() {
 
-    Shader.call( this, vs, fs );
+    Shader.call( this, vs, fs, { validateProgram: false } );
 
 }
 
@@ -22,8 +22,9 @@ function BasicModelMaterial( opts = {} ) {
     const opt = Object.assign( defaultOpt, opts );
     Material.call( this, BasicModelShader, opt );
 
-    const { baseTexture } = opt;
+    const { baseTexture, envTexture } = opt;
     this.baseTexture = baseTexture;
+    this.envTexture = envTexture;
 
 }
 
@@ -47,6 +48,23 @@ Object.defineProperties( BasicModelMaterial.prototype, {
 
             this._baseTexture = v;
             this.setUniformObj( { u_baseTexture: v } );
+
+        },
+
+    },
+
+    envTexture: {
+
+        get() {
+
+            return this._envTexture;
+
+        },
+
+        set( v ) {
+
+            this._envTexture = v;
+            this.setUniformObj( { u_envTexture: v } );
 
         },
 
