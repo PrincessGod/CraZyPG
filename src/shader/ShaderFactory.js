@@ -29,7 +29,7 @@ Object.assign( ShaderFactory, {
         const attributesInfluence = Object.keys( attribDefinesMap );
         return attributes.filter( a => attributesInfluence.indexOf( a ) > - 1 ).reduce( ( o, a ) => {
 
-            o[ attribDefinesMap[ a ] ] = 1; // eslint-disable-line
+            o[ attribDefinesMap[ a ] ] = ''; // eslint-disable-line
             return o;
 
         }, {} );
@@ -44,23 +44,23 @@ Object.assign( ShaderFactory, {
         };
 
         if ( material.baseTexture )
-            defineObj.HAS_BASETEXTURE = 1;
+            defineObj.HAS_BASETEXTURE = '';
         if ( ! material.cull )
-            defineObj.DOUBLE_SIDE = 1;
+            defineObj.DOUBLE_SIDE = '';
         if ( material.normalTexture )
-            defineObj.HAS_NORMALTEXTURE = 1;
+            defineObj.HAS_NORMALTEXTURE = '';
         if ( material.bumpTexture )
-            defineObj.HAS_BUMPTEXTURE = 1;
+            defineObj.HAS_BUMPTEXTURE = '';
         if ( material.emissiveTexture )
-            defineObj.HAS_EMISSIVETEXTURE = 1;
+            defineObj.HAS_EMISSIVETEXTURE = '';
         if ( material.specularTexture )
-            defineObj.HAS_SPECULARTEXTURE = 1;
+            defineObj.HAS_SPECULARTEXTURE = '';
         if ( material.aoTexture )
-            defineObj.HAS_AOTEXTURE = 1;
+            defineObj.HAS_AOTEXTURE = '';
         if ( material.dither )
-            defineObj.DITHER = 1;
+            defineObj.DITHER = '';
 
-        Object.assign( defineObj, material.customDefines );
+        Object.assign( defineObj, material.customDefine );
 
         return defineObj;
 
@@ -87,10 +87,10 @@ Object.assign( ShaderFactory, {
 
         if ( fog && ( fog.isFog || fog.isFogEXP2 ) ) {
 
-            defineObj.HAS_FOG = 1;
+            defineObj.HAS_FOG = '';
 
             if ( fog.isFogEXP2 )
-                defineObj.FOG_EXP2 = 1;
+                defineObj.FOG_EXP2 = '';
 
         }
 
@@ -103,7 +103,7 @@ Object.assign( ShaderFactory, {
         const defineObj = {};
 
         if ( renderer.logDepth )
-            defineObj.LOGDEPTH = 1;
+            defineObj.LOGDEPTH = '';
 
         return defineObj;
 

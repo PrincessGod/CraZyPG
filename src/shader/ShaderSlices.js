@@ -55,6 +55,7 @@ import emissive_texture_spec_fs from './shaderslices/emissive_texture_spec_fs.gl
 import fog_spec_fs from './shaderslices/fog_spec_fs.glsl';
 import dither_spec_fs from './shaderslices/dither_spec_fs.glsl';
 import logdepth_spec_fs from './shaderslices/logdepth_spec_fs.glsl';
+import gradient_texture_spec_fs from './shaderslices/gradient_texture_spec_fs.glsl';
 
 import base_texture_fs from './shaderslices/base_texture_fs.glsl';
 import color_fs from './shaderslices/color_fs.glsl';
@@ -129,6 +130,7 @@ export const ShaderSlices = {
     fog_spec_fs,
     dither_spec_fs,
     logdepth_spec_fs,
+    gradient_texture_spec_fs,
 
     base_texture_fs,
     color_fs,

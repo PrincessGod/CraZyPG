@@ -12,9 +12,9 @@
 #include <emissive_texture_spec_fs>
 #include <specular_texture_spec_fs>
 #include <ao_texture_spec_fs>
+#include <gradient_texture_spec_fs>
 // light map
 // env map
-// gradient map
 
 #include <pack>
 #include <bsdf>

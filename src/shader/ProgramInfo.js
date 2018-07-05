@@ -117,14 +117,14 @@ Object.assign( ProgramInfo.prototype, {
         this._defines = defines;
         this._vs = ShaderFactory.parseVersion( material.version ) +
             ShaderFactory.parseShaderName( material.name ) + '\n' +
-            ShaderFactory.parseDefineObj( this._defines ) + '\n' +
             ShaderFactory.parsePrecision( material.vertexPrecision ) + '\n' +
+            ShaderFactory.parseDefineObj( this._defines ) + '\n' +
             ShaderFactory.parseIncludes( this._vs );
 
         this._fs = ShaderFactory.parseVersion( material.version ) +
             ShaderFactory.parseShaderName( material.name ) + '\n' +
-            ShaderFactory.parseDefineObj( this._defines ) + '\n' +
             ShaderFactory.parsePrecision( material.fragmentPrecision ) + '\n' +
+            ShaderFactory.parseDefineObj( this._defines ) + '\n' +
             ShaderFactory.parseIncludes( this._fs );
 
     },

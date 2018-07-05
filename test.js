@@ -44,6 +44,9 @@ const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture 
 const phongMaterial = new CZPG.PhongModelMaterial( {
     cull: false, baseTexture, shininess: 10, specular: [ 0.5, 0.5, 0.5 ], dither: true,
 } );
+const toonMaterial = new CZPG.ToonModelMaterial( {
+    cull: false, baseTexture, shininess: 10, specular: [ 0.5, 0.5, 0.5 ], dither: true,
+} );
 const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMaterial );
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
 scene.add( quad );
@@ -52,7 +55,7 @@ const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), phongMaterial );
 cube.position = [ 1, 0.5, 0 ];
 scene.add( cube );
 
-const sphere = new CZPG.Model( new CZPG.Sphere(), phongMaterial );
+const sphere = new CZPG.Model( new CZPG.Sphere(), toonMaterial );
 scene.add( sphere );
 
 const pointLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0, 0.5, 1 ] } );

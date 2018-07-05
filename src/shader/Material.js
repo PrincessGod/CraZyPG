@@ -43,7 +43,7 @@ function Material( ShaderType, opts ) {
     this.version = version || '300 es';
     this.vertexPrecision = vertexPrecision || 'highp';
     this.fragmentPrecision = fragmentPrecision || 'mediump';
-    this.customDefines = {};
+    this.customDefine = {};
 
     const {
         baseColor, diffuse, alpha, fog, dither,
