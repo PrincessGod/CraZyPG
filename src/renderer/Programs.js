@@ -663,8 +663,9 @@ function createProgram( gl, vs, fs, opts = {} ) {
 
     }
 
-    gl.detachShader( prog, vShader );
-    gl.detachShader( prog, fShader );
+    // in order to support shader source in Babylon's Spector.js https://github.com/BabylonJS/Spector.js/issues/89
+    // gl.detachShader( prog, vShader );
+    // gl.detachShader( prog, fShader );
     gl.deleteShader( vShader );
     gl.deleteShader( fShader );
 
