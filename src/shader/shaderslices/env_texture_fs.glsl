@@ -24,15 +24,15 @@
 
         // linear
 
-        #ifdef ENVTEXTURE_BLENDING_MULTIPLY
+        #ifdef ENVTEXTURE_MULTIPLY
 
             outgoingLight = mix( outgoingLight, outgoingLight * envColor.rgb, specularStrength * u_reflectivity );
 
-        #elif defined( ENVTEXTURE_BLENDING_MIX )
+        #elif defined( ENVTEXTURE_MIX )
 
             outgoingLight = mix( outgoingLight, envColor.rgb, specularStrength * u_reflectivity );
 
-        #elif defined( ENVTEXTURE_BLENDING_ADD )
+        #elif defined( ENVTEXTURE_ADD )
 
             outgoingLight += envColor.rgb * specularStrength * u_reflectivity;
 

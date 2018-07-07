@@ -50,7 +50,9 @@ const spotLight = new CZPG.SpotLight( [ 1, 1, 0 ], 0.5, 20, Math.PI / 10, 0.3 );
 scene.add( ambientLight, directLight, pointLight, spotLight );
 
 const testMaterial = new TestMaterial( { uniformObj: { u_texture: envTexture } } );
-const basicMaterial = new CZPG.BasicModelMaterial( { baseTexture, envTexture, uniformObj: { u_reflectivity: 0.8 } } );
+const basicMaterial = new CZPG.BasicModelMaterial( {
+    baseTexture, envTexture, envBlend: CZPG.EnvTexture.ADD, // envMode: CZPG.EnvTexture.REFRACTION, refractionRation: 0.9, // reflectivity: 0.2,
+} );
 const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: bumpTexture, cull: false } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
 const phongMaterial = new CZPG.PhongModelMaterial( {

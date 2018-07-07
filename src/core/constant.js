@@ -326,3 +326,16 @@ export const FrontFace = makeReadonlyObj( {
     CCW: 0x0901,
 
 } );
+
+export const EnvTexture = makeReadonlyObj( {
+
+    REFLECTION: 1,
+    REFRACTION: 2,
+
+    CUBE: 3,
+
+    MULTIPLY: 4,
+    MIX: 5,
+    ADD: 6,
+
+} );

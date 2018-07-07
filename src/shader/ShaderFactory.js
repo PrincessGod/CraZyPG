@@ -1,5 +1,5 @@
+import { EnvTexture, ShaderParams } from '../core/constant';
 import { ShaderSlices } from './ShaderSlices';
-import { ShaderParams } from '../core/constant';
 
 const attribDefinesMap = {};
 attribDefinesMap[ ShaderParams.ATTRIB_UV_NAME ] = 'HAS_UV';
@@ -57,8 +57,51 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_SPECULARTEXTURE = '';
         if ( material.aoTexture )
             defineObj.HAS_AOTEXTURE = '';
-        if ( material.envTexture )
+        if ( material.envTexture ) {
+
             defineObj.HAS_ENVTEXTURE = '';
+            switch ( material.envMode ) {
+
+            case EnvTexture.REFLECTION:
+                defineObj.ENVTEXTURE_REFLECTION = '';
+                break;
+            case EnvTexture.REFRACTION:
+                break;
+            default:
+                console.error( `unknown envMode ${material.envMode}` );
+                break;
+
+            }
+
+            switch ( material.envType ) {
+
+            case EnvTexture.CUBE:
+                defineObj.ENVTEXTURE_CUBE = '';
+                break;
+            default:
+                console.error( `unknown envType ${material.envType}` );
+                break;
+
+            }
+
+            switch ( material.envBlend ) {
+
+            case EnvTexture.MULTIPLY:
+                defineObj.ENVTEXTURE_MULTIPLY = '';
+                break;
+            case EnvTexture.MIX:
+                defineObj.ENVTEXTURE_MIX = '';
+                break;
+            case EnvTexture.ADD:
+                defineObj.ENVTEXTURE_ADD = '';
+                break;
+            default:
+                console.error( `unknown envBlend ${material.envBlend}` );
+                break;
+
+            }
+
+        }
         if ( material.dither )
             defineObj.DITHER = '';
 

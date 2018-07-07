@@ -1,3 +1,4 @@
+import { EnvTexture } from '../core/constant';
 import { Shader } from './Shader';
 import { Material } from './Material';
 import vs from './shadersrc/basic.vs.glsl';
@@ -22,9 +23,17 @@ function BasicModelMaterial( opts = {} ) {
     const opt = Object.assign( defaultOpt, opts );
     Material.call( this, BasicModelShader, opt );
 
-    const { baseTexture, envTexture } = opt;
+    const {
+        baseTexture, envTexture, envMode, envType, envBlend,
+        reflectivity, refractionRatio,
+    } = opt;
     this.baseTexture = baseTexture;
     this.envTexture = envTexture;
+    this.envMode = envMode || EnvTexture.REFLECTION;
+    this.envType = envType || EnvTexture.CUBE;
+    this.envBlend = envBlend || EnvTexture.MULTIPLY;
+    this.reflectivity = reflectivity !== undefined ? reflectivity : 1;
+    this.refractionRatio = refractionRatio !== undefined ? refractionRatio : 0.98;
 
 }
 
@@ -65,6 +74,40 @@ Object.defineProperties( BasicModelMaterial.prototype, {
 
             this._envTexture = v;
             this.setUniformObj( { u_envTexture: v } );
+
+        },
+
+    },
+
+    reflectivity: {
+
+        get() {
+
+            return this._reflectivity;
+
+        },
+
+        set( v ) {
+
+            this._reflectivity = v;
+            this.setUniformObj( { u_reflectivity: v } );
+
+        },
+
+    },
+
+    refractionRatio: {
+
+        get() {
+
+            return this._refractionRatio;
+
+        },
+
+        set( v ) {
+
+            this._refractionRatio = v;
+            this.setUniformObj( { u_refractionRatio: v } );
 
         },
 
