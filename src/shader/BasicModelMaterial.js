@@ -25,7 +25,7 @@ function BasicModelMaterial( opts = {} ) {
 
     const {
         baseTexture, envTexture, envMode, envType, envBlend,
-        reflectivity, refractionRatio, alphaTexture, alphaMask,
+        reflectivity, refractionRatio, alphaTexture, alphaMask, specularTexture,
         lightTexture, lightTextureIntensity, aoTexture, aoTextureIntensity,
     } = opt;
     this.baseTexture = baseTexture;
@@ -37,6 +37,7 @@ function BasicModelMaterial( opts = {} ) {
     this.refractionRatio = refractionRatio !== undefined ? refractionRatio : 0.98;
     this.alphaTexture = alphaTexture;
     this.alphaMask = alphaMask;
+    this.specularTexture = specularTexture;
     this.lightTexture = lightTexture;
     this.lightTextureIntensity = lightTextureIntensity !== undefined ? lightTextureIntensity : 1;
     this.aoTexture = aoTexture;
@@ -81,6 +82,23 @@ Object.defineProperties( BasicModelMaterial.prototype, {
 
             this._alphaTexture = v;
             this.setUniformObj( { u_alphaTexture: v } );
+
+        },
+
+    },
+
+    specularTexture: {
+
+        get() {
+
+            return this._specularTexture;
+
+        },
+
+        set( v ) {
+
+            this._specularTexture = v;
+            this.setUniformObj( { u_specularTexture: v } );
 
         },
 
