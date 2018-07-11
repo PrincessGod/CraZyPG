@@ -24,7 +24,7 @@ function LambertModelMaterial( opts = {} ) {
 
     const {
         emissive, baseTexture, emissiveTexture, specularTexture,
-        aoIntensity, aoTexture,
+        aoIntensity, aoTexture, alphaTexture, alphaMask,
     } = opt;
     this.baseTexture = baseTexture;
     this.emissive = emissive || [ 0, 0, 0 ];
@@ -32,6 +32,8 @@ function LambertModelMaterial( opts = {} ) {
     this.specularTexture = specularTexture;
     this.aoIntensity = aoIntensity || 1;
     this.aoTexture = aoTexture;
+    this.alphaTexture = alphaTexture;
+    this.alphaMask = alphaMask;
 
 }
 
@@ -89,6 +91,23 @@ Object.defineProperties( LambertModelMaterial.prototype, {
 
             this._specularTexture = v;
             this.setUniformObj( { u_specularTexture: v } );
+
+        },
+
+    },
+
+    alphaTexture: {
+
+        get() {
+
+            return this._alphaTexture;
+
+        },
+
+        set( v ) {
+
+            this._alphaTexture = v;
+            this.setUniformObj( { u_alphaTexture: v } );
 
         },
 

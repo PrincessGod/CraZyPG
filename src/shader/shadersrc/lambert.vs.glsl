@@ -4,11 +4,11 @@
 #include <uv2_spec_vs>
 #include <normal_spec_vs>
 #include <color_spec_vs>
-// env map
 
 #include <fog_spec_vs>
 #include <worldpos_spec_vs>
 #include <logdepth_spec_vs>
+// shadow map
 
 void main() {
 

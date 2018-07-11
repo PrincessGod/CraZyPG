@@ -66,7 +66,15 @@ const basicMaterial = new CZPG.BasicModelMaterial( {
     // aoTextureIntensity: 2.0,
     specularTexture: baseTexture,
 } );
-const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: bumpTexture, cull: false } );
+const lambertMaterial = new CZPG.LambertModelMaterial( {
+    baseColor: [ 1, 1, 1, 1 ],
+    baseTexture: bumpTexture,
+    cull: false,
+    alphaTexture: bumpTexture,
+    blend: true,
+    blendFuncSeparate: [ CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA ],
+    alphaMask: 0.5,
+} );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
 const phongMaterial = new CZPG.PhongModelMaterial( {
     cull: false, baseTexture, shininess: 10, specular: [ 0.5, 0.5, 0.5 ], dither: true,
@@ -78,7 +86,7 @@ const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMater
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
 // scene.add( quad );
 
-const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), basicMaterial );
+const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), lambertMaterial );
 // cube.position = [ 1, 0.5, 0 ];
 scene.add( cube );
 
