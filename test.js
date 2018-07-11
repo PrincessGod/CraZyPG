@@ -57,8 +57,10 @@ const basicMaterial = new CZPG.BasicModelMaterial( {
     // alphaTexture: baseTexture,
     // blend: true,
     alphaMask: 0.5,
-    lightTexture: baseTexture,
+    // lightTexture: baseTexture,
     lightTextureIntensity: 1,
+    aoTexture: baseTexture,
+    aoTextureIntensity: 2.0,
 } );
 const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: bumpTexture, cull: false } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
