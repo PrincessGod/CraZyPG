@@ -51,7 +51,14 @@ scene.add( ambientLight, directLight, pointLight, spotLight );
 
 const testMaterial = new TestMaterial( { uniformObj: { u_texture: envTexture } } );
 const basicMaterial = new CZPG.BasicModelMaterial( {
-    baseTexture, envTexture, envBlend: CZPG.EnvTexture.ADD, // envMode: CZPG.EnvTexture.REFRACTION, refractionRation: 0.9, // reflectivity: 0.2,
+    baseTexture,
+    envTexture,
+    envBlend: CZPG.EnvTexture.ADD, // envMode: CZPG.EnvTexture.REFRACTION, refractionRation: 0.9, // reflectivity: 0.2,
+    // alphaTexture: baseTexture,
+    // blend: true,
+    alphaMask: 0.5,
+    lightTexture: baseTexture,
+    lightTextureIntensity: 1,
 } );
 const lambertMaterial = new CZPG.LambertModelMaterial( { baseColor: [ 1, 1, 1, 1 ], baseTexture: bumpTexture, cull: false } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );

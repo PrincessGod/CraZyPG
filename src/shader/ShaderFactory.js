@@ -102,8 +102,16 @@ Object.assign( ShaderFactory, {
             }
 
         }
+        if ( material.blend )
+            defineObj.ALPHA_BLEND = '';
+        if ( material.alphaTexture )
+            defineObj.HAS_ALPHATEXTURE = '';
         if ( material.dither )
             defineObj.DITHER = '';
+        if ( material.lightTexture )
+            defineObj.HAS_LIGHTTEXTURE = '';
+        if ( material.alphaMask !== undefined )
+            defineObj.ALPHA_MASK = material.alphaMask;
 
         Object.assign( defineObj, material.customDefine );
 
