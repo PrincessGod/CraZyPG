@@ -27,6 +27,7 @@ function LambertModelMaterial( opts = {} ) {
         emissive, baseTexture, emissiveTexture, specularTexture,
         aoTexture, aoTextureIntensity, alphaTexture, alphaMask,
         envTexture, envMode, envType, envBlend, reflectivity, refractionRatio,
+        lightTexture, lightTextureIntensity,
     } = opt;
     this.baseTexture = baseTexture;
     this.emissive = emissive || [ 0, 0, 0 ];
@@ -42,6 +43,8 @@ function LambertModelMaterial( opts = {} ) {
     this.envBlend = envBlend || EnvTexture.MULTIPLY;
     this.reflectivity = reflectivity !== undefined ? reflectivity : 1;
     this.refractionRatio = refractionRatio !== undefined ? refractionRatio : 0.98;
+    this.lightTexture = lightTexture;
+    this.lightTextureIntensity = lightTextureIntensity !== undefined ? lightTextureIntensity : 1;
 
 }
 
@@ -218,6 +221,40 @@ Object.defineProperties( LambertModelMaterial.prototype, {
 
             this._refractionRatio = v;
             this.setUniformObj( { u_refractionRatio: v } );
+
+        },
+
+    },
+
+    lightTexture: {
+
+        get() {
+
+            return this._lightTexture;
+
+        },
+
+        set( v ) {
+
+            this._lightTexture = v;
+            this.setUniformObj( { u_lightTexture: v } );
+
+        },
+
+    },
+
+    lightTextureIntensity: {
+
+        get() {
+
+            return this._lightTextureIntensity;
+
+        },
+
+        set( v ) {
+
+            this._lightTextureIntensity = v;
+            this.setUniformObj( { u_lightTextureIntensity: v } );
 
         },
 

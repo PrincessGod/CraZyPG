@@ -14,7 +14,7 @@ uniform float u_alpha;
 #include <emissive_texture_spec_fs>
 #include <specular_texture_spec_fs>
 #include <ao_texture_spec_fs>
-// light map
+#include <light_texture_spec_fs>
 #include <env_texture_spec_fs>
 
 #include <bsdf>
@@ -41,7 +41,7 @@ void main() {
 
     reflectedLight.indirectDiffuse = getAmbientLightIrradiance( u_ambientLightColor );
 
-    // light map
+    #include <light_texture_fs>
 
     #ifdef DOUBLE_SIDE
 

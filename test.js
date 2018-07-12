@@ -64,7 +64,7 @@ const basicMaterial = new CZPG.BasicModelMaterial( {
     // lightTextureIntensity: 1,
     // aoTexture: baseTexture,
     // aoTextureIntensity: 2.0,
-    specularTexture: baseTexture,
+    // specularTexture: baseTexture,
 } );
 const lambertMaterial = new CZPG.LambertModelMaterial( {
     baseColor: [ 1, 1, 1, 1 ],
@@ -76,11 +76,14 @@ const lambertMaterial = new CZPG.LambertModelMaterial( {
     // alphaMask: 0.5,
     // aoTexture: bumpTexture,
     // aoTextureIntensity: 0.5,
-    envTexture,
-    reflectivity: 0.2,
-    envMode: CZPG.EnvTexture.REFRACTION,
-    refractionRation: 0.9,
-    envBlend: CZPG.EnvTexture.ADD,
+    // envTexture,
+    // reflectivity: 0.2,
+    // refractionRation: 0.9,
+    // envMode: CZPG.EnvTexture.REFRACTION,
+    // envBlend: CZPG.EnvTexture.ADD,
+    // specularTexture: bumpTexture,
+    // lightTexture: bumpTexture,
+    // lightTextureIntensity: 1,
 } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
 const phongMaterial = new CZPG.PhongModelMaterial( {
