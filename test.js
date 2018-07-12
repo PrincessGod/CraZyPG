@@ -70,10 +70,17 @@ const lambertMaterial = new CZPG.LambertModelMaterial( {
     baseColor: [ 1, 1, 1, 1 ],
     baseTexture: bumpTexture,
     cull: false,
-    alphaTexture: bumpTexture,
-    blend: true,
-    blendFuncSeparate: [ CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA ],
-    alphaMask: 0.5,
+    // alphaTexture: bumpTexture,
+    // blend: true,
+    // blendFuncSeparate: [ CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA ],
+    // alphaMask: 0.5,
+    // aoTexture: bumpTexture,
+    // aoTextureIntensity: 0.5,
+    envTexture,
+    reflectivity: 0.2,
+    envMode: CZPG.EnvTexture.REFRACTION,
+    refractionRation: 0.9,
+    envBlend: CZPG.EnvTexture.ADD,
 } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
 const phongMaterial = new CZPG.PhongModelMaterial( {

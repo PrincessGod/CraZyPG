@@ -1,11 +1,12 @@
 import { Shader } from './Shader';
 import { Material } from './Material';
+import { EnvTexture } from '../core/constant';
 import vs from './shadersrc/lambert.vs.glsl';
 import fs from './shadersrc/lambert.fs.glsl';
 
 function LambertModelShader() {
 
-    Shader.call( this, vs, fs, { useLight: true } );
+    Shader.call( this, vs, fs, { useLight: true, validateProgram: false } );
 
 }
 
@@ -24,16 +25,23 @@ function LambertModelMaterial( opts = {} ) {
 
     const {
         emissive, baseTexture, emissiveTexture, specularTexture,
-        aoIntensity, aoTexture, alphaTexture, alphaMask,
+        aoTexture, aoTextureIntensity, alphaTexture, alphaMask,
+        envTexture, envMode, envType, envBlend, reflectivity, refractionRatio,
     } = opt;
     this.baseTexture = baseTexture;
     this.emissive = emissive || [ 0, 0, 0 ];
     this.emissiveTexture = emissiveTexture;
     this.specularTexture = specularTexture;
-    this.aoIntensity = aoIntensity || 1;
     this.aoTexture = aoTexture;
+    this.aoTextureIntensity = aoTextureIntensity || 1;
     this.alphaTexture = alphaTexture;
     this.alphaMask = alphaMask;
+    this.envTexture = envTexture;
+    this.envMode = envMode || EnvTexture.REFLECTION;
+    this.envType = envType || EnvTexture.CUBE;
+    this.envBlend = envBlend || EnvTexture.MULTIPLY;
+    this.reflectivity = reflectivity !== undefined ? reflectivity : 1;
+    this.refractionRatio = refractionRatio !== undefined ? refractionRatio : 0.98;
 
 }
 
@@ -130,18 +138,18 @@ Object.defineProperties( LambertModelMaterial.prototype, {
 
     },
 
-    aoIntensity: {
+    aoTextureIntensity: {
 
         get() {
 
-            return this._aoIntensity;
+            return this._aoTextureIntensity;
 
         },
 
         set( v ) {
 
-            this._aoIntensity = v;
-            this.setUniformObj( { u_aoIntensity: v } );
+            this._aoTextureIntensity = v;
+            this.setUniformObj( { u_aoTextureIntensity: v } );
 
         },
 
@@ -159,6 +167,57 @@ Object.defineProperties( LambertModelMaterial.prototype, {
 
             this._aoTexture = v;
             this.setUniformObj( { u_aoTexture: v } );
+
+        },
+
+    },
+
+    envTexture: {
+
+        get() {
+
+            return this._envTexture;
+
+        },
+
+        set( v ) {
+
+            this._envTexture = v;
+            this.setUniformObj( { u_envTexture: v } );
+
+        },
+
+    },
+
+    reflectivity: {
+
+        get() {
+
+            return this._reflectivity;
+
+        },
+
+        set( v ) {
+
+            this._reflectivity = v;
+            this.setUniformObj( { u_reflectivity: v } );
+
+        },
+
+    },
+
+    refractionRatio: {
+
+        get() {
+
+            return this._refractionRatio;
+
+        },
+
+        set( v ) {
+
+            this._refractionRatio = v;
+            this.setUniformObj( { u_refractionRatio: v } );
 
         },
 

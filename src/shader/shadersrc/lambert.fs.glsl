@@ -15,7 +15,7 @@ uniform float u_alpha;
 #include <specular_texture_spec_fs>
 #include <ao_texture_spec_fs>
 // light map
-// env map
+#include <env_texture_spec_fs>
 
 #include <bsdf>
 #include <light_spec>
@@ -59,7 +59,7 @@ void main() {
 
     vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
 
-    // env map
+    #include <env_texture_fs>
 
     finalColor = vec4( outgoingLight, diffuseColor.a );
 
