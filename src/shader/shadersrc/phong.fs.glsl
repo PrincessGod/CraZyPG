@@ -13,7 +13,7 @@
 #include <specular_texture_spec_fs>
 #include <ao_texture_spec_fs>
 #include <gradient_texture_spec_fs>
-// light map
+#include <light_texture_spec_fs>
 #include <env_texture_spec_fs>
 
 #include <pack>

@@ -1,8 +1,8 @@
     #if defined( RE_IndirectDiffuse )
 
-        #ifdef USE_LIGHTMAP
+        #ifdef HAS_LIGHTTEXTURE
 
-            vec3 lightMapIrradiance = texture( lightMap, vUv2 ).xyz * lightMapIntensity;
+            vec3 lightMapIrradiance = texture( u_lightTexture, v_uv2 ).xyz * u_lightTextureIntensity;
 
             #ifndef PHYSICALLY_CORRECT_LIGHTS
 
@@ -27,7 +27,9 @@
         radiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_BlinnShininessExponent( material ), maxMipLevel );
 
         #ifndef STANDARD
+
             clearCoatRadiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_ClearCoat_BlinnShininessExponent( material ), maxMipLevel );
+
         #endif
 
     #endif

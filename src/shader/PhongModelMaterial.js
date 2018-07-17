@@ -26,8 +26,9 @@ function PhongModelMaterial( opts = {} ) {
     const {
         baseTexture, specular, shininess, emissive, emissiveTexture,
         specularTexture, normalTexture, normalScale, bumpTexture, bumpScale,
-        aoIntensity, aoTexture, displacementTexture, displacementScale, displacementBias,
+        aoTexture, aoTextureIntensity, displacementTexture, displacementScale, displacementBias,
         envTexture, envMode, envType, envBlend, reflectivity, refractionRatio,
+        alphaTexture, alphaMask, lightTexture, lightTextureIntensity,
     } = opt;
     this.baseTexture = baseTexture;
     this.specular = specular || [ 1, 1, 1 ];
@@ -39,7 +40,7 @@ function PhongModelMaterial( opts = {} ) {
     this.normalScale = normalScale || [ 1, 1 ];
     this.bumpTexture = bumpTexture;
     this.bumpScale = bumpScale || 1;
-    this.aoIntensity = aoIntensity || 1;
+    this.aoTextureIntensity = aoTextureIntensity || 1;
     this.aoTexture = aoTexture;
     this.displacementTexture = displacementTexture;
     this.displacementScale = displacementScale === undefined ? 1.0 : displacementScale;
@@ -50,6 +51,11 @@ function PhongModelMaterial( opts = {} ) {
     this.envBlend = envBlend || EnvTexture.MULTIPLY;
     this.reflectivity = reflectivity !== undefined ? reflectivity : 1;
     this.refractionRatio = refractionRatio !== undefined ? refractionRatio : 0.98;
+    this.alphaTexture = alphaTexture;
+    this.alphaMask = alphaMask;
+    this.lightTexture = lightTexture;
+    this.lightTextureIntensity = lightTextureIntensity !== undefined ? lightTextureIntensity : 1;
+
 
 }
 
@@ -231,18 +237,18 @@ Object.defineProperties( PhongModelMaterial.prototype, {
 
     },
 
-    aoIntensity: {
+    aoTextureIntensity: {
 
         get() {
 
-            return this._aoIntensity;
+            return this._aoTextureIntensity;
 
         },
 
         set( v ) {
 
-            this._aoIntensity = v;
-            this.setUniformObj( { u_aoIntensity: v } );
+            this._aoTextureIntensity = v;
+            this.setUniformObj( { u_aoTextureIntensity: v } );
 
         },
 
@@ -362,6 +368,57 @@ Object.defineProperties( PhongModelMaterial.prototype, {
 
             this._refractionRatio = v;
             this.setUniformObj( { u_refractionRatio: v } );
+
+        },
+
+    },
+
+    alphaTexture: {
+
+        get() {
+
+            return this._alphaTexture;
+
+        },
+
+        set( v ) {
+
+            this._alphaTexture = v;
+            this.setUniformObj( { u_alphaTexture: v } );
+
+        },
+
+    },
+
+    lightTexture: {
+
+        get() {
+
+            return this._lightTexture;
+
+        },
+
+        set( v ) {
+
+            this._lightTexture = v;
+            this.setUniformObj( { u_lightTexture: v } );
+
+        },
+
+    },
+
+    lightTextureIntensity: {
+
+        get() {
+
+            return this._lightTextureIntensity;
+
+        },
+
+        set( v ) {
+
+            this._lightTextureIntensity = v;
+            this.setUniformObj( { u_lightTextureIntensity: v } );
 
         },
 
