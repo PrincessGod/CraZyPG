@@ -5,7 +5,6 @@
 #include <normal_spec_vs>
 #include <color_spec_vs>
 #include <displacement_texture_spec_vs>
-// env
 // shadow
 // clip planes
 

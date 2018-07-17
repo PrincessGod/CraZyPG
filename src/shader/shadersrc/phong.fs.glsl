@@ -14,7 +14,7 @@
 #include <ao_texture_spec_fs>
 #include <gradient_texture_spec_fs>
 // light map
-// env map
+#include <env_texture_spec_fs>
 
 #include <pack>
 #include <bsdf>
@@ -60,7 +60,7 @@ void main() {
 
     vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
 
-    // env map
+    #include <env_texture_fs>
 
     finalColor = vec4( outgoingLight, diffuseColor.a );
 

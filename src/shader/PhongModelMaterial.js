@@ -1,11 +1,12 @@
 import { Shader } from './Shader';
 import { Material } from './Material';
+import { EnvTexture } from '../core/constant';
 import vs from './shadersrc/phong.vs.glsl';
 import fs from './shadersrc/phong.fs.glsl';
 
 function PhongModelShader() {
 
-    Shader.call( this, vs, fs, { useLight: true } );
+    Shader.call( this, vs, fs, { useLight: true, validateProgram: false } );
 
 }
 
@@ -26,6 +27,7 @@ function PhongModelMaterial( opts = {} ) {
         baseTexture, specular, shininess, emissive, emissiveTexture,
         specularTexture, normalTexture, normalScale, bumpTexture, bumpScale,
         aoIntensity, aoTexture, displacementTexture, displacementScale, displacementBias,
+        envTexture, envMode, envType, envBlend, reflectivity, refractionRatio,
     } = opt;
     this.baseTexture = baseTexture;
     this.specular = specular || [ 1, 1, 1 ];
@@ -42,6 +44,12 @@ function PhongModelMaterial( opts = {} ) {
     this.displacementTexture = displacementTexture;
     this.displacementScale = displacementScale === undefined ? 1.0 : displacementScale;
     this.displacementBias = displacementBias === undefined ? 0 : displacementBias;
+    this.envTexture = envTexture;
+    this.envMode = envMode || EnvTexture.REFLECTION;
+    this.envType = envType || EnvTexture.CUBE;
+    this.envBlend = envBlend || EnvTexture.MULTIPLY;
+    this.reflectivity = reflectivity !== undefined ? reflectivity : 1;
+    this.refractionRatio = refractionRatio !== undefined ? refractionRatio : 0.98;
 
 }
 
@@ -303,6 +311,57 @@ Object.defineProperties( PhongModelMaterial.prototype, {
 
             this._displacementBias = v;
             this.setUniformObj( { u_displacementBias: v } );
+
+        },
+
+    },
+
+    envTexture: {
+
+        get() {
+
+            return this._envTexture;
+
+        },
+
+        set( v ) {
+
+            this._envTexture = v;
+            this.setUniformObj( { u_envTexture: v } );
+
+        },
+
+    },
+
+    reflectivity: {
+
+        get() {
+
+            return this._reflectivity;
+
+        },
+
+        set( v ) {
+
+            this._reflectivity = v;
+            this.setUniformObj( { u_reflectivity: v } );
+
+        },
+
+    },
+
+    refractionRatio: {
+
+        get() {
+
+            return this._refractionRatio;
+
+        },
+
+        set( v ) {
+
+            this._refractionRatio = v;
+            this.setUniformObj( { u_refractionRatio: v } );
 
         },
 
