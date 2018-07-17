@@ -112,6 +112,8 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_LIGHTTEXTURE = '';
         if ( material.alphaMask !== undefined )
             defineObj.ALPHA_MASK = material.alphaMask;
+        if ( material.displacementTexture )
+            defineObj.HAS_DISPLACEMENTTEXTURE = '';
 
         Object.assign( defineObj, material.customDefine );
 

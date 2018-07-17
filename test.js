@@ -24,6 +24,15 @@ const scene = new CZPG.Scene( renderer );
 const baseTexture = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
 const normalTexture = new CZPG.Texture2D( { src: './resource/normal.png' } );
 const bumpTexture = new CZPG.Texture2D( { src: './resource/bump.jpg' } );
+const displacementTexture = new CZPG.Texture2D( {
+    src: [
+        100, 0, 0, 255,
+        150, 0, 0, 255,
+        200, 0, 0, 255,
+        250, 0, 0, 255,
+    ],
+    minMag: 9728,
+} );
 const envTexture = new CZPG.TextureCubeMap( {
     src: [
         './resource/grimmnight_right.png',
@@ -87,7 +96,14 @@ const lambertMaterial = new CZPG.LambertModelMaterial( {
 } );
 const normalMaterial = new CZPG.NormalModelMaterial( { cull: false, bumpTexture } );
 const phongMaterial = new CZPG.PhongModelMaterial( {
-    cull: false, baseTexture, shininess: 10, specular: [ 0.5, 0.5, 0.5 ], dither: true,
+    cull: false,
+    baseTexture: displacementTexture,
+    shininess: 10,
+    specular: [ 0.5, 0.5, 0.5 ],
+    dither: true,
+    displacementTexture,
+    displacementScale: 2,
+    displacementBias: 0.1,
 } );
 const toonMaterial = new CZPG.ToonModelMaterial( {
     cull: false, baseTexture, shininess: 10, specular: [ 0.5, 0.5, 0.5 ], dither: true,
@@ -96,7 +112,7 @@ const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMater
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
 // scene.add( quad );
 
-const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), lambertMaterial );
+const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), phongMaterial );
 // cube.position = [ 1, 0.5, 0 ];
 scene.add( cube );
 

@@ -19,6 +19,7 @@ import color_spec_vs from './shaderslices/color_spec_vs.glsl';
 import worldpos_spec_vs from './shaderslices/worldpos_spec_vs.glsl';
 import fog_spec_vs from './shaderslices/fog_spec_vs.glsl';
 import logdepth_spec_vs from './shaderslices/logdepth_spec_vs.glsl';
+import displacement_texture_spec_vs from './shaderslices/displacement_texture_spec_vs.glsl';
 
 import begin_position_vs from './shaderslices/begin_position_vs.glsl';
 import begin_normal_vs from './shaderslices/begin_normal_vs.glsl';
@@ -34,6 +35,7 @@ import position_vs from './shaderslices/position_vs.glsl';
 import worldpos_vs from './shaderslices/worldpos_vs.glsl';
 import fog_vs from './shaderslices/fog_vs.glsl';
 import logdepth_vs from './shaderslices/logdepth_vs.glsl';
+import displacement_texture_vs from './shaderslices/displacement_texture_vs.glsl';
 
 import common_fs from './shaderslices/common_fs.glsl';
 import uv_spec_fs from './shaderslices/uv_spec_fs.glsl';
@@ -92,6 +94,7 @@ export const ShaderSlices = {
     worldpos_spec_vs,
     fog_spec_vs,
     logdepth_spec_vs,
+    displacement_texture_spec_vs,
 
     begin_position_vs,
     begin_normal_vs,
@@ -107,6 +110,7 @@ export const ShaderSlices = {
     position_vs,
     fog_vs,
     logdepth_vs,
+    displacement_texture_vs,
 
     common_fs,
     uv_spec_fs,

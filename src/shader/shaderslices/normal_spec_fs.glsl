@@ -1,5 +1,13 @@
-#if defined( HAS_NORMAL ) && ! defined( FLAT_SHADE )
+#if defined( HAS_NORMAL )
 
-in vec3 v_normal;
+    #if defined( FLAT_SHADE )
+
+        flat in vec3 v_normal;
+
+    #else
+
+        in vec3 v_normal;
+
+    #endif
 
 #endif

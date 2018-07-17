@@ -1,4 +1,4 @@
-    #if defined( HAS_NORMAL ) && ! defined( FLAT_SHADE )
+    #if defined( HAS_NORMAL )
 
         normal = normalize( u_normMat * normal );
         v_normal = normal;

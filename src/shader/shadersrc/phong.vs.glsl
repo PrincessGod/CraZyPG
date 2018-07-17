@@ -4,7 +4,7 @@
 #include <uv2_spec_vs>
 #include <normal_spec_vs>
 #include <color_spec_vs>
-// displacement
+#include <displacement_texture_spec_vs>
 // env
 // shadow
 // clip planes
@@ -20,6 +20,7 @@ void main() {
 
     #include <morph_vs>
     #include <skinning_vs>
+    #include <displacement_texture_vs>
     #include <uv_vs>
     #include <uv2_vs>
     #include <normal_vs>

@@ -25,7 +25,7 @@ function PhongModelMaterial( opts = {} ) {
     const {
         baseTexture, specular, shininess, emissive, emissiveTexture,
         specularTexture, normalTexture, normalScale, bumpTexture, bumpScale,
-        aoIntensity, aoTexture,
+        aoIntensity, aoTexture, displacementTexture, displacementScale, displacementBias,
     } = opt;
     this.baseTexture = baseTexture;
     this.specular = specular || [ 1, 1, 1 ];
@@ -39,6 +39,9 @@ function PhongModelMaterial( opts = {} ) {
     this.bumpScale = bumpScale || 1;
     this.aoIntensity = aoIntensity || 1;
     this.aoTexture = aoTexture;
+    this.displacementTexture = displacementTexture;
+    this.displacementScale = displacementScale === undefined ? 1.0 : displacementScale;
+    this.displacementBias = displacementBias === undefined ? 0 : displacementBias;
 
 }
 
@@ -249,6 +252,57 @@ Object.defineProperties( PhongModelMaterial.prototype, {
 
             this._aoTexture = v;
             this.setUniformObj( { u_aoTexture: v } );
+
+        },
+
+    },
+
+    displacementTexture: {
+
+        get() {
+
+            return this._displacementTexture;
+
+        },
+
+        set( v ) {
+
+            this._displacementTexture = v;
+            this.setUniformObj( { u_displacementTexture: v } );
+
+        },
+
+    },
+
+    displacementScale: {
+
+        get() {
+
+            return this._displacementScale;
+
+        },
+
+        set( v ) {
+
+            this._displacementScale = v;
+            this.setUniformObj( { u_displacementScale: v } );
+
+        },
+
+    },
+
+    displacementBias: {
+
+        get() {
+
+            return this._displacementBias;
+
+        },
+
+        set( v ) {
+
+            this._displacementBias = v;
+            this.setUniformObj( { u_displacementBias: v } );
 
         },
 
