@@ -86,3 +86,10 @@
         vec3 irradiance = getAmbientLightIrradiance( u_ambientLightColor );
 
     #endif
+
+    #if defined( RE_IndirectSpecular )
+
+        vec3 radiance = vec3( 0.0 );
+        vec3 clearCoatRadiance = vec3( 0.0 );
+
+    #endif

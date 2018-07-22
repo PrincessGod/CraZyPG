@@ -14,22 +14,18 @@
 
         #endif
 
-        #if defined( USE_ENVMAP ) && defined( PHYSICAL ) && defined( ENVMAP_TYPE_CUBE_UV )
+        // #if defined( HAS_ENVTEXTURE ) && defined( PHYSICAL ) && defined( ENVMAP_TYPE_CUBE_UV )
 
-            irradiance += getLightProbeIndirectIrradiance( /*lightProbe,*/ geometry, maxMipLevel );
+        //     irradiance += getLightProbeIndirectIrradiance( /*lightProbe,*/ geometry, maxMipLevel );
 
-        #endif
+        // #endif
 
     #endif
 
-    #if defined( USE_ENVMAP ) && defined( RE_IndirectSpecular )
+    #if defined( HAS_ENVTEXTURE ) && defined( RE_IndirectSpecular )
 
-        radiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_BlinnShininessExponent( material ), maxMipLevel );
+        radiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_BlinnShininessExponent( material ), u_maxMipLevel );
 
-        #ifndef STANDARD
-
-            clearCoatRadiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_ClearCoat_BlinnShininessExponent( material ), maxMipLevel );
-
-        #endif
+        clearCoatRadiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_ClearCoat_BlinnShininessExponent( material ), u_maxMipLevel );
 
     #endif

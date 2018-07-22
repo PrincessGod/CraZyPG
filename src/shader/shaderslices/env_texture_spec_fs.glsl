@@ -1,7 +1,7 @@
 #if defined( HAS_ENVTEXTURE ) || defined( PBR )
 
 	uniform float u_reflectivity;
-	uniform float u_envIntensity;
+	uniform float u_envTextureIntensity;
 
 #endif
 
@@ -17,7 +17,7 @@
 
     #endif
 
-    uniform int u_mipmapLevel;
+    uniform int u_maxMipLevel;
     uniform float u_refractionRatio;
 
 #endif

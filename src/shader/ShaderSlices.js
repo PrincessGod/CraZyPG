@@ -10,6 +10,9 @@ import end_light_fs from './shaderslices/end_light_fs.glsl';
 import light_lambert_fs from './shaderslices/light_lambert_fs.glsl';
 import light_phong_spec_fs from './shaderslices/light_phong_spec_fs.glsl';
 import light_phong_fs from './shaderslices/light_phong_fs.glsl';
+import light_physical_spec_fs from './shaderslices/light_physical_spec_fs.glsl';
+import light_physical_fs from './shaderslices/light_physical_fs.glsl';
+import light_physical_env_fs from './shaderslices/light_physical_env_fs.glsl';
 
 import common_vs from './shaderslices/common_vs.glsl';
 import uv_spec_vs from './shaderslices/uv_spec_vs.glsl';
@@ -56,6 +59,8 @@ import fog_spec_fs from './shaderslices/fog_spec_fs.glsl';
 import dither_spec_fs from './shaderslices/dither_spec_fs.glsl';
 import logdepth_spec_fs from './shaderslices/logdepth_spec_fs.glsl';
 import gradient_texture_spec_fs from './shaderslices/gradient_texture_spec_fs.glsl';
+import metalness_texture_spec_fs from './shaderslices/metalness_texture_spec_fs.glsl';
+import roughness_texture_spec_fs from './shaderslices/roughness_texture_spec_fs.glsl';
 
 import base_texture_fs from './shaderslices/base_texture_fs.glsl';
 import color_fs from './shaderslices/color_fs.glsl';
@@ -71,6 +76,8 @@ import emissive_texture_fs from './shaderslices/emissive_texture_fs.glsl';
 import fog_fs from './shaderslices/fog_fs.glsl';
 import dither_fs from './shaderslices/dither_fs.glsl';
 import logdepth_fs from './shaderslices/logdepth_fs.glsl';
+import metalness_texture_fs from './shaderslices/metalness_texture_fs.glsl';
+import roughness_texture_fs from './shaderslices/roughness_texture_fs.glsl';
 
 export const ShaderSlices = {
 
@@ -85,6 +92,9 @@ export const ShaderSlices = {
     light_lambert_fs,
     light_phong_spec_fs,
     light_phong_fs,
+    light_physical_spec_fs,
+    light_physical_fs,
+    light_physical_env_fs,
 
     common_vs,
     uv_spec_vs,
@@ -131,6 +141,8 @@ export const ShaderSlices = {
     dither_spec_fs,
     logdepth_spec_fs,
     gradient_texture_spec_fs,
+    metalness_texture_spec_fs,
+    roughness_texture_spec_fs,
 
     base_texture_fs,
     color_fs,
@@ -146,5 +158,7 @@ export const ShaderSlices = {
     fog_fs,
     dither_fs,
     logdepth_fs,
+    metalness_texture_fs,
+    roughness_texture_fs,
 
 };
