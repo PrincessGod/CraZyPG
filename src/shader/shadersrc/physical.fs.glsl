@@ -15,8 +15,8 @@
 #include <ao_texture_spec_fs>
 #include <light_texture_spec_fs>
 #include <env_texture_spec_fs>
-#include <roghness_texture_spec_fs>
 #include <metalness_texture_spec_fs>
+#include <roughness_texture_spec_fs>
 
 #include <pack>
 #include <bsdf>

@@ -139,11 +139,41 @@ const toonMaterial = new CZPG.ToonModelMaterial( {
     envMode: CZPG.EnvTexture.REFRACTION,
     envBlend: CZPG.EnvTexture.ADD,
 } );
+
+const physicalMaterial = new CZPG.PhysicalModelMaterial( {
+
+    dither: true,
+    blend: true,
+    cull: false,
+    baseColor: [ 1, 1, 1, 1 ],
+    metalness: 0.1,
+    roughness: 0.1,
+    clearCoat: 1,
+    clearCoatRoughness: 1,
+    baseTexture,
+    // metalnessTexture: normalTexture,
+    // roughnessTexture: normalTexture,
+    // normalTexture,
+    // emissive: [ 1, 1, 1 ],
+    // emissiveTexture: baseTexture,
+    // alphaTexture: bumpTexture,
+    // blendFuncSeparate: [ CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA, CZPG.BlendFactor.ONE_MINUS_SRC_ALPHA ],
+    // alphaMask: 0.5,
+    // envTexture,
+    // reflectivity: 0.9,
+    // refractionRation: 0.9,
+    // envMode: CZPG.EnvTexture.REFRACTION,
+    // envBlend: CZPG.EnvTexture.ADD,
+    // specularTexture: bumpTexture,
+    // lightTexture: bumpTexture,
+    // lightTextureIntensity: 0.3,
+
+} );
 const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMaterial );
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
 // scene.add( quad );
 
-const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), phongMaterial );
+const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), physicalMaterial );
 // cube.position = [ 1, 0.5, 0 ];
 scene.add( cube );
 

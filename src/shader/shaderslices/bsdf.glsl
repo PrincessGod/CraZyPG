@@ -144,3 +144,12 @@ vec3 BRDF_Specular_GGX_Environment( const in GeometricContext geometry, const in
 	return specularColor * AB.x + AB.y;
 
 } // validated
+
+// source: http://simonstechblog.blogspot.ca/2011/12/microfacet-brdf.html
+float GGXRoughnessToBlinnExponent( const in float ggxRoughness ) {
+	return ( 2.0 / pow2( ggxRoughness + 0.0001 ) - 2.0 );
+}
+
+float BlinnExponentToGGXRoughness( const in float blinnExponent ) {
+	return sqrt( 2.0 / ( blinnExponent + 2.0 ) );
+}

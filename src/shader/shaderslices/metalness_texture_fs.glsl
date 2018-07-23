@@ -2,7 +2,7 @@
 
     #ifdef HAS_METALNESSTEXTURE
 
-        vec4 texelMetalness = texture2D( u_metalnessTexture, v_uv );
+        vec4 texelMetalness = texture( u_metalnessTexture, v_uv );
         metalnessFactor *= texelMetalness.b;
 
     #endif

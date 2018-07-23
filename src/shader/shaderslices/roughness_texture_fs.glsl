@@ -2,7 +2,7 @@
 
     #ifdef HAS_ROUGHNESSTEXTURE
 
-        vec4 texelRoughness = texture2D( u_roughnessTexture, v_uv );
+        vec4 texelRoughness = texture( u_roughnessTexture, v_uv );
         roughnessFactor *= texelRoughness.g;
 
     #endif

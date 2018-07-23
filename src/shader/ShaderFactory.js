@@ -114,6 +114,10 @@ Object.assign( ShaderFactory, {
             defineObj.ALPHA_MASK = material.alphaMask;
         if ( material.displacementTexture )
             defineObj.HAS_DISPLACEMENTTEXTURE = '';
+        if ( material.metalnessTexture )
+            defineObj.HAS_METALNESSTEXTURE = '';
+        if ( material.roughnessTexture )
+            defineObj.HAS_ROUGHNESSTEXTURE = '';
 
         Object.assign( defineObj, material.customDefine );
 

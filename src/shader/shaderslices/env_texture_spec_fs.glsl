@@ -1,4 +1,4 @@
-#if defined( HAS_ENVTEXTURE ) || defined( PBR )
+#if defined( HAS_ENVTEXTURE ) || defined( PHYSICAL )
 
 	uniform float u_reflectivity;
 	uniform float u_envTextureIntensity;

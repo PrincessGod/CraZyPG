@@ -58,7 +58,6 @@ void RE_IndirectSpecular_Physical( const in vec3 radiance, const in vec3 clearCo
 }
 
 #define RE_Direct				RE_Direct_Physical
-#define RE_Direct_RectArea		RE_Direct_RectArea_Physical
 #define RE_IndirectDiffuse		RE_IndirectDiffuse_Physical
 #define RE_IndirectSpecular		RE_IndirectSpecular_Physical
 
