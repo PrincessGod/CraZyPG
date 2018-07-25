@@ -18,7 +18,6 @@ class TestMaterial extends CZPG.Material {
 
 }
 
-
 const renderer = new CZPG.WebGL2Renderer( 'glpaper' ).setSize( '100%', '100%' );
 const scene = new CZPG.Scene( renderer );
 const baseTexture = new CZPG.Texture2D( { src: './resource/UV_Grid_Lrg.jpg' } );
@@ -52,8 +51,17 @@ const cameraControler = new CZPG.OrbitControls( camera, renderer.canvas, scene.c
 cameraControler.enableDamping = true;
 camera.position = [ 0, 4, 10 ];
 
-const ambientLight = new CZPG.AmbientLight( [ 0.1, 0.1, 0.1 ], 1 );
-const directLight = new CZPG.DirectionalLight( [ 1, 1, 1 ], 0.1 );
+const gltfLoader = new CZPG.GLTFLoader();
+gltfLoader.load( './resource/gltf/Triangle/glTF/Triangle.gltf' )
+    .then( ( res ) => {
+
+        // res.children[ 0 ].rotation = [ - Math.PI / 2, 0, 0 ];
+        scene.add( res.children[ 0 ] );
+
+    } );
+
+const ambientLight = new CZPG.AmbientLight( [ 0.3, 0.3, 0.3 ], 1 );
+const directLight = new CZPG.DirectionalLight( [ 1, 1, 1 ], 0.3 ); directLight.rotation = [ Math.PI * 3 / 4, 0, 0 ];
 const pointLight = new CZPG.PointLight( [ 1, 0, 1 ], 0.5, 2 );
 const spotLight = new CZPG.SpotLight( [ 1, 1, 0 ], 0.5, 20, Math.PI / 10, 0.3 ); spotLight.position = [ 0, 5, 0 ]; spotLight.rotation = [ Math.PI / 2 - 0.5, 0, 0 ];
 scene.add( ambientLight, directLight, pointLight, spotLight );
@@ -146,8 +154,8 @@ const physicalMaterial = new CZPG.PhysicalModelMaterial( {
     blend: true,
     cull: false,
     baseColor: [ 1, 1, 1, 1 ],
-    metalness: 0.1,
-    roughness: 0.1,
+    metalness: 1,
+    roughness: 1,
     clearCoat: 1,
     clearCoatRoughness: 1,
     baseTexture,
@@ -175,7 +183,7 @@ quad.rotation = [ - Math.PI / 2, 0, 0 ];
 
 const cube = new CZPG.Model( new CZPG.Cube( { offset: 0 } ), physicalMaterial );
 // cube.position = [ 1, 0.5, 0 ];
-scene.add( cube );
+// scene.add( cube );
 
 const sphere = new CZPG.Model( new CZPG.Sphere(), toonMaterial );
 // scene.add( sphere );

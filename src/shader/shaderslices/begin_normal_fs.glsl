@@ -1,4 +1,4 @@
-    #if defined( FLAT_SHADE ) && ! defined( HAS_NORMAL )
+    #if ! defined( HAS_NORMAL )
 
         vec3 fdx = vec3( dFdx( v_worldpos.x ), dFdx( v_worldpos.y ), dFdx( v_worldpos.z ) );
         vec3 fdy = vec3( dFdy( v_worldpos.x ), dFdy( v_worldpos.y ), dFdy( v_worldpos.z ) );

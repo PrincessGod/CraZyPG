@@ -22,3 +22,16 @@ export function objEqual( obj1, obj2 ) {
     return obj1keys.filter( k => obj1[ k ] !== obj2[ k ] ).length === 0;
 
 }
+
+export function deleteUndefined( obj ) {
+
+    Object.keys( obj ).forEach( ( k ) => {
+
+        if ( obj[ k ] === undefined )
+            delete obj[ k ]; // eslint-disable-line
+
+    } );
+
+    return obj;
+
+}

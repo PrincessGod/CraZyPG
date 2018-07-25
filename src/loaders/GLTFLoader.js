@@ -1,86 +1,32 @@
-/* eslint no-loop-func: 0 */
-import { getTypedArrayTypeFromGLType } from '../core/typedArray';
-import { ShaderParams, TextureWrapMode } from '../core/constant';
-import { Model } from '../model/Model';
-import { Mesh } from '../model/Primatives';
-import { Node } from '../scene/Node';
-import { Matrix4 } from '../math/Matrix4';
 import { FileLoader } from './Fileloader';
-import { PerspectiveCamera, OrthographicCamera } from '../camera/Camera';
-import { PMath } from '../math/Math';
+import { Matrix4 } from '../math/Matrix4';
+import { IndicesKey, BeginMode, TextureWrapMode, ShaderParams } from '../core/constant';
+import { getTypedArrayTypeFromGLType } from '../core/typedArray';
+import { deleteUndefined } from '../core/utils';
+import { Primitive } from '../model/Primitive';
+import { PhysicalModelMaterial } from '../shader/PhysicalModelMaterial';
+import { Model } from '../model/Model';
+import { Node } from '../object/Node';
 
 function GLTFLoader() {
-
-    this.currentSceneName = 'null';
-
 }
-
-function errorMiss( nodeType, index ) {
-
-    if ( index !== undefined )
-        console.error( `glTF not have ${nodeType} on index ${index}` );
-    else
-        console.error( `glTF not have ${nodeType} property` );
-    return false;
-
-}
-
-Object.defineProperties( GLTFLoader, {
-
-    version: {
-
-        get() {
-
-            if ( this.version )
-                return this.version;
-            else if ( this.json ) {
-
-                if ( ! this.json.asset )
-                    return errorMiss( 'asset' );
-
-                this.version = this.json.asset.version;
-                if ( this.json.asset.minVersion )
-                    this.version += `\r minVersion${this.json.asset.minVersion}`;
-
-                return this.version;
-
-            }
-
-            console.warn( 'glTF not loaded.' );
-            return null;
-
-        },
-    },
-
-    generator: {
-
-        get() {
-
-            return this._generator;
-
-        },
-
-    },
-
-} );
 
 Object.assign( GLTFLoader.prototype, {
 
-    load( file, sceneId ) {
+    load( file ) {
 
         const name = 'GLTFLOADER';
         const loader = new FileLoader( { file, name } );
         return loader.load()
-            .then( res => this.parse( res[ name ], sceneId ) );
+            .then( res => this.parse( res[ name ] ) );
 
     },
 
-    parse( json, sceneId ) {
+    parse( json ) {
 
         this.gltf = json;
 
-        const { version, generator } = this.gltf.asset;
-        this._generator = generator;
+        const { version } = this.gltf.asset;
         if ( version !== '2.0' ) {
 
             console.error( `GlTFLoader only support glTF 2.0 for now! Received glTF version: ${this.version}` );
@@ -88,105 +34,24 @@ Object.assign( GLTFLoader.prototype, {
 
         }
 
-        const result = {
-            nodes: this.parseScene( sceneId ),
-            animations: this.parseAnimations(),
-            name: this.currentSceneName,
+        this.result = {
+            nodes: this.parseNodes(),
+            meshes: this.parseMeshes(),
         };
 
-        return this.convertToNode( result );
+        return this.parseScene();
 
     },
 
-    parseAnimations() {
+    parseNodes() {
 
-        const result = [];
-        const animations = this.gltf.animations;
-        if ( animations )
-            for ( let i = 0; i < animations.length; i ++ ) {
+        return this.gltf.nodes ? this.gltf.nodes.map( node => this.parseNode( node ) ) : [];
 
-                const animation = animations[ i ];
-                const { name, channels, samplers } = animation;
-                const clips = [];
-                if ( channels && samplers )
-                    for ( let j = 0; j < channels.length; j ++ ) {
+    },
 
-                        const channel = channels[ j ];
-                        const sampler = samplers[ channel.sampler ];
-                        if ( ! sampler ) {
+    parseMeshes() {
 
-                            errorMiss( `animations[${i}].channels[${j}].sampler`, channel.sampler );
-                            continue;
-
-                        }
-
-                        const input = this.parseAccessor( sampler.input ).data;
-                        const outputData = this.parseAccessor( sampler.output );
-                        const output = outputData.data;
-                        const numComponents = outputData.numComponents;
-                        const interpolation = sampler.interpolation || 'LINEAR';
-                        const gltfNodeIdx = channel.target.node;
-                        const path = channel.target.path;
-
-                        if ( ! input || ! output ) continue;
-
-                        let combinedOutput = output;
-                        if ( numComponents !== 1 || input.length !== output.length ) {
-
-                            const numComp = output.length / input.length;
-                            combinedOutput = [];
-                            for ( let k = 0; k < input.length; k ++ )
-                                combinedOutput.push( output.slice( numComp * k, numComp * ( k + 1 ) ) );
-
-                        }
-
-                        let nodeProperty = path;
-                        const extras = {};
-                        switch ( path ) {
-
-                        case 'translation':
-                            nodeProperty = 'position';
-                            break;
-                        case 'rotation':
-                            nodeProperty = 'quaternion';
-                            break;
-                        case 'scale':
-                            nodeProperty = 'scale';
-                            break;
-                        case 'weights':
-                            nodeProperty = 'weights';
-                            extras.uniformName = GLTFLoader.MORPH_WEIGHT_UNIFORM;
-                            break;
-                        default:
-                            console.error( `unsupported animation sampler path ${path}` );
-                            nodeProperty = false;
-
-                        }
-
-                        if ( ! nodeProperty ) continue;
-
-                        const clip = {
-                            times: input,
-                            values: combinedOutput,
-                            findFlag: GLTFLoader.GLTF_NODE_INDEX_PROPERTY,
-                            findValue: gltfNodeIdx,
-                            targetProp: nodeProperty,
-                            method: interpolation,
-                            extras,
-                        };
-
-                        clips.push( clip );
-
-                    }
-
-                result.push( {
-                    name: name || String( i ),
-                    clips,
-                } );
-
-            }
-
-        return result;
+        return this.gltf.meshes ? this.gltf.meshes.map( mesh => this.parseMesh( mesh ) ) : [];
 
     },
 
@@ -194,561 +59,91 @@ Object.assign( GLTFLoader.prototype, {
 
         const loadScene = sceneId || this.gltf.scene || 0;
         const scene = this.gltf.scenes[ loadScene ];
+        const root = new Node( scene.name || `GLTF_SCENE${loadScene}` );
 
-        if ( typeof scene === 'undefined' )
-            return errorMiss( 'scene', loadScene );
+        const combineNode = ( parent, nodeId ) => {
 
-        this.currentSceneName = scene.name || 'GLTF_NO_NAME_SCENE';
+            const {
+                name, translation, rotation, scale,
+            } = this.result.nodes[ nodeId ];
+            const { children, mesh } = this.gltf.nodes[ nodeId ];
 
-        const result = [];
-        const nodes = scene.nodes;
-        for ( let i = 0; i < nodes.length; i ++ ) {
-
-            const node = this.parseNode( nodes[ i ] );
-            if ( node )
-                result.push( node );
-
-        }
-
-        return result;
-
-    },
-
-    convertToNode( infos ) {
-
-        const rootNode = new Node( infos.name );
-        const nodes = infos.nodes;
-        const animations = infos.animations;
-        const textures = [];
-        const skins = [];
-        const cameras = [];
-
-        function parseNode( nodeInfo, parentNode ) {
-
-            const node = new Node( nodeInfo.name );
-
-            node[ GLTFLoader.GLTF_NODE_INDEX_PROPERTY ] = nodeInfo.nodeId;
-
-            if ( nodeInfo.matrix ) {
-
-                nodeInfo.translation = [ 0, 0, 0 ]; // eslint-disable-line
-                nodeInfo.rotation = [ 0, 0, 0, 1 ]; // eslint-disable-line
-                nodeInfo.scale = [ 1, 1, 1 ]; // eslint-disable-line
-                Matrix4.decompose( nodeInfo.matrix, nodeInfo.translation, nodeInfo.rotation, nodeInfo.scale );
-
-            }
-
-            if ( nodeInfo.translation )
-                node.position = nodeInfo.translation;
-            if ( nodeInfo.rotation )
-                node.quaternion = nodeInfo.rotation;
-            if ( nodeInfo.scale )
-                node.scale = nodeInfo.scale;
-
-            parentNode.addChild( node );
-
-            if ( nodeInfo.camera ) {
-
-                const camera = nodeInfo.camera;
-                if ( camera.type === 'perspective' ) {
-
-                    const {
-                        yfov, znear, aspectRatio, zfar, name,
-                    } = camera;
-                    const fov = PMath.radian2Degree( yfov );
-                    const fixAspectRatio = typeof aspectRatio !== 'undefined';
-                    const far = zfar === undefined ? Number.POSITIVE_INFINITY : zfar;
-                    const perspectiveCamera = new PerspectiveCamera( fov, aspectRatio, znear, far, fixAspectRatio );
-                    perspectiveCamera.name = name;
-                    node.setCamera( perspectiveCamera );
-                    perspectiveCamera.rawData = camera;
-                    cameras.push( perspectiveCamera );
-
-                }
-
-                if ( camera.type === 'orthographic' ) {
-
-                    const {
-                        name, xmag, ymag, zfar, znear,
-                    } = camera;
-                    const orthographicCamera = new OrthographicCamera( ymag, xmag / ymag, znear, zfar, true );
-                    orthographicCamera.name = name;
-                    node.setCamera( orthographicCamera );
-                    orthographicCamera.rawData = camera;
-                    cameras.push( orthographicCamera );
-
-                }
-
-            }
-            if ( nodeInfo.primitives ) {
+            let node = new Node( name );
+            if ( mesh !== undefined ) {
 
                 const models = [];
-                for ( let i = 0; i < nodeInfo.primitives.length; i ++ ) {
+                const primitives = this.result.meshes[ mesh ];
+                primitives.forEach( ( { name, attribArrays, material } ) => {
 
-                    const primitive = nodeInfo.primitives[ i ];
-                    const { attribArrays, modelName, drawMode } = primitive;
-                    if ( ! primitive.attribArrays.mesh ) {
-
-                        const mesh = new Mesh( primitive.meshName, attribArrays );
-                        primitive.attribArrays = { attribArrays, mesh };
-
-                    }
-
-                    const model = new Model( primitive.attribArrays.mesh );
-                    model.name = modelName;
-                    model.drawMode = drawMode;
-
-                    const uniformobj = {};
-                    const skinDefines = ( nodeInfo.skin && nodeInfo.skin.defines ) || [];
-                    model.defines = primitive.defines.concat( skinDefines );
-                    // parse material
-                    if ( primitive.material ) {
-
-                        const {
-                            baseColorTexture, baseColorFactor, metallicFactor, roughnessFactor, doubleSided,
-                            metallicRoughnessTexture, normalTexture, occlusionTexture, emissiveTexture, enableBlend, alphaCutoff,
-                        } = primitive.material;
-
-                        model.mesh.cullFace = ! doubleSided;
-                        model.mesh.sampleBlend = !! enableBlend;
-
-                        if ( alphaCutoff !== undefined )
-                            uniformobj[ GLTFLoader.ALPHA_CUTOFF_UNIFORM ] = alphaCutoff;
-                        uniformobj[ GLTFLoader.BASE_COLOR_UNIFORM ] = baseColorFactor;
-                        uniformobj[ GLTFLoader.METALROUGHNESS_UNIFORM ] = [ metallicFactor, roughnessFactor ];
-
-                        if ( baseColorTexture && baseColorTexture.texture ) {
-
-                            const idx = textures.indexOf( baseColorTexture.texture );
-                            if ( idx < 0 ) {
-
-                                textures.push( baseColorTexture.texture );
-                                baseColorTexture.textureIdx = textures.length - 1;
-
-                            }
-                            if ( ! model.textures ) model.textures = {};
-                            if ( baseColorTexture.textureIdx === undefined ) baseColorTexture.textureIdx = idx;
-                            model.textures[ GLTFLoader.BASE_COLOR_TEXTURE_UNIFORM ] = baseColorTexture.textureIdx;
-
-                        }
-
-                        if ( metallicRoughnessTexture && metallicRoughnessTexture.texture ) {
-
-                            const idx = textures.indexOf( metallicRoughnessTexture.texture );
-                            if ( idx < 0 ) {
-
-                                textures.push( metallicRoughnessTexture.texture );
-                                metallicRoughnessTexture.textureIdx = textures.length - 1;
-
-                            }
-                            if ( ! model.textures ) model.textures = {};
-                            if ( metallicRoughnessTexture.textureIdx === undefined ) metallicRoughnessTexture.textureIdx = idx;
-                            model.textures[ GLTFLoader.METALROUGHNESS_TEXTURE_UNIFORM ] = metallicRoughnessTexture.textureIdx;
-
-                        }
-
-                        if ( normalTexture && normalTexture.texture ) {
-
-                            const idx = textures.indexOf( normalTexture.texture );
-                            if ( idx < 0 ) {
-
-                                textures.push( normalTexture.texture );
-                                normalTexture.textureIdx = textures.length - 1;
-
-                            }
-                            if ( ! model.textures ) model.textures = {};
-                            if ( normalTexture.textureIdx === undefined ) normalTexture.textureIdx = idx;
-                            model.textures[ GLTFLoader.NORMAL_TEXTURE_UNIFORM ] = normalTexture.textureIdx;
-                            uniformobj[ GLTFLoader.NORMAL_SCALE_UNIFORM ] = normalTexture.scale;
-
-                        }
-
-                        if ( occlusionTexture && occlusionTexture.texture ) {
-
-                            const idx = textures.indexOf( occlusionTexture.texture );
-                            if ( idx < 0 ) {
-
-                                textures.push( occlusionTexture.texture );
-                                occlusionTexture.textureIdx = textures.length - 1;
-
-                            }
-                            if ( ! model.textures ) model.textures = {};
-                            if ( occlusionTexture.textureIdx === undefined ) occlusionTexture.textureIdx = idx;
-                            model.textures[ GLTFLoader.OCCLUSION_TEXTURE_UNIFORM ] = occlusionTexture.textureIdx;
-                            uniformobj[ GLTFLoader.OCCLUSION_FACTOR_UNIFORM ] = occlusionTexture.strength;
-
-                        }
-
-                        if ( emissiveTexture && emissiveTexture.texture ) {
-
-                            const idx = textures.indexOf( emissiveTexture.texture );
-                            if ( idx < 0 ) {
-
-                                textures.push( emissiveTexture.texture );
-                                emissiveTexture.textureIdx = textures.length - 1;
-
-                            }
-                            if ( ! model.textures ) model.textures = {};
-                            if ( emissiveTexture.textureIdx === undefined ) emissiveTexture.textureIdx = idx;
-                            model.textures[ GLTFLoader.EMISSIVE_TEXTURE_UNIFORM ] = emissiveTexture.textureIdx;
-                            uniformobj[ GLTFLoader.EMISSIVE_FACTOR_UNIFORM ] = emissiveTexture.emissiveFactor;
-
-                        }
-
-
-                    }
-
-                    // morph targets
-                    if ( primitive.weights )
-                        uniformobj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ] = primitive.weights;
-
-                    model.setUniformObj( uniformobj );
-
-                    if ( nodeInfo.primitives.length < 2 )
-                        node.setModel( model );
-                    else
-                        node.addChild( model );
-
+                    const primitive = new Primitive( attribArrays, { name } );
+                    const physicalMaterial = new PhysicalModelMaterial( material );
+                    const model = new Model( primitive, physicalMaterial );
                     models.push( model );
 
-                }
-
-                if ( node.children.length > 0 )
-                    node.gltfPrimitives = node.children;
-
-                if ( nodeInfo.skin )
-
-                    if ( skins.indexOf( nodeInfo.skin ) > - 1 )
-                        nodeInfo.skin.models.push( ...models );
-                    else {
-
-                        node.skin = Object.assign( nodeInfo.skin, { models } );
-                        skins.push( node.skin );
-
-                    }
-
-
-            }
-            return node;
-
-        }
-
-        function trivarse( trivarseFun, parentNode, nodeInfos ) {
-
-            for ( let i = 0; i < nodeInfos.length; i ++ ) {
-
-                const node = trivarseFun( nodeInfos[ i ], parentNode );
-                trivarse( trivarseFun, node, nodeInfos[ i ].children );
-
-            }
-
-        }
-
-        trivarse( parseNode, rootNode, nodes );
-
-        // apply skins
-        if ( skins.length ) {
-
-            const handlers = []; // help uglify use different name
-            for ( let i = 0; i < skins.length; i ++ ) {
-
-                const {
-                    joints, skeleton, inverseBindMatrices, models,
-                } = skins[ i ];
-
-                const jointNum = joints.length;
-                const globalJointTransformNodes = [];
-                for ( let j = 0; j < jointNum; j ++ )
-                    globalJointTransformNodes[ j ] = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, joints[ j ] );
-
-                let skeletonNode;
-                if ( skeleton !== GLTFLoader.SCENE_ROOT_SKELETON )
-                    skeletonNode = rootNode.findInChildren( GLTFLoader.GLTF_NODE_INDEX_PROPERTY, skeleton );
-                else
-                    skeletonNode = rootNode;
-                skins[ i ].skeletonNode = skeletonNode; // do not know how to use it
-
-                const frag = new Array( 16 );
-                const fragWorld = new Array( 16 );
-                handlers[ i ] = function updateJointUniformFunc() {
-
-                    for ( let k = 0; k < models.length; k ++ ) {
-
-                        const model = models[ k ];
-                        const globalTransformNode = model.node;
-                        let jointMats = [];
-                        Matrix4.invert( fragWorld, globalTransformNode.transform.getWorldMatrix() );
-
-                        for ( let n = 0; n < jointNum; n ++ ) {
-
-                            Matrix4.mult( frag, fragWorld, globalJointTransformNodes[ n ].transform.getWorldMatrix() );
-                            if ( inverseBindMatrices[ n ] !== GLTFLoader.IDENTITY_INVERSE_BIND_MATRICES )
-                                Matrix4.mult( frag, frag, inverseBindMatrices[ n ] );
-                            jointMats = jointMats.concat( frag );
-
-                        }
-
-                        const uniformObj = {};
-                        uniformObj[ GLTFLoader.JOINT_MATRICES_UNIFORM ] = jointMats;
-                        model.setUniformObj( uniformObj );
-
-                    }
-
-                };
-
-                rootNode.afterUpdateMatrix.push( {
-                    type: 'skin', skinName: skins[ i ].name, handler: handlers[ i ], trigerNodes: [ skeletonNode, ...globalJointTransformNodes ],
                 } );
 
-            }
-
-        }
-
-
-        // animations
-        for ( let i = 0; i < animations.length; i ++ ) {
-
-            const { clips } = animations[ i ];
-            let animateMaxTime = Number.NEGATIVE_INFINITY;
-            let animateMinTime = Number.POSITIVE_INFINITY;
-            for ( let j = 0; j < clips.length; j ++ ) {
-
-                const {
-                    findFlag, findValue, targetProp, times, extras, // method,
-                } = clips[ j ];
-
-                const node = rootNode.findInChildren( findFlag, findValue );
-                let targetNodes = [ node ];
-                if ( ! node.model && node.gltfPrimitives )
-                    targetNodes = node.gltfPrimitives;
-
-                let setTarget;
-                let resetTarget;
-                if ( targetProp === 'weights' ) {
-
-                    const resetObj = {};
-                    resetObj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ] = targetNodes[ 0 ].model.uniformObj[ GLTFLoader.MORPH_WEIGHT_UNIFORM ];
-                    resetTarget = function () {
-
-                        targetNodes.forEach( ( n ) => {
-
-                            n.model.setUniformObj( resetObj );
-
-                        } );
-
-                    };
-
-                    setTarget = function ( v ) {
-
-                        const uniformobj = {};
-                        uniformobj[ extras.uniformName ] = v;
-
-                        targetNodes.forEach( ( n ) => {
-
-                            n.model.setUniformObj( uniformobj );
-
-                        } );
-
-                    };
-
-                } else {
-
-                    const defaultValues = [];
-                    for ( let m = 0; m < targetNodes.length; m ++ )
-                        defaultValues[ m ] = targetNodes[ m ][ targetProp ];
-
-                    resetTarget = function () {
-
-                        for ( let m = 0; m < targetNodes.length; m ++ )
-                            targetNodes[ m ][ targetProp ] = defaultValues[ m ];
-
-                    };
-
-                    setTarget = function ( v ) {
-
-                        targetNodes.forEach( ( n ) => {
-
-                            n[ targetProp ] = v; // eslint-disable-line
-
-                        } );
-
-                    };
-
-                }
-
-                animateMinTime = animateMinTime < times[ 0 ] ? animateMinTime : times[ 0 ];
-                animateMaxTime = animateMaxTime > times[ times.length - 1 ] ? animateMaxTime : times[ times.length - 1 ];
-
-                Object.assign( clips[ j ], { setTarget, resetTarget } );
+                if ( models.length === 1 )
+                    node = models[ 0 ];
+                else
+                    models.forEach( model => node.addChild( model ) );
 
             }
 
-            Object.assign( animations[ i ], { animateMinTime, animateMaxTime } );
+            if ( translation )
+                node.position = translation;
+            if ( rotation )
+                node.quaternion = rotation;
+            if ( scale )
+                node.scale = scale;
 
-        }
+            if ( children )
+                children.forEach( childrenId => combineNode( node, childrenId ) );
 
-        const animas = { animations, type: 'gltf' };
-        return {
-            rootNode, textures, animations: animas, cameras,
+            parent.addChild( node );
+
         };
+
+        for ( let i = 0; i < scene.nodes.length; i ++ )
+            combineNode( root, scene.nodes[ i ] );
+
+        return root;
 
     },
 
-    parseNode( nodeId ) {
-
-        const node = this.gltf.nodes[ nodeId ];
-        if ( ! node )
-            return errorMiss( 'node', nodeId );
-
-        if ( node.isParsed )
-            return node.dnode;
+    parseNode( node ) {
 
         const {
             name, matrix, translation, rotation, scale,
         } = node;
 
-        const dnode = {
+        const result = {
             name,
-            matrix,
             translation,
             rotation,
             scale,
-            nodeId,
         };
 
-        if ( node.camera !== undefined )
-            dnode.camera = this.parseCamera( node.camera );
+        if ( matrix ) {
 
-        if ( node.mesh !== undefined )
-            dnode.primitives = this.parseMesh( node.mesh );
+            const t = [ 0, 0, 0 ];
+            const r = [ 0, 0, 0, 1 ];
+            const s = [ 1, 1, 1 ];
+            Matrix4.decompose( matrix, t, r, s );
 
-        if ( node.skin !== undefined ) {
-
-            const skin = this.parseSkin( node.skin );
-            if ( skin )
-                dnode.skin = skin;
-
-        }
-
-        dnode.children = [];
-        if ( node.children )
-            for ( let i = 0; i < node.children.length; i ++ )
-                dnode.children.push( this.parseNode( node.children[ i ] ) );
-
-        node.dnode = dnode;
-        node.isParsed = true;
-
-        return node.dnode;
-
-    },
-
-    parseCamera( cameraId ) {
-
-        const camera = this.gltf.cameras[ cameraId ];
-
-        if ( ! camera )
-            return errorMiss( 'camera', cameraId );
-
-        if ( camera.isParsed )
-            return camera.dcamera;
-
-        camera.isParsed = true;
-        camera.dcamera = false;
-
-        const {
-            name, type, perspective, orthographic,
-        } = camera;
-
-        if ( type === 'perspective' && perspective ) {
-
-            const {
-                aspectRatio, yfov, zfar, znear,
-            } = perspective;
-            camera.dcamera = Object.assign( {}, {
-                name,
-                type,
-                yfov,
-                znear,
-                aspectRatio,
-                zfar,
-            } );
-
-        } else if ( type === 'orthographic' && orthographic ) {
-
-            const {
-                xmag, ymag, zfar, znear,
-            } = orthographic;
-            camera.dcamera = Object.assign( {}, {
-                name,
-                type,
-                xmag,
-                ymag,
-                zfar,
-                znear,
-            } );
+            result.translation = t;
+            result.rotation = r;
+            result.scale = s;
 
         }
 
-        return camera.dcamera;
+        return deleteUndefined( result );
 
     },
 
-    parseSkin( skinId ) {
+    parseMesh( mesh ) {
 
-        const skin = this.gltf.skins[ skinId ];
-
-        if ( ! skin )
-            return errorMiss( 'skin', skinId );
-
-        if ( skin.isParsed )
-            return skin.dskin;
-
-        const {
-            name, joints, inverseBindMatrices, skeleton,
-        } = skin;
-
-        if ( ! joints )
-            return errorMiss( 'skin.joints', skinId );
-
-        skin.isParsed = true;
-        skin.dskin = false;
-        let dskin = { name, joints, defines: [ GLTFLoader.getJointsNumDefine( joints.length ) ] };
-        dskin.skeleton = skeleton === undefined ? GLTFLoader.SCENE_ROOT_SKELETON : skeleton;
-        dskin.inverseBindMatrices = GLTFLoader.IDENTITY_INVERSE_BIND_MATRICES;
-
-        if ( inverseBindMatrices !== undefined ) {
-
-            const accessor = this.parseAccessor( inverseBindMatrices );
-            if ( accessor ) {
-
-                const array = accessor.data;
-                const matrices = [];
-                for ( let i = 0; i < array.length; i += 16 )
-                    matrices.push( array.slice( i, i + 16 ) );
-
-                dskin.inverseBindMatrices = matrices;
-
-            } else
-                dskin = false;
-
-        }
-
-        skin.dskin = dskin;
-        return skin.dskin;
-
-    },
-
-    parseMesh( meshId ) {
-
-        const mesh = this.gltf.meshes[ meshId ];
-
-        if ( ! mesh )
-            return errorMiss( 'mesh', meshId );
-
-        if ( mesh.isParsed )
-            return mesh.dprimitives;
-
-        const primitives = mesh.primitives;
+        const { primitives } = mesh;
+        const meshName = mesh.name;
         const dprimitives = [];
         for ( let i = 0; i < primitives.length; i ++ ) {
 
@@ -756,176 +151,44 @@ Object.assign( GLTFLoader.prototype, {
             const {
                 attributes, indices, material, mode, name, targets,
             } = primitive;
-
             const dprimitive = {
+                name: name || meshName || GLTFLoader.getMeshNameCounter(),
                 attribArrays: {},
-                defines: [],
             };
-            let hasNormal = false;
-            let hasTangent = false;
-            let texCoordNum = 0;
-            let jointVec8 = false;
-            let vertexColor = 0;
+
             Object.keys( attributes ).forEach( ( attribute ) => {
 
                 const accessor = this.parseAccessor( attributes[ attribute ] );
-
-                if ( accessor ) {
-
-                    let attribName;
-                    switch ( attribute ) {
-
-                    case 'POSITION':
-                        attribName = ShaderParams.ATTRIB_POSITION_NAME;
-                        break;
-
-                    case 'NORMAL':
-                        attribName = ShaderParams.ATTRIB_NORMAL_NAME;
-                        hasNormal = true;
-                        break;
-
-                    case 'TANGENT':
-                        attribName = ShaderParams.ATTRIB_TANGENT_NAME;
-                        hasTangent = true;
-                        break;
-
-                    case 'TEXCOORD_0':
-                        attribName = ShaderParams.ATTRIB_UV_NAME;
-                        texCoordNum ++;
-                        break;
-
-                    case 'TEXCOORD_1':
-                        attribName = ShaderParams.ATTRIB_UV_1_NAME;
-                        texCoordNum ++;
-                        break;
-
-                    case 'JOINTS_0':
-                        attribName = ShaderParams.ATTRIB_JOINT_0_NAME;
-                        break;
-
-                    case 'JOINTS_1':
-                        attribName = ShaderParams.ATTRIB_JOINT_1_NAME;
-                        jointVec8 = true;
-                        break;
-
-                    case 'WEIGHTS_0':
-                        attribName = ShaderParams.ATTRIB_WEIGHT_0_NAME;
-                        break;
-
-                    case 'WEIGHTS_1':
-                        attribName = ShaderParams.ATTRIB_WEIGHT_1_NAME;
-                        break;
-
-                    case 'COLOR_0':
-                        attribName = ShaderParams.ATTRIB_VERTEX_COLOR_NAME;
-                        vertexColor = accessor.numComponents;
-                        break;
-
-                    default:
-                        attribName = attribute;
-
-                    }
-
-                    dprimitive.attribArrays[ attribName ] = accessor;
-
-                }
+                const attributeName = GLTFLoader.attributesKey[ attribute ] || attribute;
+                if ( accessor )
+                    dprimitive.attribArrays[ attributeName ] = accessor;
 
             } );
-
-            if ( hasNormal ) dprimitive.defines.push( GLTFLoader.getHasNormalDefine() );
-            if ( hasTangent ) dprimitive.defines.push( GLTFLoader.getHasTangentDefine() );
-            if ( texCoordNum ) dprimitive.defines.push( GLTFLoader.getTexCoordDefine( texCoordNum ) );
-            if ( jointVec8 ) dprimitive.defines.push( GLTFLoader.getJointVec8Define() );
-            if ( vertexColor ) dprimitive.defines.push( GLTFLoader.getVertexColorDefine( vertexColor ) );
 
             if ( indices !== undefined ) {
 
                 const accessor = this.parseAccessor( indices );
                 if ( accessor )
-                    dprimitive.attribArrays.indices = accessor;
+                    dprimitive.attribArrays[ IndicesKey ] = accessor;
 
             }
 
             const dmaterial = this.parseMaterial( material );
-            if ( dmaterial ) {
-
-                dprimitive.material = dmaterial;
-                dprimitive.defines = dprimitive.defines.concat( dmaterial.defines );
-
-            }
-
-            dprimitive.drawMode = mode === undefined ? 4 : mode;
-            dprimitive.meshName = name || GLTFLoader.getMeshNameCounter();
-            dprimitive.modelName = mesh.name || GLTFLoader.getModelNameCounter();
-
-            if ( targets ) {
-
-                dprimitive.defines.push( GLTFLoader.getMorphTargetsDefine( targets.length ) );
-                let hasPositions = false;
-                let hasNormals = false;
-                let hasTangents = false;
-                for ( let j = 0; j < targets.length; j ++ ) {
-
-                    const target = targets[ j ];
-                    Object.keys( target ).forEach( ( attribute ) => {
-
-                        const accessor = this.parseAccessor( target[ attribute ] );
-                        if ( accessor ) {
-
-                            let attribName;
-                            switch ( attribute ) {
-
-                            case 'POSITION':
-                                attribName = GLTFLoader.MORPH_POSITION_PREFIX + j;
-                                hasPositions = true;
-                                break;
-                            case 'NORMAL':
-                                attribName = GLTFLoader.MORPH_NORMAL_PREFIX + j;
-                                hasNormals = true;
-                                break;
-                            case 'TANGENT':
-                                attribName = GLTFLoader.MORPH_TANGENT_PREFIX + j;
-                                hasTangents = true;
-                                break;
-                            default:
-                                attribName = false;
-
-                            }
-
-                            if ( ! attribName )
-                                console.error( `glTF has unsupported morph target attribute ${attribute}` );
-                            else
-                                dprimitive.attribArrays[ attribName ] = accessor;
-
-                        }
-
-                    } );
-
-                }
-
-                if ( hasPositions ) dprimitive.defines.push( GLTFLoader.getMorphtargetPositionDefine() );
-                if ( hasNormals ) dprimitive.defines.push( GLTFLoader.getMorphtargetNormalDefine() );
-                if ( hasTangents ) dprimitive.defines.push( GLTFLoader.getMorphtargetTangentDefine() );
-                dprimitive.weights = mesh.weights || new Array( targets.length ).fill( 0 );
-
-            }
+            dprimitive.material = Object.assign( {}, dmaterial, {
+                drawMode: mode === undefined ? BeginMode.TRIANGLES : mode,
+            } );
 
             dprimitives.push( dprimitive );
 
         }
 
-        mesh.dprimitives = dprimitives;
-        mesh.isParsed = true;
-
-        return mesh.dprimitives;
+        return dprimitives;
 
     },
 
     parseAccessor( accessorId ) {
 
         const accessor = this.gltf.accessors[ accessorId ];
-        if ( ! accessor )
-            return errorMiss( 'accessor', accessorId );
 
         if ( accessor.isParsed )
             return accessor.daccessor;
@@ -1042,8 +305,6 @@ Object.assign( GLTFLoader.prototype, {
     parseBufferView( bufferViewId ) {
 
         const bufferView = this.gltf.bufferViews[ bufferViewId ];
-        if ( ! bufferView )
-            return errorMiss( 'bufferView', bufferViewId );
 
         if ( bufferView.isParsed )
             return bufferView.dbufferView;
@@ -1069,8 +330,6 @@ Object.assign( GLTFLoader.prototype, {
     parseBuffer( bufferId ) {
 
         const buffer = this.gltf.buffers[ bufferId ];
-        if ( ! buffer )
-            return errorMiss( 'buffer', bufferId );
 
         if ( buffer.isParsed )
             return buffer.dbuffer;
@@ -1115,9 +374,6 @@ Object.assign( GLTFLoader.prototype, {
         else
             material = this.gltf.materials[ materialId ];
 
-        if ( ! material )
-            return errorMiss( 'material', materialId );
-
         if ( material.isParsed )
             return material.dmaterial;
 
@@ -1126,26 +382,18 @@ Object.assign( GLTFLoader.prototype, {
             alphaMode, alphaCutoff, doubleSided,
         } = material;
         const dmaterial = {
-            name, defines: [], doubleSided: !! doubleSided,
+            name,
+            cull: ! doubleSided,
+            baseColor: [ 1, 1, 1, 1 ],
+            metalness: 1,
+            roughness: 1,
         };
 
-        if ( alphaMode && alphaMode !== 'OPAQUE' ) {
-
-            if ( alphaMode === 'MASK' ) {
-
-                dmaterial.defines.push( GLTFLoader.getAlphaMaskDefine() );
-                dmaterial.alphaCutoff = alphaCutoff === undefined ? 0.5 : alphaCutoff;
-
-            }
-
-            if ( alphaMode === 'BLEND' ) {
-
-                dmaterial.defines.push( GLTFLoader.getAlphaBlendDdefine() );
-                dmaterial.enableBlend = true;
-
-            }
-
-        }
+        if ( alphaMode && alphaMode !== 'OPAQUE' )
+            if ( alphaMode === 'MASK' )
+                dmaterial.alphaMask = alphaCutoff === undefined ? 0.5 : alphaCutoff;
+            else if ( alphaMode === 'BLEND' )
+                dmaterial.blend = true;
 
         if ( pbrMetallicRoughness ) {
 
@@ -1154,11 +402,12 @@ Object.assign( GLTFLoader.prototype, {
             } = pbrMetallicRoughness;
 
             Object.assign( dmaterial, {
-                baseColorFactor: baseColorFactor || [ 1, 1, 1, 1 ],
-                metallicFactor: metallicFactor === undefined ? 1 : metallicFactor,
-                roughnessFactor: roughnessFactor === undefined ? 1 : roughnessFactor,
+                baseColor: baseColorFactor || [ 1, 1, 1, 1 ],
+                metalness: metallicFactor === undefined ? 1 : metallicFactor,
+                roughness: roughnessFactor === undefined ? 1 : roughnessFactor,
             } );
 
+            /*
             if ( baseColorTexture ) {
 
                 const texture = this.parseTexture( baseColorTexture.index );
@@ -1182,14 +431,11 @@ Object.assign( GLTFLoader.prototype, {
                 }
 
             }
+            */
 
-        } else
-            Object.assign( dmaterial, {
-                baseColorFactor: [ 1, 1, 1, 1 ],
-                metallicFactor: 1,
-                roughnessFactor: 1,
-            } );
+        }
 
+        /*
         if ( normalTexture ) {
 
             const texture = this.parseTexture( normalTexture.index );
@@ -1225,7 +471,7 @@ Object.assign( GLTFLoader.prototype, {
             }
 
         }
-
+        */
         material.isParsed = true;
         material.dmaterial = dmaterial;
         return dmaterial;
@@ -1235,8 +481,6 @@ Object.assign( GLTFLoader.prototype, {
     parseTexture( textureId ) {
 
         const texture = this.gltf.textures[ textureId ];
-        if ( ! texture )
-            return errorMiss( 'texture', textureId );
 
         if ( texture.isParsed )
             return texture.dtexture;
@@ -1262,8 +506,6 @@ Object.assign( GLTFLoader.prototype, {
     parseImage( imageId ) {
 
         const image = this.gltf.images[ imageId ];
-        if ( ! image )
-            return errorMiss( 'image', imageId );
 
         if ( image.isParsed )
             return image.dimage;
@@ -1313,8 +555,6 @@ Object.assign( GLTFLoader.prototype, {
 
         if ( samplerId === undefined ) return { wrap: TextureWrapMode.REPEAT };
         const sampler = this.gltf.samplers[ samplerId ];
-        if ( ! sampler )
-            return errorMiss( 'sampler', samplerId );
 
         if ( sampler.isParsed )
             return sampler.dsampler;
@@ -1522,14 +762,23 @@ Object.assign( GLTFLoader, {
         isParsed: true,
         dmaterial: {
             name: 'GLTF_DEFAULT_MATERIAL',
-            defines: [],
-            doubleSided: false,
-            baseColorFactor: [ 1, 1, 1, 1 ],
-            metallicFactor: 1,
-            roughnessFactor: 1,
-            emissiveFactor: [ 0, 0, 0 ],
+            cull: true,
+            baseColor: [ 1, 1, 1, 1 ],
+            emissive: [ 0, 0, 0 ],
+            metalness: 1,
+            roughness: 1,
         },
 
+    },
+
+    attributesKey: {
+        POSITION: ShaderParams.ATTRIB_POSITION_NAME,
+        NORMAL: ShaderParams.ATTRIB_NORMAL_NAME,
+        TANGENT: ShaderParams.ATTRIB_TANGENT_NAME,
+        TEXCOORD_0: ShaderParams.ATTRIB_UV_NAME,
+        JOINTS_0: ShaderParams.ATTRIB_JOINT_0_NAME,
+        WEIGHTS_0: ShaderParams.ATTRIB_WEIGHT_0_NAME,
+        COLOR_0: ShaderParams.ATTRIB_VERTEX_COLOR_NAME,
     },
 
 } );

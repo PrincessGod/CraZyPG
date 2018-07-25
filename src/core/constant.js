@@ -23,6 +23,7 @@ export const ShaderParams = makeReadonlyObj( {
     ATTRIB_UV_LOC: 1,
     ATTRIB_NORMAL_NAME: 'a_normal',
     ATTRIB_NORMAL_LOC: 2,
+    ATTRIB_TANGENT_NAME: 'a_tangent',
     ATTRIB_BARYCENTRIC_NAME: 'a_barycentric',
     ATTRIB_BARYCENTRIC_LOC: 4,
     ATTRIB_JOINT_0_NAME: 'a_joint',
