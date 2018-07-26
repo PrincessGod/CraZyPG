@@ -1,22 +1,32 @@
 import { FileLoader } from './Fileloader';
 import { Matrix4 } from '../math/Matrix4';
-import { IndicesKey, BeginMode, TextureWrapMode, ShaderParams } from '../core/constant';
+import { IndicesKey, BeginMode, TextureWrapMode, ShaderParams, TextureFilter } from '../core/constant';
 import { getTypedArrayTypeFromGLType } from '../core/typedArray';
 import { deleteUndefined } from '../core/utils';
 import { Primitive } from '../model/Primitive';
 import { PhysicalModelMaterial } from '../shader/PhysicalModelMaterial';
 import { Model } from '../model/Model';
 import { Node } from '../object/Node';
+import { Texture2D } from '../texture/Texture2D';
 
 function GLTFLoader() {
 }
 
 Object.assign( GLTFLoader.prototype, {
 
-    load( file ) {
+    load( file, opts = {} ) {
 
         const name = 'GLTFLOADER';
         const loader = new FileLoader( { file, name } );
+        const {
+            dither, envTexture, envMode, refractionRation, envTextureIntensity,
+        } = opts;
+        this.dither = !! dither;
+        this.envTexture = envTexture;
+        this.envMode = envMode;
+        this.refractionRation = refractionRation;
+        this.envTextureIntensity = envTextureIntensity;
+
         return loader.load()
             .then( res => this.parse( res[ name ] ) );
 
@@ -73,11 +83,9 @@ Object.assign( GLTFLoader.prototype, {
 
                 const models = [];
                 const primitives = this.result.meshes[ mesh ];
-                primitives.forEach( ( { name, attribArrays, material } ) => {
+                primitives.forEach( ( { primitive, material } ) => {
 
-                    const primitive = new Primitive( attribArrays, { name } );
-                    const physicalMaterial = new PhysicalModelMaterial( material );
-                    const model = new Model( primitive, physicalMaterial );
+                    const model = new Model( primitive, material );
                     models.push( model );
 
                 } );
@@ -178,6 +186,8 @@ Object.assign( GLTFLoader.prototype, {
                 drawMode: mode === undefined ? BeginMode.TRIANGLES : mode,
             } );
 
+            dprimitive.primitive = new Primitive( dprimitive.attribArrays, { name: dprimitive.name } );
+            dprimitive.material = new PhysicalModelMaterial( dprimitive.material );
             dprimitives.push( dprimitive );
 
         }
@@ -407,14 +417,14 @@ Object.assign( GLTFLoader.prototype, {
                 roughness: roughnessFactor === undefined ? 1 : roughnessFactor,
             } );
 
-            /*
+
             if ( baseColorTexture ) {
 
                 const texture = this.parseTexture( baseColorTexture.index );
                 if ( texture ) {
 
-                    dmaterial.baseColorTexture = { texture, texCoord: baseColorTexture.texCoord || 0 };
-                    dmaterial.defines.push( GLTFLoader.getBaseColorTextureDefine() );
+                    texture.texCoord = baseColorTexture.texCoord || 0;
+                    dmaterial.baseTexture = texture;
 
                 }
 
@@ -425,24 +435,24 @@ Object.assign( GLTFLoader.prototype, {
                 const texture = this.parseTexture( metallicRoughnessTexture.index );
                 if ( texture ) {
 
-                    dmaterial.metallicRoughnessTexture = { texture, texCoord: metallicRoughnessTexture.texCoord || 0 };
-                    dmaterial.defines.push( GLTFLoader.getMetalRoughnessDefine() );
+                    texture.texCoord = metallicRoughnessTexture.texCoord || 0;
+                    dmaterial.metalnessTexture = texture;
+                    dmaterial.roughnessTexture = texture;
 
                 }
 
             }
-            */
 
         }
 
-        /*
         if ( normalTexture ) {
 
             const texture = this.parseTexture( normalTexture.index );
             if ( texture ) {
 
-                dmaterial.normalTexture = { texture, texCoord: normalTexture.texCoord || 0, scale: normalTexture.scale || 1 };
-                dmaterial.defines.push( GLTFLoader.getNormalMapDefine() );
+                texture.texCoord = normalTexture.texCoord || 0;
+                dmaterial.normalTexture = texture;
+                dmaterial.normalScale = [ 0, 0 ].fill( normalTexture.scale || 1 );
 
             }
 
@@ -453,8 +463,9 @@ Object.assign( GLTFLoader.prototype, {
             const texture = this.parseTexture( occlusionTexture.index );
             if ( texture ) {
 
-                dmaterial.occlusionTexture = { texture, texCoord: occlusionTexture.texCoord || 0, strength: occlusionTexture.strength || 1 };
-                dmaterial.defines.push( GLTFLoader.getOcclusionMapDefine() );
+                texture.texCoord = occlusionTexture.texCoord || 0;
+                dmaterial.aoTexture = texture;
+                dmaterial.aoTextureIntensity = occlusionTexture.strength || 1;
 
             }
 
@@ -465,16 +476,22 @@ Object.assign( GLTFLoader.prototype, {
             const texture = this.parseTexture( emissiveTexture.index );
             if ( texture ) {
 
-                dmaterial.emissiveTexture = { texture, texCoord: emissiveTexture.texCoord || 0, emissiveFactor };
-                dmaterial.defines.push( GLTFLoader.getEmissiveMapDefine() );
+                texture.texCoord = emissiveTexture.texCoord || 0;
+                dmaterial.emissiveTexture = texture;
+                dmaterial.emissive = emissiveFactor;
 
             }
 
         }
-        */
+
+        dmaterial.dither = this.dither;
+        dmaterial.envTexture = this.envTexture;
+        dmaterial.envMode = this.envMode;
+        dmaterial.refractionRation = this.refractionRation;
+        dmaterial.envTextureIntensity = this.envTextureIntensity;
         material.isParsed = true;
         material.dmaterial = dmaterial;
-        return dmaterial;
+        return material.dmaterial;
 
     },
 
@@ -498,8 +515,8 @@ Object.assign( GLTFLoader.prototype, {
         Object.assign( dtexture, { src: image }, imgsampler );
 
         texture.isParsed = true;
-        texture.dtexture = dtexture;
-        return dtexture;
+        texture.dtexture = new Texture2D( dtexture );
+        return texture.dtexture;
 
     },
 
@@ -553,7 +570,7 @@ Object.assign( GLTFLoader.prototype, {
 
     parseSampler( samplerId ) {
 
-        if ( samplerId === undefined ) return { wrap: TextureWrapMode.REPEAT };
+        if ( samplerId === undefined ) return { wrap: TextureWrapMode.REPEAT, minMag: TextureFilter.LINEAR_MIPMAP_LINEAR };
         const sampler = this.gltf.samplers[ samplerId ];
 
         if ( sampler.isParsed )
@@ -563,11 +580,12 @@ Object.assign( GLTFLoader.prototype, {
             magFilter, minFilter, wrapS, wrapT,
         } = sampler;
 
-        const dsampler = { wrapS: wrapS || TextureWrapMode.REPEAT, wrapT: wrapT || TextureWrapMode.REPEAT };
-        if ( minFilter )
-            dsampler.min = minFilter;
-        if ( magFilter )
-            dsampler.mag = magFilter;
+        const dsampler = {
+            wrapS: wrapS || TextureWrapMode.REPEAT,
+            wrapT: wrapT || TextureWrapMode.REPEAT,
+            min: minFilter || TextureFilter.LINEAR_MIPMAP_LINEAR,
+            mag: magFilter || TextureFilter.LINEAR,
+        };
 
         sampler.dsampler = dsampler;
         sampler.isParsed = true;

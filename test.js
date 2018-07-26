@@ -41,6 +41,7 @@ const envTexture = new CZPG.TextureCubeMap( {
         './resource/grimmnight_back.png',
         './resource/grimmnight_front.png',
     ],
+    min: CZPG.TextureFilter.LINEAR_MIPMAP_LINEAR,
 } );
 const camera = new CZPG.PerspectiveCamera( 45, renderer.canvas.width / renderer.canvas.height );
 
@@ -51,20 +52,11 @@ const cameraControler = new CZPG.OrbitControls( camera, renderer.canvas, scene.c
 cameraControler.enableDamping = true;
 camera.position = [ 0, 4, 10 ];
 
-const gltfLoader = new CZPG.GLTFLoader();
-gltfLoader.load( './resource/gltf/Triangle/glTF/Triangle.gltf' )
-    .then( ( res ) => {
-
-        // res.children[ 0 ].rotation = [ - Math.PI / 2, 0, 0 ];
-        scene.add( res.children[ 0 ] );
-
-    } );
-
-const ambientLight = new CZPG.AmbientLight( [ 0.3, 0.3, 0.3 ], 1 );
+const ambientLight = new CZPG.AmbientLight( [ 1, 1, 1 ], 1.0 );
 const directLight = new CZPG.DirectionalLight( [ 1, 1, 1 ], 0.3 ); directLight.rotation = [ Math.PI * 3 / 4, 0, 0 ];
-const pointLight = new CZPG.PointLight( [ 1, 0, 1 ], 0.5, 2 );
+const pointLight = new CZPG.PointLight( [ 1, 1, 1 ], 0.3, 5 );
 const spotLight = new CZPG.SpotLight( [ 1, 1, 0 ], 0.5, 20, Math.PI / 10, 0.3 ); spotLight.position = [ 0, 5, 0 ]; spotLight.rotation = [ Math.PI / 2 - 0.5, 0, 0 ];
-scene.add( ambientLight, directLight, pointLight, spotLight );
+scene.add( ambientLight ); // , pointLight, ambientLight, directLight, spotLight
 
 const testMaterial = new TestMaterial( { uniformObj: { u_texture: envTexture } } );
 const basicMaterial = new CZPG.BasicModelMaterial( {
@@ -158,7 +150,7 @@ const physicalMaterial = new CZPG.PhysicalModelMaterial( {
     roughness: 1,
     clearCoat: 1,
     clearCoatRoughness: 1,
-    baseTexture,
+    // baseTexture,
     // metalnessTexture: normalTexture,
     // roughnessTexture: normalTexture,
     // normalTexture,
@@ -177,6 +169,20 @@ const physicalMaterial = new CZPG.PhysicalModelMaterial( {
     // lightTextureIntensity: 0.3,
 
 } );
+
+const gltfLoader = new CZPG.GLTFLoader();
+gltfLoader.load( './resource/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf', {
+    dither: true,
+    envTexture,
+    // envMode: CZPG.EnvTexture.REFRACTION,
+    // refractionRation: 1.0,
+    // envTextureIntensity: 0.9,
+} ).then( ( gltf ) => {
+
+    scene.add( gltf );
+
+} );
+
 const quad = new CZPG.Model( new CZPG.Quad( { offset: 0, size: 8 } ), phongMaterial );
 quad.rotation = [ - Math.PI / 2, 0, 0 ];
 // scene.add( quad );
@@ -192,13 +198,13 @@ const pointLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0, 0
 const pointLightObj = new CZPG.Model( new CZPG.Sphere( {
     radius: 0.05, offset: 3, subdivAixs: 40, subdivHeight: 20,
 } ), pointLightMaterial );
-// scene.add( pointLightObj );
+scene.add( pointLightObj );
 
 const spotLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0.5, 0, 1 ] } );
 const spotLightObj = new CZPG.Model( new CZPG.Sphere( {
     radius: 0.05, offset: 3, subdivAixs: 40, subdivHeight: 20,
 } ), spotLightMaterial );
-// scene.add( spotLightObj );
+scene.add( spotLightObj );
 
 const gridMaterial = new CZPG.BasicLineMaterial();
 const grid = new CZPG.Model( new CZPG.GridAxis( { size: 3, div: 1, offset: 2 } ), gridMaterial );

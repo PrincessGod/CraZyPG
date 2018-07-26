@@ -27,7 +27,7 @@ function PhysicalModelMaterial( opts = {} ) {
         baseTexture, specular, shininess, emissive, emissiveTexture,
         normalTexture, normalScale, bumpTexture, bumpScale, displacementBias,
         aoTexture, aoTextureIntensity, displacementTexture, displacementScale,
-        envTexture, envMode, envType, envBlend, reflectivity, refractionRatio,
+        envTexture, envMode, envType, refractionRatio,
         alphaTexture, alphaMask, lightTexture, lightTextureIntensity,
         metalness, roughness, clearCoat, clearCoatRoughness,
         metalnessTexture, roughnessTexture, envTextureIntensity,
@@ -41,16 +41,16 @@ function PhysicalModelMaterial( opts = {} ) {
     this.normalScale = normalScale || [ 1, 1 ];
     this.bumpTexture = bumpTexture;
     this.bumpScale = bumpScale || 1;
-    this.aoTextureIntensity = aoTextureIntensity || 1;
     this.aoTexture = aoTexture;
+    this.aoTextureIntensity = aoTextureIntensity || 1;
     this.displacementTexture = displacementTexture;
     this.displacementScale = displacementScale === undefined ? 1.0 : displacementScale;
     this.displacementBias = displacementBias === undefined ? 0 : displacementBias;
     this.envTexture = envTexture;
+    this.envBlend = EnvTexture.MULTIPLY;
     this.envMode = envMode || EnvTexture.REFLECTION;
     this.envType = envType || EnvTexture.CUBE;
-    this.envBlend = envBlend || EnvTexture.MULTIPLY;
-    this.reflectivity = reflectivity !== undefined ? reflectivity : 1;
+    this.envTextureIntensity = envTextureIntensity !== undefined ? envTextureIntensity : 1.0;
     this.refractionRatio = refractionRatio !== undefined ? refractionRatio : 0.98;
     this.alphaTexture = alphaTexture;
     this.alphaMask = alphaMask;
@@ -62,7 +62,6 @@ function PhysicalModelMaterial( opts = {} ) {
     this.clearCoatRoughness = clearCoatRoughness !== undefined ? clearCoatRoughness : 0;
     this.metalnessTexture = metalnessTexture;
     this.roughnessTexture = roughnessTexture;
-    this.envTextureIntensity = envTextureIntensity !== undefined ? envTextureIntensity : 1.0;
 
 }
 
@@ -324,23 +323,6 @@ Object.defineProperties( PhysicalModelMaterial.prototype, {
 
             this._envTexture = v;
             this.setUniformObj( { u_envTexture: v } );
-
-        },
-
-    },
-
-    reflectivity: {
-
-        get() {
-
-            return this._reflectivity;
-
-        },
-
-        set( v ) {
-
-            this._reflectivity = v;
-            this.setUniformObj( { u_reflectivity: v } );
 
         },
 

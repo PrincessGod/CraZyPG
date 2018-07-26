@@ -14,7 +14,7 @@ function Model( primitive, material, opts = {} ) {
     this.primitive = primitive;
     this.enablePick = enablePick === undefined ? true : !! enablePick;
     this._innerUniformObj = {};
-    this._innerUniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ] = this.transform.matrix.raw;
+    this._innerUniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ] = this.transform.worldMatrix.raw;
     this._innerUniformObj[ ShaderParams.UNIFORM_NORMAL_MAT_NAME ] = this.transform.normMat;
 
 }

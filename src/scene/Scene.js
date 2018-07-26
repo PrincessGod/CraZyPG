@@ -32,15 +32,18 @@ Object.assign( Scene.prototype, {
             if ( Array.isArray( arg ) )
                 return this.add( ...arg );
 
-            this.root.addChild( arg );
-
             if ( arg instanceof Model )
-                return this.models.push( arg );
+                this.models.push( arg );
+            else if ( arg instanceof Light )
+                this.lightManager.add( arg );
+            else if ( ! ( arg instanceof Node ) )
+                return console.warn( 'unknow type add into scene' );
 
-            if ( arg instanceof Light )
-                return this.lightManager.add( arg );
+            if ( ! arg.parent )
+                this.root.addChild( arg );
 
-            return console.warn( 'unknow type add into scene' );
+            if ( arg.children && arg.children.length )
+                return this.add( ...arg.children );
 
         } );
 
