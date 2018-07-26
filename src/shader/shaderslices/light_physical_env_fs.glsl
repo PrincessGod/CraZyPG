@@ -8,7 +8,7 @@
 
 			// TODO: replace with properly filtered cubemaps and access the irradiance LOD level, be it the last LOD level
 			// of a specular cubemap, or just the default level of a specially created irradiance cubemap.
-            vec4 envMapColor = texture( u_envTexture, worldNormal, float( maxMIPLevel ) );
+            vec4 envMapColor = textureLod( u_envTexture, worldNormal, 8.0 ); // float( maxMIPLevel )
 
 			// envMapColor.rgb = envMapTexelToLinear( envMapColor ).rgb;
 
@@ -23,12 +23,12 @@
 	}
 
 	// taken from here: http://casual-effects.blogspot.ca/2011/08/plausible-environment-lighting-in-two.html
-	float getSpecularMIPLevel( const in float blinnShininessExponent, const in int maxMIPLevel ) {
+	float getSpecularMIPLevel( const in float blinnShininessExponent, const in float maxMIPLevel ) {
 
 		//float envMapWidth = pow( 2.0, maxMIPLevelScalar );
 		//float desiredMIPLevel = log2( envMapWidth * sqrt( 3.0 ) ) - 0.5 * log2( pow2( blinnShininessExponent ) + 1.0 );
 
-		float maxMIPLevelScalar = float( maxMIPLevel );
+		float maxMIPLevelScalar = maxMIPLevel;
 		float desiredMIPLevel = maxMIPLevelScalar + 0.79248 - 0.5 * log2( pow2( blinnShininessExponent ) + 1.0 );
 
 		// clamp to allowable LOD ranges.
@@ -36,7 +36,7 @@
 
 	}
 
-    vec3 getLightProbeIndirectRadiance( /*const in SpecularLightProbe specularLightProbe,*/ const in GeometricContext geometry, const in float blinnShininessExponent, const in int maxMIPLevel ) {
+    vec3 getLightProbeIndirectRadiance( /*const in SpecularLightProbe specularLightProbe,*/ const in GeometricContext geometry, const in float blinnShininessExponent/*, const in int maxMIPLevel*/ ) {
 
 		#ifdef ENVTEXTURE_REFLECTION
 
@@ -50,11 +50,13 @@
 
 		reflectVec = inverseTransformDirection( reflectVec, u_viewMat );
 
-		float specularMIPLevel = getSpecularMIPLevel( blinnShininessExponent, maxMIPLevel );
+		ivec2 texSize = textureSize( u_envTexture, 0 );
+		int maxDemension = max( texSize.x, texSize.y );
+		float specularMIPLevel = getSpecularMIPLevel( blinnShininessExponent, ceil( log2( float( maxDemension ) ) ) );
 
 		#ifdef ENVTEXTURE_CUBE
 
-		    vec4 envMapColor = texture( u_envTexture, reflectVec, specularMIPLevel );
+		    vec4 envMapColor = textureLod( u_envTexture, reflectVec, specularMIPLevel );
 
 			// envMapColor.rgb = envMapTexelToLinear( envMapColor ).rgb;
 

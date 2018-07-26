@@ -24,8 +24,8 @@
 
     #if defined( HAS_ENVTEXTURE ) && defined( RE_IndirectSpecular )
 
-        radiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_BlinnShininessExponent( material ), u_maxMipLevel );
+        radiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_BlinnShininessExponent( material )/*, u_maxMipLevel*/ );
 
-        clearCoatRadiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_ClearCoat_BlinnShininessExponent( material ), u_maxMipLevel );
+        clearCoatRadiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry, Material_ClearCoat_BlinnShininessExponent( material )/*, u_maxMipLevel*/ );
 
     #endif
