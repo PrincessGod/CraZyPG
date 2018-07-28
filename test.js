@@ -179,7 +179,7 @@ gltfLoader.load( './resource/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf', {
     // envTextureIntensity: 0.9,
 } ).then( ( gltf ) => {
 
-    scene.add( gltf );
+    scene.add( gltf ); window.test = gltf.children[ 0 ].material;
 
 } );
 
@@ -198,17 +198,17 @@ const pointLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0, 0
 const pointLightObj = new CZPG.Model( new CZPG.Sphere( {
     radius: 0.05, offset: 3, subdivAixs: 40, subdivHeight: 20,
 } ), pointLightMaterial );
-scene.add( pointLightObj );
+// scene.add( pointLightObj );
 
 const spotLightMaterial = new CZPG.BasicModelMaterial( { baseColor: [ 0.5, 0.5, 0, 1 ] } );
 const spotLightObj = new CZPG.Model( new CZPG.Sphere( {
     radius: 0.05, offset: 3, subdivAixs: 40, subdivHeight: 20,
 } ), spotLightMaterial );
-scene.add( spotLightObj );
+// scene.add( spotLightObj );
 
 const gridMaterial = new CZPG.BasicLineMaterial();
 const grid = new CZPG.Model( new CZPG.GridAxis( { size: 3, div: 1, offset: 2 } ), gridMaterial );
-scene.add( grid );
+// scene.add( grid );
 
 scene.currentCamera = camera;
 

@@ -46,7 +46,7 @@ function Material( ShaderType, opts ) {
     this.customDefine = {};
 
     const {
-        baseColor, diffuse, alpha, fog, dither,
+        baseColor, diffuse, alpha, fog, dither, flat,
     } = opts;
     if ( baseColor )
         this.baseColor = baseColor || [ 1, 1, 1, 1 ];
@@ -59,6 +59,7 @@ function Material( ShaderType, opts ) {
 
     this.fog = fog === undefined ? true : !! fog;
     this.dither = !! dither;
+    this.flat = !! flat;
 
 }
 

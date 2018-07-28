@@ -118,6 +118,8 @@ Object.assign( ShaderFactory, {
             defineObj.HAS_METALNESSTEXTURE = '';
         if ( material.roughnessTexture )
             defineObj.HAS_ROUGHNESSTEXTURE = '';
+        if ( material.flat )
+            defineObj.FLAT_SHADE = '';
 
         Object.assign( defineObj, material.customDefine );
 
