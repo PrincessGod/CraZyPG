@@ -62,30 +62,6 @@ function States( gl ) {
 
     } ).bind( gl );
 
-    const bindBuffer = _h( gl.bindBuffer, ( target, buffer ) => {
-
-        let cached;
-
-        switch ( target ) {
-
-        case gl.ARRAY_BUFFER:
-            cached = ( cache.bindBufferTargetArray === buffer );
-            cache.bindBufferTargetArray = buffer;
-            break;
-        case gl.ELEMENT_ARRAY_BUFFER:
-            cached = ( cache.bindBufferTargetElementArray === buffer );
-            cache.bindBufferTargetElementArray = buffer;
-            break;
-        default:
-            break;
-
-        }
-
-        return cached;
-
-
-    } ).bind( gl );
-
     const bindRenderbuffer = _h( gl.bindRenderbuffer, ( target, buffer ) => {
 
         const cached = ( cache.bindRenderbufferTarget === target ) && ( cache.bindRenderbufferBuffer === buffer );
@@ -103,29 +79,6 @@ function States( gl ) {
         return cached;
 
     } ).bind( gl );
-
-    // const bindTexture = _h( gl.bindTexture, ( target, texture ) => {
-
-    //     let cached;
-
-    //     switch ( target ) {
-
-    //     case gl.TEXTURE_2D:
-    //         cached = ( cache.bindTexture2D === texture );
-    //         cache.bindTexture2D = texture;
-    //         break;
-    //     case gl.TEXTURE_CUBE_MAP:
-    //         cached = ( cache.bindTextureCubeMap === texture );
-    //         cache.bindTextureCubeMap = texture;
-    //         break;
-    //     default:
-    //         break;
-
-    //     }
-
-    //     return cached;
-
-    // } ).bind( gl );
 
     const activeTexture = _h( gl.activeTexture, ( texture ) => {
 
@@ -276,7 +229,6 @@ function States( gl ) {
         enable,
         disable,
         useProgram,
-        bindBuffer,
         bindRenderbuffer,
         bindFramebuffer,
         activeTexture,
