@@ -291,7 +291,7 @@ Object.assign( Perlin, {
         return lerp(
             lerp( n00, n10, u ),
             lerp( n01, n11, u ),
-            fade( y ),
+            fade( y )
         );
 
     },
@@ -322,13 +322,13 @@ Object.assign( Perlin, {
         return lerp(
             lerp(
                 lerp( n000, n100, u ),
-                lerp( n001, n101, u ), w,
+                lerp( n001, n101, u ), w
             ),
             lerp(
                 lerp( n010, n110, u ),
-                lerp( n011, n111, u ), w,
+                lerp( n011, n111, u ), w
             ),
-            v,
+            v
         );
 
     },

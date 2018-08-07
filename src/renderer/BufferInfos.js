@@ -31,7 +31,7 @@ function updateBufferInfo( gl, info, buffer ) {
 
         gl.bufferSubData(
             target, updateInfo.offset * data.BYTES_PER_ELEMENT,
-            data.subArray( updateInfo.offset, updateInfo.offset + updateInfo.count ),
+            data.subArray( updateInfo.offset, updateInfo.offset + updateInfo.count )
         );
         updateInfo.count = 0;
 

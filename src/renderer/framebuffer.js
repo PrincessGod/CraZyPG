@@ -136,7 +136,7 @@ function createFramebufferInfo( gl, attachments = defaultAttachment, width = gl.
                 attachmentPoint,
                 attachmentOptions.texTarget || gl.TEXTURE_2D,
                 attachment,
-                attachmentOptions.level || 0,
+                attachmentOptions.level || 0
             );
         else
             throw new Error( 'unkonwn attachment type for framebuffer' );

@@ -1,10 +1,7 @@
 /* eslint prefer-template: 0 */
-
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
-import eslint from 'rollup-plugin-eslint';
-import uglify from 'rollup-plugin-uglify';
-// import glslify from 'rollup-plugin-glslify';
-import fs from 'fs-extra';
 
 function glsl() {
 
@@ -29,40 +26,24 @@ function glsl() {
 
 }
 
-fs.ensureDirSync( './build' );
-fs.copySync( './resource', './build/resource' );
-fs.copySync( './sample', './build' );
+let output = [];
+output.push( {
+    format: 'umd',
+    name: 'CZPG',
+    sourcemap: true,
+    file: 'build/czpg.js',
+} );
 
-const output = [];
-console.log( process.env.NODE_ENV );
 if ( process.env.NODE_ENV === 'module' )
-    output.push( {
+    output = [ {
         format: 'es',
-        sourcemap: true,
         file: 'build/czpg.module.js',
-    } );
-else
-    output.push( {
-        format: 'umd',
-        name: 'CZPG',
-        sourcemap: true,
-        file: ( process.env.NODE_ENV === 'combine' ) ? 'build/czpg.js' : 'build/czpg.min.js',
-    } );
-
-// glslify( { basedir: 'src/shader/shadersrc/' } ),
-
-const plugins = [ glsl(), eslint( { exclude: '**/*.glsl' } ) ];
-
-if ( process.env.NODE_ENV !== 'combine' ) {
-
-    plugins.push( babel( {
-        exclude: 'node_modules/**',
-    } ) );
-    if ( process.env.NODE_ENV !== 'module' )
-        plugins.push( uglify() );
+    } ];
 
 
-}
+const plugins = [ glsl(), resolve(), commonjs(), babel( {
+    exclude: 'node_modules/**',
+} ) ];
 
 export default {
     input: 'src/CZPG.js',

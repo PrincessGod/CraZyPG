@@ -157,7 +157,7 @@ Object.assign( GLTFLoader.prototype, {
 
             const primitive = primitives[ i ];
             const {
-                attributes, indices, material, mode, name, targets,
+                attributes, indices, material, mode, name, // targets,
             } = primitive;
             const dprimitive = {
                 name: name || meshName || GLTFLoader.getMeshNameCounter(),

@@ -161,7 +161,7 @@ function addBarycentricAttrib( modelMesh, removeEdge = false ) {
                 barycentrics.push(
                     0, 1, 0,
                     0, 0, 1,
-                    1, 0, Q,
+                    1, 0, Q
                 );
                 lastVerts = [];
 
@@ -170,7 +170,7 @@ function addBarycentricAttrib( modelMesh, removeEdge = false ) {
                 barycentrics.push(
                     0, 0, 1,
                     0, 1, 0,
-                    1, 0, Q,
+                    1, 0, Q
                 );
                 lastVerts = curVerts;
 

@@ -80,7 +80,7 @@ function clear(
     r = DefaultColor.BackgroundNormalized[ 0 ],
     g = DefaultColor.BackgroundNormalized[ 1 ],
     b = DefaultColor.BackgroundNormalized[ 2 ],
-    a = DefaultColor.BackgroundNormalized[ 3 ],
+    a = DefaultColor.BackgroundNormalized[ 3 ]
 ) {
 
     gl.clearColor( r, g, b, a );
@@ -182,7 +182,7 @@ Object.assign( WebGL2Renderer.prototype, {
                 Matrix4.mult(
                     material.uniformObj[ ShaderParams.UNIFORM_MV_MAT_NAME ],
                     camera.uniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ],
-                    model.uniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ],
+                    model.uniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ]
                 );
                 break;
 
@@ -197,12 +197,12 @@ Object.assign( WebGL2Renderer.prototype, {
                 Matrix4.mult(
                     material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ],
                     camera.uniformObj[ ShaderParams.UNIFORM_PROJ_MAT_NAME ],
-                    camera.uniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ],
+                    camera.uniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ]
                 );
                 Matrix4.mult(
                     material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ],
                     material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ],
-                    model.uniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ],
+                    model.uniformObj[ ShaderParams.UNIFORM_Model_MAT_NAME ]
                 );
                 break;
 

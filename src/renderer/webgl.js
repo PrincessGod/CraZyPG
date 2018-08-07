@@ -51,7 +51,7 @@ function clear(
     r = DefaultColor.BackgroundNormalized[ 0 ],
     g = DefaultColor.BackgroundNormalized[ 1 ],
     b = DefaultColor.BackgroundNormalized[ 2 ],
-    a = DefaultColor.BackgroundNormalized[ 3 ],
+    a = DefaultColor.BackgroundNormalized[ 3 ]
 ) {
 
     gl.clearColor( r, g, b, a );
