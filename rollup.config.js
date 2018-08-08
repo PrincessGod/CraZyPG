@@ -37,7 +37,12 @@ output.push( {
 if ( process.env.NODE_ENV === 'module' )
     output = [ {
         format: 'es',
+        external: [ 'czpg-ecs' ],
         file: 'build/czpg.module.js',
+    }, {
+        format: 'cjs',
+        external: [ 'czpg-ecs' ],
+        file: 'build/czpg.cjs.js',
     } ];
 
 

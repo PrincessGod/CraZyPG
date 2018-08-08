@@ -43,7 +43,7 @@
     "uglify-js": "^3.4.6"
   },
   "dependencies": {
-    "czpg-ecs": "^1.0.7"
+    "czpg-ecs": "^1.0.8"
   },
   "babel": {
     "presets": [
