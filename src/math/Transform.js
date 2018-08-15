@@ -1,4 +1,4 @@
-import { Vector3 } from '../math/Vector3';
+import { Vector3 } from './Vector3';
 import { Quaternion } from '../math/Quaternion';
 import { Matrix4 } from '../math/Matrix4';
 import { isArrayBuffer } from '../core/typedArray';
@@ -32,7 +32,7 @@ Object.defineProperties( Transform.prototype, {
 
         get() {
 
-            return this._position.getArray().slice();
+            return this._position.raw.slice();
 
         },
 
@@ -58,7 +58,7 @@ Object.defineProperties( Transform.prototype, {
 
         get() {
 
-            return this._scale.getArray().slice();
+            return this._scale.raw.slice();
 
         },
 
@@ -84,7 +84,7 @@ Object.defineProperties( Transform.prototype, {
 
         get() {
 
-            return this._rotation.getArray().slice();
+            return this._rotation.raw.slice();
 
         },
 
@@ -209,7 +209,7 @@ Object.assign( Transform.prototype, {
         return function updateEular() {
 
             mat4.reset().applyQuaternion( this._quaternion );
-            this._rotation.setFromRotationMatrix( mat4.raw );
+            this._rotation.setFromRotationMatrix( mat4 );
 
         };
 
@@ -226,7 +226,7 @@ Object.assign( Transform.prototype, {
         if ( args.length === 1 ) {
 
             if ( args[ 0 ] instanceof Vector3 )
-                return this.setScale( ...args[ 0 ].getArray() );
+                return this.setScale( ...args[ 0 ].raw );
 
             if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
                 return this.setScale( ...args[ 0 ] );
@@ -254,7 +254,7 @@ Object.assign( Transform.prototype, {
         if ( args.length === 1 ) {
 
             if ( args[ 0 ] instanceof Vector3 )
-                return this.setPosition( ...args[ 0 ].getArray() );
+                return this.setPosition( ...args[ 0 ].raw );
 
             if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
                 return this.setPosition( ...args[ 0 ] );
@@ -275,7 +275,7 @@ Object.assign( Transform.prototype, {
         if ( args.length === 1 ) {
 
             if ( args[ 0 ] instanceof Vector3 )
-                return this.setRotation( ...args[ 0 ].getArray() );
+                return this.setRotation( ...args[ 0 ].raw );
 
             if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
                 return this.setRotation( ...args[ 0 ] );

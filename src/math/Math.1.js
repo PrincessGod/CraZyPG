@@ -2,39 +2,35 @@ const RADIAN_PER_DEGREE = Math.PI / 180;
 const DEGREE_PER_RADIAN = 180 / Math.PI;
 const EPS = 0.000001;
 
-export class PMath {
+const PMath = {
 
-    get RADIAN_PER_DEGREE() {
+    RADIAN_PER_DEGREE,
 
-        return RADIAN_PER_DEGREE;
-
-    }
-
-    static degree2Radian( degree ) {
+    degree2Radian( degree ) {
 
         return degree * RADIAN_PER_DEGREE;
 
-    }
+    },
 
-    static radian2Degree( radian ) {
+    radian2Degree( radian ) {
 
         return radian * DEGREE_PER_RADIAN;
 
-    }
+    },
 
-    static clamp( value, min, max ) {
+    clamp( value, min, max ) {
 
         return Math.max( min, Math.min( max, value ) );
 
-    }
+    },
 
-    static map( value, min, max, tarMin, tarMax ) {
+    map( value, min, max, tarMin, tarMax ) {
 
         return tarMin + ( tarMax - tarMin ) * ( value - min ) / ( max - min );
 
-    }
+    },
 
-    static arrayEquals( a, b ) {
+    arrayEquals( a, b ) {
 
         if ( a.length !== b.length ) return false;
 
@@ -45,9 +41,9 @@ export class PMath {
 
         return true;
 
-    }
+    },
 
-    static arrayClone( a ) {
+    arrayClone( a ) {
 
         const Type = a.constructor;
         const length = a.length;
@@ -57,6 +53,8 @@ export class PMath {
 
         return out;
 
-    }
+    },
 
-}
+};
+
+export { PMath };

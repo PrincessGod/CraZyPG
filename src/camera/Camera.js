@@ -84,7 +84,7 @@ Object.assign( Camera.prototype, {
         if ( target )
             this.target = target;
 
-        Matrix4.lookAt( this.viewMat, this.transform.position, this.target.getArray(), this.up.getArray() );
+        Matrix4.lookAt( this.viewMat, this.transform.position, this.target.raw, this.up.raw );
         Matrix4.invert( this.transform.matrix.raw, this.viewMat );
         Matrix4.decompose( this.transform.matrix.raw, this.transform.vec3Position.raw, this.transform.quatQuaternion.raw, this.transform.vec3Scale.raw );
         Matrix4.copy( this.transform.worldMatrix.raw, this.transform.matrix.raw );

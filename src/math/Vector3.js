@@ -1,127 +1,105 @@
 /* eslint no-param-reassign: 0 */
 import { PMath } from './Math';
 
-function Vector3( x, y, z ) {
+export class Vector3 {
 
-    this.raw = [];
-    this.x = x || 0;
-    this.y = y || 0;
-    this.z = z || 0;
+    constructor( x, y, z ) {
 
-}
+        this.raw = new Float32Array( 3 );
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
 
-Object.defineProperties( Vector3.prototype, {
+    }
 
-    x: {
-        get() {
+    get x() {
 
-            return this.raw[ 0 ];
+        return this.raw[ 0 ];
 
-        },
-        set( v ) {
+    }
 
-            this.raw[ 0 ] = v;
+    set x( v ) {
 
-        },
-    },
+        this.raw[ 0 ] = v;
 
-    y: {
-        get() {
+    }
 
-            return this.raw[ 1 ];
+    get y() {
 
-        },
-        set( v ) {
+        return this.raw[ 1 ];
 
-            this.raw[ 1 ] = v;
+    }
 
-        },
-    },
+    set y( v ) {
 
-    z: {
-        get() {
+        this.raw[ 1 ] = v;
 
-            return this.raw[ 2 ];
+    }
 
-        },
-        set( v ) {
+    get z() {
 
-            this.raw[ 2 ] = v;
+        return this.raw[ 2 ];
 
-        },
-    },
+    }
 
-} );
+    set z( v ) {
 
-Object.assign( Vector3.prototype, {
+        this.raw[ 2 ] = v;
 
-    length( v ) {
+    }
 
-        // Only get the magnitude of this vector
-        if ( v === undefined )
-            return Math.sqrt( ( this.x * this.x ) + ( this.y * this.y ) + ( this.z * this.z ) );
+    static set( v, x, y, z ) {
 
-        // Get magnitude based on another vector
-        const x = v.x - this.x;
-        const y = v.y - this.y;
-        const z = v.z - this.z;
+        v.x = x;
+        v.y = y;
+        v.z = z;
 
-        return Math.sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
+        return v;
 
-    },
-
-    squareLength( v ) {
-
-        if ( v === undefined )
-            return ( this.x * this.x ) + ( this.y * this.y ) + ( this.z * this.z );
-
-        const x = v.x - this.x;
-        const y = v.y - this.y;
-        const z = v.z - this.z;
-
-        return ( x * x ) + ( y * y ) + ( z * z );
-
-    },
-
-    normalize() {
-
-        const mag = this.length();
-        this.x /= mag;
-        this.y /= mag;
-        this.z /= mag;
-        return this;
-
-    },
+    }
 
     set( x, y, z ) {
 
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        return this;
+        return Vector3.set( this, x, y, z );
 
-    },
+    }
 
-    setFromSpherical( s ) {
+    static setFromArray( v, array, offset = 0 ) {
 
-        Vector3.fromSpherical( this.raw, s );
-        return this;
+        v.x = array[ offset ];
+        v.y = array[ offset + 1 ];
+        v.z = array[ offset + 2 ];
 
-    },
+        return v;
+
+    }
 
     setFromArray( array, offset ) {
 
-        if ( offset === undefined ) offset = 0;
-        this.x = array[ offset ];
-        this.y = array[ offset + 1 ];
-        this.z = array[ offset + 2 ];
+        return Vector3.setFromArray( this, array, offset );
 
-        return this;
+    }
 
-    },
+    static setFromSpherical( v, s ) {
+
+        const sinPhiRadius = Math.sin( s.phi ) * s.radius;
+
+        v.x = sinPhiRadius * Math.sin( s.theta );
+        v.y = Math.cos( s.phi ) * s.radius;
+        v.z = sinPhiRadius * Math.cos( s.theta );
+
+        return v;
+
+    }
+
+    setFromSpherical( s ) {
+
+        return Vector3.setFromSpherical( this, s );
+
+    }
 
     // XYZ order
-    setFromRotationMatrix( m ) {
+    static setFromRotationMatrix( v, m ) {
 
         const te = m.raw || m;
         const m11 = te[ 0 ];
@@ -132,160 +110,218 @@ Object.assign( Vector3.prototype, {
         const m32 = te[ 6 ];
         const m33 = te[ 10 ];
 
-        this.y = Math.asin( PMath.clamp( m13, - 1, 1 ) );
+        v.y = Math.asin( PMath.clamp( m13, - 1, 1 ) );
 
         if ( Math.abs( m13 ) < 0.99999 ) {
 
-            this.x = Math.atan2( - m23, m33 );
-            this.z = Math.atan2( - m12, m11 );
+            v.x = Math.atan2( - m23, m33 );
+            v.z = Math.atan2( - m12, m11 );
 
         } else {
 
-            this.x = Math.atan2( m32, m22 );
-            this.z = 0;
+            v.x = Math.atan2( m32, m22 );
+            v.z = 0;
 
         }
 
-        return this;
+        return v;
 
-    },
+    }
 
-    multiScalar( v ) {
+    setFromRotationMatrix( m ) {
 
-        this.x *= v;
-        this.y *= v;
-        this.z *= v;
-        return this;
+        return Vector3.setFromRotationMatrix( this, m );
 
-    },
+    }
 
-    getArray() {
+    static length( v1, v2 ) {
 
-        return this.raw;
+        // Only get the magnitude of this vector
+        if ( v2 === undefined )
+            return Math.sqrt( ( v1.x * v1.x ) + ( v1.y * v1.y ) + ( v1.z * v1.z ) );
 
-    },
+        // Get magnitude based on another vector
+        const x = v1.x - v2.x;
+        const y = v1.y - v2.y;
+        const z = v1.z - v2.z;
 
-    getFloatArray() {
+        return Math.sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
 
-        return new Float32Array( this.raw );
+    }
 
-    },
+    length( v ) {
 
-    clone() {
+        return Vector3.length( this, v );
 
-        return new Vector3( this.x, this.y, this.z );
+    }
 
-    },
+    static squareLength( v1, v2 ) {
+
+        if ( v2 === undefined )
+            return ( v1.x * v1.x ) + ( v1.y * v1.y ) + ( v1.z * v1.z );
+
+        const x = v1.x - v2.x;
+        const y = v1.y - v2.y;
+        const z = v1.z - v2.z;
+
+        return ( x * x ) + ( y * y ) + ( z * z );
+
+    }
+
+    squareLength( v ) {
+
+        return Vector3.squareLength( this, v );
+
+    }
+
+    static normalize( out, v ) {
+
+        const mag = v.length();
+        out.x = v.x / mag;
+        out.y = v.y / mag;
+        out.z = v.z / mag;
+
+        return out;
+
+    }
+
+    normalize() {
+
+        return Vector3.normalize( this, this );
+
+    }
+
+    static multiScalar( out, v, scalar ) {
+
+        out.x = v.x * scalar;
+        out.y = v.y * scalar;
+        out.z = v.z * scalar;
+
+        return out;
+
+    }
+
+    multiScalar( scalar ) {
+
+        return Vector3.multiScalar( this, this, scalar );
+
+    }
+
+    static copy( out, v ) {
+
+        out.x = v.x;
+        out.y = v.y;
+        out.z = v.z;
+
+        return out;
+
+    }
 
     copy( v ) {
 
-        this.x = v.x;
-        this.y = v.y;
-        this.z = v.z;
+        return Vector3.copy( this, v );
 
-        return this;
+    }
 
-    },
+    static clone( v ) {
+
+        return new Vector3( v.x, v.y, v.z );
+
+    }
+
+    clone() {
+
+        return Vector3.clone( this );
+
+    }
+
+    static sub( out, v1, v2 ) {
+
+        out.x = v1.x - v2.x;
+        out.y = v1.y - v2.y;
+        out.z = v1.z - v2.z;
+
+        return out;
+
+    }
 
     sub( v ) {
 
-        this.x -= v.x;
-        this.y -= v.y;
-        this.z -= v.z;
+        return Vector3.sub( this, this, v );
 
-        return this;
+    }
 
-    },
+    static add( out, v1, v2 ) {
+
+        out.x = v1.x + v2.x;
+        out.y = v1.y + v2.y;
+        out.z = v1.z + v2.z;
+
+        return out;
+
+    }
 
     add( v ) {
 
-        this.x += v.x;
-        this.y += v.y;
-        this.z += v.z;
+        return Vector3.add( this, this, v );
 
-        return this;
+    }
 
-    },
+    static subVectors( out, v1, v2 ) {
 
-    subVectors( a, b ) {
+        return Vector3.sub( out, v1, v2 );
 
-        this.x = a.x - b.x;
-        this.y = a.y - a.y;
-        this.z = a.z - a.y;
+    }
 
-        return this;
+    subVectors( v1, v2 ) {
 
-    },
+        return Vector3.subVectors( this, v1, v2 );
 
-    dot( v ) {
+    }
 
-        this.dotVectors( this, v );
-        return this;
-
-    },
-
-    cross( v, frag ) {
-
-        const result = frag || new Vector3();
-        Vector3.crossVectors( result.raw, this.raw, v.raw );
-        return result;
-
-    },
-
-    applyQuaternion( q ) {
-
-        Vector3.transformQuat( this.raw, this.raw, q.raw );
-        return this;
-
-    },
-
-    dotVectors( v1, v2 ) {
+    static dot( v1, v2 ) {
 
         return ( v1.x * v2.z ) + ( v1.y * v2.y ) + ( v1.z * v2.z );
 
-    },
+    }
 
-} );
+    dot( v ) {
 
-Object.assign( Vector3, {
+        return Vector3.dot( this, v );
 
-    crossVectors( out, v1, v2 ) {
+    }
 
-        const ax = v1[ 0 ];
-        const ay = v1[ 1 ];
-        const az = v1[ 2 ];
-        const bx = v2[ 0 ];
-        const by = v2[ 1 ];
-        const bz = v2[ 2 ];
-        out[ 0 ] = ay * bz - az * by;
-        out[ 1 ] = az * bx - ax * bz;
-        out[ 2 ] = ax * by - ay * bx;
+    static cross( out, v1, v2 ) {
 
-        return out;
-
-    },
-
-    fromSpherical( out, s ) {
-
-        const sinPhiRadius = Math.sin( s.phi ) * s.radius;
-
-        out[ 0 ] = sinPhiRadius * Math.sin( s.theta );
-        out[ 1 ] = Math.cos( s.phi ) * s.radius;
-        out[ 2 ] = sinPhiRadius * Math.cos( s.theta );
+        const ax = v1.x;
+        const ay = v1.y;
+        const az = v1.z;
+        const bx = v2.x;
+        const by = v2.y;
+        const bz = v2.z;
+        out.x = ay * bz - az * by;
+        out.y = az * bx - ax * bz;
+        out.z = ax * by - ay * bx;
 
         return out;
 
-    },
+    }
 
-    transformQuat( out, a, q ) {
+    cross( v ) {
 
-        const x = a[ 0 ];
-        const y = a[ 1 ];
-        const z = a[ 2 ];
-        const qx = q[ 0 ];
-        const qy = q[ 1 ];
-        const qz = q[ 2 ];
-        const qw = q[ 3 ];
+        return Vector3.cross( this, this, v );
+
+    }
+
+    static applyQauternion( out, v, q ) {
+
+        const x = v.x;
+        const y = v.y;
+        const z = v.z;
+        const qx = q.x;
+        const qy = q.y;
+        const qz = q.z;
+        const qw = q.w;
 
         // calculate quat * vector
         const ix = qw * x + qy * z - qz * y;
@@ -294,14 +330,18 @@ Object.assign( Vector3, {
         const iw = - qx * x - qy * y - qz * z;
 
         // calculate result * inverse quat
-        out[ 0 ] = ix * qw + iw * - qx + iy * - qz - iz * - qy;
-        out[ 1 ] = iy * qw + iw * - qy + iz * - qx - ix * - qz;
-        out[ 2 ] = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+        out.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+        out.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+        out.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
 
         return out;
 
-    },
+    }
 
-} );
+    applyQauternion( q ) {
 
-export { Vector3 };
+        return Vector3.applyQauternion( this, this, q );
+
+    }
+
+}

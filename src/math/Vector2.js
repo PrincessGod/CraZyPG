@@ -1,149 +1,162 @@
-function Vector2( x, y ) {
+import { PMath } from './Math';
 
-    this.raw = [];
-    this.x = x || 0;
-    this.y = y || 0;
+export class Vector2 {
 
-}
+    constructor( x, y ) {
 
-Object.defineProperties( Vector2.prototype, {
+        this.raw = new Float32Array( 2 );
+        this.x = x || 0;
+        this.y = y || 0;
 
-    x: {
-        get() {
+    }
 
-            return this.raw[ 0 ];
+    get x() {
 
-        },
+        return this.raw[ 0 ];
 
-        set( v ) {
+    }
 
-            this.raw[ 0 ] = v;
+    set x( v ) {
 
-        },
-    },
+        this.raw[ 0 ] = v;
 
-    y: {
-        get() {
+    }
 
-            return this.raw[ 1 ];
+    get width() {
 
-        },
+        return this.raw[ 0 ];
 
-        set( v ) {
+    }
 
-            this.raw[ 1 ] = v;
+    set width( v ) {
 
-        },
-    },
+        this.raw[ 0 ] = v;
 
-    width: {
+    }
 
-        get() {
+    get y() {
 
-            return this.raw[ 0 ];
+        return this.raw[ 1 ];
 
-        },
+    }
 
-        set( v ) {
+    set y( v ) {
 
-            this.raw[ 0 ] = v;
+        this.raw[ 1 ] = v;
 
-        },
+    }
 
-    },
+    get height() {
 
-    height: {
+        return this.raw[ 1 ];
 
-        get() {
+    }
 
-            return this.raw[ 1 ];
+    set height( v ) {
 
-        },
+        this.raw[ 1 ] = v;
 
-        set( v ) {
+    }
 
-            this.raw[ 1 ] = v;
+    static set( v, x, y ) {
 
-        },
+        v.x = x;
+        v.y = y;
 
-    },
+        return v;
 
-} );
-
-Object.assign( Vector2.prototype, {
+    }
 
     set( x, y ) {
 
-        this.x = x;
-        this.y = y;
-        return this;
+        return Vector2.set( this, x, y );
 
-    },
+    }
 
-    setX( x ) {
+    static clone( v ) {
 
-        this.x = x;
-        return this;
+        return new Vector2( v.x, v.y );
 
-    },
-
-    setY( y ) {
-
-        this.y = y;
-        return this;
-
-    },
+    }
 
     clone() {
 
-        return new Vector2( this.x, this.y );
+        return Vector2.clone( this );
 
-    },
+    }
+
+    static copy( out, v ) {
+
+        out.x = v.x;
+        out.y = v.y;
+
+        return out;
+
+    }
 
     copy( v ) {
 
-        this.x = v.x;
-        this.y = v.y;
+        return Vector2.copy( this, v );
 
-        return this;
+    }
 
-    },
+
+    static add( out, v1, v2 ) {
+
+        out.x = v1.x + v2.x;
+        out.y = v1.y + v2.y;
+
+        return out;
+
+    }
 
     add( v ) {
 
-        this.x += v.x;
-        this.y += v.y;
+        return Vector2.add( this, this, v );
 
-        return this;
+    }
 
-    },
+
+    static sub( out, v1, v2 ) {
+
+        out.x = v1.x - v2.x;
+        out.y = v1.y - v2.y;
+
+        return out;
+
+    }
 
     sub( v ) {
 
-        this.x -= v.x;
-        this.y -= v.y;
+        return Vector2.sub( this, this, v );
 
-        return this;
+    }
 
-    },
+    static subVectors( out, v1, v2 ) {
 
-    subVectors( a, b ) {
+        return Vector2.sub( out, v1, v2 );
 
-        this.x = a.x - b.x;
-        this.y = a.y - b.y;
-        return this;
+    }
 
-    },
+    subVectors( v1, v2 ) {
+
+        return Vector2.subVectors( this, v1, v2 );
+
+    }
+
+    static clamp( out, v, min, max ) {
+
+        out.x = PMath.clamp( v.x, min, max );
+        out.y = PMath.clamp( v.y, min, max );
+
+        return out;
+
+    }
 
     clamp( min, max ) {
 
-        this.x = Math.max( min.x, Math.min( max.x, this.x ) );
-        this.y = Math.min( min.y, Math.min( max.y, this.y ) );
+        return Vector2.clamp( this, this, min, max );
 
-        return this;
+    }
 
-    },
-
-} );
-
-export { Vector2 };
+}
