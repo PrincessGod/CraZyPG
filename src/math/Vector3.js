@@ -209,11 +209,7 @@ export class Vector3 {
 
     static copy( out, v ) {
 
-        out.x = v.x;
-        out.y = v.y;
-        out.z = v.z;
-
-        return out;
+        return Vector3.set( out, v.x, v.y, v.z, v.w );
 
     }
 

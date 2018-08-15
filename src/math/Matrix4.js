@@ -1044,7 +1044,7 @@ Object.assign( Matrix4, {
         te[ 9 ] *= invSZ;
         te[ 10 ] *= invSZ;
 
-        Quaternion.fromMatrix4( quaternion, te );
+        Quaternion.setFromMatrix4( quaternion, te );
 
         scale[ 0 ] = sx;
         scale[ 1 ] = sy;

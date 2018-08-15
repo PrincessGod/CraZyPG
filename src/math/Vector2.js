@@ -87,10 +87,7 @@ export class Vector2 {
 
     static copy( out, v ) {
 
-        out.x = v.x;
-        out.y = v.y;
-
-        return out;
+        return Vector2.set( out, v.x, v.y );
 
     }
 

@@ -110,7 +110,7 @@ Object.defineProperties( Transform.prototype, {
 
         get() {
 
-            return this._quaternion.getArray().slice();
+            return this._quaternion.raw.slice();
 
         },
 
@@ -297,7 +297,7 @@ Object.assign( Transform.prototype, {
         if ( args.length === 1 ) {
 
             if ( args[ 0 ] instanceof Quaternion )
-                return this.setQuaternion( ...( args[ 0 ].getArray() ) );
+                return this.setQuaternion( ...( args[ 0 ].raw ) );
 
             if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 4 )
                 return this.setQuaternion( ...args[ 0 ] );
