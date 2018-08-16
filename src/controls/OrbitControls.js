@@ -114,7 +114,7 @@ Object.assign( OrbitControls.prototype, {
         const position = this.camera.vec3Position;
 
         this._offset.copy( position ).sub( this.target );
-        this._spherical.setFromVecor3( this._offset );
+        this._spherical.setFromVector3( this._offset );
 
         if ( this.autoRotate && this._state === this.STATE.NONE )
             this.rotateLeft( this.getAutoRotationAngle() );

@@ -4,9 +4,15 @@ export class Vector2 {
 
     constructor( x, y ) {
 
-        this.raw = new Float32Array( 2 );
+        this._raw = new Float32Array( 2 );
         this.x = x || 0;
         this.y = y || 0;
+
+    }
+
+    get raw() {
+
+        return this._raw;
 
     }
 

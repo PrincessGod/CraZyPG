@@ -1,73 +1,138 @@
 import { PMath } from './Math';
 
-function Spherical( radius, phi, theta ) {
+export class Spherical {
 
-    this.radius = ( radius !== undefined ) ? radius : 1.0;
-    this.phi = ( phi !== undefined ) ? phi : 0;
-    this.theta = ( theta !== undefined ) ? theta : 0;
+    constructor( radius, phi, theta ) {
 
-}
+        this._raw = new Float32Array( 3 );
+        this.radius = radius !== undefined ? radius : 1.0;
+        this.phi = phi || 0;
+        this.theta = theta || 0;
 
-Object.assign( Spherical.prototype, {
+    }
+
+    get raw() {
+
+        return this._raw;
+
+    }
+
+    get radius() {
+
+        return this.raw[ 0 ];
+
+    }
+
+    set radius( v ) {
+
+        this.raw[ 0 ] = v;
+
+    }
+
+    get phi() {
+
+        return this.raw[ 1 ];
+
+    }
+
+    set phi( v ) {
+
+        this.raw[ 1 ] = v;
+
+    }
+
+    get theta( ) {
+
+        return this.raw[ 2 ];
+
+    }
+
+    set theta( v ) {
+
+        this.raw[ 2 ] = v;
+
+    }
+
+    static set( s, radius, phi, theta ) {
+
+        s.radius = radius;
+        s.phi = phi;
+        s.theta = theta;
+
+        return s;
+
+    }
 
     set( radius, phi, theta ) {
 
-        this.radius = radius;
-        this.phi = phi;
-        this.theta = theta;
+        return Spherical.set( this, radius, phi, theta );
 
-        return this;
+    }
 
-    },
+    static setFromVector3( s, v ) {
 
-    clone() {
+        s.radius = v.length();
+        if ( s.radius === 0 ) {
 
-        return new Spherical().copy( this );
-
-    },
-
-    copy( other ) {
-
-        this.radius = other.radius;
-        this.phi = other.phi;
-        this.theta = other.theta;
-
-        return this;
-
-    },
-
-    makeSafe: ( function () {
-
-        const ESP = 0.000001;
-
-        return function makeSafe() {
-
-            this.phi = Math.max( ESP, Math.min( Math.PI - ESP, this.phi ) );
-            return this;
-
-        };
-
-    }() ),
-
-    setFromVecor3( vec3 ) {
-
-        this.radius = vec3.length();
-        if ( this.radius === 0 ) {
-
-            this.theta = 0;
-            this.phi = 0;
+            s.theta = 0;
+            s.phi = 0;
 
         } else {
 
-            this.theta = Math.atan2( vec3.x, vec3.z );
-            this.phi = Math.acos( PMath.clamp( vec3.y / this.radius, - 1, 1 ) );
+            s.theta = Math.atan2( v.x, v.z );
+            s.phi = Math.acos( PMath.clamp( v.y / s.radius, - 1, 1 ) );
 
         }
 
-        return this;
+        return s;
 
-    },
+    }
 
-} );
+    setFromVector3( v ) {
 
-export { Spherical };
+        return Spherical.setFromVector3( this, v );
+
+    }
+
+    static clone( s ) {
+
+        return new Spherical( s.radius, s.phi, s.theta );
+
+    }
+
+    clone() {
+
+        return Spherical.clone( this );
+
+    }
+
+    static copy( out, s ) {
+
+        out.radius = s.radius;
+        out.phi = s.phi;
+        out.theta = s.theta;
+
+        return out;
+
+    }
+
+    copy( s ) {
+
+        return Spherical.copy( this, s );
+
+    }
+
+    static makeSafe( s ) {
+
+        s.phi = PMath.clamp( s.phi, PMath.EPS, Math.PI - PMath.EPS );
+        return s;
+
+    }
+
+    makeSafe() {
+
+        return Spherical.makeSafe( this );
+
+    }
+
+}

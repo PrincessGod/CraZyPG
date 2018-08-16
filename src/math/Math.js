@@ -4,9 +4,21 @@ const EPS = 0.000001;
 
 export class PMath {
 
-    get RADIAN_PER_DEGREE() {
+    static get RADIAN_PER_DEGREE() {
 
         return RADIAN_PER_DEGREE;
+
+    }
+
+    static get DEGREE_PER_RADIAN() {
+
+        return DEGREE_PER_RADIAN;
+
+    }
+
+    static get EPS() {
+
+        return EPS;
 
     }
 

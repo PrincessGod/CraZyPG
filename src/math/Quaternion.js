@@ -4,11 +4,17 @@ export class Quaternion {
 
     constructor( x, y, z, w ) {
 
-        this.raw = new Float32Array( 4 );
+        this._raw = new Float32Array( 4 );
         this.x = x || 0;
         this.y = y || 0;
         this.z = z || 0;
         this.w = typeof w === 'undefined' ? 1 : w;
+
+    }
+
+    get raw() {
+
+        return this._raw;
 
     }
 
