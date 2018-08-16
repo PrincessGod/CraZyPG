@@ -39,7 +39,7 @@
     "rollup-plugin-babel": "^3.0.7",
     "rollup-plugin-commonjs": "^9.1.4",
     "rollup-plugin-node-resolve": "^3.3.0",
-    "serve": "^9.4.0",
+    "serve": "^9.6.0",
     "uglify-js": "^3.4.6"
   },
   "dependencies": {
