@@ -1,17 +1,14 @@
 import { Node } from '../object/Node';
 
-function Light( color = [ 1, 1, 1 ], intensity = 1 ) {
+let lightNumber = 0;
+export class Light extends Node {
 
-    Node.call( this );
-    this.color = color;
-    this.intensity = intensity;
+    constructor( color = [ 1, 1, 1 ], intensity = 1 ) {
+
+        super( `LIGHT_NODE_${lightNumber ++}` );
+        this.color = color;
+        this.intensity = intensity;
+
+    }
 
 }
-
-Light.prototype = Object.assign( Object.create( Node.prototype ), {
-
-    constructor: Light,
-
-} );
-
-export { Light };
