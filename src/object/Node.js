@@ -3,135 +3,52 @@ import { Matrix4 } from '../math/Matrix4';
 
 let nodeCount = 0;
 
-function Node( name = `NODE_${nodeCount ++}` ) {
+export class Node extends Transform {
 
-    this.children = [];
-    this.parent = null;
-    this.transform = new Transform();
-    this._updatedThisFrame = false;
-    this.afterUpdateMatrix = [];
-    this.needUpdateWorldMatrix = true;
-    this.name = name;
+    constructor( name = `NODE_${nodeCount ++}` ) {
 
-}
+        super();
 
-Object.defineProperties( Node.prototype, {
+        this.name = name;
+        this.parent = null;
+        this.children = [];
+        this.afterUpdateMatrix = [];
+        this.needUpdateWorldMatrix = true;
 
-    matrix: {
+    }
 
-        get() {
+    static addChild( node, n ) {
 
-            return this.transform.matrix;
+        node.children.push( n.remove() );
+        n.parent = node;
 
-        },
+        return node;
 
-    },
+    }
 
-    worldMatrix: {
+    addChild( n ) {
 
-        get() {
+        return Node.addChild( this, n );
 
-            return this.transform.worldMatrix;
+    }
 
-        },
+    static addToParent( node, p ) {
 
-    },
+        node.remove();
+        p.children.push( node );
+        node.parent = p;
 
-    needUpdateWorldMatrix: {
+        return node;
 
-        get() {
+    }
 
-            return this.transform.needUpdateWorldMatrix;
+    addToParent( p ) {
 
-        },
+        return Node.addToParent( this, p );
 
-        set( v ) {
+    }
 
-            this.transform.needUpdateWorldMatrix = !! v;
-
-        },
-
-    },
-
-    position: {
-
-        get() {
-
-            return this.transform.position;
-
-        },
-
-        set( v ) {
-
-            this.setPosition( v );
-
-        },
-
-    },
-
-    quaternion: {
-
-        get() {
-
-            return this.transform.quaternion;
-
-        },
-
-        set( v ) {
-
-            this.setQuaternion( v );
-
-        },
-
-    },
-
-    rotation: {
-
-        get() {
-
-            return this.transform.rotation;
-
-        },
-
-        set( v ) {
-
-            this.transform.rotation = v;
-
-        },
-
-    },
-
-    scale: {
-
-        get() {
-
-            return this.transform.scale;
-
-        },
-
-        set( v ) {
-
-            return this.setScale( v );
-
-        },
-
-    },
-
-    updatedThisFrame: {
-
-        get() {
-
-            return this._updatedThisFrame;
-
-        },
-
-    },
-
-} );
-
-Object.assign( Node, {
-
-    remove( node ) {
+    static remove( node ) {
 
         if ( node.parent ) {
 
@@ -142,157 +59,120 @@ Object.assign( Node, {
 
             node.parent = null; // eslint-disable-line
 
-        } else
-            node = undefined; // eslint-disable-line
-
-    },
-
-    updateWorldMatrix( node, parent ) {
-
-        if ( node.needUpdateWorldMatrix )
-
-            if ( parent ) {
-
-                node.transform.updateMatrix();
-                Matrix4.mult( node.worldMatrix.raw, parent.worldMatrix.raw, node.transform.matrix.raw );
-
-            } else
-                Matrix4.copy( node.worldMatrix.raw, node.transform.matrix.raw );
-
-    },
-
-    updateNormalAndDirection( node ) {
-
-        if ( node.needUpdateWorldMatrix ) {
-
-            node.transform.updateNormalMatrix().updateDirection();
-            node.needUpdateWorldMatrix = false; // eslint-disable-line
-            node._updatedThisFrame = true; // eslint-disable-line
-
-        } else
-            node._updatedThisFrame = false; // eslint-disable-line
-
-    },
-
-    updateMatrixMarker( node, parent ) {
-
-        if ( node.transform._needUpdateMatrix || ( parent && parent.needUpdateWorldMatrix ) )
-            node.needUpdateWorldMatrix = true; // eslint-disable-line
-
-    },
-
-    afterUpdateMatrix( node ) {
-
-        for ( let i = 0; i < node.afterUpdateMatrix.length; i ++ ) {
-
-            const { handler, trigerNodes } = node.afterUpdateMatrix[ i ];
-            if ( typeof handler === 'function' && trigerNodes.filter( n => n.updatedThisFrame ).length > 0 )
-                handler( node, trigerNodes );
-
         }
 
-    },
+        return node;
 
-} );
+    }
 
-Object.assign( Node.prototype, {
+    remove() {
+
+        return Node.remove( this );
+
+    }
+
+    static updateWorldMatrix( node ) {
+
+        const parent = node.parent;
+        if ( node.needUpdateWorldMatrix )
+            if ( parent ) {
+
+                node.updateMatrix();
+                Matrix4.mult( node.worldMatrix, parent.worldMatrix, node.matrix );
+
+            } else
+                Matrix4.copy( node.worldMatrix, node.matrix );
+
+        return node;
+
+    }
+
+    static updateNormalAndDirection( node ) {
+
+        if ( node.needUpdateWorldMatrix )
+            node.updateNormalMatrix().updateDirection();
+
+        return node;
+
+    }
+
+    static updateMatrixMarker( node ) {
+
+        const parent = node.parent;
+        if ( node._needUpdateMatrix || ( parent && parent.needUpdateWorldMatrix ) )
+            node.needUpdateWorldMatrix = true; // eslint-disable-line
+
+        return node;
+
+    }
+
+    static afterUpdateMatrix( node ) {
+
+        node.needUpdateWorldMatrix = false;
+
+        return node;
+
+    }
+
+    static traverse( node, executeFun ) {
+
+        executeFun( node );
+        for ( let i = 0; i < node.children.length; i ++ )
+            Node.traverse( node.children[ i ], executeFun );
+
+        return node;
+
+    }
 
     traverse( executeFun ) {
 
-        executeFun( this, this.parent );
-        for ( let i = 0; i < this.children.length; i ++ )
-            this.children[ i ].traverse( executeFun );
+        return Node.traverse( this, executeFun );
 
-    },
+    }
+
+    static traversePostOrder( node, executeFun ) {
+
+        for ( let i = 0; i < node.children.length; i ++ )
+            Node.traversePostOrder( node.children[ i ], executeFun );
+        executeFun( node );
+
+        return node;
+
+    }
 
     traversePostOrder( executeFun ) {
 
-        for ( let i = 0; i < this.children.length; i ++ )
-            this.children[ i ].traversePostOrder( executeFun );
-        executeFun( this, this.parent );
+        return Node.traversePostOrder( this, executeFun );
 
-    },
+    }
+
+    static traverseTwoExeFun( node, execuFunPre, execuFunPost ) {
+
+        execuFunPre( node );
+        for ( let i = 0; i < node.children.length; i ++ )
+            Node.traverseTwoExeFun( node.children[ i ], execuFunPre, execuFunPost );
+        execuFunPost( node );
+
+        return node;
+
+    }
 
     traverseTwoExeFun( execuFunPre, execuFunPost ) {
 
-        execuFunPre( this, this.parent );
-        for ( let i = 0; i < this.children.length; i ++ )
-            this.children[ i ].traverseTwoExeFun( execuFunPre, execuFunPost );
-        execuFunPost( this, this.parent );
+        return Node.traverseTwoExeFun( this, execuFunPre, execuFunPost );
 
-    },
+    }
 
-    remove( node = this ) {
+    updateWorldMatrix() {
 
-        Node.remove( node );
+        Node.traverse( this, Node.updateMatrixMarker );
+        Node.traverseTwoExeFun( this, Node.updateWorldMatrix, Node.updateNormalAndDirection );
+        Node.traverse( this, Node.afterUpdateMatrix );
         return this;
 
-    },
+    }
 
-    addToParent( parent ) {
-
-        if ( this.parent )
-            Node.remove( this );
-
-        parent.children.push( this );
-        node.parent = this; // eslint-disable-line
-
-        return this;
-
-    },
-
-    addChild( node ) {
-
-        if ( node.parent )
-            Node.remove( node );
-
-        this.children.push( node );
-        node.parent = this; // eslint-disable-line
-
-        return this;
-
-    },
-
-    setPosition( ...args ) {
-
-        if ( args[ 0 ] instanceof Node )
-            return this.setPosition( ...args[ 0 ].position );
-
-        this.transform.setPosition( ...args );
-        return this;
-
-    },
-
-    setQuaternion( ...args ) {
-
-        if ( args[ 0 ] instanceof Node )
-            return this.setQuaternion( ...args[ 0 ].quaternion );
-
-        this.transform.setQuaternion( ...args );
-        return this;
-
-    },
-
-    setScale( ...args ) {
-
-        if ( args[ 0 ] instanceof Node )
-            return this.setScale( ...args[ 0 ].scale );
-
-        this.transform.setScale( ...args );
-        return this;
-
-    },
-
-    updateMatrix() {
-
-        this.traverse( Node.updateMatrixMarker );
-        this.traverseTwoExeFun( Node.updateWorldMatrix, Node.updateNormalAndDirection );
-        this.traverse( Node.afterUpdateMatrix );
-        return this;
-
-    },
-
-    findInChildren( property, value ) {
+    static findInChildren( node, property, value ) {
 
         let finded = false;
 
@@ -304,12 +184,16 @@ Object.assign( Node.prototype, {
 
         }
 
-        this.traverse( find );
+        Node.traverse( node, find );
 
         return finded;
 
-    },
+    }
 
-} );
+    findInChildren( property, value ) {
 
-export { Node };
+        return Node.findInChildren( this, property, value );
+
+    }
+
+}

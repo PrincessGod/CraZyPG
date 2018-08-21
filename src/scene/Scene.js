@@ -53,7 +53,7 @@ Object.assign( Scene.prototype, {
 
     render() {
 
-        this.root.updateMatrix();
+        this.root.updateWorldMatrix();
         this.lightManager.updateUniformObj();
         this.renderer.render( this.models, this.currentCamera, this.lightManager, this.fog );
 

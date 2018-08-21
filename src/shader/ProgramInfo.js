@@ -85,10 +85,12 @@ Object.assign( ProgramInfo.prototype, {
 
         Object.keys( obj ).forEach( ( prop ) => {
 
-            if ( obj[ prop ].length && typeof obj[ prop ][ 0 ] === 'number' )
-                this.setUniformObjProp( prop, obj[ prop ], PMath.arrayEquals );
+            let data = obj[ prop ].raw || obj[ prop ];
+
+            if ( data.length && typeof data[ 0 ] === 'number' )
+                this.setUniformObjProp( prop, data, PMath.arrayEquals );
             else
-                this.setUniformObjProp( prop, obj[ prop ] );
+                this.setUniformObjProp( prop, data );
 
         } );
         return this;

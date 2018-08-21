@@ -175,7 +175,7 @@ Object.assign( WebGL2Renderer.prototype, {
                 if ( ! material.uniformObj[ ShaderParams.UNIFORM_MV_MAT_NAME ] ) {
 
                     const mvMat = {};
-                    mvMat[ ShaderParams.UNIFORM_MV_MAT_NAME ] = Matrix4.identity();
+                    mvMat[ ShaderParams.UNIFORM_MV_MAT_NAME ] = new Matrix4();
                     material.setUniformObj( mvMat );
 
                 }
@@ -190,7 +190,7 @@ Object.assign( WebGL2Renderer.prototype, {
                 if ( ! material.uniformObj[ ShaderParams.UNIFORM_MVP_MAT_NAME ] ) {
 
                     const mvpMat = {};
-                    mvpMat[ ShaderParams.UNIFORM_MVP_MAT_NAME ] = Matrix4.identity();
+                    mvpMat[ ShaderParams.UNIFORM_MVP_MAT_NAME ] = new Matrix4();
                     material.setUniformObj( mvpMat );
 
                 }
