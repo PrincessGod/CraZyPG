@@ -2,9 +2,10 @@ import { PMath } from './Math';
 
 export class Matrix3 {
 
-    constructor() {
+    constructor( ...values ) {
 
         Matrix3.identity( this );
+        if ( values.length ) this.set( ...values );
 
     }
 
@@ -22,6 +23,27 @@ export class Matrix3 {
         m._raw[ 8 ] = 1;
 
         return m;
+
+    }
+
+    identity() {
+
+        return Matrix3.identity( this );
+
+    }
+
+    static set( out, ...values ) {
+
+        for ( let i = 0; i < 9; i ++ )
+            out.raw[ i ] = values[ i ];
+
+        return out;
+
+    }
+
+    set( ...values ) {
+
+        return Matrix3.set( this, ...values );
 
     }
 
@@ -67,18 +89,8 @@ export class Matrix3 {
 
     static clone( m ) {
 
-        const out = new Matrix3();
-        out.raw[ 0 ] = m.raw[ 0 ];
-        out.raw[ 1 ] = m.raw[ 1 ];
-        out.raw[ 2 ] = m.raw[ 2 ];
-        out.raw[ 3 ] = m.raw[ 3 ];
-        out.raw[ 4 ] = m.raw[ 4 ];
-        out.raw[ 5 ] = m.raw[ 5 ];
-        out.raw[ 6 ] = m.raw[ 6 ];
-        out.raw[ 7 ] = m.raw[ 7 ];
-        out.raw[ 8 ] = m.raw[ 8 ];
-
-        return out;
+        var result = new Matrix3();
+        return result.copy( m );
 
     }
 
@@ -90,15 +102,8 @@ export class Matrix3 {
 
     static copy( out, m ) {
 
-        out.raw[ 0 ] = m.raw[ 0 ];
-        out.raw[ 1 ] = m.raw[ 1 ];
-        out.raw[ 2 ] = m.raw[ 2 ];
-        out.raw[ 3 ] = m.raw[ 3 ];
-        out.raw[ 4 ] = m.raw[ 4 ];
-        out.raw[ 5 ] = m.raw[ 5 ];
-        out.raw[ 6 ] = m.raw[ 6 ];
-        out.raw[ 7 ] = m.raw[ 7 ];
-        out.raw[ 8 ] = m.raw[ 8 ];
+        for ( let i = 0; i < 16; i ++ )
+            out.raw[ i ] = m.raw[ i ];
 
         return out;
 

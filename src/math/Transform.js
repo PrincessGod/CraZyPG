@@ -1,329 +1,235 @@
-import { Vector3 } from './Vector3';
-import { Quaternion } from '../math/Quaternion';
-import { Matrix4 } from '../math/Matrix4';
 import { isArrayBuffer } from '../core/typedArray';
+import { Vector3, Vector4, Matrix3, Matrix4, Quaternion } from '../math/index';
 
-function Transform() {
+const ForwardDir = new Vector4( 0, 0, 1, 0 );
+const UpDir = new Vector4( 0, 1, 0, 0 );
+const RightDir = new Vector4( 1, 0, 0, 0 );
 
-    this._position = new Vector3( 0, 0, 0 );
-    this._scale = new Vector3( 1, 1, 1 );
-    this._rotation = new Vector3( 0, 0, 0 );
-    this._quaternion = new Quaternion();
-    this.matrix = new Matrix4();
-    this.normMat = new Float32Array( 9 );
-    this.worldMatrix = new Matrix4();
+export class Transform {
 
-    this.forward = new Float32Array( 4 );
-    this.up = new Float32Array( 4 );
-    this.right = new Float32Array( 4 );
-    this.forwardNormaled = new Vector3( 0, 0, 1 );
-    this.upNormaled = new Vector3( 0, 1, 0 );
-    this.rightNormaled = new Vector3( 1, 0, 0 );
+    constructor() {
 
+        this._position = new Vector3( 0, 0, 0 );
+        this._scale = new Vector3( 1, 1, 1 );
+        this._rotation = new Vector3( 0, 0, 0 );
+        this._quaternion = new Quaternion();
+        this.matrix = new Matrix4();
+        this.normMat = new Matrix3();
+        this.worldMatrix = new Matrix4();
 
-    this._needUpdateMatrix = false;
-    this.needUpdateWorldMatrix = true;
+        this.forward = new Vector4();
+        this.up = new Vector4();
+        this.right = new Vector4();
+        this.forwardNormaled = new Vector3( 0, 0, 1 );
+        this.upNormaled = new Vector3( 0, 1, 0 );
+        this.rightNormaled = new Vector3( 1, 0, 0 );
 
-}
+        this._needUpdateMatrix = false;
 
-Object.defineProperties( Transform.prototype, {
+    }
 
-    position: {
+    static get forwardDir() {
 
-        get() {
+        return ForwardDir;
 
-            return this._position.raw.slice();
+    }
 
-        },
+    static get upDir() {
 
-        set( v ) {
+        return UpDir;
 
-            this.setPosition( v );
+    }
 
-        },
+    static get rightDir() {
 
-    },
+        return RightDir;
 
-    vec3Position: {
+    }
 
-        get() {
+    get position() {
 
-            return this._position;
+        return this._position;
 
-        },
+    }
 
-    },
+    set position( v ) {
 
-    scale: {
+        this.setPosition( v );
 
-        get() {
+    }
 
-            return this._scale.raw.slice();
+    get rotation() {
 
-        },
+        return this._rotation;
 
-        set( v ) {
+    }
 
-            this.setScale( v );
+    set rotation( v ) {
 
-        },
+        this.setRotation( v );
 
-    },
+    }
 
-    vec3Scale: {
+    get quaternion() {
 
-        get() {
+        return this._quaternion;
 
-            return this._scale;
+    }
 
-        },
+    set quaternion( v ) {
 
-    },
+        this.setQuaternion( v );
 
-    rotation: {
+    }
 
-        get() {
+    get scale() {
 
-            return this._rotation.raw.slice();
+        return this._scale;
 
-        },
+    }
 
-        set( v ) {
+    set scale( v ) {
 
-            this.setRotation( v );
+        this.setScale( v );
 
-        },
-
-    },
-
-    vec3Rotation: {
-
-        get() {
-
-            return this._rotation;
-
-        },
-
-    },
-
-    quaternion: {
-
-        get() {
-
-            return this._quaternion.raw.slice();
-
-        },
-
-        set( v ) {
-
-            this.setQuaternion( v );
-
-        },
-
-    },
-
-    quatQuaternion: {
-
-        get() {
-
-            return this._quaternion;
-
-        },
-
-    },
-
-} );
-
-Object.assign( Transform.prototype, {
+    }
 
     updateMatrix() {
 
         if ( this._needUpdateMatrix ) {
 
-            this.matrix.fromTRS( this._position.raw, this._quaternion.raw, this._scale.raw );
+            this.matrix.setFromTRS( this._position, this._quaternion, this._scale );
             this._needUpdateMatrix = false;
 
         }
 
         return this;
 
-    },
+    }
 
     updateNormalMatrix() {
 
-        Matrix4.normalMat3( this.normMat, this.worldMatrix.raw );
+        Matrix4.getNormalMat3( this.normMat, this.worldMatrix );
         return this;
 
-    },
+    }
 
     updateDirection() {
 
-        Matrix4.transformVec4( this.forward, this.worldMatrix.raw, [ 0, 0, 1, 0 ] );
-        Matrix4.transformVec4( this.up, this.worldMatrix.raw, [ 0, 1, 0, 0 ] );
-        Matrix4.transformVec4( this.right, this.worldMatrix.raw, [ 1, 0, 0, 0 ] );
-        this.forwardNormaled.setFromArray( this.forward ).normalize();
-        this.upNormaled.setFromArray( this.up ).normalize();
-        this.rightNormaled.setFromArray( this.right ).normalize();
+        Matrix4.transformVec4( this.forward, this.worldMatrix, Transform.forwardDir );
+        Matrix4.transformVec4( this.up, this.worldMatrix, Transform.upDir );
+        Matrix4.transformVec4( this.right, this.worldMatrix, Transform.rightDir );
+        this.forwardNormaled.copy( this.forward ).normalize();
+        this.upNormaled.copy( this.up ).normalize();
+        this.rightNormaled.copy( this.right ).normalize();
         return this;
 
-    },
+    }
 
     copyToWorldMatrix() {
 
-        Matrix4.copy( this.worldMatrix.raw, this.matrix.raw );
+        Matrix4.copy( this.worldMatrix, this, this.matrix );
         return this;
 
-    },
-
-    getMatrix() {
-
-        return this.matrix.raw;
-
-    },
-
-    getWorldMatrix() {
-
-        return this.worldMatrix.raw;
-
-    },
-
-    getNormalMatrix() {
-
-        return this.normMat;
-
-    },
-
-    reset() {
-
-        this._position.set( 0, 0, 0 );
-        this._scale.set( 1, 1, 1 );
-        this._rotation.set( 0, 0, 0 );
-        this._quaternion.set( 0, 0, 0, 1 );
-
-    },
-
-    updateEuler: ( function () {
-
-        const mat4 = new Matrix4();
-
-        return function updateEular() {
-
-            mat4.reset().applyQuaternion( this._quaternion );
-            this._rotation.setFromRotationMatrix( mat4 );
-
-        };
-
-    }() ),
-
-    updateQuaternion() {
-
-        this._quaternion.setFromEuler( ...this.rotation );
-
-    },
-
-    setScale( ...args ) {
-
-        if ( args.length === 1 ) {
-
-            if ( args[ 0 ] instanceof Vector3 )
-                return this.setScale( ...args[ 0 ].raw );
-
-            if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
-                return this.setScale( ...args[ 0 ] );
-
-        } else if ( args.length === 3 ) {
-
-            this._scale.set( ...args );
-            this.markNeedUpdate( true );
-
-        }
-
-        return this;
-
-    },
+    }
 
     markNeedUpdate( state ) {
 
         this._needUpdateMatrix = !! state;
-        this.needUpdateWorldMatrix = !! state;
 
-    },
+    }
 
     setPosition( ...args ) {
 
+        this.markNeedUpdate( true );
+
         if ( args.length === 1 ) {
 
             if ( args[ 0 ] instanceof Vector3 )
-                return this.setPosition( ...args[ 0 ].raw );
+                this._position.copy( args[ 0 ] );
 
             if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
-                return this.setPosition( ...args[ 0 ] );
+                this._position.set( ...args[ 0 ] );
 
-        } else if ( args.length === 3 ) {
-
+        } else if ( args.length === 3 )
             this._position.set( ...args );
-            this.markNeedUpdate( true );
-
-        }
 
         return this;
 
-    },
+    }
+
+    setScale( ...args ) {
+
+        this.markNeedUpdate( true );
+
+        if ( args.length === 1 ) {
+
+            if ( args[ 0 ] instanceof Vector3 )
+                this._scale.copy( args[ 0 ] );
+
+            if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
+                this._scale.set( ...args[ 0 ] );
+
+        } else if ( args.length === 3 )
+            this._scale.set( ...args );
+
+        return this;
+
+    }
 
     setRotation( ...args ) {
 
+        this.markNeedUpdate( true );
+
         if ( args.length === 1 ) {
 
             if ( args[ 0 ] instanceof Vector3 )
-                return this.setRotation( ...args[ 0 ].raw );
+                this._rotation.copy( args[ 0 ] );
 
             if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 3 )
-                return this.setRotation( ...args[ 0 ] );
+                this._rotation.set( ...args[ 0 ] );
 
-        } else if ( args.length === 3 ) {
-
+        } else if ( args.length === 3 )
             this._rotation.set( ...args );
-            this.updateQuaternion();
-            this.markNeedUpdate( true );
 
-        }
+        this._quaternion.setFromEuler( ...this._rotation.raw );
+
 
         return this;
 
-    },
+    }
 
     setQuaternion( ...args ) {
+
+        this.markNeedUpdate( true );
 
         if ( args.length === 1 ) {
 
             if ( args[ 0 ] instanceof Quaternion )
-                return this.setQuaternion( ...( args[ 0 ].raw ) );
+                this._quaternion.copy( args[ 0 ] );
 
             if ( ( Array.isArray( args[ 0 ] ) || isArrayBuffer( args[ 0 ] ) ) && args[ 0 ].length === 4 )
-                return this.setQuaternion( ...args[ 0 ] );
+                this._quaternion.set( ...args[ 0 ] );
 
-        } else if ( args.length === 4 ) {
-
+        } else if ( args.length === 4 )
             this._quaternion.set( ...args );
-            this.updateEuler();
-            this.markNeedUpdate( true );
 
-        }
+        this._rotation.setFromRotationMatrix(
+            Matrix4.cache.identity().applyQuat( this._quaternion )
+        );
 
         return this;
 
-    },
+    }
 
     clone() {
 
         const transform = new Transform();
-        transform.position = this.position;
-        transform.quaternion = this.quaternion;
-        transform.scale = this.scale;
+        transform.position = this._position.clone();
+        transform.quaternion = this._quaternion.clone();
+        transform.scale = this._scale.clone();
         return transform;
 
-    },
+    }
 
-} );
-
-export { Transform };
+}
