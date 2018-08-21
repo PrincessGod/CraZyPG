@@ -111,7 +111,7 @@ Object.assign( OrbitControls.prototype, {
 
         if ( ! this.enable ) return;
 
-        const position = this.camera.vec3Position;
+        const position = this.camera.position;
 
         this._offset.copy( position ).sub( this.target );
         this._spherical.setFromVector3( this._offset );
@@ -218,7 +218,7 @@ Object.assign( OrbitControls.prototype, {
 
         if ( this.camera.isPerspectiveCamera ) {
 
-            const position = this.camera.vec3Position;
+            const position = this.camera.position;
             this._vPan.copy( position ).sub( this.target );
             let targetDisitance = this._vPan.length();
 

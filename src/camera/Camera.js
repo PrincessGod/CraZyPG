@@ -5,128 +5,83 @@ import { Node } from '../object/Node';
 import { ShaderParams } from '../core/constant';
 
 let cameraCount = 0;
-function Camera( name ) {
 
-    Node.call( this, name );
-    this.projMat = Matrix4.identity();
-    this.viewMat = Matrix4.identity();
-    this.target = new Vector3();
-    this.up = new Vector3( 0, 1, 0 );
-    this._innerUniformObj = {};
-    this._innerUniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ] = this.viewMat;
-    this._innerUniformObj[ ShaderParams.UNIFORM_PROJ_MAT_NAME ] = this.projMat;
-    this._innerUniformObj[ ShaderParams.UNIFORM_CAMPOS ] = this.transform.vec3Position.raw;
+class Camera extends Node {
 
-}
+    constructor( name ) {
 
-Object.defineProperties( Camera.prototype, {
+        super( name );
 
-    position: {
+        this.projMat = new Matrix4();
+        this.viewMat = new Matrix4();
+        this.target = new Vector3();
+        this._innerUniformObj = {};
+        this._innerUniformObj[ ShaderParams.UNIFORM_VIEW_MAT_NAME ] = this.viewMat;
+        this._innerUniformObj[ ShaderParams.UNIFORM_PROJ_MAT_NAME ] = this.projMat;
+        this._innerUniformObj[ ShaderParams.UNIFORM_CAMPOS ] = this.position;
 
-        get() {
+    }
 
-            return this.transform.position;
+    get uniformObj() {
 
-        },
+        return this._innerUniformObj;
 
-        set( v ) {
-
-            this.transform.position = v;
-
-        },
-
-    },
-
-    matrix: {
-
-        get() {
-
-            return this.transform.worldMatrix.raw;
-
-        },
-
-    },
-
-    vec3Position: {
-
-        get() {
-
-            return this.transform.vec3Position;
-
-        },
-
-    },
-
-    uniformObj: {
-
-        get() {
-
-            return this._innerUniformObj;
-
-        },
-
-    },
-
-} );
-
-Object.assign( Camera.prototype, {
+    }
 
     getOrientMatrix() {
 
-        const mat = new Float32Array( this.viewMat );
+        const mat = new Float32Array( this.worldMatrix.raw );
         mat[ 12 ] = mat[ 13 ] = mat[ 14 ] = 0.0; // eslint-disable-line
         return mat;
 
-    },
+    }
 
     lookAt( target ) {
 
         if ( target )
             this.target = target;
 
-        Matrix4.lookAt( this.viewMat, this.transform.position, this.target.raw, this.up.raw );
-        Matrix4.invert( this.transform.matrix.raw, this.viewMat );
-        Matrix4.decompose( this.transform.matrix.raw, this.transform.vec3Position.raw, this.transform.quatQuaternion.raw, this.transform.vec3Scale.raw );
-        Matrix4.copy( this.transform.worldMatrix.raw, this.transform.matrix.raw );
-        this.transform.quaternion = this.transform.quaternion; // update rotation
-        this.transform.markNeedUpdate( false );
+        this.viewMat.lookAt( this.position, this.target, this.upNormaled );
+        Matrix4.invert( this.matrix, this.viewMat );
+        this.matrix.decompose( this.position, this.quaternion, this.scale );
+        this.worldMatrix.copy( this.matrix );
+        this.quaternion = this.quaternion;
+        this.markNeedUpdate( false );
 
         return this;
 
-    },
-
-    setTransform( transform ) {
-
-        this.transform = transform;
-        return this;
-
-    },
-
-    updateViewMatFromModelMat() {
-
-        Matrix4.invert( this.viewMat, this.matrix );
-
-    },
-
-} );
-
-function PerspectiveCamera( fov = 45, aspectRatio = 1.5, near = 0.01, far = 1000, fixAspectRatio = false, name = `NO_NAME_PERSPECTIVE_CAMERA${cameraCount ++}` ) {
-
-    Camera.call( this, name );
-
-    this.fov = fov;
-    this.aspectRatio = aspectRatio;
-    this.near = near;
-    this.far = far;
-    this.fixAspectRatio = fixAspectRatio;
-
-    Matrix4.perspective( this.projMat, this.fovRadian, aspectRatio, near, far );
+    }
 
 }
 
-PerspectiveCamera.prototype = Object.assign( Object.create( Camera.prototype ), {
+export class PerspectiveCamera extends Camera {
 
-    isPerspectiveCamera: true,
+    constructor( fov = 45, aspectRatio = 1.5, near = 0.01, far = 1000, fixAspectRatio = false, name = `NO_NAME_PERSPECTIVE_CAMERA${cameraCount ++}` ) {
+
+        super( name );
+
+        this.fov = fov;
+        this.aspectRatio = aspectRatio;
+        this.near = near;
+        this.far = far;
+        this.fixAspectRatio = fixAspectRatio;
+
+        Matrix4.perspective( this.projMat, this.fovRadian, aspectRatio, near, far );
+
+    }
+
+    get fov() {
+
+        return this._fov;
+
+    }
+
+    set fov( v ) {
+
+        this._fov = v;
+        this.fovRadian = PMath.degree2Radian( this._fov );
+
+    }
 
     updateProjMatrix( aspectRatio ) {
 
@@ -137,51 +92,37 @@ PerspectiveCamera.prototype = Object.assign( Object.create( Camera.prototype ), 
 
         return this;
 
-    },
+    }
 
-} );
+    get isPerspectiveCamera() {
 
-Object.defineProperties( PerspectiveCamera.prototype, {
+        return true;
 
-    fov: {
-        get() {
-
-            return this._fov;
-
-        },
-        set( degree ) {
-
-            this._fov = degree;
-            this.fovRadian = PMath.degree2Radian( this._fov );
-
-        },
-    },
-
-} );
-
-function OrthographicCamera( size, aspectRatio, near = 1, far = size * 2, fixAspectRatio = false, name = `NO_NAME_ORTHOGRAPHIC_CAMERA${cameraCount ++}` ) {
-
-    Camera.call( this, name );
-
-    this.size = size;
-    this.aspectRatio = aspectRatio;
-    this.near = near;
-    this.far = far;
-    this.zoom = 1;
-    this.fixAspectRatio = fixAspectRatio;
-
-    this.left = this.size * this.aspectRatio / - 2;
-    this.right = this.size * this.aspectRatio / 2;
-    this.bottom = this.size / - 2;
-    this.top = this.size / 2;
-
-    Matrix4.ortho( this.projMat, this.left / this.zoom, this.right / this.zoom, this.bottom / this.zoom, this.top / this.zoom, this.near / this.zoom, this.far / this.zoom );
+    }
 
 }
 
-OrthographicCamera.prototype = Object.assign( Object.create( Camera.prototype ), {
+export class OrthographicCamera extends Camera {
 
-    isOrthographicCamera: true,
+    constructor( size, aspectRatio, near = 1, far = size * 2, fixAspectRatio = false, name = `NO_NAME_ORTHOGRAPHIC_CAMERA${cameraCount ++}` ) {
+
+        super( name );
+
+        this.size = size;
+        this.aspectRatio = aspectRatio;
+        this.near = near;
+        this.far = far;
+        this.zoom = 1;
+        this.fixAspectRatio = fixAspectRatio;
+
+        this.left = this.size * this.aspectRatio / - 2;
+        this.right = this.size * this.aspectRatio / 2;
+        this.bottom = this.size / - 2;
+        this.top = this.size / 2;
+
+        Matrix4.orthographic( this.projMat, this.left / this.zoom, this.right / this.zoom, this.bottom / this.zoom, this.top / this.zoom, this.near / this.zoom, this.far / this.zoom );
+
+    }
 
     updateProjMatrix( aspectRatio ) {
 
@@ -190,12 +131,16 @@ OrthographicCamera.prototype = Object.assign( Object.create( Camera.prototype ),
 
         this.left = this.size * this.aspectRatio / - 2;
         this.right = this.size * this.aspectRatio / 2;
-        Matrix4.ortho( this.projMat, this.left / this.zoom, this.right / this.zoom, this.bottom / this.zoom, this.top / this.zoom, this.near / this.zoom, this.far / this.zoom );
+        Matrix4.orthographic( this.projMat, this.left / this.zoom, this.right / this.zoom, this.bottom / this.zoom, this.top / this.zoom, this.near / this.zoom, this.far / this.zoom );
 
         return this;
 
-    },
+    }
 
-} );
+    get isOrthographicCamera() {
 
-export { PerspectiveCamera, OrthographicCamera };
+        return true;
+
+    }
+
+}
