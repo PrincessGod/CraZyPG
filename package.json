@@ -43,7 +43,7 @@
     "uglify-js": "^3.4.6"
   },
   "dependencies": {
-    "czpg-ecs": "^1.0.8"
+    "czpg-ecs": "^1.0.9"
   },
   "babel": {
     "presets": [
@@ -97,7 +97,8 @@
       "no-mixed-operators": 0,
       "no-plusplus": 0,
       "no-continue": 0,
-      "consistent-return": 0
+      "consistent-return": 0,
+      "no-multi-spaces": 0
     }
   },
   "eslintIgnore": [
