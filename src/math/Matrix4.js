@@ -1,7 +1,10 @@
-/* eslint no-param-reassign: 0 */
 import { PMath } from './Math';
+import { Vector3 } from './Vector3';
 import { Matrix3 } from './Matrix3';
 import { Quaternion } from './Quaternion';
+
+const zero = new Vector3();
+const one = new Vector3( 1, 1, 1 );
 
 export class Matrix4 {
 
@@ -67,40 +70,7 @@ export class Matrix4 {
 
     static setFromQuat( out, q ) {
 
-        const y = q.y;
-        const x = q.x;
-        const z = q.z;
-        const w = q.w;
-        const x2 = x + x;
-        const y2 = y + y;
-        const z2 = z + z;
-        const xx = x * x2;
-        const yx = y * x2;
-        const yy = y * y2;
-        const zx = z * x2;
-        const zy = z * y2;
-        const zz = z * z2;
-        const wx = w * x2;
-        const wy = w * y2;
-        const wz = w * z2;
-        out.raw[ 0 ] = 1 - yy - zz;
-        out.raw[ 1 ] = yx + wz;
-        out.raw[ 2 ] = zx - wy;
-        out.raw[ 3 ] = 0;
-        out.raw[ 4 ] = yx - wz;
-        out.raw[ 5 ] = 1 - xx - zz;
-        out.raw[ 6 ] = zy + wx;
-        out.raw[ 7 ] = 0;
-        out.raw[ 8 ] = zx + wy;
-        out.raw[ 9 ] = zy - wx;
-        out.raw[ 10 ] = 1 - xx - yy;
-        out.raw[ 11 ] = 0;
-        out.raw[ 12 ] = 0;
-        out.raw[ 13 ] = 0;
-        out.raw[ 14 ] = 0;
-        out.raw[ 15 ] = 1;
-
-        return out;
+        return Matrix4.compose( out, zero, q, one );
 
     }
 
@@ -110,45 +80,60 @@ export class Matrix4 {
 
     }
 
-    static setFromTRS( out, t, r, s ) {
+    // X Y Z only
+    static setFromEuler( out, euler ) {
 
-        const x = r.x;
-        const y = r.y;
-        const z = r.z;
-        const w = r.w;
-        const x2 = x + x;
-        const y2 = y + y;
-        const z2 = z + z;
-        const xx = x * x2;
-        const xy = x * y2;
-        const xz = x * z2;
-        const yy = y * y2;
-        const yz = y * z2;
-        const zz = z * z2;
-        const wx = w * x2;
-        const wy = w * y2;
-        const wz = w * z2;
-        const sx = s.x;
-        const sy = s.y;
-        const sz = s.z;
-        out.raw[ 0 ] = ( 1 - ( yy + zz ) ) * sx;
-        out.raw[ 1 ] = ( xy + wz ) * sx;
-        out.raw[ 2 ] = ( xz - wy ) * sx;
-        out.raw[ 3 ] = 0;
-        out.raw[ 4 ] = ( xy - wz ) * sy;
-        out.raw[ 5 ] = ( 1 - ( xx + zz ) ) * sy;
-        out.raw[ 6 ] = ( yz + wx ) * sy;
-        out.raw[ 7 ] = 0;
-        out.raw[ 8 ] = ( xz + wy ) * sz;
-        out.raw[ 9 ] = ( yz - wx ) * sz;
-        out.raw[ 10 ] = ( 1 - ( xx + yy ) ) * sz;
-        out.raw[ 11 ] = 0;
-        out.raw[ 12 ] = t.x;
-        out.raw[ 13 ] = t.y;
-        out.raw[ 14 ] = t.z;
-        out.raw[ 15 ] = 1;
+        const te = out.raw;
+
+        const x = euler.x;
+        const y = euler.y;
+        const z = euler.z;
+
+        const a = Math.cos( x );
+        const b = Math.sin( x );
+        const c = Math.cos( y );
+        const d = Math.sin( y );
+        const e = Math.cos( z );
+        const f = Math.sin( z );
+
+        var ae = a * e, af = a * f, be = b * e, bf = b * f;
+
+        te[ 0 ] = c * e;
+        te[ 4 ] = - c * f;
+        te[ 8 ] = d;
+
+        te[ 1 ] = af + be * d;
+        te[ 5 ] = ae - bf * d;
+        te[ 9 ] = - b * c;
+
+        te[ 2 ] = bf - ae * d;
+        te[ 6 ] = be + af * d;
+        te[ 10 ] = a * c;
+
+        // bottom row
+        te[ 3 ] = 0;
+        te[ 7 ] = 0;
+        te[ 11 ] = 0;
+
+        // last column
+        te[ 12 ] = 0;
+        te[ 13 ] = 0;
+        te[ 14 ] = 0;
+        te[ 15 ] = 1;
 
         return out;
+
+    }
+
+    setFromEuler( e ) {
+
+        return Matrix4.setFromEuler( this, e );
+
+    }
+
+    static setFromTRS( out, t, r, s ) {
+
+        return Matrix4.compose( out, t, r, s );
 
     }
 
@@ -284,18 +269,6 @@ export class Matrix4 {
 
         if ( ! Matrix4._cache ) Matrix4._cache = new Matrix4();
         return Matrix4._cache;
-
-    }
-
-    static applyQuat( out, q ) {
-
-        return out.mult( Matrix4.cache.setFromQuat( q ) );
-
-    }
-
-    applyQuat( q ) {
-
-        return Matrix4.applyQuat( this, q );
 
     }
 
@@ -693,6 +666,63 @@ export class Matrix4 {
     determinant() {
 
         return Matrix4.determinant( this );
+
+    }
+
+    static compose( m, position, quaternion, scale ) {
+
+        var te = m.raw;
+
+        const x = quaternion.x;
+        const y = quaternion.y;
+        const z = quaternion.z;
+        const w = quaternion.w;
+
+        const x2 = x + x;
+        const y2 = y + y;
+        const z2 = z + z;
+
+        const xx = x * x2;
+        const xy = x * y2;
+        const xz = x * z2;
+        const yy = y * y2;
+        const yz = y * z2;
+        const zz = z * z2;
+        const wx = w * x2;
+        const wy = w * y2;
+        const wz = w * z2;
+
+        const sx = scale.x;
+        const sy = scale.y;
+        const sz = scale.z;
+
+        te[ 0 ] = ( 1 - ( yy + zz ) ) * sx;
+        te[ 1 ] = ( xy + wz ) * sx;
+        te[ 2 ] = ( xz - wy ) * sx;
+        te[ 3 ] = 0;
+
+        te[ 4 ] = ( xy - wz ) * sy;
+        te[ 5 ] = ( 1 - ( xx + zz ) ) * sy;
+        te[ 6 ] = ( yz + wx ) * sy;
+        te[ 7 ] = 0;
+
+        te[ 8 ] = ( xz + wy ) * sz;
+        te[ 9 ] = ( yz - wx ) * sz;
+        te[ 10 ] = ( 1 - ( xx + yy ) ) * sz;
+        te[ 11 ] = 0;
+
+        te[ 12 ] = position.x;
+        te[ 13 ] = position.y;
+        te[ 14 ] = position.z;
+        te[ 15 ] = 1;
+
+        return m;
+
+    }
+
+    compose( position, quaternion, scale ) {
+
+        return Matrix4.compose( this, position, quaternion, scale );
 
     }
 

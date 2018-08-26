@@ -1,4 +1,4 @@
-import { Vector3, Vector4, Matrix3, Matrix4, Quaternion, Eular } from '../math';
+import { Vector3, Vector4, Matrix3, Matrix4, Quaternion, Euler } from '../math';
 
 export class Transform {
 
@@ -6,7 +6,7 @@ export class Transform {
 
         this._position   = new Vector3( 0, 0, 0 );
         this._scale      = new Vector3( 1, 1, 1 );
-        this._rotation   = new Eular( 0, 0, 0 );
+        this._rotation   = new Euler( 0, 0, 0 );
         this._quaternion = new Quaternion();
         this._matrix     = new Matrix4();
         this._normMat    = new Matrix3();

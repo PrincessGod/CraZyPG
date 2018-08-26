@@ -1,5 +1,5 @@
 import { isArrayBuffer } from '../core/typedArray';
-import { Vector3, Vector4, Matrix3, Matrix4, Quaternion, Eular } from '../math/index';
+import { Vector3, Vector4, Matrix3, Matrix4, Quaternion, Euler } from '../math/index';
 
 const ForwardDir = new Vector4( 0, 0, 1, 0 );
 const UpDir = new Vector4( 0, 1, 0, 0 );
@@ -11,7 +11,7 @@ export class Transform {
 
         this._position = new Vector3( 0, 0, 0 );
         this._scale = new Vector3( 1, 1, 1 );
-        this._rotation = new Eular( 0, 0, 0 );
+        this._rotation = new Euler( 0, 0, 0 );
         this._quaternion = new Quaternion();
         this.matrix = new Matrix4();
         this.normMat = new Matrix3();

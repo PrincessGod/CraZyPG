@@ -3,7 +3,7 @@ import { Vector3 } from './Vector3';
 import { Matrix4 } from './Matrix4';
 
 // X Y Z order only
-export class Eular extends Vector3 {
+export class Euler extends Vector3 {
 
     static setFromMatrix4( v, m ) {
 
@@ -36,20 +36,20 @@ export class Eular extends Vector3 {
 
     setFromMatrix4( m ) {
 
-        return Eular.setFromMatrix4( this, m );
+        return Euler.setFromMatrix4( this, m );
 
     }
 
     static setFromQuaternion( e, q ) {
 
-        e.setFromMatrix4( Matrix4.cache.identity().applyQuat( q ) );
+        e.setFromMatrix4( Matrix4.cache.setFromQuat( q ) );
         return e;
 
     }
 
     setFromQuaternion( q ) {
 
-        return Eular.setFromQuaternion( this, q );
+        return Euler.setFromQuaternion( this, q );
 
     }
 
