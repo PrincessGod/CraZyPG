@@ -3,18 +3,18 @@ import { Register } from '../../';
 
 test( '@map return a map', t => {
 
-    t.truthy( Register.map instanceof Map );
+    t.true( Register.map instanceof Map );
 
 } );
 
 test( '@size return a number', t => {
 
-    t.truthy( typeof Register.size === 'number' );
+    t.true( typeof Register.size === 'number' );
 
 } );
 
 test( '#inject is a function', t => {
 
-    t.truthy( typeof Register.inject === 'function' );
+    t.true( typeof Register.inject === 'function' );
 
 } );

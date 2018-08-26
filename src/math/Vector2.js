@@ -64,6 +64,15 @@ export class Vector2 {
 
     }
 
+    static get cache() {
+
+        if ( ! Vector2._cache )
+            Vector2._cache = new Vector2();
+
+        return Vector2._cache;
+
+    }
+
     static set( v, x, y ) {
 
         v.x = x;
