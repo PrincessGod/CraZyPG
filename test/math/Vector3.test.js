@@ -1,5 +1,5 @@
 import test from 'ava';
-import { Vector3, Spherical, Matrix4, PMath, Quaternion } from '../../';
+import { Vector3, Spherical, Matrix4, PMath } from '../../';
 
 const a = new Vector3();
 const b = new Vector3();
@@ -95,6 +95,13 @@ test( 'i#length return right length', t => {
 
     const out = a.set( 0, 0, 0.9 ).length();
     t.true( PMath.floatEquals( out, 0.9 ) );
+
+} );
+
+test( 'i#length return right length when have two arguments', t => {
+
+    const out = a.set( 0, 0, 0.9 ).length( b.set( 0, 0.8, 0 ) );
+    t.true( PMath.floatEquals( out, Math.sqrt( 0.8 * 0.8 + 0.9 * 0.9 ) ) );
 
 } );
 

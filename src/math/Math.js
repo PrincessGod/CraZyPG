@@ -1,6 +1,6 @@
+const EPS = 0.000001;
 const RADIAN_PER_DEGREE = Math.PI / 180;
 const DEGREE_PER_RADIAN = 180 / Math.PI;
-const EPS = 0.000001;
 
 export class PMath {
 
@@ -58,7 +58,7 @@ export class PMath {
 
         const length = a.length;
         for ( let i = 0; i < length; i ++ )
-            if ( Math.abs( a[ i ] - b[ i ] ) > EPS * Math.max( 1.0, Math.abs( a[ i ] ), Math.abs( b[ i ] ) ) )
+            if ( ! PMath.floatEquals( a[ i ], b[ i ] ) )
                 return false;
 
         return true;
@@ -67,13 +67,14 @@ export class PMath {
 
     static arrayClone( a ) {
 
-        const Type = a.constructor;
+        const Type   = a.constructor;
         const length = a.length;
-        const out = new Type( length );
-        for ( let i = 0; i < length; i ++ )
-            out[ i ] = a[ i ];
+        const result = new Type( length );
 
-        return out;
+        for ( let i = 0; i < length; i ++ )
+            result[ i ] = a[ i ];
+
+        return result;
 
     }
 

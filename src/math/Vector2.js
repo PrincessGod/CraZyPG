@@ -90,14 +90,7 @@ export class Vector2 {
 
     static equals( v1, v2 ) {
 
-        const ax = v1.x;
-        const ay = v1.y;
-
-        const bx = v2.x;
-        const by = v2.y;
-
-        return ( Math.abs( ax - bx ) <= PMath.EPS * Math.max( 1.0, Math.abs( ax ), Math.abs( bx ) ) &&
-                Math.abs( ay - by ) <= PMath.EPS * Math.max( 1.0, Math.abs( ay ), Math.abs( by ) ) );
+        return ( PMath.floatEquals( v1.x, v2.x ) && PMath.floatEquals( v1.y, v2.y ) );
 
 
     }
