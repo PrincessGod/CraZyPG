@@ -1,4 +1,4 @@
-import { Vector3, Vector4, Matrix3, Matrix4, Quaternion } from '../math';
+import { Vector3, Vector4, Matrix3, Matrix4, Quaternion, Eular } from '../math';
 
 export class Transform {
 
@@ -6,7 +6,7 @@ export class Transform {
 
         this._position   = new Vector3( 0, 0, 0 );
         this._scale      = new Vector3( 1, 1, 1 );
-        this._rotation   = new Vector3( 0, 0, 0 );
+        this._rotation   = new Eular( 0, 0, 0 );
         this._quaternion = new Quaternion();
         this._matrix     = new Matrix4();
         this._normMat    = new Matrix3();
@@ -113,7 +113,7 @@ export class Transform {
         else
             return console.error( `unknown rotation value: ${args}` );
 
-        transform._quaternion.setFromEuler( ...transform._rotation.raw );
+        transform._quaternion.setFromEuler( transform._rotation );
         transform.needUpdateMatrix = true;
 
         return Transform;
@@ -137,9 +137,7 @@ export class Transform {
         else
             return console.error( `unknown quaternion value: ${args}` );
 
-        transform._rotation.setFromRotationMatrix(
-            Matrix4.cache.identity().applyQuat( transform._quaternion )
-        );
+        transform._rotation.setFromQuaternion( transform.quaternion );
         transform.needUpdateMatrix = true;
 
         return Transform;

@@ -78,13 +78,6 @@ test( 'i#setFromSpherical circle test', t => {
 
 } );
 
-test( 'i#setFromRotationMatrix return self and set values', t => {
-
-    const out = a.setFromRotationMatrix( new Matrix4() );
-    t.true( out === a && a.x === 0 && a.y === 0 && a.z === 0 );
-
-} );
-
 test( 'i#equals return true', t => {
 
     t.true( a.set( 0.0, 0.1 + 0.9, 2.0 ).equals( b.set( 0, 1, 2 ) ) );

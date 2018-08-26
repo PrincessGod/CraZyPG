@@ -112,42 +112,6 @@ export class Vector3 {
 
     }
 
-    // XYZ order
-    static setFromRotationMatrix( v, m ) {
-
-        const te = m.raw || m;
-        const m11 = te[ 0 ];
-        const m12 = te[ 4 ];
-        const m13 = te[ 8 ];
-        const m22 = te[ 5 ];
-        const m23 = te[ 9 ];
-        const m32 = te[ 6 ];
-        const m33 = te[ 10 ];
-
-        v.y = Math.asin( PMath.clamp( m13, - 1, 1 ) );
-
-        if ( Math.abs( m13 ) < 0.99999 ) {
-
-            v.x = Math.atan2( - m23, m33 );
-            v.z = Math.atan2( - m12, m11 );
-
-        } else {
-
-            v.x = Math.atan2( m32, m22 );
-            v.z = 0;
-
-        }
-
-        return v;
-
-    }
-
-    setFromRotationMatrix( m ) {
-
-        return Vector3.setFromRotationMatrix( this, m );
-
-    }
-
     static equals( v1, v2 ) {
 
         return ( PMath.floatEquals( v1.x, v2.x ) && PMath.floatEquals( v1.y, v2.y ) && PMath.floatEquals( v1.z, v2.z ) );

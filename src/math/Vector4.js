@@ -1,3 +1,5 @@
+import { PMath } from './Math';
+
 export class Vector4 {
 
     constructor( x, y, z, w ) {
@@ -83,8 +85,7 @@ export class Vector4 {
 
     static clone( v ) {
 
-        const result = new Vector4();
-        return result.copy( v );
+        return new Vector4( v.x, v.y, v.z, v.w );
 
     }
 
@@ -103,6 +104,42 @@ export class Vector4 {
     copy( v ) {
 
         return Vector4.copy( this, v );
+
+    }
+
+    static equals( a, b ) {
+
+        return ( PMath.floatEquals( a.x, b.x ) &&
+                 PMath.floatEquals( a.y, b.y ) &&
+                 PMath.floatEquals( a.z, b.z ) &&
+                 PMath.floatEquals( a.z, b.z ) );
+
+    }
+
+    equals( v ) {
+
+        return Vector4.equals( this, v );
+
+    }
+
+    static lerp( out, a, b, t ) {
+
+        const ax = a[ 0 ];
+        const ay = a[ 1 ];
+        const az = a[ 2 ];
+        const aw = a[ 3 ];
+        out[ 0 ] = ax + t * ( b[ 0 ] - ax );
+        out[ 1 ] = ay + t * ( b[ 1 ] - ay );
+        out[ 2 ] = az + t * ( b[ 2 ] - az );
+        out[ 3 ] = aw + t * ( b[ 3 ] - aw );
+
+        return out;
+
+    }
+
+    lerp( a, b, t ) {
+
+        return Vector4.lerp( this, a, b, t );
 
     }
 

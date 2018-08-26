@@ -1,5 +1,5 @@
 import { isArrayBuffer } from '../core/typedArray';
-import { Vector3, Vector4, Matrix3, Matrix4, Quaternion } from '../math/index';
+import { Vector3, Vector4, Matrix3, Matrix4, Quaternion, Eular } from '../math/index';
 
 const ForwardDir = new Vector4( 0, 0, 1, 0 );
 const UpDir = new Vector4( 0, 1, 0, 0 );
@@ -11,7 +11,7 @@ export class Transform {
 
         this._position = new Vector3( 0, 0, 0 );
         this._scale = new Vector3( 1, 1, 1 );
-        this._rotation = new Vector3( 0, 0, 0 );
+        this._rotation = new Eular( 0, 0, 0 );
         this._quaternion = new Quaternion();
         this.matrix = new Matrix4();
         this.normMat = new Matrix3();
@@ -192,7 +192,7 @@ export class Transform {
         } else if ( args.length === 3 )
             this._rotation.set( ...args );
 
-        this._quaternion.setFromEuler( ...this._rotation.raw );
+        this._quaternion.setFromEuler( this._rotation );
 
 
         return this;
@@ -214,9 +214,7 @@ export class Transform {
         } else if ( args.length === 4 )
             this._quaternion.set( ...args );
 
-        this._rotation.setFromRotationMatrix(
-            Matrix4.cache.identity().applyQuat( this._quaternion )
-        );
+        this._rotation.setFromQuaternion( this._quaternion );
 
         return this;
 
