@@ -1,4 +1,3 @@
-/* eslint no-param-reassign: 0 */
 import { PMath } from './Math';
 
 export class Vector3 {
@@ -51,6 +50,15 @@ export class Vector3 {
     set z( v ) {
 
         this.raw[ 2 ] = v;
+
+    }
+
+    static get cache() {
+
+        if ( ! Vector3._cache )
+            Vector3._cache = new Vector3();
+
+        return Vector3._cache;
 
     }
 
@@ -140,6 +148,28 @@ export class Vector3 {
 
     }
 
+    static equals( v1, v2 ) {
+
+        const ax = v1.x;
+        const ay = v1.y;
+        const az = v1.z;
+
+        const bx = v2.x;
+        const by = v2.y;
+        const bz = v2.z;
+
+        return ( Math.abs( ax - bx ) <= PMath.EPS * Math.max( 1.0, Math.abs( ax ), Math.abs( bx ) ) &&
+                Math.abs( ay - by ) <= PMath.EPS * Math.max( 1.0, Math.abs( ay ), Math.abs( by ) ) &&
+                Math.abs( az - bz ) <= PMath.EPS * Math.max( 1.0, Math.abs( az ), Math.abs( bz ) ) );
+
+    }
+
+    equals( v ) {
+
+        return Vector3.equals( this, v );
+
+    }
+
     static length( v1, v2 ) {
 
         // Only get the magnitude of this vector
@@ -197,7 +227,7 @@ export class Vector3 {
 
     }
 
-    static multiScalar( out, v, scalar ) {
+    static scale( out, v, scalar ) {
 
         out.x = v.x * scalar;
         out.y = v.y * scalar;
@@ -207,9 +237,9 @@ export class Vector3 {
 
     }
 
-    multiScalar( scalar ) {
+    scale( scalar ) {
 
-        return Vector3.multiScalar( this, this, scalar );
+        return Vector3.scale( this, this, scalar );
 
     }
 
@@ -312,37 +342,6 @@ export class Vector3 {
     cross( v ) {
 
         return Vector3.cross( this, this, v );
-
-    }
-
-    static applyQauternion( out, v, q ) {
-
-        const x = v.x;
-        const y = v.y;
-        const z = v.z;
-        const qx = q.x;
-        const qy = q.y;
-        const qz = q.z;
-        const qw = q.w;
-
-        // calculate quat * vector
-        const ix = qw * x + qy * z - qz * y;
-        const iy = qw * y + qz * x - qx * z;
-        const iz = qw * z + qx * y - qy * x;
-        const iw = - qx * x - qy * y - qz * z;
-
-        // calculate result * inverse quat
-        out.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
-        out.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
-        out.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
-
-        return out;
-
-    }
-
-    applyQauternion( q ) {
-
-        return Vector3.applyQauternion( this, this, q );
 
     }
 

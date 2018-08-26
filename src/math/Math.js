@@ -22,6 +22,12 @@ export class PMath {
 
     }
 
+    static floatEquals( a, b ) {
+
+        return Math.abs( a - b ) <= PMath.EPS * Math.max( 1.0, Math.abs( a ), Math.abs( b ) );
+
+    }
+
     static degree2Radian( degree ) {
 
         return degree * RADIAN_PER_DEGREE;

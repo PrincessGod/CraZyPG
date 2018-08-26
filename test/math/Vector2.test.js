@@ -4,6 +4,13 @@ import { Vector2 } from '../../';
 const a = new Vector2();
 const b = new Vector2();
 
+test( '#constructor set the right value', t => {
+
+    const v = new Vector2( 0, 2 );
+    t.true( v.x === 0 && v.y === 2 );
+
+} );
+
 test( 'i@raw is typed array', t => {
 
     t.true( a.raw instanceof Float32Array );
@@ -50,6 +57,12 @@ test( 'i#set set value and renturn self', t => {
 
     const out = a.set( 1, 2 );
     t.true( a === out && a.x === 1 && a.y === 2 );
+
+} );
+
+test( 'i#equals reture true', t => {
+
+    t.true( a.set( 0.1 + 0.9, 2.0 ).equals( b.set( 1, 2 ) ) );
 
 } );
 
