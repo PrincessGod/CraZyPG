@@ -124,14 +124,14 @@ export class Vector4 {
 
     static lerp( out, a, b, t ) {
 
-        const ax = a[ 0 ];
-        const ay = a[ 1 ];
-        const az = a[ 2 ];
-        const aw = a[ 3 ];
-        out[ 0 ] = ax + t * ( b[ 0 ] - ax );
-        out[ 1 ] = ay + t * ( b[ 1 ] - ay );
-        out[ 2 ] = az + t * ( b[ 2 ] - az );
-        out[ 3 ] = aw + t * ( b[ 3 ] - aw );
+        const ax = a.raw[ 0 ];
+        const ay = a.raw[ 1 ];
+        const az = a.raw[ 2 ];
+        const aw = a.raw[ 3 ];
+        out.raw[ 0 ] = ax + t * ( b.raw[ 0 ] - ax );
+        out.raw[ 1 ] = ay + t * ( b.raw[ 1 ] - ay );
+        out.raw[ 2 ] = az + t * ( b.raw[ 2 ] - az );
+        out.raw[ 3 ] = aw + t * ( b.raw[ 3 ] - aw );
 
         return out;
 
