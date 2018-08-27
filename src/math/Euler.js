@@ -7,7 +7,7 @@ export class Euler extends Vector3 {
 
     static setFromMatrix4( v, m ) {
 
-        const te = m.raw || m;
+        const te = m.raw;
         const m11 = te[ 0 ];
         const m12 = te[ 4 ];
         const m13 = te[ 8 ];

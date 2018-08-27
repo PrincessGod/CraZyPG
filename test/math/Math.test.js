@@ -74,8 +74,9 @@ test( '#arrayEquals reture true when length and value equals', t => {
     const a2 = [ 1, 2, 3, 4 ];
     const a3 = new Float32Array( [ 1.0, 0.1 + 1.9, 3 ] );
     const a4 = {}; a4[ '0' ] = 1; a4[ '1' ] = 2; a4[ '2' ] = 3; a4.length = 3;
+    const a5 = [ 1.1, 2, 3 ];
 
-    t.true( ! PMath.arrayEquals( a1, a2 ) && PMath.arrayEquals( a1, a3 ) && PMath.arrayEquals( a1, a4 ) );
+    t.true( ! PMath.arrayEquals( a1, a2 ) && PMath.arrayEquals( a1, a3 ) && PMath.arrayEquals( a1, a4 ) && ! PMath.arrayEquals( a1, a5 ) );
 
 } );
 

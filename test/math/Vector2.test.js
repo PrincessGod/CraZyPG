@@ -60,6 +60,15 @@ test( 'i#set set value and renturn self', t => {
 
 } );
 
+test( 'i@width&height set value success', t => {
+
+    a.set( 1, 2 );
+    b.width = 1;
+    b.height = 2;
+    t.true( a.x = b.x && a.y == b.y );
+
+} );
+
 test( 'i#equals reture true', t => {
 
     t.true( a.set( 0.1 + 0.9, 2.0 ).equals( b.set( 1, 2 ) ) );

@@ -105,6 +105,13 @@ test( 'i#squareLength return right squareLength', t => {
 
 } );
 
+test( 'i#squareLength when pass another vec3', t => {
+
+    const out = a.set( 0, 0, 1.1 ).squareLength( b.set( 1, 0, 0 ) );
+    t.true( PMath.floatEquals( out, 1.1 * 1.1 + 1 ) );
+
+} );
+
 test( 'i#normalize return self and length is 1', t => {
 
     const out = a.set( 0, 0, 1.1 ).normalize().length();
