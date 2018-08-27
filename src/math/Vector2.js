@@ -92,7 +92,6 @@ export class Vector2 {
 
         return ( PMath.floatEquals( v1.x, v2.x ) && PMath.floatEquals( v1.y, v2.y ) );
 
-
     }
 
     equals( v ) {

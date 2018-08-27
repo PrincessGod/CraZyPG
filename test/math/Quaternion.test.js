@@ -44,4 +44,11 @@ test( 'i#setFromMatrix4 circle test', t => {
 
 } );
 
+test( 'i#clone return instance type of Quaternion', t => {
+
+    const o = a.clone( a.set( 1, 2, 3, 4 ) );
+    t.true( o instanceof Quaternion && o !== a && o.equals( a ) );
+
+} );
+
 test.todo( 'i#slerp do not how to test' );

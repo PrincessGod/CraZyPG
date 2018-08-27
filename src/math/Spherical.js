@@ -1,13 +1,11 @@
 import { PMath } from './Math';
+import { Vector3 } from './Vector3';
 
-export class Spherical {
+export class Spherical extends Vector3 {
 
-    constructor( radius, phi, theta ) {
+    constructor( radius = 1, phi, theta ) {
 
-        this._raw = new Float32Array( 3 );
-        this.radius = radius !== undefined ? radius : 1.0;
-        this.phi = phi || 0;
-        this.theta = theta || 0;
+        super( radius, phi, theta );
 
     }
 
@@ -53,22 +51,6 @@ export class Spherical {
 
     }
 
-    static set( s, radius, phi, theta ) {
-
-        s.radius = radius;
-        s.phi = phi;
-        s.theta = theta;
-
-        return s;
-
-    }
-
-    set( radius, phi, theta ) {
-
-        return Spherical.set( this, radius, phi, theta );
-
-    }
-
     static setFromVector3( s, v ) {
 
         s.radius = v.length();
@@ -103,22 +85,6 @@ export class Spherical {
     clone() {
 
         return Spherical.clone( this );
-
-    }
-
-    static copy( out, s ) {
-
-        out.radius = s.radius;
-        out.phi = s.phi;
-        out.theta = s.theta;
-
-        return out;
-
-    }
-
-    copy( s ) {
-
-        return Spherical.copy( this, s );
 
     }
 

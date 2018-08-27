@@ -3,6 +3,13 @@ import { Euler, Matrix4, Quaternion } from '../../';
 
 const e = new Euler();
 
+test( 'i#clone return instance type of Euler', t => {
+
+    const o = e.clone( e.set( 1, 2, 3 ) );
+    t.true( o instanceof Euler && o !== e && o.equals( e ) );
+
+} );
+
 test( 'i#setFromMatrix4 return self and set the rotate info', t => {
 
     const out = e.setFromMatrix4( Matrix4.cache.identity() );

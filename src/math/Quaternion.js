@@ -8,6 +8,18 @@ export class Quaternion extends Vector4 {
 
     }
 
+    static clone( q ) {
+
+        return new Quaternion().copy( q );
+
+    }
+
+    clone() {
+
+        return Quaternion.clone( this );
+
+    }
+
     static setFromEuler( out, e ) {
 
         // XYZ order

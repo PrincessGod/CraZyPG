@@ -5,6 +5,18 @@ import { Matrix4 } from './Matrix4';
 // X Y Z order only
 export class Euler extends Vector3 {
 
+    static clone( e ) {
+
+        return new Euler().copy( e );
+
+    }
+
+    clone() {
+
+        return Euler.clone( this );
+
+    }
+
     static setFromMatrix4( v, m ) {
 
         const te = m.raw;
