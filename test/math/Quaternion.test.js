@@ -51,4 +51,23 @@ test( 'i#clone return instance type of Quaternion', t => {
 
 } );
 
-test.todo( 'i#slerp do not how to test' );
+test( 'i#slerp return self and renturn right value', t => {
+
+    const out = a.slerp( a.set( 0, 1, 0, 0 ), b.set( 0, 0, 0, 1 ), 0.5 );
+    t.true( out === a && a.equals( b.set( 0, 0.707106, 0, 0.707106 ) ) );
+
+} );
+
+test( 'i#slerp return right value when a === b', t => {
+
+    a.slerp( a.set( 0, 0, 0, 1 ), b.set( 0, 0, 0, 1 ), 0.5 );
+    t.true( a.equals( b ) );
+
+} );
+
+test( 'i#slerp return right value when a === -b', t => {
+
+    a.slerp( a.set( 1, 0, 0, 0 ), b.set( - 1, 0, 0, 0 ), 0.5 );
+    t.true( a.equals( b.set( 1, 0, 0, 0 ) ) );
+
+} );

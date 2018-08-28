@@ -61,7 +61,7 @@ export class Quaternion extends Vector4 {
 
         // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
 
-        const raw = m.raw || m;
+        const raw = m.raw;
         const m11 = raw[ 0 ];
         const m12 = raw[ 4 ];
         const m13 = raw[ 8 ];
