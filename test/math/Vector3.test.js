@@ -1,5 +1,5 @@
 import test from 'ava';
-import { Vector3, Spherical, Matrix4, PMath } from '../../';
+import { Vector3, Spherical, Matrix4, Matrix3, PMath } from '../../';
 
 const a = new Vector3();
 const b = new Vector3();
@@ -172,5 +172,26 @@ test( 'i#cross return self and cross', t => {
 
     const out = a.set( 0, 1, 0 ).cross( b.set( 0, 0, 1 ) );
     t.true( out === a && out.equals( b.set( 1, 0, 0 ) ) );
+
+} );
+
+test( 'i#transfromMatrix3 return self and right value', t => {
+
+    const o = a.set( 0, 0, 1 ).transfromMatrix3( new Matrix3() );
+    t.true( o === a && a.equals( b.set( 0, 0, 1 ) ) );
+
+} );
+
+test( 'i#transfromMatrix3 when rotate about Y', t => {
+
+    a.set( 1, 0, 0 ).transfromMatrix3( new Matrix3( 0, 0, - 1, 0, 1, 0, 1, 0, 0 ) );
+    t.true( a.equals( b.set( 0, 0, - 1 ) ) );
+
+} );
+
+test( 'i#transfromMatrix4() return self', t=>{
+
+    const o = a.set( 1, 2, 3 ).transfromMatrix4( new Matrix4() );
+    t.true( o === a && a.equals( b.set( 1, 2, 3 ) ) );
 
 } );

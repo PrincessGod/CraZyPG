@@ -1,5 +1,5 @@
 import test from 'ava';
-import { Matrix3 } from '../../';
+import { Matrix3, Matrix4 } from '../../';
 
 const a = new Matrix3();
 const b = new Matrix3();
@@ -16,6 +16,24 @@ test( 'i#set return self and set values', t => {
     const o = a.set( 0, 1, 2, 3, 4, 5, 6, 7, 8 );
     t.true( o === a );
     a.raw.forEach( ( n, i ) => t.true( n === i ) );
+
+} );
+
+test( 'i#setFromMatrix4 return self and set values', t => {
+
+    const m = new Matrix4(
+        1, 2, 0, 0,
+        0, 1, 3, 0,
+        0, 4, 1, 0,
+        0, 0, 0, 1
+    );
+    const o = a.setFromMatrix4( m );
+    b.set(
+        1, 2, 0,
+        0, 1, 3,
+        0, 4, 1,
+    );
+    t.true( o === a && a.equals( b ) );
 
 } );
 

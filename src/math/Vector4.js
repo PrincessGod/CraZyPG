@@ -143,4 +143,21 @@ export class Vector4 {
 
     }
 
+    static transfromMatrix4( out, v, m ) {
+
+        out.raw[ 0 ] = m.raw[ 0 ] * v.raw[ 0 ] + m.raw[ 4 ] * v.raw[ 1 ] + m.raw[ 8 ] * v.raw[ 2 ] + m.raw[ 12 ] * v.raw[ 3 ];
+        out.raw[ 1 ] = m.raw[ 1 ] * v.raw[ 0 ] + m.raw[ 5 ] * v.raw[ 1 ] + m.raw[ 9 ] * v.raw[ 2 ] + m.raw[ 13 ] * v.raw[ 3 ];
+        out.raw[ 2 ] = m.raw[ 2 ] * v.raw[ 0 ] + m.raw[ 6 ] * v.raw[ 1 ] + m.raw[ 10 ] * v.raw[ 2 ] + m.raw[ 14 ] * v.raw[ 3 ];
+        out.raw[ 3 ] = m.raw[ 3 ] * v.raw[ 0 ] + m.raw[ 7 ] * v.raw[ 1 ] + m.raw[ 11 ] * v.raw[ 2 ] + m.raw[ 15 ] * v.raw[ 3 ];
+
+        return out;
+
+    }
+
+    transfromMatrix4( m ) {
+
+        return Vector4.transfromMatrix4( this, this, m );
+
+    }
+
 }

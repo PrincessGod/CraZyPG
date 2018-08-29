@@ -1,5 +1,5 @@
 import test from 'ava';
-import { Vector4 } from '../../';
+import { Vector4, Matrix4 } from '../../';
 
 const a = new Vector4();
 const b = new Vector4();
@@ -66,5 +66,12 @@ test( 'i@lerp return right values', t => {
     b.set( 1 + 3 * r, 2 + r, 3 - r, 4 - 3 * r );
 
     t.true( a.equals( b ) );
+
+} );
+
+test( 'i#transformMatrix4 return self and set value', t => {
+
+    const o = a.set( 0, 0, 1, 1 ).transfromMatrix4( new Matrix4() );
+    t.true( o === a && a.equals( b.set( 0, 0, 1, 1 ) ) );
 
 } );

@@ -1,6 +1,5 @@
 import { PMath } from './Math';
 import { Vector3 } from './Vector3';
-import { Matrix3 } from './Matrix3';
 import { Quaternion } from './Quaternion';
 
 const zero = new Vector3();
@@ -8,10 +7,10 @@ const one = new Vector3( 1, 1, 1 );
 
 export class Matrix4 {
 
-    constructor( array ) {
+    constructor( ...array ) {
 
         Matrix4.identity( this );
-        if ( array ) this.set( ...array );
+        if ( array.length ) this.set( ...array );
 
     }
 
@@ -53,7 +52,7 @@ export class Matrix4 {
 
     }
 
-    static set( out, values ) {
+    static set( out, ...values ) {
 
         for ( let i = 0; i < 16; i ++ )
             out.raw[ i ] = values[ i ];
@@ -272,7 +271,7 @@ export class Matrix4 {
 
     }
 
-    static perspective( out, fov, aspect, near, far ) {
+    static perspective( out, fov, aspect, near, far = Infinity ) {
 
         const f = 1.0 / Math.tan( fov / 2 );
         const nf = 1 / ( near - far );
@@ -293,7 +292,7 @@ export class Matrix4 {
         out.raw[ 14 ] = 2 * far * near * nf;
         out.raw[ 15 ] = 0;
 
-        if ( far === Number.POSITIVE_INFINITY ) {
+        if ( far === Infinity ) {
 
             out.raw[ 10 ] = - 1;
             out.raw[ 11 ] = - 1;
@@ -342,81 +341,15 @@ export class Matrix4 {
 
     }
 
-    static getNormalMat3( out, m ) {
+    static getNormalMatrix3( out, m ) {
 
-        const a00 = m.raw[ 0 ];
-        const a01 = m.raw[ 1 ];
-        const a02 = m.raw[ 2 ];
-        const a03 = m.raw[ 3 ];
-        const a10 = m.raw[ 4 ];
-        const a11 = m.raw[ 5 ];
-        const a12 = m.raw[ 6 ];
-        const a13 = m.raw[ 7 ];
-        const a20 = m.raw[ 8 ];
-        const a21 = m.raw[ 9 ];
-        const a22 = m.raw[ 10 ];
-        const a23 = m.raw[ 11 ];
-        const a30 = m.raw[ 12 ];
-        const a31 = m.raw[ 13 ];
-        const a32 = m.raw[ 14 ];
-        const a33 = m.raw[ 15 ];
-
-        const b00 = ( a00 * a11 ) - ( a01 * a10 );
-        const b01 = ( a00 * a12 ) - ( a02 * a10 );
-        const b02 = ( a00 * a13 ) - ( a03 * a10 );
-        const b03 = ( a01 * a12 ) - ( a02 * a11 );
-        const b04 = ( a01 * a13 ) - ( a03 * a11 );
-        const b05 = ( a02 * a13 ) - ( a03 * a12 );
-        const b06 = ( a20 * a31 ) - ( a21 * a30 );
-        const b07 = ( a20 * a32 ) - ( a22 * a30 );
-        const b08 = ( a20 * a33 ) - ( a23 * a30 );
-        const b09 = ( a21 * a32 ) - ( a22 * a31 );
-        const b10 = ( a21 * a33 ) - ( a23 * a31 );
-        const b11 = ( a22 * a33 ) - ( a23 * a32 );
-
-        let det = ( ( b00 * b11 ) - ( b01 * b10 ) ) + ( b02 * b09 ) + ( ( b03 * b08 ) - ( b04 * b07 ) ) + ( b05 * b06 );
-
-        if ( ! det ) return null;
-
-        det = 1.0 / det;
-
-        out.raw[ 0 ] = ( a11 * b11 - a12 * b10 + a13 * b09 ) * det;
-        out.raw[ 1 ] = ( a12 * b08 - a10 * b11 - a13 * b07 ) * det;
-        out.raw[ 2 ] = ( a10 * b10 - a11 * b08 + a13 * b06 ) * det;
-
-        out.raw[ 3 ] = ( a02 * b10 - a01 * b11 - a03 * b09 ) * det;
-        out.raw[ 4 ] = ( a00 * b11 - a02 * b08 + a03 * b07 ) * det;
-        out.raw[ 5 ] = ( a01 * b08 - a00 * b10 - a03 * b06 ) * det;
-
-        out.raw[ 6 ] = ( a31 * b05 - a32 * b04 + a33 * b03 ) * det;
-        out.raw[ 7 ] = ( a32 * b02 - a30 * b05 - a33 * b01 ) * det;
-        out.raw[ 8 ] = ( a30 * b04 - a31 * b02 + a33 * b00 ) * det;
-
-        return out;
+        return out.setFromMatrix4( m.invert() );
 
     }
 
-    getNormalMat3( out ) {
+    getNormalMatrix3( out ) {
 
-        if ( ! out ) out = new Matrix3();
-        return Matrix4.getNormalMat3( out, this );
-
-    }
-
-    static transformVec4( out, m, v ) {
-
-        out.raw[ 0 ] = m.raw[ 0 ] * v.raw[ 0 ] + m.raw[ 4 ] * v.raw[ 1 ] + m.raw[ 8 ] * v.raw[ 2 ] + m.raw[ 12 ] * v.raw[ 3 ];
-        out.raw[ 1 ] = m.raw[ 1 ] * v.raw[ 0 ] + m.raw[ 5 ] * v.raw[ 1 ] + m.raw[ 9 ] * v.raw[ 2 ] + m.raw[ 13 ] * v.raw[ 3 ];
-        out.raw[ 2 ] = m.raw[ 2 ] * v.raw[ 0 ] + m.raw[ 6 ] * v.raw[ 1 ] + m.raw[ 10 ] * v.raw[ 2 ] + m.raw[ 14 ] * v.raw[ 3 ];
-        out.raw[ 3 ] = m.raw[ 3 ] * v.raw[ 0 ] + m.raw[ 7 ] * v.raw[ 1 ] + m.raw[ 11 ] * v.raw[ 2 ] + m.raw[ 15 ] * v.raw[ 3 ];
-
-        return out;
-
-    }
-
-    transformVec4( out, v ) {
-
-        return Matrix4.transformVec4( out, this, v );
+        return Matrix4.getNormalMatrix3( out, this );
 
     }
 
@@ -551,22 +484,22 @@ export class Matrix4 {
         const b14 = b.raw[ 14 ];
         const b15 = b.raw[ 15 ];
 
-        return ( Math.abs( a0 - b0 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a0 ), Math.abs( b0 ) ) &&
-              Math.abs( a1 - b1 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a1 ), Math.abs( b1 ) ) &&
-              Math.abs( a2 - b2 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a2 ), Math.abs( b2 ) ) &&
-              Math.abs( a3 - b3 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a3 ), Math.abs( b3 ) ) &&
-              Math.abs( a4 - b4 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a4 ), Math.abs( b4 ) ) &&
-              Math.abs( a5 - b5 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a5 ), Math.abs( b5 ) ) &&
-              Math.abs( a6 - b6 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a6 ), Math.abs( b6 ) ) &&
-              Math.abs( a7 - b7 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a7 ), Math.abs( b7 ) ) &&
-              Math.abs( a8 - b8 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a8 ), Math.abs( b8 ) ) &&
-              Math.abs( a9 - b9 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a9 ), Math.abs( b9 ) ) &&
-              Math.abs( a10 - b10 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a10 ), Math.abs( b10 ) ) &&
-              Math.abs( a11 - b11 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a11 ), Math.abs( b11 ) ) &&
-              Math.abs( a12 - b12 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a12 ), Math.abs( b12 ) ) &&
-              Math.abs( a13 - b13 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a13 ), Math.abs( b13 ) ) &&
-              Math.abs( a14 - b14 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a14 ), Math.abs( b14 ) ) &&
-              Math.abs( a15 - b15 ) <= PMath.EPS * Math.max( 1.0, Math.abs( a15 ), Math.abs( b15 ) ) );
+        return ( PMath.floatEquals( a0, b0 ) &&
+              PMath.floatEquals( a1, b1 ) &&
+              PMath.floatEquals( a2, b2 ) &&
+              PMath.floatEquals( a3, b3 ) &&
+              PMath.floatEquals( a4, b4 ) &&
+              PMath.floatEquals( a5, b5 ) &&
+              PMath.floatEquals( a6, b6 ) &&
+              PMath.floatEquals( a7, b7 ) &&
+              PMath.floatEquals( a8, b8 ) &&
+              PMath.floatEquals( a9, b9 ) &&
+              PMath.floatEquals( a10, b10 ) &&
+              PMath.floatEquals( a11, b11 ) &&
+              PMath.floatEquals( a12, b12 ) &&
+              PMath.floatEquals( a13, b13 ) &&
+              PMath.floatEquals( a14, b14 ) &&
+              PMath.floatEquals( a15, b15 ) );
 
     }
 

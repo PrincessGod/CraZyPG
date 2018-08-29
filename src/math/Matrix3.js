@@ -30,6 +30,28 @@ export class Matrix3 {
 
     }
 
+    static setFromMatrix4( out, m ) {
+
+        out.raw[ 0 ] = m.raw[ 0 ];
+        out.raw[ 1 ] = m.raw[ 1 ];
+        out.raw[ 2 ] = m.raw[ 2 ];
+        out.raw[ 3 ] = m.raw[ 4 ];
+        out.raw[ 4 ] = m.raw[ 5 ];
+        out.raw[ 5 ] = m.raw[ 6 ];
+        out.raw[ 6 ] = m.raw[ 8 ];
+        out.raw[ 7 ] = m.raw[ 9 ];
+        out.raw[ 8 ] = m.raw[ 10 ];
+
+        return out;
+
+    }
+
+    setFromMatrix4( m ) {
+
+        return Matrix3.setFromMatrix4( this, m );
+
+    }
+
     static identity( m ) {
 
         m._raw = new Float32Array( 9 );

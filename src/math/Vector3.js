@@ -300,4 +300,45 @@ export class Vector3 {
 
     }
 
+    static transfromMatrix3( out, v, m ) {
+
+        const x = v.raw[ 0 ];
+        const y = v.raw[ 1 ];
+        const z = v.raw[ 2 ];
+        out.raw[ 0 ] = x * m.raw[ 0 ] + y * m.raw[ 3 ] + z * m.raw[ 6 ];
+        out.raw[ 1 ] = x * m.raw[ 1 ] + y * m.raw[ 4 ] + z * m.raw[ 7 ];
+        out.raw[ 2 ] = x * m.raw[ 2 ] + y * m.raw[ 5 ] + z * m.raw[ 8 ];
+        return out;
+
+    }
+
+    transfromMatrix3( m ) {
+
+        return Vector3.transfromMatrix3( this, this, m );
+
+    }
+
+    static transfromMatrix4( out, v, m ) {
+
+        const x = v.raw[ 0 ];
+        const y = v.raw[ 1 ];
+        const z = v.raw[ 2 ];
+
+        let w = m.raw[ 3 ] * x + m.raw[ 7 ] * y + m.raw[ 11 ] * z + m.raw[ 15 ];
+        w = w || 1.0;
+
+        out.raw[ 0 ] = ( m.raw[ 0 ] * x + m.raw[ 4 ] * y + m.raw[ 8 ] * z + m.raw[ 12 ] ) / w;
+        out.raw[ 1 ] = ( m.raw[ 1 ] * x + m.raw[ 5 ] * y + m.raw[ 9 ] * z + m.raw[ 13 ] ) / w;
+        out.raw[ 2 ] = ( m.raw[ 2 ] * x + m.raw[ 6 ] * y + m.raw[ 10 ] * z + m.raw[ 14 ] ) / w;
+
+        return out;
+
+    }
+
+    transfromMatrix4( m ) {
+
+        return Vector3.transfromMatrix4( this, this, m );
+
+    }
+
 }

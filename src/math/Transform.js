@@ -109,16 +109,16 @@ export class Transform {
 
     updateNormalMatrix() {
 
-        Matrix4.getNormalMat3( this.normMat, this.worldMatrix );
+        Matrix4.getNormalMatrix3( this.normMat, this.worldMatrix );
         return this;
 
     }
 
     updateDirection() {
 
-        Matrix4.transformVec4( this.forward, this.worldMatrix, Transform.forwardDir );
-        Matrix4.transformVec4( this.up, this.worldMatrix, Transform.upDir );
-        Matrix4.transformVec4( this.right, this.worldMatrix, Transform.rightDir );
+        Vector4.transfromMatrix4( this.forward, Transform.forwardDir, this.worldMatrix );
+        Vector4.transfromMatrix4( this.up, Transform.upDir, this.worldMatrix );
+        Vector4.transfromMatrix4( this.right, Transform.rightDir, this.worldMatrix );
         this.forwardNormaled.copy( this.forward ).normalize();
         this.upNormaled.copy( this.up ).normalize();
         this.rightNormaled.copy( this.right ).normalize();
