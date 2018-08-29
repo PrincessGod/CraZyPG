@@ -207,6 +207,61 @@ export class Matrix4 {
 
     }
 
+    static transpose( out, m ) {
+
+        if ( out === m ) {
+
+            const a01 = m.raw[ 1 ];
+            const a02 = m.raw[ 2 ];
+            const a03 = m.raw[ 3 ];
+            const a12 = m.raw[ 6 ];
+            const a13 = m.raw[ 7 ];
+            const a23 = m.raw[ 11 ];
+
+            out.raw[ 1 ] = m.raw[ 4 ];
+            out.raw[ 2 ] = m.raw[ 8 ];
+            out.raw[ 3 ] = m.raw[ 12 ];
+            out.raw[ 4 ] = a01;
+            out.raw[ 6 ] = m.raw[ 9 ];
+            out.raw[ 7 ] = m.raw[ 13 ];
+            out.raw[ 8 ] = a02;
+            out.raw[ 9 ] = a12;
+            out.raw[ 11 ] = m.raw[ 14 ];
+            out.raw[ 12 ] = a03;
+            out.raw[ 13 ] = a13;
+            out.raw[ 14 ] = a23;
+
+        } else {
+
+            out.raw[ 0 ] = m.raw[ 0 ];
+            out.raw[ 1 ] = m.raw[ 4 ];
+            out.raw[ 2 ] = m.raw[ 8 ];
+            out.raw[ 3 ] = m.raw[ 12 ];
+            out.raw[ 4 ] = m.raw[ 1 ];
+            out.raw[ 5 ] = m.raw[ 5 ];
+            out.raw[ 6 ] = m.raw[ 9 ];
+            out.raw[ 7 ] = m.raw[ 13 ];
+            out.raw[ 8 ] = m.raw[ 2 ];
+            out.raw[ 9 ] = m.raw[ 6 ];
+            out.raw[ 10 ] = m.raw[ 10 ];
+            out.raw[ 11 ] = m.raw[ 14 ];
+            out.raw[ 12 ] = m.raw[ 3 ];
+            out.raw[ 13 ] = m.raw[ 7 ];
+            out.raw[ 14 ] = m.raw[ 11 ];
+            out.raw[ 15 ] = m.raw[ 15 ];
+
+        }
+
+        return out;
+
+    }
+
+    transpose() {
+
+        return Matrix4.transpose( this, this );
+
+    }
+
     static mult( out, a, b ) {
 
         const a00 = a.raw[ 0 ];
@@ -338,18 +393,6 @@ export class Matrix4 {
     orthographic( left, right, bottom, top, near, far ) {
 
         return Matrix4.orthographic( this, left, right, bottom, top, near, far );
-
-    }
-
-    static getNormalMatrix3( out, m ) {
-
-        return out.setFromMatrix4( m.invert() );
-
-    }
-
-    getNormalMatrix3( out ) {
-
-        return Matrix4.getNormalMatrix3( out, this );
 
     }
 

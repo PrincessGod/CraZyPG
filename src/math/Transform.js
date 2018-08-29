@@ -109,7 +109,7 @@ export class Transform {
 
     updateNormalMatrix() {
 
-        Matrix4.getNormalMatrix3( this.normMat, this.worldMatrix );
+        this.normMat.setFromMatrix4( Matrix4.cache.copy( this.worldMatrix ).invert().transpose() );
         return this;
 
     }

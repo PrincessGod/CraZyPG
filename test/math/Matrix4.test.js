@@ -74,6 +74,41 @@ test( 'i#invert return self and set value', t => {
 
 } );
 
+test( 'i#transpose return self', t => {
+
+    const o = a.set(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 1, 0, 1
+    ).transpose();
+    t.true( o === a && a.equals( b.set(
+        1, 0, 0, 0,
+        0, 1, 0, 1,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    ) ) );
+
+} );
+
+test( 'i#transpose when out not in', t => {
+
+    a.set(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 1, 0, 1
+    );
+    const o = Matrix4.transpose( b, a );
+    t.true( o === b && b.equals( b.set(
+        1, 0, 0, 0,
+        0, 1, 0, 1,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    ) ) );
+
+} );
+
 test( 'i#mult return self and set value', t => {
 
     a.set(
@@ -161,15 +196,6 @@ test( 'i#orthographic return self and set value', t => {
         0, 0, 0, 1
     );
     t.true( o === a && a.equals( b ) );
-
-} );
-
-test( 'i#getNormalMatrix3 return invert mat3', t => {
-
-    const m = new Matrix3();
-    const o = a.identity().getNormalMatrix3( m );
-    const r = new Matrix3();
-    t.true( m === o && m.equals( r ) );
 
 } );
 
