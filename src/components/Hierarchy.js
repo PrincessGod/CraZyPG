@@ -30,14 +30,21 @@ export class Hierarchy {
 
         const soChild  = so;
         const hChild   = soChild.com.Hierarchy;
-        const soParent = hChild.parent;
-        const hParent  = soParent.com.Hierarchy;
 
-        const idx = hParent.children.indexOf( soChild );
-        if ( idx > - 1 )
-            hParent.children.splice( idx, 1 );
+        if ( hChild.parent !== null ) {
 
-        hChild._parent = null;
+            const soParent = hChild.parent;
+            const hParent  = soParent.com.Hierarchy;
+
+            const idx = hParent.children.indexOf( soChild );
+            if ( idx > - 1 )
+                hParent.children.splice( idx, 1 );
+
+            hChild._parent = null;
+
+        }
+
+        Hierarchy.setLevel( soChild, 0 );
 
         return Hierarchy;
 
@@ -62,16 +69,10 @@ export class Hierarchy {
         const hChild   = child.com.Hierarchy;
 
         Hierarchy.remove( soChild );
-        hParent.children.push( soChild );
-        hChild.setLevel( hParent.level );
+        Hierarchy.setLevel( soChild, hParent.level + 1 );
+        hParent._children.push( soChild );
+        hChild._parent = parent;
 
-        return Hierarchy;
-
-    }
-
-    static addToParent( child, parent ) {
-
-        Hierarchy.addChildren( parent, child );
         return Hierarchy;
 
     }
