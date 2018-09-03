@@ -5,6 +5,15 @@ import { Matrix4 } from './Matrix4';
 // X Y Z order only
 export class Euler extends Vector3 {
 
+    static get cache() {
+
+        if ( ! Euler._cache )
+            Euler._cache = new Euler();
+
+        return Euler._cache;
+
+    }
+
     static clone( e ) {
 
         return new Euler().copy( e );

@@ -11,6 +11,12 @@ test( '#constructor return identity matrix', t => {
 
 } );
 
+test( '@cache return Matrix3', t => {
+
+    t.true( Matrix3.cache instanceof Matrix3 );
+
+} );
+
 test( 'i#set return self and set values', t => {
 
     const o = a.set( 0, 1, 2, 3, 4, 5, 6, 7, 8 );

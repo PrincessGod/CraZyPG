@@ -3,6 +3,12 @@ import { Euler, Matrix4, Quaternion } from '../../';
 
 const e = new Euler();
 
+test( '@cache return Euler', t => {
+
+    t.true( Euler.cache instanceof Euler );
+
+} );
+
 test( 'i#clone return instance type of Euler', t => {
 
     const o = e.clone( e.set( 1, 2, 3 ) );

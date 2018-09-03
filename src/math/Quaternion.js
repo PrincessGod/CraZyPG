@@ -8,6 +8,15 @@ export class Quaternion extends Vector4 {
 
     }
 
+    static get cache() {
+
+        if ( ! Quaternion._cache )
+            Quaternion._cache = new Quaternion();
+
+        return Quaternion._cache;
+
+    }
+
     static clone( q ) {
 
         return new Quaternion().copy( q );

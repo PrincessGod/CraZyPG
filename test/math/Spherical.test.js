@@ -27,6 +27,12 @@ test( 'i@radius&phi&theta getter and setter', t => {
 
 } );
 
+test( '@cache return Spherical', t => {
+
+    t.true( Spherical.cache instanceof Spherical );
+
+} );
+
 test( 'i#setFromVector3 return self and right value', t => {
 
     const v = new Vector3( 0, 0, 1 );

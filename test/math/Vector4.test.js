@@ -29,6 +29,12 @@ test( '1@x&y&z&w getter and setter work', t => {
 
 } );
 
+test( '@cache return a vector4', t => {
+
+    t.true( Vector4.cache instanceof Vector4 );
+
+} );
+
 test( 'i@set return self and set right value', t => {
 
     const out = a.set( 1, 2, 3, 4 );

@@ -83,6 +83,15 @@ export class Vector4 {
 
     }
 
+    static get cache() {
+
+        if ( ! Vector4._cache )
+            Vector4._cache = new Vector4();
+
+        return Vector4._cache;
+
+    }
+
     static clone( v ) {
 
         return new Vector4( v.x, v.y, v.z, v.w );

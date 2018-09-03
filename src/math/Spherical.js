@@ -51,6 +51,15 @@ export class Spherical extends Vector3 {
 
     }
 
+    static get cache() {
+
+        if ( ! Spherical._cache )
+            Spherical._cache = new Spherical();
+
+        return Spherical._cache;
+
+    }
+
     static setFromVector3( s, v ) {
 
         s.radius = v.length();

@@ -10,6 +10,12 @@ test( '#constructor default w is 1', t => {
 
 } );
 
+test( '@cache return Quaternion', t => {
+
+    t.true( Quaternion.cache instanceof Quaternion );
+
+} );
+
 test( 'i#setFromEuler return default quaternion', t => {
 
     a.setFromEuler( new Euler() );

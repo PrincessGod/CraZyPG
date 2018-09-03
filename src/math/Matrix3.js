@@ -15,6 +15,15 @@ export class Matrix3 {
 
     }
 
+    static get cache() {
+
+        if ( ! Matrix3._cache )
+            Matrix3._cache = new Matrix3();
+
+        return Matrix3._cache;
+
+    }
+
     static set( out, ...values ) {
 
         for ( let i = 0; i < 9; i ++ )
