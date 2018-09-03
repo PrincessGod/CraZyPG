@@ -11,9 +11,9 @@ export class Transform {
         this._matrix     = new Matrix4();
         this._normMat    = new Matrix3();
 
-        this._forward = new Vector4();
-        this._up      = new Vector4();
-        this._right   = new Vector4();
+        this._forward = new Vector3( 0, 0, 1 );
+        this._up      = new Vector3( 0, 1, 0 );
+        this._right   = new Vector3( 1, 0, 0 );
 
         this.needUpdateMatrix = false;
 
@@ -77,15 +77,9 @@ export class Transform {
 
         const transform = so.com.Transform;
 
-        if ( args.length === 1 ) {
-
-            if ( args[ 0 ] instanceof Vector3 )
-                transform._position.copy( args[ 0 ] );
-
-            if ( args[ 0 ].length && typeof args[ 0 ][ 0 ] === 'number' )
-                return Transform.setPosition( so, ...args[ 0 ] );
-
-        } else if ( args.length >= 3 )
+        if ( args[ 0 ] instanceof Vector3 )
+            transform._position.copy( args[ 0 ] );
+        else if ( args.length === 3 )
             transform._position.set( ...args );
         else
             return console.error( `unknown position value: ${args}` );
@@ -100,15 +94,9 @@ export class Transform {
 
         const transform = so.com.Transform;
 
-        if ( args.length === 1 ) {
-
-            if ( args[ 0 ] instanceof Vector3 )
-                transform._rotation.copy( args[ 0 ] );
-
-            if ( args[ 0 ].length && typeof args[ 0 ][ 0 ] === 'number' )
-                return Transform.setRotation( so, ...args[ 0 ] );
-
-        } else if ( args.length >= 3 )
+        if ( args[ 0 ] instanceof Vector3 )
+            transform._rotation.copy( args[ 0 ] );
+        else if ( args.length === 3 )
             transform._rotation.set( ...args );
         else
             return console.error( `unknown rotation value: ${args}` );
@@ -124,15 +112,9 @@ export class Transform {
 
         const transform = so.com.Transform;
 
-        if ( args.length === 1 ) {
-
-            if ( args[ 0 ] instanceof Quaternion )
-                transform._quaternion.copy( args[ 0 ] );
-
-            if ( args[ 0 ].length && typeof args[ 0 ][ 0 ] === 'number' )
-                return Transform.setQuaternion( so, ...args[ 0 ] );
-
-        } else if ( args.length >= 4 )
+        if ( args[ 0 ] instanceof Quaternion )
+            transform._quaternion.copy( args[ 0 ] );
+        else if ( args.length === 4 )
             transform._quaternion.set( ...args );
         else
             return console.error( `unknown quaternion value: ${args}` );
@@ -148,15 +130,9 @@ export class Transform {
 
         const transform = so.com.Transform;
 
-        if ( args.length === 1 ) {
-
-            if ( args[ 0 ] instanceof Vector3 )
-                transform._scale.copy( args[ 0 ] );
-
-            if ( args[ 0 ].length && typeof args[ 0 ][ 0 ] === 'number' )
-                return Transform.setScale( so, ...args[ 0 ] );
-
-        } else if ( args.length >= 3 )
+        if ( args[ 0 ] instanceof Vector3 )
+            transform._scale.copy( args[ 0 ] );
+        else if ( args.length === 3 )
             transform._scale.set( ...args );
         else
             return console.error( `unknown scale value: ${args}` );
