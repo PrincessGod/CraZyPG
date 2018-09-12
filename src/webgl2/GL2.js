@@ -56,3 +56,29 @@ export const UNPACK_COLORSPACE_CONVERSION_WEBGL = 37443;
 // pixel unpack
 export const NONE                  = 0;
 export const BROWSER_DEFAULT_WEBGL = 37444;
+
+// blend equation
+export const FUNC_ADD              = 32774;
+export const MIN                   = 32775;
+export const MAX                   = 32776;
+export const FUNC_SUBTRACT         = 32778;
+export const FUNC_REVERSE_SUBTRACT = 32779;
+
+// cull face
+export const FRONT          = 1028;
+export const BACK           = 1029;
+export const FRONT_AND_BACK = 1032;
+
+// compare
+export const NEVER    = 512;
+export const LESS     = 513;
+export const EQUAL    = 514;
+export const LEQUAL   = 515;
+export const GREATER  = 516;
+export const NOTEQUAL = 517;
+export const GEQUAL   = 518;
+export const ALWAYS   = 519;
+
+// face order
+export const CW  = 2304;
+export const CCW = 2305;
