@@ -4,6 +4,8 @@ export class GL2Program {
 
         this.vertexShader = vertexShader;
         this.fragmentShader = fragmentShader;
+        this.uniformSetter = null;
+        this.attributeSetter = null;
 
     }
 
